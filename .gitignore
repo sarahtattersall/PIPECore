@@ -6,3 +6,6 @@ release.properties
 
 .idea/
 *.iml
+
+gen/
+src/main/antlr4/uk/ac/imperial/pipe/parsers/gen/
