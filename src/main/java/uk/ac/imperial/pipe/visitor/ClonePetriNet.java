@@ -20,7 +20,6 @@ public class ClonePetriNet {
     private final Map<String, RateParameter> rateParameters = new HashMap<>();
     private final Map<String, Place> places = new HashMap<>();
     private final Map<String, Transition> transitions = new HashMap<>();
-    private final Map<String, Token> newTokens = new HashMap<>();
 
     private ClonePetriNet (PetriNet petriNet) {
         this.petriNet = petriNet;
@@ -125,7 +124,6 @@ public class ClonePetriNet {
 
     public void visit(Token token) {
         Token newToken = new Token(token);
-        newTokens.put(token.getId(), newToken);
         newPetriNet.addToken(newToken);
     }
 
