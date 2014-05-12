@@ -175,6 +175,7 @@ public class Annotation extends PlaceablePetriNetComponent {
         String old = this.text;
         this.text = text;
         changeSupport.firePropertyChange(TEXT_CHANGE_MESSAGE, old, text);
+        changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, text);
     }
 
     @Override
@@ -197,17 +198,16 @@ public class Annotation extends PlaceablePetriNetComponent {
     //TODO: WORK OUT WHAT THESE SHOULD DO
     @Override
     public String getId() {
-        return "";  //To change body of implemented methods use File | Settings | File Templates.
+        return getText();
     }
 
     @Override
     public void setId(String id) {
-        //To change body of implemented methods use File | Settings | File Templates.
+
     }
 
     @Override
     public void setName(String name) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
     /**

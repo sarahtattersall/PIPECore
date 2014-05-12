@@ -170,6 +170,42 @@ public class PetriNetTest {
     }
 
     @Test
+    public void containsAnnotation() {
+        net.addPropertyChangeListener(mockListener);
+        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        net.addAnnotation(annotation);
+        assertTrue(net.containsComponent(annotation.getId()));
+    }
+
+
+    @Test
+    public void containsAnnotationAfterTextChange() {
+        net.addPropertyChangeListener(mockListener);
+        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        net.addAnnotation(annotation);
+        annotation.setText("foo");
+        assertTrue(net.containsComponent(annotation.getId()));
+    }
+
+
+    @Test
+    public void removingAnnotationNotifiesObservers() {
+        Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
+        net.addAnnotation(annotation);
+        net.addPropertyChangeListener(mockListener);
+        net.removeAnnotaiton(annotation);
+        verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+
+    @Test
+    public void removingAnnotation() {
+        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        net.addAnnotation(annotation);
+        net.removeAnnotaiton(annotation);
+        assertFalse(net.containsComponent(annotation.getId()));
+    }
+
+    @Test
     public void addingDuplicateAnnotationDoesNotNotifyObservers() {
         Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
         net.addAnnotation(annotation);

@@ -116,6 +116,8 @@ public class PetriNet {
 
     private final Map<String, RateParameter> rateParameters = new HashMap<>();
 
+    private final Map<String, Annotation> annotations = new HashMap<>();
+
     /**
      * A tokens that will contain the maps specified above.
      * It's ID is the class type to tokens
@@ -130,7 +132,6 @@ public class PetriNet {
 
     public String pnmlName = "";
 
-    Collection<Annotation> annotations = new HashSet<>();
 
     private PetriNetName petriNetName;
 
@@ -154,6 +155,7 @@ public class PetriNet {
         componentMaps.put(OutboundArc.class, outboundArcs);
         componentMaps.put(Token.class, tokens);
         componentMaps.put(RateParameter.class, rateParameters);
+        componentMaps.put(Annotation.class, annotations);
     }
 
     @Override
@@ -181,7 +183,7 @@ public class PetriNet {
         PetriNet petriNet = (PetriNet) o;
 
 
-        if (!CollectionUtils.isEqualCollection(annotations, petriNet.annotations)) {
+        if (!CollectionUtils.isEqualCollection(annotations.values(), petriNet.annotations.values())) {
             return false;
         }
         if (!CollectionUtils.isEqualCollection(inboundArcs.values(), petriNet.inboundArcs.values())) {
@@ -482,8 +484,9 @@ public class PetriNet {
      * @param annotation
      */
     public void addAnnotation(Annotation annotation) {
-        if (!annotations.contains(annotation)) {
-            annotations.add(annotation);
+        if (!annotations.containsKey(annotation.getId())) {
+            annotations.put(annotation.getId(), annotation);
+            annotation.addPropertyChangeListener(new NameChangeListener<>(annotation, annotations));
             changeSupport.firePropertyChange(NEW_ANNOTATION_CHANGE_MESSAGE, null, annotation);
         }
     }
@@ -502,7 +505,7 @@ public class PetriNet {
      * @return annotations stored in the Petri net
      */
     public Collection<Annotation> getAnnotations() {
-        return annotations;
+        return annotations.values();
     }
 
     /**
