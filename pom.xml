@@ -3,14 +3,13 @@
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <artifactId>PIPE</artifactId>
-        <groupId>uk.ac.imperial</groupId>
-        <version>5.0.0-beta-2</version>
-    </parent>
-
+    <groupId>uk.ac.imperial</groupId>
     <artifactId>pipe-core</artifactId>
+    <version>1.0-SNAPSHOT</version>
 
+    <properties>
+        <github.global.server>github</github.global.server>
+    </properties>
 
     <repositories>
         <repository>
@@ -57,28 +56,17 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>r09</version>
+            <version>17.0</version>
         </dependency>
 
 
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>2.5.0</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.8.4</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>net.sourceforge.jeval</groupId>
             <artifactId>jeval</artifactId>
@@ -112,12 +100,17 @@
         </dependency>
 
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
             <version>2.5.0</version>
         </dependency>
-
-
     </dependencies>
 
 
@@ -195,7 +188,27 @@
                     </execution>
                 </executions>
             </plugin>
+
+
+
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
+
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 
 </project>
