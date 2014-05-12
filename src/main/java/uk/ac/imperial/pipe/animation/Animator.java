@@ -44,7 +44,7 @@ public interface Animator {
      * Adds tokens to the places out of the transition according to the arc weight
      * <p/>
      * Handles functional weights e.g. removing all of a places tokens and adding them
-     * to the receiving place by calculating all incidence matricies before setting any token counts
+     * to the receiving place by calculating all incidence matrices before setting any token counts
      * <p/>
      * Recalculates enabled transitions
      *

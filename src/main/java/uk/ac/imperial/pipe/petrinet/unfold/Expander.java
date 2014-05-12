@@ -63,7 +63,7 @@ public class Expander {
      *
      * @return First tries to find default token
      * Failing this tries to find black toke
-     * Otherwise just returns first token it comes acorss
+     * Otherwise just returns first token it comes across
      */
     private Token getToken() {
         if (petriNet.containsDefaultToken()) {
@@ -202,7 +202,7 @@ public class Expander {
         for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
             String token = entry.getKey();
             String weight = entry.getValue();
-            //TODO: THIS IS ASUMING IT ISNT FUNCTIONAL :/
+            //TODO: THIS IS ASSUMING IT ISN'T FUNCTIONAL :/
             arcWeight = Integer.valueOf(weight);
             if (arcWeight > 0) {
                 newNameBuilder.append("_").append(token);

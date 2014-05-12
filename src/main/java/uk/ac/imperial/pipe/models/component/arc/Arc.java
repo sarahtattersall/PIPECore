@@ -323,7 +323,7 @@ public abstract class Arc<S extends Connectable, T extends Connectable> extends 
      * @param state
      * @return true if given the current state the arc can fire
      */
-    //TODO: Dont pass in Petri net, get around this with better design
+    //TODO: Don't pass in Petri net, get around this with better design
     public abstract boolean canFire(PetriNet petriNet, State state);
 
     /**

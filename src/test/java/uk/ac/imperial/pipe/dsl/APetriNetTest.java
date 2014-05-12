@@ -97,8 +97,8 @@ public class APetriNetTest {
         InboundArc normalArc = new InboundNormalArc(p0, t0, arcWeights);
         expected.addArc(normalArc);
 
-        InboundArc inihibArc = new InboundInhibitorArc(p1, t0);
-        expected.addArc(inihibArc);
+        InboundArc inhibitorArc = new InboundInhibitorArc(p1, t0);
+        expected.addArc(inhibitorArc);
 
         assertEquals(expected, petriNet);
     }

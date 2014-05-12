@@ -66,7 +66,7 @@ public class EvalVisitorTest {
     }
 
     @Test
-    public void parsesBasicDoubleSubraction() {
+    public void parsesBasicDoubleSubtraction() {
         ParseTree tree = parseTreeForExpr("2.5 - 0.2");
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(EMPTY_PETRI_NET);
         Double result = evalVisitor.visit(tree);

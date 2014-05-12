@@ -83,7 +83,7 @@ public class ATransition implements DSLCreator<Transition> {
     }
 
     /**
-     * Added for redability e.g.
+     * Added for readability e.g.
      * andASingle().server()
      */
     public ATransition server() {

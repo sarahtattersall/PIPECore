@@ -12,7 +12,7 @@ public class TokenSetIntegerAdapter
     private final Map<String, Token> tokens;
 
     /**
-     * Empty contructor needed for marshelling. Since the method to marshell does not actually
+     * Empty constructor needed formarshallingg. Since the method tomarshalll does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public TokenSetIntegerAdapter() {
@@ -28,15 +28,15 @@ public class TokenSetIntegerAdapter
     public Map<Token, Integer> unmarshal(AdaptedIntegerTokenSet adaptedTokenSet)  {
         Map<Token, Integer> tokenWeights = new HashMap<>();
         String weightInput = adaptedTokenSet.value;
-        String[] commaSeperatedMarkings = weightInput.split(",");
-        if (commaSeperatedMarkings.length == 1) {
+        String[] commaSeparatedMarkings = weightInput.split(",");
+        if (commaSeparatedMarkings.length == 1) {
             Token token = getDefaultToken();
-            Integer weight = Integer.valueOf(commaSeperatedMarkings[0]);
+            Integer weight = Integer.valueOf(commaSeparatedMarkings[0]);
             tokenWeights.put(token, weight);
         } else {
-            for (int i = 0; i < commaSeperatedMarkings.length; i += 2) {
-                Integer weight = Integer.valueOf(commaSeperatedMarkings[i + 1].replace("@", ","));
-                String tokenName = commaSeperatedMarkings[i];
+            for (int i = 0; i < commaSeparatedMarkings.length; i += 2) {
+                Integer weight = Integer.valueOf(commaSeparatedMarkings[i + 1].replace("@", ","));
+                String tokenName = commaSeparatedMarkings[i];
                 Token token = getTokenIfExists(tokenName);
                 tokenWeights.put(token, weight);
             }

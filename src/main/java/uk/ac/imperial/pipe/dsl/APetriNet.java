@@ -24,7 +24,7 @@ import java.util.Map;
  *          .and(AToken.withId("T0"))
  *          .andFinally(ANormalArc.withSource("P0").andTarget("T0"))
  *
- * Alternativelty to only add one item to the Petri net:
+ * Alternatively to only add one item to the Petri net:
  * APetriNet.withOnly(AToken.withName("Default").andColor(Color.BLACK));
  */
 public class APetriNet {
@@ -62,7 +62,7 @@ public class APetriNet {
      *
      * @param finalCreator last item creator to add to Petri net
      * @param <T> type of PetriNetComponent
-     * @return the created PetriNetcontaining all the items made from the added creators
+     * @return the created Petri net containing all the items made from the added creators
      */
     public  <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator) {
         return and(finalCreator).makePetriNet();

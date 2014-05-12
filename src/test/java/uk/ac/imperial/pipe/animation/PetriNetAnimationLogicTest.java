@@ -92,7 +92,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     /**
-     * Create simple petrinet with P1 -> T1 -> P2
+     * Create simple Petri net with P1 -> T1 -> P2
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
      *
      * @param tokenWeight
@@ -160,7 +160,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     /**
-     * Create simple petrinet with P1 -> T1 and P2 -> T1
+     * Create simple Petri net with P1 -> T1 and P2 -> T1
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
      *
      * @param tokenWeight
@@ -276,7 +276,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     /**
-     * Create simple petrinet with P1 -o T1 -> P2
+     * Create simple Petri net with P1 -o T1 -> P2
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
      *
      * @param tokenWeight

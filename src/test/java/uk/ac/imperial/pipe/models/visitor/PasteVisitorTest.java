@@ -176,7 +176,7 @@ public class PasteVisitorTest {
     }
 
     /**
-     * Ensures arcpoints are the equal but not the same object
+     * Ensures arc points are equal but not the same object
      * @param arc
      * @return
      */

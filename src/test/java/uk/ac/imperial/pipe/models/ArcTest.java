@@ -105,7 +105,7 @@ public class ArcTest {
     }
 
     @Test
-    public void returnsZeroWeightForNonExistantToken() {
+    public void returnsZeroWeightForNonExistentToken() {
         when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
         when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());

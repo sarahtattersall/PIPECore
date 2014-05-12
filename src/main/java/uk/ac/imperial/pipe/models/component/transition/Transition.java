@@ -41,7 +41,7 @@ public class Transition extends Connectable {
     public static final String ENABLED_CHANGE_MESSAGE = "enabled";
 
     /**
-     * Mesasge fired when the transition is enabled
+     * Message fired when the transition is enabled
      */
     public static final String DISABLED_CHANGE_MESSAGE = "disabled";
 

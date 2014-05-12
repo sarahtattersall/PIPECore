@@ -29,12 +29,6 @@ public class ConnectableTest {
         mockArc = mock(Arc.class);
     }
 
-    //    TODO: This cant be easily tested. Dont like this method anyway so it will get deleted
-    @Test
-    public void addInBoundOrOutboundCorrectlyChoses() {
-
-    }
-
     @Test
     public void notifiesObserversOnXChange() {
         PropertyChangeListener mockListener = mock(PropertyChangeListener.class);

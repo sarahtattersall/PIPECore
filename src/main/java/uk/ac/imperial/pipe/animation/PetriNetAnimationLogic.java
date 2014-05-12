@@ -61,7 +61,7 @@ public class PetriNetAnimationLogic implements AnimationLogic {
      * calculating the decremented token counts and then calculating the incremented
      * token counts.
      * <p/>
-     * We cannot set the token counts in the decrement phase incase an incrememnt
+     * We cannot set the token counts in the decrement phase in case an increment
      * depends on this value.
      * <p/>
      * E.g. if P0 -> T0 -> P1 and T0 -> P1 has a weight of #(P0) then we expect

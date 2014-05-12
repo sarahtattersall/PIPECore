@@ -25,12 +25,12 @@ public class ArcPoint extends PlaceablePetriNetComponent {
     private int y;
 
     /**
-     * If curved is true it implies this point is a bezier curve
+     * If curved is true it implies this point is a Bezier curve
      */
     private boolean curved;
 
     /**
-     * Denotes if the arcpoint is draggable in GUI mode
+     * Denotes if the arc point is draggable in GUI mode
      */
     private final boolean draggable;
 

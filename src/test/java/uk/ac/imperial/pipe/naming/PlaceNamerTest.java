@@ -83,11 +83,11 @@ public class PlaceNamerTest {
 
     /**
      * Since the PlaceNamer works via listening for change events
-     * we need to make sure if Places exist in the petrinet on construction
+     * we need to make sure if Places exist in the Petri net on construction
      * it still is aware of their names.
      */
     @Test
-    public void returnCorrectValueAfterConsturctor() {
+    public void returnCorrectValueAfterConstructor() {
         Place place = new Place("P0", "P0");
         petriNet.addPlace(place);
         petriNet.addPlace(place);

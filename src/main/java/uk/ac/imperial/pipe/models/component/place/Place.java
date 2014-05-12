@@ -174,22 +174,10 @@ public class Place extends Connectable {
         return 0;
     }
 
-//    /**
-//     * A less efficient way to get the count for a token. Use in cases where token is not avaiable
-//     *
-//     * @param tokenName
-//     * @return token count for the colour token
-//     */
-//    //TODO: Make this O(n). Maybe change the hashmap to store name rather than token?
-//    public int getTokenCount(String tokenName) {
-//        for (Map.Entry<Token, Integer> entry : tokenCounts.entrySet()) {
-//            if (entry.getKey().getId().equals(tokenName)) {
-//                return entry.getValue();
-//            }
-//        }
-//        return 0;
-//    }
-
+    /**
+     * Decrements the count of the token by one in this place
+     * @param token
+     */
     public void decrementTokenCount(String token) {
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         Integer count;

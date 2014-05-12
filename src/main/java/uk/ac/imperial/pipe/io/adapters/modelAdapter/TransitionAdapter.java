@@ -17,7 +17,7 @@ public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition>
     private final Map<String, RateParameter> rateParameters;
 
     /**
-     * Empty contructor needed for marshelling. Since the method to marshell does not actually
+     * Empty constructor needed for marshalling. Since the method to marshall does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public TransitionAdapter() {

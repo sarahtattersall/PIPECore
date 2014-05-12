@@ -101,7 +101,7 @@ public class PetriNet {
      */
     private final FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(this);
 
-    //TODO: CYCLIC DEPENDENCY BETWEEN CREATING THIS AND PETRINET/
+    //TODO: CYCLIC DEPENDENCY BETWEEN CREATING THIS AND PETRI NET/
     private final PetriNetComponentVisitor deleteVisitor = new PetriNetComponentRemovalVisitor(this);
 
     private final Map<String, Transition> transitions = new HashMap<>();
@@ -122,7 +122,7 @@ public class PetriNet {
      * A tokens that will contain the maps specified above.
      * It's ID is the class type to tokens
      * Sadly need to cast to get the exact tokens back out of it. If you know of a better way to
-     * do this then please change it. It is used to easily get a Petrinet component of type T
+     * do this then please change it. It is used to easily get a Petri net component of type T
      * by id.
      */
     private final Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps =
@@ -143,7 +143,7 @@ public class PetriNet {
         this.petriNetName = name;
     }
 
-    //TODO: INITIALSE NAME?
+    //TODO: INITIALISE NAME?
     public PetriNet() {
         initialiseIdMap();
     }
@@ -634,7 +634,7 @@ public class PetriNet {
         return (Map<String, T>) componentMaps.get(clazz);
     }
 
-    //TODO: REplace with getComponent
+    //TODO: Replace with getComponent
     public RateParameter getRateParameter(String rateParameterId) throws PetriNetComponentNotFoundException {
         for (RateParameter rateParameter : rateParameters.values()) {
             if (rateParameter.getId().equals(rateParameterId)) {
@@ -669,7 +669,7 @@ public class PetriNet {
 
     /**
      * A Transition is enabled if all its input places are marked with at least one token
-     * This method calculates the minimium number of tokens needed in order for a transition to be enabeld
+     * This method calculates the minimum number of tokens needed in order for a transition to be enabled
      * <p/>
      * The enabling degree is the number of times that a transition is enabled
      *

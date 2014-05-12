@@ -21,7 +21,7 @@ public abstract class PlaceablePetriNetComponent extends AbstractPetriNetCompone
     public static final String WIDTH_CHANGE_MESSAGE = "width";
 
     /**
-     * Message fired whtn the height attribute is changed
+     * Message fired when the height attribute is changed
      */
     public static final String HEIGHT_CHANGE_MESSAGE = "height";
 

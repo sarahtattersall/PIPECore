@@ -5,7 +5,7 @@ import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
 import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
 
 /**
- * A tinytype interface to determine if the connectable is allowed to be an arc source
+ * A tiny type interface to determine if the connectable is allowed to be an arc source
  */
 public interface ArcSourceVisitor extends PlaceVisitor, TransitionVisitor {
     /**

@@ -26,7 +26,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     private final Map<String, Token> tokens;
 
     /**
-     * Empty contructor needed for marshelling. Since the method to marshell does not actually
+     * Empty constructor needed for marshalling. Since the method to marshall does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public ArcAdapter() {
@@ -78,15 +78,15 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
             return tokenWeights;
         }
 
-        String[] commaSeperatedMarkings = weights.split(",");
-        if (commaSeperatedMarkings.length == 1) {
+        String[] commaSeparatedMarkings = weights.split(",");
+        if (commaSeparatedMarkings.length == 1) {
             Token token = getDefaultToken();
-            String weight = commaSeperatedMarkings[0];
+            String weight = commaSeparatedMarkings[0];
             tokenWeights.put(token.getId(), weight);
         } else {
-            for (int i = 0; i < commaSeperatedMarkings.length; i += 2) {
-                String weight = commaSeperatedMarkings[i + 1].replace("@", ",");
-                String tokenName = commaSeperatedMarkings[i];
+            for (int i = 0; i < commaSeparatedMarkings.length; i += 2) {
+                String weight = commaSeparatedMarkings[i + 1].replace("@", ",");
+                String tokenName = commaSeparatedMarkings[i];
                 Token token = getTokenIfExists(tokenName);
                 tokenWeights.put(token.getId(), weight);
             }
@@ -154,7 +154,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      * Sets the arc points in adapted based on the arc.
-     * Needs to save the source and end locations to be PNML complient in this
+     * Needs to save the source and end locations to be PNML compliant in this
      *
      * @param arc
      * @param adapted

@@ -92,7 +92,7 @@ public class TransitionNamerTest {
      * it still is aware of their names.
      */
     @Test
-    public void returnCorrectValueAfterConsturctor() {
+    public void returnCorrectValueAfterConstructor() {
         Transition transition = new Transition("T0", "T0");
         petriNet.addTransition(transition);
         petriNet.addTransition(transition);

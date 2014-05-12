@@ -111,9 +111,9 @@ public class PlaceTest {
         place.setX(source.x);
         place.setY(source.y);
 
-        double FOURTY_FIVE_RADIANS = Math.toRadians(45);
-        Point2D.Double expected = new Point2D.Double(Math.sin(FOURTY_FIVE_RADIANS) * place.getWidth() / 2 + 15,
-                Math.cos(FOURTY_FIVE_RADIANS) * place.getWidth() / 2 + 15);
+        double FORTY_FIVE_RADIANS = Math.toRadians(45);
+        Point2D.Double expected = new Point2D.Double(Math.sin(FORTY_FIVE_RADIANS) * place.getWidth() / 2 + 15,
+                Math.cos(FORTY_FIVE_RADIANS) * place.getWidth() / 2 + 15);
 
         Point2D.Double point = place.getArcEdgePoint(angle);
         assertEquals(expected, point);

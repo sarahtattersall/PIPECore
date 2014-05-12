@@ -50,7 +50,7 @@ public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? exten
     }
 
     /**
-     * Added for readbility, same as with method
+     * Added for readability, same as with method
      * @param tokenWeight
      * @param tokenName
      * @return

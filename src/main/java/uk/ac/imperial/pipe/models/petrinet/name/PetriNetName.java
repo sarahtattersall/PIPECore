@@ -6,7 +6,7 @@ package uk.ac.imperial.pipe.models.petrinet.name;
  * It is an object rather than a String because this allows for easy
  * update if the name should change because
  * a) either the file is renamed
- * b) an unamed Petri net is changed during save
+ * b) an unnamed Petri net is changed during save
  */
 public interface PetriNetName {
     /**

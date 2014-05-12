@@ -51,7 +51,7 @@ public class PetriNetManagerImplTest {
     }
 
     @Test
-    public void throwsRuntimeExpcetionIfNoPetriNets() {
+    public void throwsRuntimeExceptionIfNoPetriNets() {
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("No Petri nets stored in the manager");
         manager.getLastNet();

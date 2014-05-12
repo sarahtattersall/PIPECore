@@ -24,7 +24,7 @@ public class IncidenceMatrix {
     }
 
     /**
-     * Behaives like a dense matrix, so if place, transition are not in matrixValues zero is returned
+     * Behaves like a dense matrix, so if place, transition are not in matrixValues zero is returned
      *
      * @param place
      * @param transition

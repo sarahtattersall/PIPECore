@@ -19,7 +19,7 @@ public class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     private final Map<String, Token> tokens;
 
     /**
-     * Empty contructor needed for marshelling. Since the method to marshell does not actually
+     * Empty constructor needed formarshallingg. Since the method to marshall does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public PlaceAdapter() {
@@ -75,14 +75,14 @@ public class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
             return tokenWeights;
         }
 
-        String[] commaSeperatedMarkings = value.split(",");
-        if (commaSeperatedMarkings.length == 1) {
-            Integer weight = Integer.valueOf(commaSeperatedMarkings[0]);
+        String[] commaSeparatedMarkings = value.split(",");
+        if (commaSeparatedMarkings.length == 1) {
+            Integer weight = Integer.valueOf(commaSeparatedMarkings[0]);
             tokenWeights.put("Default", weight);
         } else {
-            for (int i = 0; i < commaSeperatedMarkings.length; i += 2) {
-                Integer weight = Integer.valueOf(commaSeperatedMarkings[i + 1].replace("@", ","));
-                String tokenName = commaSeperatedMarkings[i];
+            for (int i = 0; i < commaSeparatedMarkings.length; i += 2) {
+                Integer weight = Integer.valueOf(commaSeparatedMarkings[i + 1].replace("@", ","));
+                String tokenName = commaSeparatedMarkings[i];
                 tokenWeights.put(tokenName, weight);
             }
         }

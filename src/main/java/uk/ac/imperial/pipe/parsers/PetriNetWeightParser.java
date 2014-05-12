@@ -14,7 +14,7 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
 
     /**
-     * Petri net to parse results aginst
+     * Petri net to parse results against
      */
     private final PetriNet petriNet;
 

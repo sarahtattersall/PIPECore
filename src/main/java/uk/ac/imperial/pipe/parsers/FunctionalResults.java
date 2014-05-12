@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class FunctionalResults<T extends Number> {
     /**
-     * Errors that occured whilst evaluating the expression
+     * Errors that occurred whilst evaluating the expression
      */
     private List<String> errors;
 

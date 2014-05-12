@@ -72,7 +72,7 @@ public class APlace implements DSLCreator<Place> {
      * contains(1, "Red").token().and(2, "Blue").tokens();
      * @param count token count
      * @param tokenName token name
-     * @return instance of APlace for chainging
+     * @return instance of APlace for chaining
      */
     public APlace and(int count, String tokenName) {
         tokenCounts.put(tokenName, count);
