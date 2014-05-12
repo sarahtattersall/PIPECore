@@ -1,5 +1,5 @@
 <root>
-    <item name='pipe.utilities.math.ComplexNumber java.lang.Object clone()'>
+    <item name='uk.ac.imperial.pipe.utilities.math.ComplexNumber java.lang.Object clone()'>
         <annotation name='java.lang.SuppressWarnings'>
             <val val="{&quot;CloneDoesntCallSuperClone&quot;}"/>
         </annotation>

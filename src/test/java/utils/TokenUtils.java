@@ -1,6 +1,6 @@
 package utils;
 
-import pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.token.Token;
 
 import java.awt.Color;
 
