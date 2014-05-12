@@ -30,7 +30,7 @@ public class PasteVisitor implements TransitionVisitor, ArcVisitor, PlaceVisitor
 
     private final Map<String, Transition> createdTransitions = new HashMap<>();
 
-    private final Collection<PetriNetComponent> createdComponents = new LinkedList<PetriNetComponent>();
+    private final Collection<PetriNetComponent> createdComponents = new LinkedList<>();
 
     private final int xOffset;
 

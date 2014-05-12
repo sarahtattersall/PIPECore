@@ -41,7 +41,7 @@ public class TranslationVisitorTest {
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
 
-        List<ArcPoint> points = new LinkedList<ArcPoint>();
+        List<ArcPoint> points = new LinkedList<>();
         ArcPoint arcPoint = mock(ArcPoint.class);
         Point2D point = new Point2D.Double(10, 5);
         when(arcPoint.getPoint()).thenReturn(point);
@@ -66,7 +66,7 @@ public class TranslationVisitorTest {
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
 
-        List<ArcPoint> points = new LinkedList<ArcPoint>();
+        List<ArcPoint> points = new LinkedList<>();
         ArcPoint arcPoint = mock(ArcPoint.class);
         Point2D point = new Point2D.Double(10, 5);
         when(arcPoint.getPoint()).thenReturn(point);
@@ -90,7 +90,7 @@ public class TranslationVisitorTest {
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
 
-        List<ArcPoint> points = new LinkedList<ArcPoint>();
+        List<ArcPoint> points = new LinkedList<>();
         ArcPoint arcPoint = mock(ArcPoint.class);
         Point2D point = new Point2D.Double(10, 5);
         when(arcPoint.getPoint()).thenReturn(point);

@@ -205,7 +205,7 @@ public class PasteVisitorTest {
 
     private Matcher<InboundArc> hasCopiedIdAndNameAndSourceCopied(
             Arc<? extends Connectable, ? extends Connectable> arc) {
-        return new CopiedArc<InboundArc>(arc, PLACE_NAME, arc.getTarget().getName());
+        return new CopiedArc<>(arc, PLACE_NAME, arc.getTarget().getName());
     }
 
     @Test

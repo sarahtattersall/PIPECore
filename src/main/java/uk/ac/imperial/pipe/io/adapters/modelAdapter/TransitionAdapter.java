@@ -21,8 +21,8 @@ public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition>
      * use these fields it's ok to initialise them as empty/null.
      */
     public TransitionAdapter() {
-        transitions = new HashMap<String, Transition>();
-        rateParameters = new HashMap<String, RateParameter>();
+        transitions = new HashMap<>();
+        rateParameters = new HashMap<>();
     }
 
     public TransitionAdapter(Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {

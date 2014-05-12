@@ -25,7 +25,7 @@ public class AdaptedArc {
 
     @XmlElement(name = "arcpath")
     @XmlJavaTypeAdapter(ArcPointAdapter.class)
-    private List<ArcPoint> arcPoints = new ArrayList<ArcPoint>();
+    private List<ArcPoint> arcPoints = new ArrayList<>();
 
     @XmlElement
     @XmlJavaTypeAdapter(StringAttributeValueAdaptor.class)

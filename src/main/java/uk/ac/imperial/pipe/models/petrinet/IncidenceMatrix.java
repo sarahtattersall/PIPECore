@@ -14,7 +14,7 @@ public class IncidenceMatrix {
     /**
      * Holds weight between connected components
      */
-    final Map<MatrixElement, Integer> matrixValues = new HashMap<MatrixElement, Integer>();
+    final Map<MatrixElement, Integer> matrixValues = new HashMap<>();
 
 
     public void put(Place place, Transition transition, int value) {

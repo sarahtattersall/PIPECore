@@ -16,7 +16,7 @@ public class TokenSetIntegerAdapter
      * use these fields it's ok to initialise them as empty/null.
      */
     public TokenSetIntegerAdapter() {
-        tokens = new HashMap<String, Token>();
+        tokens = new HashMap<>();
     }
 
     public TokenSetIntegerAdapter(Map<String, Token> tokens) {
@@ -26,7 +26,7 @@ public class TokenSetIntegerAdapter
 
     @Override
     public Map<Token, Integer> unmarshal(AdaptedIntegerTokenSet adaptedTokenSet)  {
-        Map<Token, Integer> tokenWeights = new HashMap<Token, Integer>();
+        Map<Token, Integer> tokenWeights = new HashMap<>();
         String weightInput = adaptedTokenSet.value;
         String[] commaSeperatedMarkings = weightInput.split(",");
         if (commaSeperatedMarkings.length == 1) {
