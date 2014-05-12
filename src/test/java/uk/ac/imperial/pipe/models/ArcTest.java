@@ -18,7 +18,6 @@ import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.anyDouble;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

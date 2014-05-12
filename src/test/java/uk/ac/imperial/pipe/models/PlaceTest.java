@@ -31,8 +31,6 @@ public class PlaceTest {
         place = new Place("test", "test");
     }
 
-    ;
-
     @Test
     public void placeObjectIsSelectable() {
         assertTrue(place.isSelectable());
