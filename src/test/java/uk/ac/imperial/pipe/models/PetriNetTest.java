@@ -193,7 +193,7 @@ public class PetriNetTest {
         Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
         net.addAnnotation(annotation);
         net.addPropertyChangeListener(mockListener);
-        net.removeAnnotaiton(annotation);
+        net.removeAnnotation(annotation);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
@@ -201,7 +201,7 @@ public class PetriNetTest {
     public void removingAnnotation() {
         Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
         net.addAnnotation(annotation);
-        net.removeAnnotaiton(annotation);
+        net.removeAnnotation(annotation);
         assertFalse(net.containsComponent(annotation.getId()));
     }
 

@@ -43,7 +43,7 @@ public class PetriNetComponentRemovalVisitor
 
     @Override
     public void visit(Annotation annotation) {
-        net.removeAnnotaiton(annotation);
+        net.removeAnnotation(annotation);
     }
 
     @Override

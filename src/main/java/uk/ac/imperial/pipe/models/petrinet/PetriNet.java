@@ -496,7 +496,7 @@ public class PetriNet {
      *
      * @param annotation annotation to remove
      */
-    public void removeAnnotaiton(Annotation annotation) {
+    public void removeAnnotation(Annotation annotation) {
         annotations.remove(annotation.getId());
         changeSupport.firePropertyChange(DELETE_ANNOTATION_CHANGE_MESSAGE, annotation, null);
     }

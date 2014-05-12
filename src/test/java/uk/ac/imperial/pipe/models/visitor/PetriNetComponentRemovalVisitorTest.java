@@ -79,7 +79,7 @@ public class PetriNetComponentRemovalVisitorTest {
     public void testDeletesAnnotation() {
         Annotation annotation = new Annotation(0, 0, "", 0, 0, false);
         annotation.accept(visitor);
-        verify(mockNet).removeAnnotaiton(annotation);
+        verify(mockNet).removeAnnotation(annotation);
 
     }
 
