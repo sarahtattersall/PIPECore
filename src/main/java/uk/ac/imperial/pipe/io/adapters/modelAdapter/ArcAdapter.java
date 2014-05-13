@@ -46,7 +46,6 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         Arc<? extends Connectable, ? extends Connectable> arc;
         String source = adaptedArc.getSource();
         String target = adaptedArc.getTarget();
-
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
         if (adaptedArc.getType().equals("inhibitor")) {
             Place place = places.get(source);
@@ -72,23 +71,18 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     }
 
     private Map<String, String> stringToWeights(String weights) {
-
         Map<String, String> tokenWeights = new HashMap<>();
         if (weights.isEmpty()) {
             return tokenWeights;
         }
-
         String[] commaSeparatedMarkings = weights.split(",");
         if (commaSeparatedMarkings.length == 1) {
-            Token token = getDefaultToken();
             String weight = commaSeparatedMarkings[0];
-            tokenWeights.put(token.getId(), weight);
         } else {
             for (int i = 0; i < commaSeparatedMarkings.length; i += 2) {
                 String weight = commaSeparatedMarkings[i + 1].replace("@", ",");
                 String tokenName = commaSeparatedMarkings[i];
-                Token token = getTokenIfExists(tokenName);
-                tokenWeights.put(token.getId(), weight);
+                tokenWeights.put(tokenName, weight);
             }
         }
         return tokenWeights;

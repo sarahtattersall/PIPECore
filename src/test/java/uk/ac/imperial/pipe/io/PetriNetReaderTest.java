@@ -35,6 +35,15 @@ public class PetriNetReaderTest {
     }
 
     @Test
+    public void createGSPN() throws UnparsableException {
+        PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/gspn1.xml"));
+        assertEquals(5, petriNet.getPlaces().size());
+        assertEquals(5, petriNet.getTransitions().size());
+        assertEquals(12, petriNet.getArcs().size());
+        assertEquals(1, petriNet.getTokens().size());
+    }
+
+    @Test
     public void createsDefaultTokenIfDoesNotExist() throws UnparsableException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/noTokenPlace.xml"));
         assertTrue("Petri net has no tokens registered to it", petriNet.getTokens().size() > 0);
