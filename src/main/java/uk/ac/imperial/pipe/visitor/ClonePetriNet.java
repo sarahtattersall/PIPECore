@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.rate.RateType;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.name.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,8 @@ public class ClonePetriNet {
     }
 
     private PetriNet clonePetriNet() {
+        visit(petriNet.getName());
+
         for (Token token : petriNet.getTokens()) {
             visit(token);
         }
@@ -57,6 +60,28 @@ public class ClonePetriNet {
             visit(arc);
         }
         return newPetriNet;
+    }
+
+    private void visit(PetriNetName name) {
+        if (name != null) {
+            name.visit(new NameCloner());
+        }
+    }
+
+    /**
+     * Used to clone a name into the new Petri net
+     */
+    private class NameCloner implements NormalNameVisitor, FileNameVisitor {
+
+        @Override
+        public void visit(PetriNetFileName name) {
+            newPetriNet.setName(new PetriNetFileName(name.getFile()));
+        }
+
+        @Override
+        public void visit(NormalPetriNetName name) {
+            newPetriNet.setName(new NormalPetriNetName(name.getName()));
+        }
     }
 
     public static PetriNet clone(PetriNet petriNet) {

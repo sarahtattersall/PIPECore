@@ -48,6 +48,13 @@ public class PetriNetTest {
     }
 
     @Test
+    public void emptyPetriNetsEqual() {
+        PetriNet petriNet1 = new PetriNet();
+        PetriNet petriNet2 = new PetriNet();
+        assertEquals(petriNet1, petriNet2);
+    }
+
+    @Test
     public void addingPlaceNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
         Place place = new Place("P1", "P1");

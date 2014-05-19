@@ -30,4 +30,27 @@ public class PetriNetFileName implements PetriNetName {
     public File getFile() {
         return file;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PetriNetFileName)) {
+            return false;
+        }
+
+        PetriNetFileName that = (PetriNetFileName) o;
+
+        if (!file.equals(that.file)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return file.hashCode();
+    }
 }
