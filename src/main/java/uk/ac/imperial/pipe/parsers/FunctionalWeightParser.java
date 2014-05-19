@@ -11,6 +11,4 @@ public interface FunctionalWeightParser<T extends Number> {
      *         about any errors if it could not be parsed
      */
     FunctionalResults<T> evaluateExpression(String expression);
-
-
 }
