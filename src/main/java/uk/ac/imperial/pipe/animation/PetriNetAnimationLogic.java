@@ -1,10 +1,14 @@
 package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.component.arc.Arc;
+import uk.ac.imperial.pipe.models.component.arc.InboundArc;
+import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
+import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -82,17 +86,20 @@ public class PetriNetAnimationLogic implements AnimationLogic {
         Set<Transition> enabled = getEnabledTransitions(state);
         if (enabled.contains(transition)) {
 
-            //Decrement previous places
-            for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-                String placeId = arc.getSource().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, Integer> entry : state.getTokens(placeId).entrySet()) {
-                    String tokenId = entry.getKey();
-                    if (arcWeights.containsKey(tokenId)) {
-                        int currentCount = entry.getValue();
-                        double arcWeight = getArcWeight(arcWeights.get(tokenId));
-                        int newCount = (int) (currentCount - arcWeight);
+            Map<String, Map<String, Double>> evaluatedInboundWeights =
+                    evaluateInboundArcWeights(state, petriNet.inboundArcs(transition));
+            Map<String, Map<String, Double>> inboundWeights = transition.getInboundFiringCount(state, evaluatedInboundWeights);
 
+            //Decrement previous places
+            for (Map.Entry<String, Map<String, Double>> entry : inboundWeights.entrySet()) {
+                String placeId = entry.getKey();
+                Map<String, Double> arcWeights = entry.getValue();
+                for (Map.Entry<String, Integer> tokenEntry : state.getTokens(placeId).entrySet()) {
+                    String tokenId = tokenEntry.getKey();
+                    if (arcWeights.containsKey(tokenId)) {
+                        int currentCount = tokenEntry.getValue();
+                        double arcWeight = arcWeights.get(tokenId);
+                        int newCount = (int) (currentCount - arcWeight);
                         builder.placeWithToken(placeId, tokenId, newCount);
                     }
                 }
@@ -101,30 +108,79 @@ public class PetriNetAnimationLogic implements AnimationLogic {
 
             State temporaryState = builder.build();
 
+            Map<String, Map<String, Double>> evaluatedOutboundWeights =
+                    evaluateOutboundArcWeights(state, petriNet.outboundArcs(transition));
+            Map<String, Map<String, Double>> outboundWeights =
+                    transition.getOutboundFiringCount(state, evaluatedInboundWeights, evaluatedOutboundWeights);
 
-            //Increment new places
-            for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-                String placeId = arc.getTarget().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-                    String tokenId = entry.getKey();
-                    int currentCount = temporaryState.getTokens(placeId).get(tokenId);
-                    double arcWeight = getArcWeight(entry.getValue());
-                    builder.placeWithToken(placeId, tokenId, (int) (currentCount + arcWeight));
+            for (Map.Entry<String, Map<String, Double>> entry : outboundWeights.entrySet()) {
+                String placeId = entry.getKey();
+                Map<String, Double> arcWeights = entry.getValue();
+                for (Map.Entry<String, Integer> tokenEntry : state.getTokens(placeId).entrySet()) {
+                    String tokenId = tokenEntry.getKey();
+                    if (arcWeights.containsKey(tokenId)) {
+                        int currentCount = temporaryState.getTokens(placeId).get(tokenId);
+                        double arcWeight = arcWeights.get(tokenId);
+                        builder.placeWithToken(placeId, tokenId, (int) (currentCount + arcWeight));
+                    }
                 }
             }
         }
+
         return builder.build();
+    }
+
+    private Map<String, Map<String, Double>> evaluateOutboundArcWeights(State state, Collection<OutboundArc> arcs) {
+        Map<String, Map<String, Double>> result = new HashMap<>();
+        for (OutboundArc arc : arcs) {
+            String placeId = arc.getTarget().getId();
+            Map<String, String> arcWeights = arc.getTokenWeights();
+            Map<String, Double> weights = evaluateArcWeight(state, arcWeights);
+            result.put(placeId, weights);
+        }
+
+        return result;
+    }
+
+    /**
+     * @param state current state of Petri net
+     * @param arcs  set of inbound arcs to evaluate weight against the current state
+     * @return map of arc place id -> arc weights associated with it
+     */
+    private Map<String, Map<String, Double>> evaluateInboundArcWeights(State state, Collection<InboundArc> arcs) {
+        Map<String, Map<String, Double>> result = new HashMap<>();
+        for (InboundArc arc : arcs) {
+            String placeId = arc.getSource().getId();
+            Map<String, String> arcWeights = arc.getTokenWeights();
+            Map<String, Double> weights = evaluateArcWeight(state, arcWeights);
+            result.put(placeId, weights);
+        }
+
+        return result;
     }
 
     /**
      * Parses a string representation of a weight with respect to the Petri net
      *
-     * @param weight
-     * @return
+     * @param state      current state of Petri net
+     * @param arcWeights arc weights
+     * @return arc weights evaluated to the current state
      */
-    private double getArcWeight(String weight) {
-        FunctionalResults<Double> result = petriNet.parseExpression(weight);
+
+    private Map<String, Double> evaluateArcWeight(State state, Map<String, String> arcWeights) {
+        Map<String, Double> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
+            String tokenId = entry.getKey();
+            double arcWeight = getArcWeight(state, arcWeights.get(tokenId));
+            result.put(tokenId, arcWeight);
+        }
+        return result;
+    }
+
+    private double getArcWeight(State state, String weight) {
+        StateEvalVisitor evalVisitor = new StateEvalVisitor(petriNet, state);
+        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        FunctionalResults<Double> result = parser.evaluateExpression(weight);
         if (result.hasErrors()) {
             //TODO:
             throw new RuntimeException("Could not parse arc weight");

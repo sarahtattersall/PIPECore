@@ -2,11 +2,9 @@ package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.IncidenceMatrix;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 import java.util.*;
@@ -68,12 +66,12 @@ public class PetriNetAnimator implements Animator {
 
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledTransitions(getCurrentState());
+        return animationLogic.getEnabledTransitions(AnimationUtils.getState(petriNet));
     }
 
     @Override
     public void fireTransition(Transition transition) {
-        State newState = animationLogic.getFiredState(getCurrentState(), transition);
+        State newState = animationLogic.getFiredState(AnimationUtils.getState(petriNet), transition);
 
         //Set all counts
         for (Place place : petriNet.getPlaces()) {
@@ -105,22 +103,4 @@ public class PetriNetAnimator implements Animator {
             }
         }
     }
-
-    /**
-     * Creates a new state containing the token counts for the
-     * current Petri net.
-     *
-     * @return current state of the Petri net
-     */
-    private State getCurrentState() {
-        HashedStateBuilder builder = new HashedStateBuilder();
-        for (Place place : petriNet.getPlaces()) {
-            for (Token token : petriNet.getTokens()) {
-                builder.placeWithToken(place.getId(), token.getId(), place.getTokenCount(token.getId()));
-            }
-        }
-        return builder.build();
-    }
-
-
 }

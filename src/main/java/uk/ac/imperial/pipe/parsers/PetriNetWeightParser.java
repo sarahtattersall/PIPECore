@@ -21,15 +21,15 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
     /**
      * Evaluator for the PetriNet and functional expression
      */
-    private final EvalVisitor evalVisitor;
+    private final RateGrammarBaseVisitor<Double> evalVisitor;
 
     /**
      * Parses Transition Rates to determine their value and
      * the components they reference.
      *
      */
-    public PetriNetWeightParser(PetriNet petriNet) {
-        evalVisitor = new EvalVisitor(petriNet);
+    public PetriNetWeightParser(RateGrammarBaseVisitor<Double> evalVisitor, PetriNet petriNet) {
+        this.evalVisitor = evalVisitor;
         this.petriNet = petriNet;
     }
 

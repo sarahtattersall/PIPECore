@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
+import uk.ac.imperial.pipe.parsers.EvalVisitor;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
@@ -99,7 +100,7 @@ public class PetriNet {
     /**
      * Functional weight parser
      */
-    private final FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(this);
+    private final FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(new EvalVisitor(this), this);
 
     //TODO: CYCLIC DEPENDENCY BETWEEN CREATING THIS AND PETRI NET/
     private final PetriNetComponentVisitor deleteVisitor = new PetriNetComponentRemovalVisitor(this);
