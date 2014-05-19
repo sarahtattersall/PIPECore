@@ -93,12 +93,15 @@ public class PetriNetManagerImpl implements PetriNetManager {
         petriNetNamer.registerPetriNet(petriNet);
     }
 
+    /**
+     * Creates a new Petri net and adds a Default black token to it.
+     */
     @Override
     public void createNewPetriNet() {
         PetriNet petriNet = new PetriNet();
         namePetriNet(petriNet);
-        changeSupport.firePropertyChange(NEW_PETRI_NET_MESSAGE, null, petriNet);
         petriNet.addToken(createDefaultToken());
+        changeSupport.firePropertyChange(NEW_PETRI_NET_MESSAGE, null, petriNet);
         holder.addNet(petriNet);
     }
 
