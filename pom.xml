@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.imperial</groupId>
     <artifactId>pipe-core</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -13,7 +13,7 @@
 
     <scm>
         <developerConnection>scm:git:git@github.com:sarahtattersall/PIPECore.git</developerConnection>
-        <tag>pipe-core-1.0.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <repositories>
