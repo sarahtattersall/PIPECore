@@ -40,12 +40,10 @@ public class PetriNetAnimationLogicTest {
         State successor = successors.keySet().iterator().next();
 
         int actualP1 = successor.getTokens("P0").get("Default");
-        assertEquals(0, actualP1);
+        assertEquals(1, actualP1);
 
         int actualP2 = successor.getTokens("P1").get("Default");
-        assertEquals(2, actualP2);
-
-
+        assertEquals(1, actualP2);
     }
 
     @Test

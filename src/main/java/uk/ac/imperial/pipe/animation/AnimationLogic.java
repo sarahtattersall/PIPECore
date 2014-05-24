@@ -33,4 +33,12 @@ public interface AnimationLogic {
      * @return the successor state after firing the transition
      */
     State getFiredState(State state, Transition transition);
+
+    /**
+     *
+     * @param state  petri net state to evaluate weight against
+     * @param weight a functional weight
+     * @return the evaluated weight for the given state
+     */
+    double getArcWeight(State state, String weight);
 }

@@ -28,9 +28,10 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.*;
-
-import static java.lang.Math.floor;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 public class PetriNet {
     public static final String PETRI_NET_NAME_CHANGE_MESSAGE = "nameChange";
@@ -645,65 +646,6 @@ public class PetriNet {
         throw new PetriNetComponentNotFoundException("No rate parameter " + rateParameterId + " exists in Petri net.");
     }
 
-    /**
-     * Calculates weights of connections from places to transitions for given token
-     *
-     * @param token calculates backwards incidence matrix for this token
-     */
-    public IncidenceMatrix getBackwardsIncidenceMatrix(String token) {
-        IncidenceMatrix backwardsIncidenceMatrix = new IncidenceMatrix();
-        for (InboundArc arc : inboundArcs.values()) {
-            Transition transition = arc.getTarget();
-
-            Place place = arc.getSource();
-            int enablingDegree = transition.isInfiniteServer() ? getEnablingDegree(transition) : 0;
-
-
-            String expression = arc.getWeightForToken(token);
-            int weight = getEvaluatedExpressionAsInt(expression);
-            int totalWeight = transition.isInfiniteServer() ? weight * enablingDegree : weight;
-
-            backwardsIncidenceMatrix.put(place, transition, totalWeight);
-        }
-        return backwardsIncidenceMatrix;
-    }
-
-    /**
-     * A Transition is enabled if all its input places are marked with at least one token
-     * This method calculates the minimum number of tokens needed in order for a transition to be enabled
-     * <p/>
-     * The enabling degree is the number of times that a transition is enabled
-     *
-     * @param transition to work out enabling degree of
-     * @return the transitions enabling degree
-     */
-    public int getEnablingDegree(Transition transition) {
-        int enablingDegree = Integer.MAX_VALUE;
-
-        for (Arc<Place, Transition> arc : inboundArcs(transition)) {
-            Place place = arc.getSource();
-            Map<String, String> arcWeights = arc.getTokenWeights();
-            for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-                String arcToken = entry.getKey();
-                String arcTokenExpression = entry.getValue();
-
-                //TODO: SHOULD WE FLOOR?
-                int result = getEvaluatedExpressionAsInt(arcTokenExpression);
-                int requiredTokenCount = (int) floor(result);
-                if (requiredTokenCount == 0) {
-                    enablingDegree = 0;
-                } else {
-                    int placeTokenCount = place.getTokenCount(arcToken);
-                    int currentDegree = (int) floor(placeTokenCount / requiredTokenCount);
-                    if (currentDegree < enablingDegree) {
-                        enablingDegree = currentDegree;
-                    }
-                }
-            }
-        }
-        return enablingDegree;
-    }
-
     //TODO: SHOULD WE BE CATCHING THE ERROR?
     private int getEvaluatedExpressionAsInt(String expression) {
         FunctionalResults<Double> result = functionalWeightParser.evaluateExpression(expression);
@@ -722,27 +664,6 @@ public class PetriNet {
             }
         }
         return outbound;
-    }
-
-    /**
-     * Calculates weights of connections from transitions to places for given token
-     *
-     * @param token token to calculate incidence matrix for
-     * @return forwards incidence matrix for the specified token. That is the
-     * token weights needed in order to fire an arc from transition to place
-     */
-    public IncidenceMatrix getForwardsIncidenceMatrix(String token) {
-
-        IncidenceMatrix forwardsIncidenceMatrix = new IncidenceMatrix();
-        for (OutboundArc arc : outboundArcs.values()) {
-            Place place = arc.getTarget();
-            Transition transition = arc.getSource();
-
-            String expression = arc.getWeightForToken(token);
-            int weight = getEvaluatedExpressionAsInt(expression);
-            forwardsIncidenceMatrix.put(place, transition, weight);
-        }
-        return forwardsIncidenceMatrix;
     }
 
     @XmlTransient

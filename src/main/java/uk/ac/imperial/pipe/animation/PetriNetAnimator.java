@@ -3,7 +3,6 @@ package uk.ac.imperial.pipe.animation;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.petrinet.IncidenceMatrix;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
 
@@ -81,25 +80,29 @@ public class PetriNetAnimator implements Animator {
 
     @Override
     public void fireTransitionBackwards(Transition transition) {
+        State state = AnimationUtils.getState(petriNet);
         //Increment previous places
         for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
             Place place = arc.getSource();
-            for (String token : arc.getTokenWeights().keySet()) {
-                IncidenceMatrix matrix = petriNet.getBackwardsIncidenceMatrix(token);
-                int currentCount = place.getTokenCount(token);
-                int newCount = currentCount + matrix.get(place, transition);
-                place.setTokenCount(token, newCount);
+            for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+                String tokenId = entry.getKey();
+                String functionalWeight = entry.getValue();
+                double weight = animationLogic.getArcWeight(state, functionalWeight);
+                int currentCount = place.getTokenCount(tokenId);
+                int newCount = currentCount + (int) weight;
+                place.setTokenCount(tokenId, newCount);
             }
         }
 
         //Decrement new places
         for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-            Place place = arc.getTarget();
-            for (String token : arc.getTokenWeights().keySet()) {
-                IncidenceMatrix matrix = petriNet.getForwardsIncidenceMatrix(token);
-                int oldCount = place.getTokenCount(token);
-                int newCount = oldCount - matrix.get(place, transition);
-                place.setTokenCount(token, newCount);
+            Place place = arc.getTarget(); for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+                String tokenId = entry.getKey();
+                String functionalWeight = entry.getValue();
+                double weight = animationLogic.getArcWeight(state, functionalWeight);
+                int oldCount = place.getTokenCount(tokenId);
+                int newCount = oldCount - (int) weight;
+                place.setTokenCount(tokenId, newCount);
             }
         }
     }

@@ -1,8 +1,14 @@
 package uk.ac.imperial.pipe.models;
 
 import org.junit.Test;
+import uk.ac.imperial.pipe.animation.AnimationUtils;
+import uk.ac.imperial.pipe.dsl.*;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.state.State;
 
+import java.awt.Color;
 import java.awt.geom.Point2D;
 
 import static org.junit.Assert.assertEquals;
@@ -25,12 +31,18 @@ public class TransitionTest {
         transition.setX(targetX);
         transition.setY(targetY);
 
-        assertEquals(-90, Math.toDegrees(angle),0.001);
+        assertEquals(-90, Math.toDegrees(angle), 0.001);
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(targetX + transition.getWidth()/2, targetY + transition.getHeight());
+        Point2D.Double expected =
+                new Point2D.Double(targetX + transition.getWidth() / 2, targetY + transition.getHeight());
         assertEquals(expected, point);
     }
 
+    private double getAngleBetweenObjects(double x1, double y1, double x2, double y2) {
+        double deltax = x2 - x1;
+        double deltay = y2 - y1;
+        return Math.atan2(deltay, deltax);
+    }
 
     @Test
     public void calculatesCorrectArcConnectionPointForTransitionRight() {
@@ -48,8 +60,7 @@ public class TransitionTest {
         transition.setY(targetY);
 
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(targetX,
-                targetY + transition.getHeight() / 2);
+        Point2D.Double expected = new Point2D.Double(targetX, targetY + transition.getHeight() / 2);
         assertEquals(expected, point);
     }
 
@@ -69,8 +80,8 @@ public class TransitionTest {
         transition.setY(targetY);
 
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(targetX + transition.getWidth(),
-                targetY + transition.getHeight() / 2);
+        Point2D.Double expected =
+                new Point2D.Double(targetX + transition.getWidth(), targetY + transition.getHeight() / 2);
         assertEquals(expected, point);
     }
 
@@ -108,14 +119,57 @@ public class TransitionTest {
         transition.setY(targetY);
 
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(5,70);
+        Point2D.Double expected = new Point2D.Double(5, 70);
         assertEquals(expected, point);
     }
 
+    @Test
+    public void infiniteServerRateMultipliesByEnablingDegreeNonFunctionalArc()
+            throws PetriNetComponentNotFoundException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
+                ATransition.withId("T0").whichIsTimed().andIsAnInfinite().server().andRate("4")).and(
+                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+                ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
+        State state = AnimationUtils.getState(petriNet);
 
-    private double getAngleBetweenObjects(double x1, double y1, double x2, double y2) {
-        double deltax = x2 - x1;
-        double deltay = y2 - y1;
-        return Math.atan2(deltay, deltax);
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        double actualRate = t0.getActualRate(petriNet, state);
+        int expectedEnablingDegree = 2;
+        int expectedISRate = expectedEnablingDegree * 4;
+        assertEquals(expectedISRate, actualRate, 0.0001);
+    }
+
+    @Test
+    public void infiniteServerRateMultipliesByEnablingDegreeFunctionalArcs()
+            throws PetriNetComponentNotFoundException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
+                ATransition.withId("T0").whichIsTimed().andIsAnInfinite().server().andRate("4")).and(
+                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+                ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
+        State state = AnimationUtils.getState(petriNet);
+
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        double actualRate = t0.getActualRate(petriNet, state);
+        int expectedEnablingDegree = 1;
+        int expectedISRate = expectedEnablingDegree * 4;
+        assertEquals(expectedISRate, actualRate, 0.0001);
+    }
+
+
+    @Test
+    public void actualRateSingleServer()
+            throws PetriNetComponentNotFoundException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
+                ATransition.withId("T0").whichIsTimed().andIsASingle().server().andRate("4")).and(
+                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+                ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
+        State state = AnimationUtils.getState(petriNet);
+
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        double actualRate = t0.getActualRate(petriNet, state);
+        assertEquals(4, actualRate, 0.0001);
     }
 }

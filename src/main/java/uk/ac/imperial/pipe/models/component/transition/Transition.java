@@ -1,13 +1,19 @@
 package uk.ac.imperial.pipe.models.component.transition;
 
 import uk.ac.imperial.pipe.models.component.Connectable;
+import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
+import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 import uk.ac.imperial.state.State;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -142,8 +148,7 @@ public class Transition extends Connectable {
     public Point2D.Double getArcEdgePoint(double angle) {
         double halfHeight = getHeight() / 2;
         double halfWidth = getWidth() / 2;
-        double centreX =
-                x + halfWidth;
+        double centreX = x + halfWidth;
         double centreY = y + halfHeight;
 
         Point2D.Double connectionPoint = new Point2D.Double(centreX, centreY);
@@ -174,11 +179,11 @@ public class Transition extends Connectable {
 
     /**
      * @param angle in radians
-     * @return true if an arc connecting to this should
-     * connect to the top edge of the transition
+     * @return true if an arc connecting to this should connect to the bottom edge
+     * of the transition
      */
-    private boolean connectToBottom(double angle) {
-        return angle < Math.toRadians(-45) && angle > Math.toRadians(-135);
+    private boolean connectToTop(double angle) {
+        return angle > Math.toRadians(45) && angle < Math.toRadians(135);
     }
 
     //    public void setRateExpr(String string) {
@@ -187,11 +192,11 @@ public class Transition extends Connectable {
 
     /**
      * @param angle in radians
-     * @return true if an arc connecting to this should connect to the bottom edge
-     * of the transition
+     * @return true if an arc connecting to this should
+     * connect to the top edge of the transition
      */
-    private boolean connectToTop(double angle) {
-        return angle > Math.toRadians(45) && angle < Math.toRadians(135);
+    private boolean connectToBottom(double angle) {
+        return angle < Math.toRadians(-45) && angle > Math.toRadians(-135);
     }
 
     /**
@@ -201,11 +206,6 @@ public class Transition extends Connectable {
      */
     private boolean connectToLeft(double angle) {
         return angle > Math.toRadians(-45) && angle < Math.toRadians(45);
-    }
-
-    @Override
-    public boolean isEndPoint() {
-        return true;
     }
 
     /**
@@ -224,6 +224,11 @@ public class Transition extends Connectable {
         return rotatedPoint;
     }
 
+    @Override
+    public boolean isEndPoint() {
+        return true;
+    }
+
     public int getPriority() {
         return priority;
     }
@@ -234,16 +239,140 @@ public class Transition extends Connectable {
         changeSupport.firePropertyChange(PRIORITY_CHANGE_MESSAGE, old, priority);
     }
 
-    public String getRateExpr() {
-        return rate.getExpression();
-    }
-
     public Rate getRate() {
         return rate;
     }
 
     public void setRate(Rate rate) {
         this.rate = rate;
+    }
+
+    /**
+     * Evaluate the transitions rate against the given state
+     * <p/>
+     * If an infinite server the transition will return its rate * enabling degree
+     *
+     * @param state given state of a petri net to evaluate the functional rate of
+     * @return actual evaluated rate of the Petri net
+     */
+    public Double getActualRate(PetriNet petriNet, State state) {
+        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
+        PetriNetWeightParser parser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
+        FunctionalResults<Double> results = parser.evaluateExpression(getRateExpr());
+        if (results.hasErrors()) {
+            //TODO:
+            return -1.;
+        }
+        Double rate = results.getResult();
+
+        if (!isInfiniteServer()) {
+            return rate;
+        }
+        Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(parser, petriNet.inboundArcs(this));
+        int enablingDegree = getEnablingDegree(state, arcWeights);
+        return rate * enablingDegree;
+    }
+
+    public String getRateExpr() {
+        return rate.getExpression();
+    }
+
+    public boolean isInfiniteServer() {
+        return infiniteServer;
+    }
+
+    /**
+     * @param parser parser for a given state of Petri net
+     * @param arcs   set of inbound arcs to evaluate weight against the current state
+     * @return map of arc place id -> arc weights associated with it
+     */
+    private Map<String, Map<String, Double>> evaluateInboundArcWeights(PetriNetWeightParser parser,
+                                                                       Collection<InboundArc> arcs) {
+        Map<String, Map<String, Double>> result = new HashMap<>();
+        for (InboundArc arc : arcs) {
+            String placeId = arc.getSource().getId();
+            Map<String, String> arcWeights = arc.getTokenWeights();
+            Map<String, Double> weights = evaluateArcWeight(parser, arcWeights);
+            result.put(placeId, weights);
+        }
+
+        return result;
+    }
+
+    /**
+     * A Transition is enabled if all its input places are marked with at least one token
+     * This method calculates the minimum number of tokens needed in order for a transition to be enabled
+     * <p/>
+     * The enabling degree is the number of times that a transition is enabled
+     *
+     * @param state state of the petri net
+     * @param arcWeights evaluated arc weights for the given state
+     * @return number of times this transition is enabled for the given state
+     */
+    private int getEnablingDegree(State state, Map<String, Map<String, Double>> arcWeights) {
+        int enablingDegree = Integer.MAX_VALUE;
+
+        for (Map.Entry<String, Map<String, Double>> entry : arcWeights.entrySet()) {
+            String placeId = entry.getKey();
+            Map<String, Double> weights = entry.getValue();
+            for (Map.Entry<String, Double> weightEntry : weights.entrySet()) {
+                String tokenId = weightEntry.getKey();
+                Double weight = weightEntry.getValue();
+
+                int requiredTokenCount = (int) floor(weight);
+                if (requiredTokenCount == 0) {
+                    enablingDegree = 0;
+                } else {
+                    Map<String, Integer> tokenCount = state.getTokens(placeId);
+                    int placeTokenCount = tokenCount.get(tokenId);
+                    int currentDegree = (int) floor(placeTokenCount / requiredTokenCount);
+                    if (currentDegree < enablingDegree) {
+                        enablingDegree = currentDegree;
+                    }
+                }
+            }
+
+        }
+        return enablingDegree;
+    }
+
+    /**
+     * Parses a string representation of a weight with respect to the Petri net
+     *
+     * @param parser     parser for a given state of the Petri net
+     * @param arcWeights arc weights
+     * @return arc weights evaluated to the current state
+     */
+
+    private Map<String, Double> evaluateArcWeight(PetriNetWeightParser parser, Map<String, String> arcWeights) {
+        Map<String, Double> result = new HashMap<>();
+        for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
+            String tokenId = entry.getKey();
+            double arcWeight = getArcWeight(parser, arcWeights.get(tokenId));
+            result.put(tokenId, arcWeight);
+        }
+        return result;
+    }
+
+    /**
+     * @param parser parser for a given state of the Petri net
+     * @param weight arc functional rate
+     * @return arc weight for a given state
+     */
+    private double getArcWeight(PetriNetWeightParser parser, String weight) {
+        FunctionalResults<Double> result = parser.evaluateExpression(weight);
+        if (result.hasErrors()) {
+            //TODO:
+            throw new RuntimeException("Could not parse arc weight");
+        }
+
+        return result.getResult();
+    }
+
+    public void setInfiniteServer(boolean infiniteServer) {
+        boolean old = this.infiniteServer;
+        this.infiniteServer = infiniteServer;
+        changeSupport.firePropertyChange(INFINITE_SEVER_CHANGE_MESSAGE, old, infiniteServer);
     }
 
     public int getAngle() {
@@ -264,16 +393,6 @@ public class Transition extends Connectable {
         boolean old = this.timed;
         this.timed = timed;
         changeSupport.firePropertyChange(TIMED_CHANGE_MESSAGE, old, timed);
-    }
-
-    public boolean isInfiniteServer() {
-        return infiniteServer;
-    }
-
-    public void setInfiniteServer(boolean infiniteServer) {
-        boolean old = this.infiniteServer;
-        this.infiniteServer = infiniteServer;
-        changeSupport.firePropertyChange(INFINITE_SEVER_CHANGE_MESSAGE, old, infiniteServer);
     }
 
     @Override
@@ -305,102 +424,5 @@ public class Transition extends Connectable {
 
     public boolean isEnabled() {
         return enabled;
-    }
-
-    /**
-     * This returns the number of tokens a transition will require to fire from
-     * each arc and is based on it server semantics
-     *
-     * If it is a single server it will fire arcWeights times
-     * If it is an infinite server it will fire arcWeights * the number of times it is enabled
-     *
-     * @param state - current Petri net state
-     * @param arcWeights is a map of place id -> {token id -> weight} and represents
-     *                   arc weights into this transition from the place
-     *                   These are the arc weights that have been evaluated to
-     *                   the given state
-     * @return firing token counts
-     */
-    public Map<String, Map<String, Double>> getInboundFiringCount(State state,
-                                                                  Map<String, Map<String, Double>> arcWeights) {
-        if (!isInfiniteServer()) {
-            return arcWeights;
-        }
-
-        int enablingDegree = getEnablingDegree(state, arcWeights);
-        return multiply(arcWeights, enablingDegree);
-    }
-
-    /**
-     * This returns the number of tokens a transition will produce when firing each outbound arc
-     * each arc and is based on it server semantics
-     *
-     * If it is a single server it will fire arcWeights times
-     * If it is an infinite server it will fire arcWeights * the number of times it is enabled
-     *
-     * @param state - current Petri net state
-     * @param inboundWeights  is a map of place id -> {token id -> weight} and represents
-     *                   arc weights into this transition from the place
-     *                   These are the arc weights that have been evaluated to
-     *                   the given state
-     * @param outboundWeights is a map of place id -> {token id -> weight} and represents
-     *                        arc weights from this transition to the places specified
-     *                        These are the arc weights evaluated to the given state
-     * @return firing token counts
-     */
-    public Map<String, Map<String, Double>> getOutboundFiringCount(State state,
-                                                                  Map<String, Map<String, Double>> inboundWeights, Map<String, Map<String, Double>> outboundWeights) {
-        if (!isInfiniteServer()) {
-            return outboundWeights;
-        }
-
-        int enablingDegree = getEnablingDegree(state, inboundWeights);
-        return multiply(outboundWeights, enablingDegree);
-    }
-
-    /**
-     *
-     * @param arcWeights
-     * @param enablingDegree
-     * @return arcWeights multiplied by the enablingDegree
-     */
-    private Map<String, Map<String, Double>> multiply(Map<String, Map<String, Double>> arcWeights, int enablingDegree) {
-
-        Map<String, Map<String, Double>> results = new HashMap<>();
-        for (Map.Entry<String, Map<String, Double>> entry : arcWeights.entrySet()) {
-            Map<String, Double> weights = new HashMap<>();
-            for (Map.Entry<String, Double> weightEntry : entry.getValue().entrySet()) {
-                weights.put(weightEntry.getKey(), weightEntry.getValue() * enablingDegree);
-            }
-            results.put(entry.getKey(), weights);
-        }
-        return results;
-    }
-
-    private int getEnablingDegree(State state, Map<String, Map<String, Double>>  arcWeights) {
-        int enablingDegree = Integer.MAX_VALUE;
-
-        for (Map.Entry<String, Map<String, Double>> entry : arcWeights.entrySet()) {
-                String placeId = entry.getKey();
-                Map<String, Double> weights = entry.getValue();
-                for (Map.Entry<String, Double> weightEntry : weights.entrySet()) {
-                    String tokenId = weightEntry.getKey();
-                    Double weight = weightEntry.getValue();
-
-                    int requiredTokenCount = (int) floor(weight);
-                    if (requiredTokenCount == 0) {
-                        enablingDegree = 0;
-                    } else {
-                        Map<String, Integer> tokenCount = state.getTokens(placeId);
-                        int placeTokenCount = tokenCount.get(tokenId);
-                        int currentDegree = (int) floor(placeTokenCount / requiredTokenCount);
-                        if (currentDegree < enablingDegree) {
-                            enablingDegree = currentDegree;
-                        }
-                    }
-                }
-
-            }
-        return enablingDegree;
     }
 }

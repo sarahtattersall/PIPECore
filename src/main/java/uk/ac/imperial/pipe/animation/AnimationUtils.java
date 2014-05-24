@@ -26,4 +26,5 @@ public class AnimationUtils {
         }
         return builder.build();
     }
+
 }

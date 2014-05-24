@@ -20,7 +20,6 @@ import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.petrinet.IncidenceMatrix;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.awt.Color;
@@ -286,26 +285,6 @@ public class PetriNetTest {
         net.getComponent("foo", Token.class);
     }
 
-    @Test
-    public void correctlyGeneratesForwardIncidenceMatrix() {
-        PetriNet petriNet =
-                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
-                        APlace.withId("P2")).and(ATransition.withId("T1")).and(
-                        ANormalArc.withSource("P1").andTarget("T1").with("4", "Default").tokens()).andFinally(
-                        ANormalArc.withSource("T1").andTarget("P2").with("4", "Default").tokens());
-
-        Token token = getComponent("Default", petriNet.getTokens());
-
-        IncidenceMatrix forwardMatrix = petriNet.getForwardsIncidenceMatrix(token.getId());
-
-        Transition transition = getComponent("T1", petriNet.getTransitions());
-        Place p1 = getComponent("P1", petriNet.getPlaces());
-        Place p2 = getComponent("P2", petriNet.getPlaces());
-
-        assertEquals(0, forwardMatrix.get(p1, transition));
-        assertEquals(4, forwardMatrix.get(p2, transition));
-    }
-
     private <T extends PetriNetComponent> T getComponent(String id, Iterable<T> components) {
         for (T component : components) {
             if (component.getId().equals(id)) {
@@ -330,23 +309,7 @@ public class PetriNetTest {
         net.addRateParameter(rateParameter);
     }
 
-    @Test
-    public void correctBackwardIncidenceMatrix() {
-        int tokenWeight = 4;
-        PetriNet petriNet = createSimplePetriNet(tokenWeight);
-
-        Token token = getComponent("Default", petriNet.getTokens());
-        Transition transition = getComponent("T1", petriNet.getTransitions());
-
-        Place p1 = getComponent("P1", petriNet.getPlaces());
-        Place p2 = getComponent("P2", petriNet.getPlaces());
-
-        IncidenceMatrix backwardIncidence = petriNet.getBackwardsIncidenceMatrix(token.getId());
-        assertEquals(tokenWeight, backwardIncidence.get(p1, transition));
-        assertEquals(0, backwardIncidence.get(p2, transition));
-    }
-
-    /**
+       /**
      * Create simple Petri net with P1 -> T1 -> P2
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
      *
