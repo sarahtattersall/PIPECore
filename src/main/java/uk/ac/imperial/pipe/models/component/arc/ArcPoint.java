@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.component.arc;
 
 import uk.ac.imperial.pipe.models.component.PlaceablePetriNetComponent;
+import uk.ac.imperial.pipe.models.component.place.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;
@@ -8,7 +9,7 @@ import java.awt.geom.Point2D;
 /**
  * Represents a point on the arc
  */
-public class ArcPoint extends PlaceablePetriNetComponent {
+public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNetComponent {
 
     /**
      * Message fired when the curved attribute changes
@@ -130,11 +131,6 @@ public class ArcPoint extends PlaceablePetriNetComponent {
 
     @Override
     public void setId(String id) {
-
-    }
-
-    @Override
-    public void setName(String name) {
 
     }
 

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
+import uk.ac.imperial.pipe.models.component.place.AbstractConnectable;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;
@@ -59,7 +60,7 @@ public class ConnectableTest {
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
-    private class DummyConnectable extends Connectable {
+    private class DummyConnectable extends AbstractConnectable {
 
         DummyConnectable(String id, String name) {
             super(id, name);

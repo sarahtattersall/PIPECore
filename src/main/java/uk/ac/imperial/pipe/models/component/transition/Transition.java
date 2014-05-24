@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.models.component.transition;
 
-import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
+import uk.ac.imperial.pipe.models.component.place.AbstractConnectable;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -20,7 +20,7 @@ import java.util.Map;
 import static java.lang.Math.floor;
 
 
-public class Transition extends Connectable {
+public class Transition extends AbstractConnectable {
     /**
      * Message fired when the Transitions priority changes
      */

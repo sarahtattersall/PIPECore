@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.component.annotation;
 
 import uk.ac.imperial.pipe.models.component.PlaceablePetriNetComponent;
+import uk.ac.imperial.pipe.models.component.place.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import javax.xml.bind.annotation.XmlAttribute;
@@ -9,7 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 /**
  * This class is for labels that can be added to the Petri net
  */
-public class Annotation extends PlaceablePetriNetComponent {
+public class Annotation extends AbstractPetriNetPubSub implements PlaceablePetriNetComponent {
 
     /**
      * Message fired when annotation text is changed
@@ -204,10 +205,6 @@ public class Annotation extends PlaceablePetriNetComponent {
     @Override
     public void setId(String id) {
 
-    }
-
-    @Override
-    public void setName(String name) {
     }
 
     /**

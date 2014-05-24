@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.models.component;
 /**
  * For petri net components that have an idea of location
  */
-public abstract class PlaceablePetriNetComponent extends AbstractPetriNetComponent {
+public interface PlaceablePetriNetComponent extends PetriNetComponent {
 
     /**
      * Message fired when the x attribute is changed

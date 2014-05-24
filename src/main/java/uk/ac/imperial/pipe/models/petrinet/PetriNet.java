@@ -4,7 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.AbstractPetriNetComponent;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
@@ -701,7 +700,7 @@ public class PetriNet {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(AbstractPetriNetComponent.ID_CHANGE_MESSAGE)) {
+            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
                 String oldId = (String) evt.getOldValue();
                 String newId = (String) evt.getNewValue();
                 componentMap.remove(oldId);
@@ -715,7 +714,7 @@ public class PetriNet {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(AbstractPetriNetComponent.ID_CHANGE_MESSAGE)) {
+            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
                 String oldId = (String) evt.getOldValue();
                 String newId = (String) evt.getNewValue();
                 changePlaceTokens(oldId, newId);

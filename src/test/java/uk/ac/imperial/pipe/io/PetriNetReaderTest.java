@@ -185,8 +185,8 @@ public class PetriNetReaderTest {
     @Test
     public void createsRateParameter() throws UnparsableException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getRateParameterFile()));
-        assertThat(petriNet.getRateParameters()).extracting("id", "name", "expression").containsExactly(
-                tuple("rate0", "rate0", "5.0"));
+        assertThat(petriNet.getRateParameters()).extracting("id","expression").containsExactly(
+                tuple("rate0",  "5.0"));
     }
 
     @Test

@@ -1,10 +1,11 @@
 package uk.ac.imperial.pipe.models.component.rate;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
-import uk.ac.imperial.pipe.models.component.AbstractPetriNetComponent;
+import uk.ac.imperial.pipe.models.component.PetriNetComponent;
+import uk.ac.imperial.pipe.models.component.place.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
-public class RateParameter extends AbstractPetriNetComponent implements Rate {
+public class RateParameter extends AbstractPetriNetPubSub implements PetriNetComponent, Rate {
 
     /**
      * Message fired when the places tokens change in any way
@@ -46,18 +47,6 @@ public class RateParameter extends AbstractPetriNetComponent implements Rate {
         String old = this.expression;
         this.expression = expression;
         changeSupport.firePropertyChange(EXPRESSION_CHANGE_MESSAGE, old, expression);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-
-        String old = this.name;
-        this.name = name;
-        changeSupport.firePropertyChange(NAME_CHANGE_MESSAGE, old, name);
     }
 
     @Override

@@ -1,13 +1,13 @@
 package uk.ac.imperial.pipe.models.component.token;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.component.AbstractPetriNetComponent;
+import uk.ac.imperial.pipe.models.component.PetriNetComponent;
+import uk.ac.imperial.pipe.models.component.place.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.Color;
-import java.io.Serializable;
 
-public class Token extends AbstractPetriNetComponent implements Serializable {
+public class Token extends AbstractPetriNetPubSub implements PetriNetComponent {
 
     /**
      * Message fired when the token is enabled/disabled
@@ -74,11 +74,6 @@ public class Token extends AbstractPetriNetComponent implements Serializable {
         String old = this.id;
         this.id = id;
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
-    }
-
-    @Override
-    public void setName(String name) {
-        setId(name);
     }
 
     @Override

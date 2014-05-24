@@ -1,7 +1,8 @@
 package uk.ac.imperial.pipe.models.component.arc;
 
-import uk.ac.imperial.pipe.models.component.AbstractPetriNetComponent;
 import uk.ac.imperial.pipe.models.component.Connectable;
+import uk.ac.imperial.pipe.models.component.PetriNetComponent;
+import uk.ac.imperial.pipe.models.component.place.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
 
@@ -13,7 +14,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Arc<S extends Connectable, T extends Connectable> extends AbstractPetriNetComponent {
+public abstract class Arc<S extends Connectable, T extends Connectable> extends AbstractPetriNetPubSub implements
+        PetriNetComponent {
 
     /**
      * Message fired when the arc source is changed
@@ -150,11 +152,6 @@ public abstract class Arc<S extends Connectable, T extends Connectable> extends 
         String old = this.id;
         this.id = id;
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
-    }
-
-    @Override
-    public void setName(String name) {
-        setId(name);
     }
 
     //TODO: Not sure if arcs should have names

@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.component.place;
 
-import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;
@@ -10,7 +9,7 @@ import java.util.Map;
 /**
  * This class maps to the Place in PNML
  */
-public class Place extends Connectable {
+public class Place extends AbstractConnectable {
     /**
      * Message fired when the places tokens change in any way
      */

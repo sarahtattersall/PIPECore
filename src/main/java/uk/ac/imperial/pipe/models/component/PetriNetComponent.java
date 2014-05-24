@@ -8,6 +8,17 @@ import java.beans.PropertyChangeListener;
 
 public interface PetriNetComponent {
 
+
+    /**
+     * Message fired with the id field is set
+     */
+    public static final String ID_CHANGE_MESSAGE = "id";
+
+    /**
+     * Message fired when the name field is set
+     */
+    public static final String NAME_CHANGE_MESSAGE = "name";
+
     boolean isSelectable();
 
     boolean isDraggable();
@@ -26,8 +37,6 @@ public interface PetriNetComponent {
     String getId();
 
     void setId(String id);
-
-    void setName(String name);
 
     void addPropertyChangeListener(PropertyChangeListener listener);
 

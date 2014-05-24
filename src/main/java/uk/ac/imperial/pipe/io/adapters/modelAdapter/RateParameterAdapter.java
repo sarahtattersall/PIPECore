@@ -31,7 +31,7 @@ public class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter, RateP
         AdaptedRateParameter adaptedRateParameter = new AdaptedRateParameter();
         adaptedRateParameter.setExpression(rateParameter.getExpression());
         adaptedRateParameter.setId(rateParameter.getId());
-        adaptedRateParameter.setName(rateParameter.getName());
+        adaptedRateParameter.setName(rateParameter.getId());
         return adaptedRateParameter;
     }
 }
