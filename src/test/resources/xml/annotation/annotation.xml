@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <pnml>
    <net>
       <labels border="false" x="93" y="145" width="48" height="20">

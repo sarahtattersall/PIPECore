@@ -1,11 +1,11 @@
 package uk.ac.imperial.pipe.io;
 
 import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
 import org.xml.sax.SAXException;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
@@ -15,7 +15,6 @@ import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import utils.FileUtils;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.awt.Color;
 import java.io.IOException;
@@ -27,14 +26,8 @@ public class PetriNetWriterTest extends XMLTestCase {
 
     @Override
     public void setUp() throws JAXBException {
+        XMLUnit.setIgnoreWhitespace(true);
         writer = new PetriNetIOImpl();
-    }
-
-    public void testUsesMoxyProvider() throws JAXBException {
-        assertEquals("class org.eclipse.persistence.jaxb.JAXBContext",
-                (JAXBContext.newInstance(PetriNetHolder.class).getClass()).toString());
-        assertEquals("class org.eclipse.persistence.jaxb.JAXBContext",
-                (JAXBContext.newInstance(PetriNet.class).getClass()).toString());
     }
 
     public void testMarshalsPlace() throws IOException, SAXException {
