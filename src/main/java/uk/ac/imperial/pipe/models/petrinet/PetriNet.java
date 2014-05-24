@@ -10,6 +10,7 @@ import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
@@ -150,7 +151,7 @@ public class PetriNet {
     }
 
     private void initialiseIdMap() {
-        componentMaps.put(Place.class, places);
+        componentMaps.put(DiscretePlace.class, places);
         componentMaps.put(Transition.class, transitions);
         componentMaps.put(InboundArc.class, inboundArcs);
         componentMaps.put(OutboundArc.class, outboundArcs);

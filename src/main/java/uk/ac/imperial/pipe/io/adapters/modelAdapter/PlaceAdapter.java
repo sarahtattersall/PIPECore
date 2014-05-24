@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
 import uk.ac.imperial.pipe.io.adapters.model.OffsetGraphics;
 import uk.ac.imperial.pipe.io.adapters.model.Point;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 
@@ -35,7 +36,7 @@ public class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     @Override
     public Place unmarshal(AdaptedPlace adaptedPlace) {
         NameDetails nameDetails = adaptedPlace.getName();
-        Place place = new Place(adaptedPlace.getId(), nameDetails.getName());
+        Place place = new DiscretePlace(adaptedPlace.getId(), nameDetails.getName());
         place.setCapacity(adaptedPlace.getCapacity());
         ConnectableUtils.setConnectablePosition(place, adaptedPlace);
         ConnectableUtils.setConntactableNameOffset(place, adaptedPlace);

@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -120,7 +121,7 @@ public class ExpanderTest {
         petriNet.addToken(token);
         petriNet.addToken(redToken);
 
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         place.setTokenCount(redToken.getId(), 1);
         petriNet.addPlace(place);
         Transition transition = new Transition("T0", "T0");

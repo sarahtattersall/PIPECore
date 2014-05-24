@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
 import uk.ac.imperial.pipe.models.component.arc.ArcType;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
@@ -134,7 +135,7 @@ public class PetriNetReaderTest {
     public void createsArc() throws UnparsableException {
 
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getArcNoWeightFile()));
-        Place expectedSource = new Place("P0", "P0");
+        Place expectedSource = new DiscretePlace("P0", "P0");
         Transition expectedTarget = new Transition("T0", "T0");
         assertThat(petriNet.getArcs()).extracting("type", "source", "target", "id").contains(
                 tuple(ArcType.NORMAL, expectedSource, expectedTarget, "P0 TO T0"));

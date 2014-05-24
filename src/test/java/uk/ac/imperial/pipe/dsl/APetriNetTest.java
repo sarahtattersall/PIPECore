@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.models.component.arc.*;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
@@ -21,7 +22,7 @@ public class APetriNetTest {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P0"));
 
         PetriNet expected = new PetriNet();
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         expected.addPlace(place);
 
         assertEquals(expected, petriNet);
@@ -37,7 +38,7 @@ public class APetriNetTest {
         PetriNet expected = new PetriNet();
         Token token = new Token("Default", Color.RED);
         expected.addToken(token);
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         expected.addPlace(place);
         Transition transition = new Transition("T0", "T0");
         expected.addTransition(transition);
@@ -75,7 +76,7 @@ public class APetriNetTest {
         RateParameter rateParameter = new RateParameter("10", "Foo", "Foo");
         expected.addRateParameter(rateParameter);
 
-        Place p0 = new Place("P0", "P0");
+        Place p0 = new DiscretePlace("P0", "P0");
         p0.setCapacity(10);
         Map<String, Integer> p0Tokens = new HashMap<>();
         p0Tokens.put(blue.getId(), 5);
@@ -83,7 +84,7 @@ public class APetriNetTest {
         p0.setTokenCounts(p0Tokens);
         expected.addPlace(p0);
 
-        Place p1 = new Place("P1", "P1");
+        Place p1 = new DiscretePlace("P1", "P1");
         expected.addPlace(p1);
 
         Transition t0 = new Transition("T0", "T0");

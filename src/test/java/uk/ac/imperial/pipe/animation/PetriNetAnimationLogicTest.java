@@ -6,6 +6,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -132,7 +133,7 @@ public class PetriNetAnimationLogicTest {
     public void correctlyIdentifiesNotEnabledTransitionDueToEmptyPlace() throws PetriNetComponentNotFoundException {
         int tokenWeight = 4;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
-        Place place = petriNet.getComponent("P1", Place.class);
+        Place place = petriNet.getComponent("P1", DiscretePlace.class);
         Transition transition = petriNet.getComponent("T1", Transition.class);
         place.decrementTokenCount("Default");
 
@@ -208,7 +209,7 @@ public class PetriNetAnimationLogicTest {
         InboundArc arc = petriNet.getComponent("P1 TO T1", InboundArc.class);
         arc.getTokenWeights().put(redToken.getId(), "1");
 
-        Place place = petriNet.getComponent("P1", Place.class);
+        Place place = petriNet.getComponent("P1", DiscretePlace.class);
         Transition transition = petriNet.getComponent("T1", Transition.class);
         place.incrementTokenCount(redToken.getId());
 
@@ -238,9 +239,9 @@ public class PetriNetAnimationLogicTest {
         PetriNet petriNet = createSimplePetriNet(2);
         Token token = petriNet.getComponent("Default", Token.class);
 
-        Place p1 = petriNet.getComponent("P1", Place.class);
+        Place p1 = petriNet.getComponent("P1", DiscretePlace.class);
         p1.setTokenCount(token.getId(), 2);
-        Place p2 = petriNet.getComponent("P2", Place.class);
+        Place p2 = petriNet.getComponent("P2", DiscretePlace.class);
         p2.setCapacity(1);
 
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -253,7 +254,7 @@ public class PetriNetAnimationLogicTest {
     @Test
     public void correctlyEnablesTransitionIfSelfLoop() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = createSelfLoopPetriNet("1");
-        Place place = petriNet.getComponent("P0", Place.class);
+        Place place = petriNet.getComponent("P0", DiscretePlace.class);
         Token token = petriNet.getComponent("Default", Token.class);
         place.setTokenCount(token.getId(), 1);
         place.setCapacity(1);

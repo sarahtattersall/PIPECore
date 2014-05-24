@@ -11,6 +11,7 @@ import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -44,7 +45,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingPlace() throws PetriNetComponentException {
-        Place place = new Place("id", "name");
+        Place place = new DiscretePlace("id", "name");
         place.setCapacity(10);
         pasteComponents.add(place);
         visitor = new PasteVisitor(petriNet, pasteComponents, mockNamer);
@@ -66,7 +67,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingPlaceWithOffset() throws PetriNetComponentException {
-        Place place = new Place("id", "name");
+        Place place = new DiscretePlace("id", "name");
         place.setCapacity(10);
         pasteComponents.add(place);
         Point offset = new Point(40, 20);
@@ -119,7 +120,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingArcTransitionAndPlaceInSelected() throws PetriNetComponentException {
-        Place place = new Place("id", "name");
+        Place place = new DiscretePlace("id", "name");
         Transition transition = new Transition("id", "name");
         pasteComponents.add(place);
         pasteComponents.add(transition);
@@ -141,7 +142,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingArcSourceInSelected() throws PetriNetComponentException {
-        Place place = new Place("id", "name");
+        Place place = new DiscretePlace("id", "name");
         pasteComponents.add(place);
 
         Transition transition = new Transition("id", "name");
@@ -158,7 +159,7 @@ public class PasteVisitorTest {
     @Test
     public void pastingArcKeepsIntermediatePoints() throws PetriNetComponentException {
 
-            Place place = new Place("id", "name");
+            Place place = new DiscretePlace("id", "name");
             pasteComponents.add(place);
 
             Transition transition = new Transition("id", "name");
@@ -210,7 +211,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingArcTargetInSelected() throws PetriNetComponentException {
-        Place place = new Place("id", "name");
+        Place place = new DiscretePlace("id", "name");
         Transition transition = new Transition("id", "name");
         pasteComponents.add(transition);
 

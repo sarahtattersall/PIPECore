@@ -4,7 +4,7 @@ import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 /**
- * A class that attempts to produce names for {@link uk.ac.imperial.pipe.models.component.place.Place}
+ * A class that attempts to produce names for {@link uk.ac.imperial.pipe.models.component.place.DiscretePlace}
  * that are distinct from others.
  */
 public class PlaceNamer extends ComponentNamer {

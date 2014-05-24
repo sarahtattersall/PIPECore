@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
@@ -33,7 +34,7 @@ public class PetriNetWriterTest extends XMLTestCase {
     public void testMarshalsPlace() throws IOException, SAXException {
         PetriNet petriNet = new PetriNet();
         Token token = new Token("Red", new Color(255, 0, 0));
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         place.setX(255);
         place.setY(240);
         place.setNameXOffset(5);

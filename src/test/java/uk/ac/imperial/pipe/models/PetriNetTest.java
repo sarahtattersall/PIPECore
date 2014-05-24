@@ -15,6 +15,7 @@ import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
@@ -56,7 +57,7 @@ public class PetriNetTest {
     @Test
     public void addingPlaceNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Place place = new Place("P1", "P1");
+        Place place = new DiscretePlace("P1", "P1");
         net.addPlace(place);
 
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
@@ -64,7 +65,7 @@ public class PetriNetTest {
 
     @Test
     public void addingDuplicatePlaceDoesNotNotifyObservers() {
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         net.addPlace(place);
 
         net.addPropertyChangeListener(mockListener);
@@ -76,7 +77,7 @@ public class PetriNetTest {
     @Test
     public void removingPlaceNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         net.addPlace(place);
         net.removePlace(place);
 
@@ -106,7 +107,7 @@ public class PetriNetTest {
     public void removingArcNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
         InboundArc mockArc = mock(InboundArc.class);
-        Place place = mock(Place.class);
+        Place place = mock(DiscretePlace.class);
         Transition transition = mock(Transition.class);
         when(mockArc.getTarget()).thenReturn(transition);
         when(mockArc.getSource()).thenReturn(place);
@@ -148,7 +149,7 @@ public class PetriNetTest {
         expectedException.expect(PetriNetComponentException.class);
         expectedException.expectMessage("Cannot remove Default token places: P0 contain it");
         Token token = new Token("Default", Color.BLACK);
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         place.setTokenCount(token.getId(), 2);
         net.addPlace(place);
 
@@ -248,7 +249,7 @@ public class PetriNetTest {
 
     @Test
     public void genericRemoveMethodRemovesPlace() throws PetriNetComponentException {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         net.addPlace(place);
 
         assertEquals(1, net.getPlaces().size());
@@ -258,7 +259,7 @@ public class PetriNetTest {
 
     @Test
     public void genericRemoveMethodRemovesArc() throws PetriNetComponentException {
-        Place place = new Place("source", "source");
+        Place place = new DiscretePlace("source", "source");
         Transition transition = new Transition("target", "target");
         Map<String, String> weights = new HashMap<>();
         InboundNormalArc arc = new InboundNormalArc(place, transition, weights);
@@ -402,17 +403,17 @@ public class PetriNetTest {
 
     @Test
     public void canGetPlaceById() throws PetriNetComponentNotFoundException {
-        Place p = new Place("P0", "P0");
+        Place p = new DiscretePlace("P0", "P0");
         net.addPlace(p);
-        assertEquals(p, net.getComponent(p.getId(), Place.class));
+        assertEquals(p, net.getComponent(p.getId(), DiscretePlace.class));
     }
 
     @Test
     public void canGetPlaceByIdAfterIdChange() throws PetriNetComponentNotFoundException {
-        Place p = new Place("P0", "P0");
+        Place p = new DiscretePlace("P0", "P0");
         net.addPlace(p);
         p.setId("P1");
-        assertEquals(p, net.getComponent(p.getId(), Place.class));
+        assertEquals(p, net.getComponent(p.getId(), DiscretePlace.class));
     }
 
     @Test
@@ -447,7 +448,7 @@ public class PetriNetTest {
 
     @Test
     public void canGetArcById() throws PetriNetComponentNotFoundException {
-        Place p = new Place("P0", "P0");
+        Place p = new DiscretePlace("P0", "P0");
         Transition t = new Transition("T0", "T0");
         InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
         net.addArc(a);
@@ -456,7 +457,7 @@ public class PetriNetTest {
 
     @Test
     public void canGetArcByIdAfterNameChange() throws PetriNetComponentNotFoundException {
-        Place p = new Place("P0", "P0");
+        Place p = new DiscretePlace("P0", "P0");
         Transition t = new Transition("T0", "T0");
         InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
         net.addArc(a);
@@ -467,7 +468,7 @@ public class PetriNetTest {
     @Test
     public void changingTokenIdChangesPlaceReferences() {
         Token token = new Token("Default", Color.BLACK);
-        Place place = new Place("P1", "P1");
+        Place place = new DiscretePlace("P1", "P1");
         place.setTokenCount(token.getId(), 5);
 
         net.addToken(token);
@@ -480,7 +481,7 @@ public class PetriNetTest {
 
     @Test
     public void changingTokenIdChangesArcReferences() {
-        Place p = new Place("P0", "P0");
+        Place p = new DiscretePlace("P0", "P0");
         Transition t = new Transition("T0", "T0");
         Token token = new Token("Default", Color.BLACK);
 

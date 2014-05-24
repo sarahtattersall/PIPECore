@@ -3,8 +3,9 @@ package uk.ac.imperial.pipe.visitor;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.arc.*;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlaceVisitor;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -15,7 +16,7 @@ import java.util.*;
 /**
  * Paste visitor pastes components into a petri net
  */
-public class PasteVisitor implements TransitionVisitor, ArcVisitor, PlaceVisitor {
+public class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlaceVisitor {
 
     private final MultipleNamer multipleNamer;
 
@@ -61,8 +62,8 @@ public class PasteVisitor implements TransitionVisitor, ArcVisitor, PlaceVisitor
     }
 
     @Override
-    public void visit(Place place) {
-        Place newPlace = new Place(place);
+    public void visit(DiscretePlace place) {
+        Place newPlace = new DiscretePlace(place);
         setId(newPlace);
         setName(newPlace);
         setOffset(newPlace);

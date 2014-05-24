@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.visitor.TranslationVisitor;
@@ -35,7 +36,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesIntermediateArcPointsIfBothSourceAndTargetInSelected() {
-        Place place = mock(Place.class);
+        Place place = mock(DiscretePlace.class);
         Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
@@ -60,7 +61,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void doesNotTranslateArcIfSourceIsOnlySelected() {
-        Place place = mock(Place.class);
+        Place place = mock(DiscretePlace.class);
         Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
@@ -84,7 +85,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void doesNotTranslateIfTargetsOnlySelected() {
-        Place place = mock(Place.class);
+        Place place = mock(DiscretePlace.class);
         Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
@@ -107,7 +108,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesPlaceCorrectly() {
-        Place place = mock(Place.class);
+        DiscretePlace place = mock(DiscretePlace.class);
         int x_y_value = 40;
         when(place.getX()).thenReturn(x_y_value);
         when(place.getY()).thenReturn(x_y_value);

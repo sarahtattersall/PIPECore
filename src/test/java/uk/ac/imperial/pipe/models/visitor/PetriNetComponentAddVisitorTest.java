@@ -5,6 +5,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -32,7 +33,7 @@ public class PetriNetComponentAddVisitorTest {
 
     @Test
     public void testAddsInboundNormalArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
@@ -44,7 +45,7 @@ public class PetriNetComponentAddVisitorTest {
 
     @Test
     public void testAddsOutboundNormalArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         Map<String, String> weights = new HashMap<>();
         OutboundArc arc = new OutboundNormalArc(transition, place, weights);
@@ -54,7 +55,7 @@ public class PetriNetComponentAddVisitorTest {
 
     @Test
     public void testAddsInhibitorArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         InboundArc arc = new InboundInhibitorArc(place, transition);
         arc.accept(visitor);
@@ -62,8 +63,8 @@ public class PetriNetComponentAddVisitorTest {
     }
 
     @Test
-    public void testAddsPlace() {
-        Place place = new Place("", "");
+    public void testAddsPlace() throws PetriNetComponentException {
+        Place place = new DiscretePlace("", "");
         place.accept(visitor);
         verify(mockNet).addPlace(place);
     }

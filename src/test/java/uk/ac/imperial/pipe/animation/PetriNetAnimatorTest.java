@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.animation;
 import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -23,7 +24,7 @@ public class PetriNetAnimatorTest {
     public void correctlyIncrementsTokenCountInSelfLoop() throws PetriNetComponentNotFoundException {
 
         PetriNet petriNet = createSelfLoopPetriNet("1");
-        Place place = petriNet.getComponent("P0", Place.class);
+        Place place = petriNet.getComponent("P0", DiscretePlace.class);
         place.setTokenCount("Default", 1);
         place.setCapacity(1);
 
@@ -43,8 +44,8 @@ public class PetriNetAnimatorTest {
                 ANormalArc.withSource("P0").andTarget("T1").with("#(P0)", "Default").tokens()).andFinally(
                 ANormalArc.withSource("T1").andTarget("P1").with("#(P0)*2", "Red").tokens());
 
-        Place p1 = petriNet.getComponent("P0", Place.class);
-        Place p2 = petriNet.getComponent("P1", Place.class);
+        Place p1 = petriNet.getComponent("P0", DiscretePlace.class);
+        Place p2 = petriNet.getComponent("P1", DiscretePlace.class);
         Transition transition = petriNet.getComponent("T1", Transition.class);
 
         Animator animator = new PetriNetAnimator(petriNet);
@@ -58,7 +59,7 @@ public class PetriNetAnimatorTest {
     public void firingTransitionDoesNotDisableTransition() throws PetriNetComponentNotFoundException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
-        Place place = petriNet.getComponent("P1", Place.class);
+        Place place = petriNet.getComponent("P1", DiscretePlace.class);
         Token token = petriNet.getComponent("Default", Token.class);
         place.setTokenCount(token.getId(), 2);
 
@@ -101,7 +102,7 @@ public class PetriNetAnimatorTest {
         Animator animator = new PetriNetAnimator(petriNet);
         animator.fireTransitionBackwards(transition);
 
-        Place place = petriNet.getComponent("P1", Place.class);
+        Place place = petriNet.getComponent("P1", DiscretePlace.class);
         Token token = petriNet.getComponent("Default", Token.class);
 
         assertThat(place.getTokenCount(token.getId())).isEqualTo(1);
@@ -142,8 +143,8 @@ public class PetriNetAnimatorTest {
         animator.fireTransition(transition);
 
         Token token = petriNet.getComponent("Default", Token.class);
-        Place p1 = petriNet.getComponent("P1", Place.class);
-        Place p2 = petriNet.getComponent("P2", Place.class);
+        Place p1 = petriNet.getComponent("P1", DiscretePlace.class);
+        Place p2 = petriNet.getComponent("P2", DiscretePlace.class);
         assertEquals(0, p1.getTokenCount(token.getId()));
         assertEquals(1, p2.getTokenCount(token.getId()));
     }

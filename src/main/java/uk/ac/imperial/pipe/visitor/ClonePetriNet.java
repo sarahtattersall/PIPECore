@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.Place;
@@ -129,7 +130,13 @@ public class ClonePetriNet {
     }
 
     public void visit(Place place) {
-        Place newPlace = new Place(place);
+        PlaceCloner cloner = new PlaceCloner();
+        try {
+            place.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
+        Place newPlace = cloner.cloned;
         for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
             newPlace.setTokenCount(entry.getKey(), entry.getValue());
         }
@@ -161,4 +168,5 @@ public class ClonePetriNet {
         transitions.put(transition.getId(), newTransition);
         newPetriNet.addTransition(newTransition);
     }
+
 }

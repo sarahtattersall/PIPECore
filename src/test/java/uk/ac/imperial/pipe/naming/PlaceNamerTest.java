@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.naming;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -34,7 +35,7 @@ public class PlaceNamerTest {
 
     @Test
     public void returnP0IfPlacesDontConflict() {
-        Place place = new Place("P1", "P1");
+        Place place = new DiscretePlace("P1", "P1");
         petriNet.addPlace(place);
         String actual = placeNamer.getName();
         assertEquals("P0", actual);
@@ -57,8 +58,8 @@ public class PlaceNamerTest {
 
     @Test
     public void returnMiddleValue() {
-        Place place = new Place("P0", "P0");
-        Place place2 = new Place("P2", "P2");
+        Place place = new DiscretePlace("P0", "P0");
+        Place place2 = new DiscretePlace("P2", "P2");
         petriNet.addPlace(place);
         petriNet.addPlace(place2);
 
@@ -69,7 +70,7 @@ public class PlaceNamerTest {
 
     @Test
     public void reUseDeletedValue() {
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         petriNet.addPlace(place);
 
         String actual = placeNamer.getName();
@@ -88,7 +89,7 @@ public class PlaceNamerTest {
      */
     @Test
     public void returnCorrectValueAfterConstructor() {
-        Place place = new Place("P0", "P0");
+        Place place = new DiscretePlace("P0", "P0");
         petriNet.addPlace(place);
         petriNet.addPlace(place);
 
@@ -102,7 +103,7 @@ public class PlaceNamerTest {
     private void addNConsecutivePlaces(int n) {
         for (int i = 0; i < n; i++) {
             String id = "P" + i;
-            Place place = new Place(id, id);
+            Place place = new DiscretePlace(id, id);
             petriNet.addPlace(place);
         }
     }
@@ -110,7 +111,7 @@ public class PlaceNamerTest {
     @Test
     public void identifiesNonUniqueName() {
         String name = "Place 0";
-        Place place = new Place(name, name);
+        Place place = new DiscretePlace(name, name);
         petriNet.addPlace(place);
         PlaceNamer newNamer = new PlaceNamer(petriNet);
 
@@ -121,7 +122,7 @@ public class PlaceNamerTest {
     @Test
     public void identifiesUniqueName() {
         String name = "Place 0";
-        Place place = new Place(name, name);
+        Place place = new DiscretePlace(name, name);
         petriNet.addPlace(place);
         PlaceNamer newNamer = new PlaceNamer(petriNet);
 
@@ -131,7 +132,7 @@ public class PlaceNamerTest {
     @Test
     public void observesTransitionNameChanges() {
         String originalId = "Place 0";
-        Place place = new Place(originalId, originalId);
+        Place place = new DiscretePlace(originalId, originalId);
         petriNet.addPlace(place);
         UniqueNamer newNamer = new PlaceNamer(petriNet);
         String newId = "Place 1";

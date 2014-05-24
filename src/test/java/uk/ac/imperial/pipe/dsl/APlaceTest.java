@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.dsl;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
@@ -34,7 +35,7 @@ public class APlaceTest {
     @Test
     public void createsPlaceWithId() {
         Place place = APlace.withId("P0").create(tokens, places, transitions, rateParameters);
-        Place expected = new Place("P0", "P0");
+        Place expected = new DiscretePlace("P0", "P0");
         assertEquals(expected, place);
     }
 
@@ -47,7 +48,7 @@ public class APlaceTest {
     @Test
     public void createsPlaceWithCapacity() {
         Place place = APlace.withId("P0").andCapacity(5).create(tokens, places,transitions , rateParameters);
-        Place expected = new Place("P0", "P0");
+        Place expected = new DiscretePlace("P0", "P0");
         expected.setCapacity(5);
         assertEquals(expected, place);
     }
@@ -58,7 +59,7 @@ public class APlaceTest {
         tokens.put("Red", new Token("Red", Color.RED));
 
         Place place = APlace.withId("P0").containing(5, "Red").tokens().and(1, "Default").token().create(tokens, places, transitions, rateParameters);
-        Place expected = new Place("P0", "P0");
+        Place expected = new DiscretePlace("P0", "P0");
         expected.setTokenCount("Red", 5);
         expected.setTokenCount("Default", 1);
         assertEquals(expected, place);

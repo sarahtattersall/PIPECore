@@ -8,6 +8,7 @@ import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.visitor.PlaceCloner;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -217,8 +218,15 @@ public class Expander {
         if (newPlaces.containsKey(id)) {
             return newPlaces.get(id);
         }
+        PlaceCloner cloner = new PlaceCloner();
+        try {
+            original.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
 
-        Place place = new Place(original);
+
+        Place place = cloner.cloned;
 
         Map<String, Integer> newTokenCounts = new HashMap<>();
         if (tokenCount > 0) {

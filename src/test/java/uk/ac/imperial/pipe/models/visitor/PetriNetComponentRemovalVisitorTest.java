@@ -5,6 +5,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
@@ -32,7 +33,7 @@ public class PetriNetComponentRemovalVisitorTest {
 
     @Test
     public void testDeletesInboundNormalArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
@@ -43,7 +44,7 @@ public class PetriNetComponentRemovalVisitorTest {
 
     @Test
     public void testDeletesOutboundNormalArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         Map<String, String> weights = new HashMap<>();
         OutboundArc arc = new OutboundNormalArc(transition, place, weights);
@@ -54,7 +55,7 @@ public class PetriNetComponentRemovalVisitorTest {
 
     @Test
     public void testDeletesInboundInhibitorArc() {
-        Place place = new Place("", "");
+        Place place = new DiscretePlace("", "");
         Transition transition = new Transition("", "");
         InboundArc arc = new InboundInhibitorArc(place, transition);
         arc.accept(visitor);
@@ -62,8 +63,8 @@ public class PetriNetComponentRemovalVisitorTest {
     }
 
     @Test
-    public void testDeletesPlace() {
-        Place place = new Place("", "");
+    public void testDeletesPlace() throws PetriNetComponentException {
+        Place place = new DiscretePlace("", "");
         place.accept(visitor);
         verify(mockNet).removePlace(place);
     }

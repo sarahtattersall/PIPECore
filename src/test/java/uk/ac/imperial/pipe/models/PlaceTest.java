@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 
 import java.awt.Point;
@@ -28,7 +29,7 @@ public class PlaceTest {
 
     @Before
     public void setUp() {
-        place = new Place("test", "test");
+        place = new DiscretePlace("test", "test");
     }
 
     @Test
