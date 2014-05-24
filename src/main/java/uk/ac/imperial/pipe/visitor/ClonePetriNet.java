@@ -5,6 +5,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.rate.RateType;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
@@ -146,7 +147,13 @@ public class ClonePetriNet {
     }
 
     public void visit(RateParameter rate) {
-       RateParameter rateParameter = new RateParameter(rate);
+        RateParameterCloner cloner = new RateParameterCloner();
+        try {
+            rate.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
+        RateParameter rateParameter = cloner.cloned;
         try {
             newPetriNet.addRateParameter(rateParameter);
             rateParameters.put(rateParameter.getId(), rateParameter);
@@ -169,7 +176,7 @@ public class ClonePetriNet {
         }
         Transition newTransition = cloner.cloned;
         if (transition.getRate().getRateType().equals(RateType.RATE_PARAMETER)) {
-            RateParameter rateParameter = (RateParameter) transition.getRate();
+            FunctionalRateParameter rateParameter = (FunctionalRateParameter) transition.getRate();
             newTransition.setRate(rateParameters.get(rateParameter.getId()));
         }
         transitions.put(transition.getId(), newTransition);

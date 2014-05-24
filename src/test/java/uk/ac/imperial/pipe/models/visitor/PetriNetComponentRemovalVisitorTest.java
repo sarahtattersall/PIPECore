@@ -7,7 +7,7 @@ import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
@@ -89,7 +89,7 @@ public class PetriNetComponentRemovalVisitorTest {
 
     @Test
     public void testDeletesRateParameter() throws Exception {
-        RateParameter parameter = new RateParameter("2", "Foo", "Foo");
+        FunctionalRateParameter parameter = new FunctionalRateParameter("2", "Foo", "Foo");
         parameter.accept(visitor);
         verify(mockNet).removeRateParameter(parameter);
     }

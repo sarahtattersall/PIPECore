@@ -7,7 +7,7 @@ import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.InboundInhibitorArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -22,7 +22,7 @@ public class AnInhibitorArcTest {
 
     private Map<String, Place> places;
 
-    private Map<String, RateParameter> rateParameters;
+    private Map<String, FunctionalRateParameter> rateParameters;
 
     private Map<String, Transition> transitions;
 

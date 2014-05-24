@@ -9,8 +9,8 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
@@ -75,7 +75,7 @@ public class PetriNetWriterTest extends XMLTestCase {
 
     public void testMarshalsTransitionWithRateParameter() throws IOException, SAXException, InvalidRateException {
         PetriNet petriNet = new PetriNet();
-        RateParameter rateParameter = new RateParameter("6.0", "foo", "foo");
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter("6.0", "foo", "foo");
 
         Transition transition = new DiscreteTransition("T0", "T0");
         transition.setX(435);

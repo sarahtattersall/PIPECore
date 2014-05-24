@@ -4,7 +4,7 @@ import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.InboundInhibitorArc;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -32,7 +32,7 @@ public class AnInhibitorArc implements DSLCreator<Arc<? extends Connectable, ? e
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
                                                                     Map<String, Place> places,
-                                                                    Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {
+                                                                    Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         return new InboundInhibitorArc(places.get(source), transitions.get(target));
     }
 }

@@ -1,13 +1,13 @@
 package uk.ac.imperial.pipe.dsl;
 
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
 import java.util.Map;
 
-public class ARateParameter implements DSLCreator<RateParameter> {
+public class ARateParameter implements DSLCreator<FunctionalRateParameter> {
 
 
     private final String id;
@@ -33,9 +33,9 @@ public class ARateParameter implements DSLCreator<RateParameter> {
 
 
     @Override
-    public RateParameter create(Map<String, Token> tokens, Map<String, Place> places,
-                                Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {
-        RateParameter rateParameter = new RateParameter(expression, id, id);
+    public FunctionalRateParameter create(Map<String, Token> tokens, Map<String, Place> places,
+                                Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter(expression, id, id);
         rateParameters.put(id, rateParameter);
         return rateParameter;
     }

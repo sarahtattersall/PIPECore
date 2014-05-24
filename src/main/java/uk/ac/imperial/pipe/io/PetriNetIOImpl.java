@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.io;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.*;
 import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -89,7 +89,7 @@ public class PetriNetIOImpl implements PetriNetIO {
         Map<String, Place> places = new HashMap<>();
         Map<String, Transition> transitions = new HashMap<>();
         Map<String, Token> tokens = new HashMap<>();
-        Map<String, RateParameter> rateParameters = new HashMap<>();
+        Map<String, FunctionalRateParameter> rateParameters = new HashMap<>();
 
         um.setAdapter(new RateParameterAdapter(rateParameters));
         um.setAdapter(new ArcAdapter(places, transitions, tokens));

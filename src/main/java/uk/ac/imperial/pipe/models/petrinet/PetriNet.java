@@ -10,14 +10,11 @@ import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.parsers.EvalVisitor;
@@ -636,16 +633,6 @@ public class PetriNet {
 
     private <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
         return (Map<String, T>) componentMaps.get(clazz);
-    }
-
-    //TODO: Replace with getComponent
-    public RateParameter getRateParameter(String rateParameterId) throws PetriNetComponentNotFoundException {
-        for (RateParameter rateParameter : rateParameters.values()) {
-            if (rateParameter.getId().equals(rateParameterId)) {
-                return rateParameter;
-            }
-        }
-        throw new PetriNetComponentNotFoundException("No rate parameter " + rateParameterId + " exists in Petri net.");
     }
 
     //TODO: SHOULD WE BE CATCHING THE ERROR?

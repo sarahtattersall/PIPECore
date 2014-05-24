@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.io;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.Arc;
 import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
@@ -193,10 +194,10 @@ public class PetriNetReaderTest {
     }
 
     @Test
-    public void transitionReferencesRateParameter() throws UnparsableException {
+    public void transitionReferencesRateParameter() throws UnparsableException, PetriNetComponentNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getTransitionRateParameterFile()));
-        RateParameter rateParameter = petriNet.getRateParameters().iterator().next();
-        Transition transition = petriNet.getTransitions().iterator().next();
+        RateParameter rateParameter = petriNet.getComponent("foo", RateParameter.class);
+        Transition transition = petriNet.getComponent("T0", Transition.class);
         assertEquals(rateParameter, transition.getRate());
     }
 

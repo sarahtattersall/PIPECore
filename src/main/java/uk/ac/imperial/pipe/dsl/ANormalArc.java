@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -62,7 +62,7 @@ public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? exten
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
                                                                     Map<String, Place> places,
-                                                                    Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {
+                                                                    Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         Arc<? extends Connectable, ? extends Connectable> arc;
         if(places.containsKey(source)){
             arc = new InboundNormalArc(places.get(source), transitions.get(target), weights);

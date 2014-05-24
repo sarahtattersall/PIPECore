@@ -5,7 +5,7 @@ import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
@@ -75,7 +75,7 @@ public class APetriNetTest {
         Token blue = new ColoredToken("Blue", Color.BLUE);
         expected.addToken(blue);
 
-        RateParameter rateParameter = new RateParameter("10", "Foo", "Foo");
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter("10", "Foo", "Foo");
         expected.addRateParameter(rateParameter);
 
         Place p0 = new DiscretePlace("P0", "P0");

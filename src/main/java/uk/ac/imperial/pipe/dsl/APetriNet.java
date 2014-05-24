@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -88,7 +88,7 @@ public class APetriNet {
         Map<String, Token> tokens = new HashMap<>();
         Map<String, Place> places = new HashMap<>();
         Map<String, Transition> transitions = new HashMap<>();
-        Map<String, RateParameter> rateParameters = new HashMap<>();
+        Map<String, FunctionalRateParameter> rateParameters = new HashMap<>();
 
         PetriNet petriNet = new PetriNet();
         for (DSLCreator<? extends PetriNetComponent> creator : creators) {

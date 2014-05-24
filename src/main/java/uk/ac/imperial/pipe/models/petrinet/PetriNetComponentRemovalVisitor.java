@@ -9,7 +9,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.RateParameterVisitor;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.token.TokenVisitor;
@@ -47,7 +47,7 @@ public class PetriNetComponentRemovalVisitor
     }
 
     @Override
-    public void visit(RateParameter rate) throws InvalidRateException {
+    public void visit(FunctionalRateParameter rate) throws InvalidRateException {
         net.removeRateParameter(rate);
     }
 

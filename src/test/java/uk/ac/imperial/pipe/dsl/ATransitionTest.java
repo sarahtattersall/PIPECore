@@ -3,8 +3,8 @@ package uk.ac.imperial.pipe.dsl;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -23,7 +23,7 @@ public class ATransitionTest {
 
     private Map<String, Transition> transitions;
 
-    private Map<String, RateParameter> rateParameters;
+    private Map<String, FunctionalRateParameter> rateParameters;
 
 
     @Before
@@ -105,7 +105,7 @@ public class ATransitionTest {
 
     @Test
     public void createsTransitionWithARateParameter() {
-        rateParameters.put("Foo", new RateParameter("5", "Foo", "Foo"));
+        rateParameters.put("Foo", new FunctionalRateParameter("5", "Foo", "Foo"));
         Transition transition =
                 ATransition.withId("T0").withRateParameter("Foo").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");

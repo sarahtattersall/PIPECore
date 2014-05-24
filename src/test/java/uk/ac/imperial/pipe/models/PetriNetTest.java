@@ -16,6 +16,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
@@ -225,7 +226,7 @@ public class PetriNetTest {
     @Test
     public void addingRateParameterNotifiesObservers() throws InvalidRateException {
         net.addPropertyChangeListener(mockListener);
-        RateParameter rateParameter = new RateParameter("5", "id", "name");
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter("5", "id", "name");
         net.addRateParameter(rateParameter);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
@@ -287,19 +288,11 @@ public class PetriNetTest {
         net.getComponent("foo", Token.class);
     }
 
-
-    @Test
-    public void throwsExceptionIfNoRateParameterExists() throws PetriNetComponentNotFoundException {
-        expectedException.expect(PetriNetComponentNotFoundException.class);
-        expectedException.expectMessage("No rate parameter foo exists in Petri net");
-        net.getRateParameter("foo");
-    }
-
     @Test
     public void throwsExceptionIfRateParameterIsNotValid() throws InvalidRateException {
         expectedException.expect(InvalidRateException.class);
         expectedException.expectMessage("Rate of hsfg is invalid");
-        RateParameter rateParameter = new RateParameter("hsfg", "id", "name");
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter("hsfg", "id", "name");
         net.addRateParameter(rateParameter);
     }
 
@@ -337,7 +330,7 @@ public class PetriNetTest {
     @Test
     public void deletingRateParameterRemovesItFromTransition() throws InvalidRateException {
         String rate = "5.0";
-        RateParameter rateParameter = new RateParameter(rate, "R0", "R0");
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter(rate, "R0", "R0");
         Transition transition = new DiscreteTransition("T0", "T0", rateParameter, 0);
 
         net.addRateParameter(rateParameter);
@@ -411,14 +404,14 @@ public class PetriNetTest {
 
     @Test
     public void canGetRateParameterById() throws PetriNetComponentNotFoundException, InvalidRateException {
-        RateParameter r = new RateParameter("2", "R0", "R0");
+        FunctionalRateParameter r = new FunctionalRateParameter("2", "R0", "R0");
         net.addRateParameter(r);
         assertEquals(r, net.getComponent(r.getId(), RateParameter.class));
     }
 
     @Test
     public void canGetRateParameterByIdAfterIdChange() throws PetriNetComponentNotFoundException, InvalidRateException {
-        RateParameter r = new RateParameter("2", "R0", "R0");
+        FunctionalRateParameter r = new FunctionalRateParameter("2", "R0", "R0");
         net.addRateParameter(r);
         r.setId("R1");
         assertEquals(r, net.getComponent(r.getId(), RateParameter.class));

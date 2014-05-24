@@ -3,9 +3,9 @@ package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedTransition;
 import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition> {
     private final Map<String, Transition> transitions;
-    private final Map<String, RateParameter> rateParameters;
+    private final Map<String, FunctionalRateParameter> rateParameters;
 
     /**
      * Empty constructor needed for marshalling. Since the method to marshall does not actually
@@ -26,7 +26,7 @@ public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition>
         rateParameters = new HashMap<>();
     }
 
-    public TransitionAdapter(Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {
+    public TransitionAdapter(Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
 
         this.transitions = transitions;
         this.rateParameters = rateParameters;
@@ -69,8 +69,8 @@ public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition>
         adaptedTransition.setTimed(transition.isTimed());
 
         Rate rate = transition.getRate();
-        if (rate instanceof RateParameter) {
-            RateParameter rateParameter = (RateParameter) rate;
+        if (rate instanceof FunctionalRateParameter) {
+            FunctionalRateParameter rateParameter = (FunctionalRateParameter) rate;
             AdaptedTransition.ToolSpecific toolSpecific = new AdaptedTransition.ToolSpecific();
             toolSpecific.setRateDefinition(rateParameter.getId());
             adaptedTransition.setToolSpecific(toolSpecific);

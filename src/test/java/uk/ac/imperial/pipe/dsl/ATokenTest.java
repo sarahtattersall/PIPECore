@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -20,7 +20,7 @@ public class ATokenTest {
 
     private Map<String, Place> places;
 
-    private Map<String, RateParameter> rateParameters;
+    private Map<String, FunctionalRateParameter> rateParameters;
 
     private Map<String, Transition> transitions;
 
