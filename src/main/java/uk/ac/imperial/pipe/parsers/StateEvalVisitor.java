@@ -1,7 +1,6 @@
 package uk.ac.imperial.pipe.parsers;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
@@ -94,7 +93,7 @@ public class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
 
 
     public Place getPlace(String name) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(name, DiscretePlace.class);
+        return petriNet.getComponent(name, Place.class);
     }
 
 }

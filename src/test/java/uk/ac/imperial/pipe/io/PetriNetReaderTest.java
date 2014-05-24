@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.arc.ArcType;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -49,7 +50,7 @@ public class PetriNetReaderTest {
     public void createsDefaultTokenIfDoesNotExist() throws UnparsableException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/noTokenPlace.xml"));
         assertTrue("Petri net has no tokens registered to it", petriNet.getTokens().size() > 0);
-        Token expectedToken = new Token("Default", new Color(0, 0, 0));
+        Token expectedToken = new ColoredToken("Default", new Color(0, 0, 0));
         assertThat(petriNet.getTokens()).contains(expectedToken);
     }
 
@@ -173,7 +174,7 @@ public class PetriNetReaderTest {
     @Test
     public void createsRedToken() throws UnparsableException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getTokenFile()));
-        Token redToken = new Token("red", new Color(255, 0, 0));
+        Token redToken = new ColoredToken("red", new Color(255, 0, 0));
         assertThat(petriNet.getTokens()).containsExactly(redToken);
     }
 

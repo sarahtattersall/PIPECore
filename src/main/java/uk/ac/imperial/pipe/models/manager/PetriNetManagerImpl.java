@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.manager;
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetReader;
 import uk.ac.imperial.pipe.models.PetriNetHolder;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
@@ -106,7 +107,7 @@ public class PetriNetManagerImpl implements PetriNetManager {
     }
 
     private Token createDefaultToken() {
-        return new Token("Default", Color.BLACK);
+        return new ColoredToken("Default", Color.BLACK);
     }
 
     /**

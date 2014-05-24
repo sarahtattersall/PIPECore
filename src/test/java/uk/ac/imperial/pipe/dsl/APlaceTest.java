@@ -5,6 +5,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -55,8 +56,8 @@ public class APlaceTest {
 
     @Test
     public void createsPlaceWithMultipleTokens() {
-        tokens.put("Default", new Token("Default", Color.BLACK));
-        tokens.put("Red", new Token("Red", Color.RED));
+        tokens.put("Default", new ColoredToken("Default", Color.BLACK));
+        tokens.put("Red", new ColoredToken("Red", Color.RED));
 
         Place place = APlace.withId("P0").containing(5, "Red").tokens().and(1, "Default").token().create(tokens, places, transitions, rateParameters);
         Place expected = new DiscretePlace("P0", "P0");

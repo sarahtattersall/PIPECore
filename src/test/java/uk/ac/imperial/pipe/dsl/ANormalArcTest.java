@@ -8,6 +8,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -49,7 +50,7 @@ public class ANormalArcTest {
 
     @Test
     public void createsArcSingleToken() {
-        tokens.put("Red", new Token("Red", Color.RED));
+        tokens.put("Red", new ColoredToken("Red", Color.RED));
         places.put("P0", new DiscretePlace("P0", "P0"));
         transitions.put("T1", new DiscreteTransition("T1", "T1"));
         Arc<? extends Connectable, ? extends Connectable> arc =
@@ -66,8 +67,8 @@ public class ANormalArcTest {
 
     @Test
     public void createsArcWithMultipleTokens() {
-        tokens.put("Red", new Token("Red", Color.RED));
-        tokens.put("Default", new Token("Default", Color.BLACK));
+        tokens.put("Red", new ColoredToken("Red", Color.RED));
+        tokens.put("Default", new ColoredToken("Default", Color.BLACK));
         places.put("P0", new DiscretePlace("P0", "P0"));
         transitions.put("T1", new DiscreteTransition("T1", "T1"));
         Arc<? extends Connectable, ? extends Connectable> arc =

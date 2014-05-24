@@ -11,7 +11,6 @@ import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
@@ -19,6 +18,7 @@ import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -149,7 +149,7 @@ public class PetriNetTest {
     public void cannotRemoveTokenIfPlaceDependsOnIt() throws PetriNetComponentException {
         expectedException.expect(PetriNetComponentException.class);
         expectedException.expectMessage("Cannot remove Default token places: P0 contain it");
-        Token token = new Token("Default", Color.BLACK);
+        Token token = new ColoredToken("Default", Color.BLACK);
         Place place = new DiscretePlace("P0", "P0");
         place.setTokenCount(token.getId(), 2);
         net.addPlace(place);
@@ -161,7 +161,7 @@ public class PetriNetTest {
     public void cannotRemoveTokenIfTransitionReferencesIt() throws PetriNetComponentException {
         expectedException.expect(PetriNetComponentException.class);
         expectedException.expectMessage("Cannot remove Default token transitions: T0 reference it\n");
-        Token token = new Token("Default", Color.BLACK);
+        Token token = new ColoredToken("Default", Color.BLACK);
         Transition transition = new DiscreteTransition("T0", "T0");
         transition.setRate(new NormalRate("#(P0, Default)"));
         net.addTransition(transition);
@@ -233,14 +233,14 @@ public class PetriNetTest {
     @Test
     public void addingTokenNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Token token = new Token();
+        Token token = new ColoredToken();
         net.addToken(token);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
     @Test
     public void addingDuplicateTokenDoesNotNotifyObservers() {
-        Token token = new Token();
+        Token token = new ColoredToken();
         net.addToken(token);
 
         net.addPropertyChangeListener(mockListener);
@@ -275,7 +275,7 @@ public class PetriNetTest {
     public void returnsCorrectToken() throws PetriNetComponentNotFoundException {
         String id = "Token1";
         Color color = new Color(132, 16, 130);
-        Token token = new Token(id, color);
+        Token token = new ColoredToken(id, color);
         net.addToken(token);
         assertEquals(token, net.getComponent(id, Token.class));
     }
@@ -287,14 +287,6 @@ public class PetriNetTest {
         net.getComponent("foo", Token.class);
     }
 
-    private <T extends PetriNetComponent> T getComponent(String id, Iterable<T> components) {
-        for (T component : components) {
-            if (component.getId().equals(id)) {
-                return component;
-            }
-        }
-        return null;
-    }
 
     @Test
     public void throwsExceptionIfNoRateParameterExists() throws PetriNetComponentNotFoundException {
@@ -389,14 +381,14 @@ public class PetriNetTest {
 
     @Test
     public void canGetTokenById() throws PetriNetComponentNotFoundException {
-        Token t = new Token("Default", Color.BLACK);
+        Token t = new ColoredToken("Default", Color.BLACK);
         net.addToken(t);
         assertEquals(t, net.getComponent(t.getId(), Token.class));
     }
 
     @Test
     public void canGetTokenByIdAfterNameChange() throws PetriNetComponentNotFoundException {
-        Token t = new Token("Default", Color.BLACK);
+        Token t = new ColoredToken("Default", Color.BLACK);
         net.addToken(t);
         t.setId("Red");
         assertEquals(t, net.getComponent(t.getId(), Token.class));
@@ -406,7 +398,7 @@ public class PetriNetTest {
     public void canGetPlaceById() throws PetriNetComponentNotFoundException {
         Place p = new DiscretePlace("P0", "P0");
         net.addPlace(p);
-        assertEquals(p, net.getComponent(p.getId(), DiscretePlace.class));
+        assertEquals(p, net.getComponent(p.getId(), Place.class));
     }
 
     @Test
@@ -414,7 +406,7 @@ public class PetriNetTest {
         Place p = new DiscretePlace("P0", "P0");
         net.addPlace(p);
         p.setId("P1");
-        assertEquals(p, net.getComponent(p.getId(), DiscretePlace.class));
+        assertEquals(p, net.getComponent(p.getId(), Place.class));
     }
 
     @Test
@@ -436,7 +428,7 @@ public class PetriNetTest {
     public void canGetTransitionById() throws PetriNetComponentNotFoundException {
         Transition t = new DiscreteTransition("T0", "T0");
         net.addTransition(t);
-        assertEquals(t, net.getComponent(t.getId(), DiscreteTransition.class));
+        assertEquals(t, net.getComponent(t.getId(), Transition.class));
     }
 
     @Test
@@ -444,7 +436,7 @@ public class PetriNetTest {
         Transition t = new DiscreteTransition("T0", "T0");
         net.addTransition(t);
         t.setId("T2");
-        assertEquals(t, net.getComponent(t.getId(), DiscreteTransition.class));
+        assertEquals(t, net.getComponent(t.getId(), Transition.class));
     }
 
     @Test
@@ -468,7 +460,7 @@ public class PetriNetTest {
 
     @Test
     public void changingTokenIdChangesPlaceReferences() {
-        Token token = new Token("Default", Color.BLACK);
+        Token token = new ColoredToken("Default", Color.BLACK);
         Place place = new DiscretePlace("P1", "P1");
         place.setTokenCount(token.getId(), 5);
 
@@ -484,7 +476,7 @@ public class PetriNetTest {
     public void changingTokenIdChangesArcReferences() {
         Place p = new DiscretePlace("P0", "P0");
         Transition t = new DiscreteTransition("T0", "T0");
-        Token token = new Token("Default", Color.BLACK);
+        Token token = new ColoredToken("Default", Color.BLACK);
 
         HashMap<String, String> weights = new HashMap<>();
         weights.put(token.getId(), "5");

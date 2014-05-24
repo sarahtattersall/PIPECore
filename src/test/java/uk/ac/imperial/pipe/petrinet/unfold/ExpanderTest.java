@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -50,15 +51,15 @@ public class ExpanderTest {
     }
 
     private Token getDefaultToken() {
-        return new Token("Default", new Color(0, 0, 0));
+        return new ColoredToken("Default", new Color(0, 0, 0));
     }
 
     private Token getBlackToken() {
-        return new Token("Black", new Color(0, 0, 0));
+        return new ColoredToken("Black", new Color(0, 0, 0));
     }
 
     private Token getRedToken() {
-        return new Token("Red", new Color(255, 0, 0));
+        return new ColoredToken("Red", new Color(255, 0, 0));
     }
 
     @Test

@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -37,7 +38,7 @@ public class APetriNetTest {
                                      .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("5", "Default").tokens());
 
         PetriNet expected = new PetriNet();
-        Token token = new Token("Default", Color.RED);
+        Token token = new ColoredToken("Default", Color.RED);
         expected.addToken(token);
         Place place = new DiscretePlace("P0", "P0");
         expected.addPlace(place);
@@ -68,10 +69,10 @@ public class APetriNetTest {
                         ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("1", "Blue").token());
 
         PetriNet expected = new PetriNet();
-        Token red = new Token("Red",Color.RED);
+        Token red = new ColoredToken("Red",Color.RED);
         expected.addToken(red);
 
-        Token blue = new Token("Blue", Color.BLUE);
+        Token blue = new ColoredToken("Blue", Color.BLUE);
         expected.addToken(blue);
 
         RateParameter rateParameter = new RateParameter("10", "Foo", "Foo");

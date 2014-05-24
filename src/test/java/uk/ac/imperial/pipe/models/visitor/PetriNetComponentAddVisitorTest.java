@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.models.component.annotation.Annotation;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -87,7 +88,7 @@ public class PetriNetComponentAddVisitorTest {
 
     @Test
     public void testAddsToken() throws PetriNetComponentException {
-        Token token = new Token("", new Color(0, 0, 0));
+        Token token = new ColoredToken("", new Color(0, 0, 0));
         token.accept(visitor);
         verify(mockNet).addToken(token);
     }

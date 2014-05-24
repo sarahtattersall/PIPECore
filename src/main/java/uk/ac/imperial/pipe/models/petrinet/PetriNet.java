@@ -15,6 +15,7 @@ import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
@@ -152,8 +153,8 @@ public class PetriNet {
     }
 
     private void initialiseIdMap() {
-        componentMaps.put(DiscretePlace.class, places);
-        componentMaps.put(DiscreteTransition.class, transitions);
+        componentMaps.put(Place.class, places);
+        componentMaps.put(Transition.class, transitions);
         componentMaps.put(InboundArc.class, inboundArcs);
         componentMaps.put(OutboundArc.class, outboundArcs);
         componentMaps.put(Token.class, tokens);

@@ -4,6 +4,7 @@ import uk.ac.imperial.pipe.io.adapters.modelAdapter.*;
 import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -78,7 +79,7 @@ public class PetriNetIOImpl implements PetriNetIO {
     }
 
     private Token createDefaultToken() {
-        return new Token("Default", new Color(0, 0, 0));
+        return new ColoredToken("Default", new Color(0, 0, 0));
     }
 
     private Unmarshaller initialiseUnmarshaller() throws JAXBException {

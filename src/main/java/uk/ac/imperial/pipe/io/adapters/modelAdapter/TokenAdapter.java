@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedToken;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -27,7 +28,7 @@ public class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
     @Override
     public Token unmarshal(AdaptedToken adaptedToken) {
         Color color = new Color(adaptedToken.getRed(), adaptedToken.getGreen(), adaptedToken.getBlue());
-        Token token = new Token(adaptedToken.getId(), color);
+        Token token = new ColoredToken(adaptedToken.getId(), color);
         tokens.put(token.getId(), token);
         return token;
     }

@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -34,14 +35,14 @@ public class ATokenTest {
     @Test
     public void createsTokenWithNameAndDefaultColorBlack() {
         Token token = AToken.called("Default").create(tokens, places, transitions, rateParameters);
-        Token expected = new Token("Default", Color.BLACK);
+        Token expected = new ColoredToken("Default", Color.BLACK);
         assertEquals(expected, token);
     }
 
     @Test
     public void createsTokenWithSpecifiedColor() {
         Token token = AToken.called("Red").withColor(Color.RED).create(tokens, places, transitions, rateParameters);
-        Token expected = new Token("Red", Color.RED);
+        Token expected = new ColoredToken("Red", Color.RED);
         assertEquals(expected, token);
     }
 

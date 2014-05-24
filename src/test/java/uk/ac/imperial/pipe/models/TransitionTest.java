@@ -134,7 +134,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         int expectedEnablingDegree = 2;
         int expectedISRate = expectedEnablingDegree * 4;
@@ -151,7 +151,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         int expectedEnablingDegree = 1;
         int expectedISRate = expectedEnablingDegree * 4;
@@ -169,7 +169,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         assertEquals(4, actualRate, 0.0001);
     }

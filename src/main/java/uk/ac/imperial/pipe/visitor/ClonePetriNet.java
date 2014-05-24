@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.rate.RateType;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -155,7 +156,7 @@ public class ClonePetriNet {
     }
 
     public void visit(Token token) {
-        Token newToken = new Token(token);
+        Token newToken = new ColoredToken(token);
         newPetriNet.addToken(newToken);
     }
 

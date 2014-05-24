@@ -1,5 +1,6 @@
 package utils;
 
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 
 import java.awt.Color;
@@ -12,6 +13,6 @@ public class TokenUtils {
     }
 
     public static Token createDefaultToken() {
-        return new Token("Default", new Color(0, 0, 0));
+        return new ColoredToken("Default", new Color(0, 0, 0));
     }
 }

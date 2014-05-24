@@ -5,6 +5,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.arc.*;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -57,7 +58,7 @@ public class Expander {
      * @return Copied token which will be added to the new petri net
      */
     private Token getCopiedToken() {
-        return new Token(getToken());
+        return new ColoredToken(getToken());
     }
 
     /**

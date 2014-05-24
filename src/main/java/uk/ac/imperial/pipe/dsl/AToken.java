@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.dsl;
 
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.token.ColoredToken;
 import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
@@ -25,7 +26,7 @@ public class AToken implements DSLCreator<Token> {
 
     @Override
     public Token create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, RateParameter> rateParameters) {
-        Token token = new Token(name, color);
+        Token token = new ColoredToken(name, color);
         tokens.put(name, token);
         return token;
     }

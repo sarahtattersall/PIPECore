@@ -5,9 +5,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
@@ -61,8 +59,8 @@ public class ClonePetriNetTest {
         oldPetriNet.setName(new NormalPetriNetName("Petri net 0"));
         clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
         InboundArc arc = clonedPetriNet.getComponent("P0 TO T0", InboundArc.class);
-        Place clonedP0 = clonedPetriNet.getComponent("P0", DiscretePlace.class);
-        Transition clonedT0 = clonedPetriNet.getComponent("T0", DiscreteTransition.class);
+        Place clonedP0 = clonedPetriNet.getComponent("P0", Place.class);
+        Transition clonedT0 = clonedPetriNet.getComponent("T0", Transition.class);
         assertTrue(arc.getSource() == clonedP0);
         assertTrue(arc.getTarget() == clonedT0);
     }
