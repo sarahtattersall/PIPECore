@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.naming;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -34,7 +35,7 @@ public class TransitionNamerTest {
 
     @Test
     public void returnP0IfPlacesDontConflict() {
-        Transition transition = new Transition("T1", "T1");
+        Transition transition = new DiscreteTransition("T1", "T1");
         petriNet.addTransition(transition);
         String actual = transitionNamer.getName();
         assertEquals("T0", actual);
@@ -50,7 +51,7 @@ public class TransitionNamerTest {
     private void addNConsecutiveTransitions(int n) {
         for (int i = 0; i < n; i++) {
             String id = "T" + i;
-            Transition transition = new Transition(id, id);
+            Transition transition = new DiscreteTransition(id, id);
             petriNet.addTransition(transition);
         }
     }
@@ -64,8 +65,8 @@ public class TransitionNamerTest {
 
     @Test
     public void returnMiddleValue() {
-        Transition transition = new Transition("T0", "T0");
-        Transition transition2 = new Transition("T2", "T2");
+        Transition transition = new DiscreteTransition("T0", "T0");
+        Transition transition2 = new DiscreteTransition("T2", "T2");
         petriNet.addTransition(transition);
         petriNet.addTransition(transition2);
 
@@ -75,7 +76,7 @@ public class TransitionNamerTest {
 
     @Test
     public void reUseDeletedValue() {
-        Transition transition = new Transition("T0", "T0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         petriNet.addTransition(transition);
 
         String actual = transitionNamer.getName();
@@ -93,7 +94,7 @@ public class TransitionNamerTest {
      */
     @Test
     public void returnCorrectValueAfterConstructor() {
-        Transition transition = new Transition("T0", "T0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         petriNet.addTransition(transition);
         petriNet.addTransition(transition);
 
@@ -106,7 +107,7 @@ public class TransitionNamerTest {
     @Test
     public void identifiesNonUniqueName() {
         String name = "Transition 0";
-        Transition transition = new Transition(name, name);
+        Transition transition = new DiscreteTransition(name, name);
         petriNet.addTransition(transition);
         TransitionNamer newNamer = new TransitionNamer(petriNet);
         assertFalse(newNamer.isUniqueName(name));
@@ -116,7 +117,7 @@ public class TransitionNamerTest {
     @Test
     public void identifiesUniqueName() {
         String name = "Transition 0";
-        Transition transition = new Transition(name, name);
+        Transition transition = new DiscreteTransition(name, name);
         petriNet.addTransition(transition);
         TransitionNamer newNamer = new TransitionNamer(petriNet);
         assertTrue(newNamer.isUniqueName("Transition 1"));
@@ -125,7 +126,7 @@ public class TransitionNamerTest {
     @Test
     public void observesTransitionNameChanges() {
         String orignalId = "Transition 0";
-        Transition transition = new Transition(orignalId, orignalId);
+        Transition transition = new DiscreteTransition(orignalId, orignalId);
         petriNet.addTransition(transition);
         UniqueNamer newNamer = new TransitionNamer(petriNet);
         String newId = "Transition 1";

@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
@@ -58,8 +59,8 @@ public class PetriNetAnimationLogicTest {
                 ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("T1").andTarget("P1").with("1", "Red").token());
 
-        Transition t0 = petriNet.getComponent("T0", Transition.class);
-        Transition t1 = petriNet.getComponent("T1", Transition.class);
+        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
+        Transition t1 = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> transitions = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -79,8 +80,8 @@ public class PetriNetAnimationLogicTest {
                 ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token().and("0", "Red").tokens()
         ).andFinally(ANormalArc.withSource("T1").andTarget("P1").with("0", "Default").tokens().and("1", "Red").token());
 
-        Transition t0 = petriNet.getComponent("T0", Transition.class);
-        Transition t1 = petriNet.getComponent("T1", Transition.class);
+        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
+        Transition t1 = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> transitions = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -92,7 +93,7 @@ public class PetriNetAnimationLogicTest {
     public void correctlyIdentifiesEnabledTransition() throws PetriNetComponentNotFoundException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
         assertTrue("Petri net did not put transition in enabled collection", enabled.contains(transition));
@@ -122,7 +123,7 @@ public class PetriNetAnimationLogicTest {
                 APlace.withId("P2")).and(ATransition.withId("T1")).andFinally(
                 ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token().and("0", "Red").tokens());
 
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -134,7 +135,7 @@ public class PetriNetAnimationLogicTest {
         int tokenWeight = 4;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Place place = petriNet.getComponent("P1", DiscretePlace.class);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
         place.decrementTokenCount("Default");
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
@@ -147,7 +148,7 @@ public class PetriNetAnimationLogicTest {
             throws PetriNetComponentNotFoundException {
         int tokenWeight = 4;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -159,7 +160,7 @@ public class PetriNetAnimationLogicTest {
             throws PetriNetComponentNotFoundException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNetTwoPlacesToTransition(tokenWeight);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -192,7 +193,7 @@ public class PetriNetAnimationLogicTest {
 
         InboundArc arc = petriNet.getComponent("P1 TO T1", InboundArc.class);
         arc.getTokenWeights().put(redToken.getId(), "1");
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -210,7 +211,7 @@ public class PetriNetAnimationLogicTest {
         arc.getTokenWeights().put(redToken.getId(), "1");
 
         Place place = petriNet.getComponent("P1", DiscretePlace.class);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
         place.incrementTokenCount(redToken.getId());
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
@@ -221,9 +222,9 @@ public class PetriNetAnimationLogicTest {
     @Test
     public void onlyEnablesHigherPriorityTransition() {
         PetriNet petriNet = new PetriNet();
-        Transition t1 = new Transition("1", "1");
+        Transition t1 = new DiscreteTransition("1", "1");
         t1.setPriority(10);
-        Transition t2 = new Transition("2", "2");
+        Transition t2 = new DiscreteTransition("2", "2");
         t2.setPriority(1);
         petriNet.addTransition(t1);
         petriNet.addTransition(t2);
@@ -244,7 +245,7 @@ public class PetriNetAnimationLogicTest {
         Place p2 = petriNet.getComponent("P2", DiscretePlace.class);
         p2.setCapacity(1);
 
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -259,7 +260,7 @@ public class PetriNetAnimationLogicTest {
         place.setTokenCount(token.getId(), 1);
         place.setCapacity(1);
 
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
 
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
@@ -276,7 +277,7 @@ public class PetriNetAnimationLogicTest {
     @Test
     public void correctlyMarksInhibitorArcEnabledTransition() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = createSimpleInhibitorPetriNet(1);
-        Transition transition = petriNet.getComponent("T1", Transition.class);
+        Transition transition = petriNet.getComponent("T1", DiscreteTransition.class);
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
         Collection<Transition> enabled = animator.getEnabledTransitions(AnimationUtils.getState(petriNet));
         assertThat(enabled).contains(transition);

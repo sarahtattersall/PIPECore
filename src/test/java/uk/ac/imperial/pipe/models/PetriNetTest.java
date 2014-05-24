@@ -20,6 +20,7 @@ import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -108,7 +109,7 @@ public class PetriNetTest {
         net.addPropertyChangeListener(mockListener);
         InboundArc mockArc = mock(InboundArc.class);
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         when(mockArc.getTarget()).thenReturn(transition);
         when(mockArc.getSource()).thenReturn(place);
         net.addArc(mockArc);
@@ -120,14 +121,14 @@ public class PetriNetTest {
     @Test
     public void addingTransitionNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         net.addTransition(transition);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
     @Test
     public void addingDuplicateTransitionDoesNotNotifyObservers() {
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         net.addTransition(transition);
         net.addPropertyChangeListener(mockListener);
         net.addTransition(transition);
@@ -138,7 +139,7 @@ public class PetriNetTest {
     @Test
     public void removingTransitionNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         net.addTransition(transition);
         net.removeTransition(transition);
         verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
@@ -161,7 +162,7 @@ public class PetriNetTest {
         expectedException.expect(PetriNetComponentException.class);
         expectedException.expectMessage("Cannot remove Default token transitions: T0 reference it\n");
         Token token = new Token("Default", Color.BLACK);
-        Transition transition = new Transition("T0", "T0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         transition.setRate(new NormalRate("#(P0, Default)"));
         net.addTransition(transition);
         net.removeToken(token);
@@ -260,7 +261,7 @@ public class PetriNetTest {
     @Test
     public void genericRemoveMethodRemovesArc() throws PetriNetComponentException {
         Place place = new DiscretePlace("source", "source");
-        Transition transition = new Transition("target", "target");
+        Transition transition = new DiscreteTransition("target", "target");
         Map<String, String> weights = new HashMap<>();
         InboundNormalArc arc = new InboundNormalArc(place, transition, weights);
         net.addArc(arc);
@@ -345,7 +346,7 @@ public class PetriNetTest {
     public void deletingRateParameterRemovesItFromTransition() throws InvalidRateException {
         String rate = "5.0";
         RateParameter rateParameter = new RateParameter(rate, "R0", "R0");
-        Transition transition = new Transition("T0", "T0", rateParameter, 0);
+        Transition transition = new DiscreteTransition("T0", "T0", rateParameter, 0);
 
         net.addRateParameter(rateParameter);
         net.addTransition(transition);
@@ -433,23 +434,23 @@ public class PetriNetTest {
 
     @Test
     public void canGetTransitionById() throws PetriNetComponentNotFoundException {
-        Transition t = new Transition("T0", "T0");
+        Transition t = new DiscreteTransition("T0", "T0");
         net.addTransition(t);
-        assertEquals(t, net.getComponent(t.getId(), Transition.class));
+        assertEquals(t, net.getComponent(t.getId(), DiscreteTransition.class));
     }
 
     @Test
     public void canGetTransitionByIdAfterNameChange() throws PetriNetComponentNotFoundException {
-        Transition t = new Transition("T0", "T0");
+        Transition t = new DiscreteTransition("T0", "T0");
         net.addTransition(t);
         t.setId("T2");
-        assertEquals(t, net.getComponent(t.getId(), Transition.class));
+        assertEquals(t, net.getComponent(t.getId(), DiscreteTransition.class));
     }
 
     @Test
     public void canGetArcById() throws PetriNetComponentNotFoundException {
         Place p = new DiscretePlace("P0", "P0");
-        Transition t = new Transition("T0", "T0");
+        Transition t = new DiscreteTransition("T0", "T0");
         InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
         net.addArc(a);
         assertEquals(a, net.getComponent(a.getId(), InboundArc.class));
@@ -458,7 +459,7 @@ public class PetriNetTest {
     @Test
     public void canGetArcByIdAfterNameChange() throws PetriNetComponentNotFoundException {
         Place p = new DiscretePlace("P0", "P0");
-        Transition t = new Transition("T0", "T0");
+        Transition t = new DiscreteTransition("T0", "T0");
         InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
         net.addArc(a);
         a.setId("A1");
@@ -482,7 +483,7 @@ public class PetriNetTest {
     @Test
     public void changingTokenIdChangesArcReferences() {
         Place p = new DiscretePlace("P0", "P0");
-        Transition t = new Transition("T0", "T0");
+        Transition t = new DiscreteTransition("T0", "T0");
         Token token = new Token("Default", Color.BLACK);
 
         HashMap<String, String> weights = new HashMap<>();

@@ -8,6 +8,7 @@ import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
 import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.visitor.TranslationVisitor;
 
@@ -37,7 +38,7 @@ public class TranslationVisitorTest {
     @Test
     public void translatesIntermediateArcPointsIfBothSourceAndTargetInSelected() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -62,7 +63,7 @@ public class TranslationVisitorTest {
     @Test
     public void doesNotTranslateArcIfSourceIsOnlySelected() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -86,7 +87,7 @@ public class TranslationVisitorTest {
     @Test
     public void doesNotTranslateIfTargetsOnlySelected() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -124,7 +125,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesTransitionCorrectly() {
-        Transition transition = mock(Transition.class);
+        DiscreteTransition transition = mock(DiscreteTransition.class);
 
 
         int x_y_value = 40;

@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -40,7 +41,7 @@ public class APetriNetTest {
         expected.addToken(token);
         Place place = new DiscretePlace("P0", "P0");
         expected.addPlace(place);
-        Transition transition = new Transition("T0", "T0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         expected.addTransition(transition);
         Map<String, String> arcWeights = new HashMap<>();
         arcWeights.put(token.getId(), "5");
@@ -87,7 +88,7 @@ public class APetriNetTest {
         Place p1 = new DiscretePlace("P1", "P1");
         expected.addPlace(p1);
 
-        Transition t0 = new Transition("T0", "T0");
+        Transition t0 = new DiscreteTransition("T0", "T0");
         t0.setTimed(true);
         t0.setRate(rateParameter);
         expected.addTransition(t0);

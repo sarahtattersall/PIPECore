@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetComponentRemovalVisitor;
@@ -34,7 +35,7 @@ public class PetriNetComponentRemovalVisitorTest {
     @Test
     public void testDeletesInboundNormalArc() {
         Place place = new DiscretePlace("", "");
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
         arc.accept(visitor);
@@ -45,7 +46,7 @@ public class PetriNetComponentRemovalVisitorTest {
     @Test
     public void testDeletesOutboundNormalArc() {
         Place place = new DiscretePlace("", "");
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         Map<String, String> weights = new HashMap<>();
         OutboundArc arc = new OutboundNormalArc(transition, place, weights);
         arc.accept(visitor);
@@ -56,7 +57,7 @@ public class PetriNetComponentRemovalVisitorTest {
     @Test
     public void testDeletesInboundInhibitorArc() {
         Place place = new DiscretePlace("", "");
-        Transition transition = new Transition("", "");
+        Transition transition = new DiscreteTransition("", "");
         InboundArc arc = new InboundInhibitorArc(place, transition);
         arc.accept(visitor);
         verify(mockNet).removeArc(arc);
@@ -70,8 +71,8 @@ public class PetriNetComponentRemovalVisitorTest {
     }
 
     @Test
-    public void testDeletesTransition() {
-        Transition transition = new Transition("", "");
+    public void testDeletesTransition() throws PetriNetComponentException {
+        Transition transition = new DiscreteTransition("", "");
         transition.accept(visitor);
         verify(mockNet).removeTransition(transition);
     }

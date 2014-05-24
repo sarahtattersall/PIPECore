@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
 import java.awt.Color;
@@ -37,7 +38,7 @@ public class ANormalArcTest {
     @Test
     public void createsArcWithSourceAndTarget() {
         places.put("P0", new DiscretePlace("P0", "P0"));
-        transitions.put("T1", new Transition("T1", "T1"));
+        transitions.put("T1", new DiscreteTransition("T1", "T1"));
         Arc<? extends Connectable, ? extends Connectable> arc =
                 ANormalArc.withSource("P0").andTarget("T1").create(tokens, places, transitions, rateParameters);
 
@@ -50,7 +51,7 @@ public class ANormalArcTest {
     public void createsArcSingleToken() {
         tokens.put("Red", new Token("Red", Color.RED));
         places.put("P0", new DiscretePlace("P0", "P0"));
-        transitions.put("T1", new Transition("T1", "T1"));
+        transitions.put("T1", new DiscreteTransition("T1", "T1"));
         Arc<? extends Connectable, ? extends Connectable> arc =
                 ANormalArc.withSource("P0").andTarget("T1").with("4", "Red").tokens().create(tokens, places, transitions,
                         rateParameters);
@@ -68,7 +69,7 @@ public class ANormalArcTest {
         tokens.put("Red", new Token("Red", Color.RED));
         tokens.put("Default", new Token("Default", Color.BLACK));
         places.put("P0", new DiscretePlace("P0", "P0"));
-        transitions.put("T1", new Transition("T1", "T1"));
+        transitions.put("T1", new DiscreteTransition("T1", "T1"));
         Arc<? extends Connectable, ? extends Connectable> arc =
                 ANormalArc.withSource("P0").andTarget("T1").with("4", "Red").tokens().and("1", "Default").token().create(tokens,
                         places, transitions,

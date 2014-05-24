@@ -4,6 +4,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.animation.AnimationUtils;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
@@ -18,7 +19,7 @@ public class TransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionForTransitionAbove() {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -46,7 +47,7 @@ public class TransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTransitionRight() {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -66,7 +67,7 @@ public class TransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTargetOnLeft() {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -87,7 +88,7 @@ public class TransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForBottomRotated180() {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(180);
 
         int x1 = 100;
@@ -106,7 +107,7 @@ public class TransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTransitionBelowRotated90() {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(90);
 
         int sourceX = 0;
@@ -133,7 +134,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         int expectedEnablingDegree = 2;
         int expectedISRate = expectedEnablingDegree * 4;
@@ -150,7 +151,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         int expectedEnablingDegree = 1;
         int expectedISRate = expectedEnablingDegree * 4;
@@ -168,7 +169,7 @@ public class TransitionTest {
                 ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
         State state = AnimationUtils.getState(petriNet);
 
-        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        Transition t0 = petriNet.getComponent("T0", DiscreteTransition.class);
         double actualRate = t0.getActualRate(petriNet, state);
         assertEquals(4, actualRate, 0.0001);
     }

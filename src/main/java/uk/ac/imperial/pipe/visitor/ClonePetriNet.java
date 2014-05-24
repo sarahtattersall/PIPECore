@@ -160,7 +160,13 @@ public class ClonePetriNet {
     }
 
     public void visit(Transition transition) {
-        Transition newTransition = new Transition(transition);
+        TransitionCloner cloner = new TransitionCloner();
+        try {
+            transition.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
+        Transition newTransition = cloner.cloned;
         if (transition.getRate().getRateType().equals(RateType.RATE_PARAMETER)) {
             RateParameter rateParameter = (RateParameter) transition.getRate();
             newTransition.setRate(rateParameters.get(rateParameter.getId()));

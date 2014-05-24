@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.visitor;
 
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.component.Connectable;
 import uk.ac.imperial.pipe.models.component.PetriNetComponent;
 import uk.ac.imperial.pipe.models.component.arc.*;
@@ -87,7 +88,13 @@ public class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlac
 
     @Override
     public void visit(Transition transition) {
-        Transition newTransition = new Transition(transition);
+        TransitionCloner cloner = new TransitionCloner();
+        try {
+            transition.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
+        Transition newTransition = cloner.cloned;
         setId(newTransition);
         setName(newTransition);
         setOffset(newTransition);

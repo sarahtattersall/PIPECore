@@ -13,6 +13,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundArc;
 import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.naming.MultipleNamer;
@@ -84,7 +85,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingTransition() throws PetriNetComponentException {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(45);
         transition.setPriority(10);
         pasteComponents.add(transition);
@@ -101,7 +102,7 @@ public class PasteVisitorTest {
 
     @Test
     public void pastingTransitionWithOffset() throws PetriNetComponentException {
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(45);
         transition.setPriority(10);
         pasteComponents.add(transition);
@@ -121,7 +122,7 @@ public class PasteVisitorTest {
     @Test
     public void pastingArcTransitionAndPlaceInSelected() throws PetriNetComponentException {
         Place place = new DiscretePlace("id", "name");
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         pasteComponents.add(place);
         pasteComponents.add(transition);
 
@@ -145,7 +146,7 @@ public class PasteVisitorTest {
         Place place = new DiscretePlace("id", "name");
         pasteComponents.add(place);
 
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
         pasteComponents.add(arc);
@@ -162,7 +163,7 @@ public class PasteVisitorTest {
             Place place = new DiscretePlace("id", "name");
             pasteComponents.add(place);
 
-            Transition transition = new Transition("id", "name");
+            Transition transition = new DiscreteTransition("id", "name");
             Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
             ArcPoint arcPoint = new ArcPoint(new Point2D.Double(200, 100), true);
@@ -212,7 +213,7 @@ public class PasteVisitorTest {
     @Test
     public void pastingArcTargetInSelected() throws PetriNetComponentException {
         Place place = new DiscretePlace("id", "name");
-        Transition transition = new Transition("id", "name");
+        Transition transition = new DiscreteTransition("id", "name");
         pasteComponents.add(transition);
 
         Map<String, String> weights = new HashMap<>();

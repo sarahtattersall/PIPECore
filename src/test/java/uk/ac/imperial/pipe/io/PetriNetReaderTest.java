@@ -10,6 +10,7 @@ import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.UnparsableException;
@@ -136,7 +137,7 @@ public class PetriNetReaderTest {
 
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getArcNoWeightFile()));
         Place expectedSource = new DiscretePlace("P0", "P0");
-        Transition expectedTarget = new Transition("T0", "T0");
+        Transition expectedTarget = new DiscreteTransition("T0", "T0");
         assertThat(petriNet.getArcs()).extracting("type", "source", "target", "id").contains(
                 tuple(ArcType.NORMAL, expectedSource, expectedTarget, "P0 TO T0"));
     }

@@ -10,6 +10,7 @@ import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -124,7 +125,7 @@ public class ExpanderTest {
         Place place = new DiscretePlace("P0", "P0");
         place.setTokenCount(redToken.getId(), 1);
         petriNet.addPlace(place);
-        Transition transition = new Transition("T0", "T0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         petriNet.addTransition(transition);
 
         Map<String, String> weights = new HashMap<>();

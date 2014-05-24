@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.component.token.Token;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.visitor.PlaceCloner;
+import uk.ac.imperial.pipe.visitor.TransitionCloner;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -125,7 +126,13 @@ public class Expander {
      */
     private void unfoldTransitions() {
         for (Transition transition : petriNet.getTransitions()) {
-            Transition newTransition = new Transition(transition);
+            TransitionCloner cloner = new TransitionCloner();
+            try {
+                transition.accept(cloner);
+            } catch (PetriNetComponentException e) {
+                e.printStackTrace();
+            }
+            Transition newTransition = cloner.cloned;
             newTransitions.put(newTransition.getId(), newTransition);
             analyseOutboundArcs(newTransition, petriNet.outboundArcs(transition));
             analyseInboundArcs(newTransition, petriNet.inboundArcs(transition));

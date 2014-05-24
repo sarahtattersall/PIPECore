@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.Rate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -34,7 +35,7 @@ public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition>
     @Override
     public Transition unmarshal(AdaptedTransition adaptedTransition) {
         NameDetails nameDetails = adaptedTransition.getName();
-        Transition transition = new Transition(adaptedTransition.getId(), nameDetails.getName());
+        Transition transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
         ConnectableUtils.setConntactableNameOffset(transition, adaptedTransition);
         ConnectableUtils.setConnectablePosition(transition, adaptedTransition);
         transition.setAngle(adaptedTransition.getAngle());

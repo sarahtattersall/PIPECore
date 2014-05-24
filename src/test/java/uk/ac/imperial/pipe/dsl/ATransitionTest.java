@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.models.component.place.Place;
 import uk.ac.imperial.pipe.models.component.rate.NormalRate;
 import uk.ac.imperial.pipe.models.component.rate.RateParameter;
 import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 
 import java.util.HashMap;
@@ -36,7 +37,7 @@ public class ATransitionTest {
     @Test
     public void createsTransitionWithId() {
         Transition transition = ATransition.withId("T0").create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         assertEquals(expected, transition);
     }
 
@@ -50,7 +51,7 @@ public class ATransitionTest {
     public void createsTransitionWithPriority() {
         Transition transition =
                 ATransition.withId("T0").andPriority(5).create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setPriority(5);
         assertEquals(expected, transition);
     }
@@ -60,7 +61,7 @@ public class ATransitionTest {
     public void createsTimedTransition() {
         Transition transition =
                 ATransition.withId("T0").whichIsTimed().create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setTimed(true);
         assertEquals(expected, transition);
     }
@@ -70,7 +71,7 @@ public class ATransitionTest {
     public void createsImmediateTransition() {
         Transition transition =
                 ATransition.withId("T0").whichIsImmediate().create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setTimed(false);
         assertEquals(expected, transition);
     }
@@ -79,7 +80,7 @@ public class ATransitionTest {
     public void createsInfiniteServerTransition() {
         Transition transition =
                 ATransition.withId("T0").andIsAnInfinite().server().create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setInfiniteServer(true);
         assertEquals(expected, transition);
     }
@@ -88,7 +89,7 @@ public class ATransitionTest {
     public void createsSingleServerTransition() {
         Transition transition =
                 ATransition.withId("T0").andIsASingle().server().create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setInfiniteServer(false);
         assertEquals(expected, transition);
     }
@@ -97,7 +98,7 @@ public class ATransitionTest {
     public void createsNormalRateTransition() {
         Transition transition =
                 ATransition.withId("T0").andRate("5").create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setRate(new NormalRate("5"));
         assertEquals(expected, transition);
     }
@@ -107,7 +108,7 @@ public class ATransitionTest {
         rateParameters.put("Foo", new RateParameter("5", "Foo", "Foo"));
         Transition transition =
                 ATransition.withId("T0").withRateParameter("Foo").create(tokens, places, transitions, rateParameters);
-        Transition expected = new Transition("T0", "T0");
+        Transition expected = new DiscreteTransition("T0", "T0");
         expected.setRate(rateParameters.get("Foo"));
         assertEquals(expected, transition);
     }

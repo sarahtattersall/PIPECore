@@ -4,6 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
 import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
 import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.IncidenceMatrix;
 
@@ -22,7 +23,7 @@ public class IncidenceMatrixTest {
     @Test
     public void voidEntryReturnsZero() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         int value = incidenceMatrix.get(place, transition);
         assertEquals("Does not behave like matrix for tokens not put in matrix", 0, value);
     }
@@ -31,7 +32,7 @@ public class IncidenceMatrixTest {
     @Test
     public void putEntryReturnsValue() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         int expected = 4;
         incidenceMatrix.put(place, transition, expected);
         int actual = incidenceMatrix.get(place, transition);
@@ -41,7 +42,7 @@ public class IncidenceMatrixTest {
     @Test
     public void putEntryOverwritesValue() {
         Place place = mock(DiscretePlace.class);
-        Transition transition = mock(Transition.class);
+        Transition transition = mock(DiscreteTransition.class);
         int firstValue = 4;
         incidenceMatrix.put(place, transition, firstValue);
         int secondValue = 5;
