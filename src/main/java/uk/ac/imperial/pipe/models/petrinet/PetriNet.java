@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import org.apache.commons.collections.CollectionUtils;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
@@ -106,6 +108,9 @@ public class PetriNet {
     private final Map<String, RateParameter> rateParameters = new HashMap<>();
 
     private final Map<String, Annotation> annotations = new HashMap<>();
+
+    private final Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
+    private final Multimap<String, InboundArc> transitionInboundArcs =  HashMultimap.create();
 
     /**
      * A tokens that will contain the maps specified above.
@@ -285,6 +290,7 @@ public class PetriNet {
      */
     public void removeArc(InboundArc arc) {
         inboundArcs.remove(arc.getId());
+        transitionInboundArcs.remove(arc.getTarget().getId(), arc);
         changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
     }
 
@@ -297,6 +303,7 @@ public class PetriNet {
         if (!transitions.containsValue(transition)) {
             transitions.put(transition.getId(), transition);
             transition.addPropertyChangeListener(new NameChangeListener<>(transition, transitions));
+            transition.addPropertyChangeListener(new NameChangeArcListener());
             changeSupport.firePropertyChange(NEW_TRANSITION_CHANGE_MESSAGE, null, transition);
         }
     }
@@ -323,13 +330,7 @@ public class PetriNet {
      * @return arcs that are outbound from transition
      */
     public Collection<OutboundArc> outboundArcs(Transition transition) {
-        Collection<OutboundArc> outbound = new LinkedList<>();
-        for (OutboundArc arc : outboundArcs.values()) {
-            if (arc.getSource().equals(transition)) {
-                outbound.add(arc);
-            }
-        }
-        return outbound;
+        return transitionOutboundArcs.get(transition.getId());
     }
 
     /**
@@ -339,6 +340,7 @@ public class PetriNet {
      */
     public void removeArc(OutboundArc arc) {
         outboundArcs.remove(arc.getId());
+        transitionOutboundArcs.remove(arc.getSource().getId(), arc);
         changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
     }
 
@@ -352,6 +354,7 @@ public class PetriNet {
     public void addArc(InboundArc inboundArc) {
         if (!inboundArcs.containsKey(inboundArc.getId())) {
             inboundArcs.put(inboundArc.getId(), inboundArc);
+            transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
             inboundArc.addPropertyChangeListener(new NameChangeListener<>(inboundArc, inboundArcs));
             changeSupport.firePropertyChange(NEW_ARC_CHANGE_MESSAGE, null, inboundArc);
         }
@@ -360,6 +363,7 @@ public class PetriNet {
     public void addArc(OutboundArc outboundArc) {
         if (!outboundArcs.containsKey(outboundArc.getId())) {
             outboundArcs.put(outboundArc.getId(), outboundArc);
+            transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
             outboundArc.addPropertyChangeListener(new NameChangeListener<>(outboundArc, outboundArcs));
             changeSupport.firePropertyChange(NEW_ARC_CHANGE_MESSAGE, null, outboundArc);
         }
@@ -634,13 +638,14 @@ public class PetriNet {
      * @return arcs that are inbound to transition, that is arcs that come into the transition
      */
     public Collection<InboundArc> inboundArcs(Transition transition) {
-        Collection<InboundArc> outbound = new LinkedList<>();
-        for (InboundArc arc : inboundArcs.values()) {
-            if (arc.getTarget().equals(transition)) {
-                outbound.add(arc);
-            }
-        }
-        return outbound;
+//        Collection<InboundArc> outbound = new LinkedList<>();
+//        for (InboundArc arc : inboundArcs.values()) {
+//            if (arc.getTarget().equals(transition)) {
+//                outbound.add(arc);
+//            }
+//        }
+//        return outbound;
+        return transitionInboundArcs.get(transition.getId());
     }
 
     @XmlTransient
@@ -685,6 +690,26 @@ public class PetriNet {
                 componentMap.put(newId, component);
             }
 
+        }
+    }
+
+    /**
+     * This class is responsible for changing inbound and outbound arc refernces from
+     * a transition id change
+     */
+    private class NameChangeArcListener implements PropertyChangeListener {
+
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
+                String oldId = (String) evt.getOldValue();
+                String newId = (String) evt.getNewValue();
+                Collection<InboundArc> inbound = transitionInboundArcs.removeAll(oldId);
+                Collection<OutboundArc> outbound = transitionOutboundArcs.removeAll(oldId);
+                transitionInboundArcs.putAll(newId, inbound);
+                transitionOutboundArcs.putAll(newId, outbound);
+            }
         }
     }
 

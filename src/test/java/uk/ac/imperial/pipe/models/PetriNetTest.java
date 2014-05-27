@@ -11,23 +11,12 @@ import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.Annotation;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.petrinet.NormalRate;
-import uk.ac.imperial.pipe.models.petrinet.RateParameter;
-import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
-import uk.ac.imperial.pipe.models.petrinet.Token;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,6 +79,9 @@ public class PetriNetTest {
     public void addingArcNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
         InboundArc mockArc = mock(InboundArc.class);
+        Transition mockTransition = mock(Transition.class);
+        when(mockTransition.getId()).thenReturn("T0");
+        when(mockArc.getTarget()).thenReturn(mockTransition);
         net.addArc(mockArc);
 
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
@@ -98,6 +90,9 @@ public class PetriNetTest {
     @Test
     public void addingDuplicateArcDoesNotNotifyObservers() {
         InboundArc mockArc = mock(InboundArc.class);
+        Transition mockTransition = mock(Transition.class);
+        when(mockTransition.getId()).thenReturn("T0");
+        when(mockArc.getTarget()).thenReturn(mockTransition);
         net.addArc(mockArc);
         net.addPropertyChangeListener(mockListener);
         net.addArc(mockArc);
@@ -296,22 +291,6 @@ public class PetriNetTest {
         net.addRateParameter(rateParameter);
     }
 
-       /**
-     * Create simple Petri net with P1 -> T1 -> P2
-     * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
-     *
-     * @param tokenWeight
-     * @return
-     */
-    public PetriNet createSimplePetriNet(int tokenWeight) {
-        String arcWeight = Integer.toString(tokenWeight);
-        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                ATransition.withId("T1")).and(
-                ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
-                ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
-    }
-
     /**
      * Create simple Petri net with P1 -> T1 and P2 -> T1
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
@@ -348,6 +327,22 @@ public class PetriNetTest {
         PetriNet net1 = createSimplePetriNet(1);
         PetriNet net2 = createSimplePetriNet(1);
         assertTrue(net1.equals(net2));
+    }
+
+    /**
+     * Create simple Petri net with P1 -> T1 -> P2
+     * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
+     *
+     * @param tokenWeight
+     * @return
+     */
+    public PetriNet createSimplePetriNet(int tokenWeight) {
+        String arcWeight = Integer.toString(tokenWeight);
+        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
+                ATransition.withId("T1")).and(
+                ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
+                ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
     }
 
     @Test
@@ -483,6 +478,95 @@ public class PetriNetTest {
         token.setId("Red");
         assertEquals("0", a.getWeightForToken("Default"));
         assertEquals("5", a.getWeightForToken("Red"));
+    }
+
+    @Test
+    public void correctEmptyOutboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).andFinally(
+                        ATransition.withId("T0"));
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        assertTrue(petriNet.outboundArcs(t0).isEmpty());
+    }
+
+
+    @Test
+    public void correctEmptyInboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).andFinally(
+                        ATransition.withId("T0"));
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        assertTrue(petriNet.inboundArcs(t0).isEmpty());
+    }
+
+    @Test
+    public void correctInboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("P1").andTarget("T1")).andFinally(
+                        ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
+        Collection<InboundArc> inboundArcs = petriNet.inboundArcs(t0);
+        assertTrue(inboundArcs.contains(arc));
+    }
+
+    @Test
+    public void correctDeletesFromInboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        ATransition.withId("T0")).andFinally(
+                        ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
+        petriNet.removeArc(arc);
+        Collection<InboundArc> inboundArcs = petriNet.inboundArcs(t0);
+        assertTrue(inboundArcs.isEmpty());
+    }
+
+    @Test
+    public void correctOutboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        OutboundArc arc = petriNet.getComponent("T0 TO P0", OutboundArc.class);
+        Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
+        assertEquals(1, outboundArcs.size());
+        assertTrue(outboundArcs.contains(arc));
+    }
+
+    @Test
+    public void correctOutboundArcsIfTransitionChangesName() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        t0.setId("T2");
+        OutboundArc arc = petriNet.getComponent("T0 TO P0", OutboundArc.class);
+        Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
+        assertEquals(1, outboundArcs.size());
+        assertTrue(outboundArcs.contains(arc));
+    }
+
+
+    @Test
+    public void correctRemovalDeletesFromOutboundArcs() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        ATransition.withId("T0")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        OutboundArc arc = petriNet.getComponent("T0 TO P0", OutboundArc.class);
+        petriNet.removeArc(arc);
+        Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
+        assertTrue(outboundArcs.isEmpty());
     }
 
 }
