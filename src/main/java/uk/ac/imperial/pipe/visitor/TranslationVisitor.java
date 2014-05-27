@@ -1,14 +1,6 @@
 package uk.ac.imperial.pipe.visitor;
 
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
-import uk.ac.imperial.pipe.models.component.annotation.AnnotationVisitor;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
+import uk.ac.imperial.pipe.models.petrinet.*;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;

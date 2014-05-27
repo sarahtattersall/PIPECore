@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedPetriNet;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;

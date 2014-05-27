@@ -5,12 +5,12 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.arc.InboundArc;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
 

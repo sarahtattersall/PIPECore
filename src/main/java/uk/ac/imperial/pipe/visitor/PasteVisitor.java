@@ -1,15 +1,7 @@
 package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlaceVisitor;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.naming.MultipleNamer;
 
 import java.util.*;

@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.naming;
 
-import uk.ac.imperial.pipe.models.component.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;

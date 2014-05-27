@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Set;
 

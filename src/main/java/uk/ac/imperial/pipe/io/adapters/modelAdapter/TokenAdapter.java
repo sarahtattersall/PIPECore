@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedToken;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.awt.Color;

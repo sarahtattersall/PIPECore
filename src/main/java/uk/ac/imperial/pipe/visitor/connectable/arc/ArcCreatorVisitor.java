@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.visitor.connectable.arc;
 
-import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
-import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
+import uk.ac.imperial.pipe.models.petrinet.PlaceVisitor;
+import uk.ac.imperial.pipe.models.petrinet.TransitionVisitor;
 
 /**
  * tiny type, an arc creator

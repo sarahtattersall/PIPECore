@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.animation;
 
-import uk.ac.imperial.pipe.models.component.arc.Arc;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;

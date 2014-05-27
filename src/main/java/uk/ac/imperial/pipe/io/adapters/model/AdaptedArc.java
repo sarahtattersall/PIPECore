@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.io.adapters.model;
 
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcPointAdapter;
 import uk.ac.imperial.pipe.io.adapters.valueAdapter.StringAttributeValueAdaptor;
-import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

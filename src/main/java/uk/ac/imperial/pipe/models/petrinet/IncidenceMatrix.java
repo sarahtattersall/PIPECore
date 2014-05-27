@@ -1,8 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-
 import java.util.HashMap;
 import java.util.Map;
 

@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;

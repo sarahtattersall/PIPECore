@@ -2,8 +2,8 @@ package uk.ac.imperial.pipe.naming;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import static org.junit.Assert.*;

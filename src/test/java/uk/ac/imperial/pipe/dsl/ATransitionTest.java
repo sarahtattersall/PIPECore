@@ -2,12 +2,12 @@ package uk.ac.imperial.pipe.dsl;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.NormalRate;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.NormalRate;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.HashMap;
 import java.util.Map;

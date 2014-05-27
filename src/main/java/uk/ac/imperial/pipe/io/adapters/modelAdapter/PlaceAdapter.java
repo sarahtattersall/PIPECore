@@ -6,9 +6,9 @@ import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
 import uk.ac.imperial.pipe.io.adapters.model.OffsetGraphics;
 import uk.ac.imperial.pipe.io.adapters.model.Point;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;

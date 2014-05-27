@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.naming;
 
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 public class TransitionNamer extends ComponentNamer {

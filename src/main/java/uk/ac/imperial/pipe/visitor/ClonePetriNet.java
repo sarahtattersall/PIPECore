@@ -2,16 +2,7 @@ package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
-import uk.ac.imperial.pipe.models.component.rate.RateType;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.models.petrinet.name.*;
 
 import java.util.HashMap;

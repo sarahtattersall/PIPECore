@@ -2,10 +2,10 @@ package uk.ac.imperial.pipe.math;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.IncidenceMatrix;
 
 import static org.junit.Assert.assertEquals;

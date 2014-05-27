@@ -2,13 +2,7 @@ package uk.ac.imperial.pipe.petrinet.unfold;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.visitor.PlaceCloner;
 import uk.ac.imperial.pipe.visitor.TransitionCloner;
 

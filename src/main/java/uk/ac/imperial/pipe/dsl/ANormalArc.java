@@ -1,11 +1,6 @@
 package uk.ac.imperial.pipe.dsl;
 
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.*;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;

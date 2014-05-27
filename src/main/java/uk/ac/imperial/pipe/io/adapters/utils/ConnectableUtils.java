@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.utils;
 
 import uk.ac.imperial.pipe.io.adapters.model.*;
-import uk.ac.imperial.pipe.models.component.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
 
 public final class ConnectableUtils {
 

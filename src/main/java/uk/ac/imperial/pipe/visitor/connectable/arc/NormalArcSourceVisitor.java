@@ -1,9 +1,9 @@
 package uk.ac.imperial.pipe.visitor.connectable.arc;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 public class NormalArcSourceVisitor implements ArcSourceVisitor {
 

@@ -4,18 +4,6 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
-import uk.ac.imperial.pipe.models.component.arc.Arc;
-import uk.ac.imperial.pipe.models.component.arc.InboundArc;
-import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.NormalRate;
-import uk.ac.imperial.pipe.models.component.rate.Rate;
-import uk.ac.imperial.pipe.models.component.rate.RateParameter;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.parsers.EvalVisitor;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
@@ -554,7 +542,7 @@ public class PetriNet {
 
     /**
      * Removes the Rate Parameter from any transitions that refer to it
-     * and replaces it with a {@link uk.ac.imperial.pipe.models.component.rate.NormalRate} with the
+     * and replaces it with a {@link NormalRate} with the
      * same value
      *
      * @param parameter to remove

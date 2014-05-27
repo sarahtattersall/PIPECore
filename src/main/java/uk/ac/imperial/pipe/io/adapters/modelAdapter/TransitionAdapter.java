@@ -3,11 +3,11 @@ package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedTransition;
 import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.NormalRate;
-import uk.ac.imperial.pipe.models.component.rate.Rate;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.NormalRate;
+import uk.ac.imperial.pipe.models.petrinet.Rate;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;

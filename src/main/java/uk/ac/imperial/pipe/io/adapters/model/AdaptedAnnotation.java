@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * This class is a direct map of {@link uk.ac.imperial.pipe.models.component.annotation.Annotation}
+ * This class is a direct map of {@link uk.ac.imperial.pipe.models.petrinet.Annotation}
  * and is used in marshalling the annotation fields into/out of XML.
  */
 @XmlAccessorType(XmlAccessType.FIELD)

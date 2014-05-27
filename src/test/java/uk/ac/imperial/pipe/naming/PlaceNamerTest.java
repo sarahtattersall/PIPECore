@@ -2,8 +2,8 @@ package uk.ac.imperial.pipe.naming;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
-import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import static org.junit.Assert.*;

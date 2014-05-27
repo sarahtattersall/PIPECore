@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedArcPoint;
-import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.awt.geom.Point2D;

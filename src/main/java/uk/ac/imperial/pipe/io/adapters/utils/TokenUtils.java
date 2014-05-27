@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.utils;
 
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import java.awt.Color;
 import java.util.Map;

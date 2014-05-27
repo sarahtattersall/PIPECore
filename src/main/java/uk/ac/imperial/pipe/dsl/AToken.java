@@ -1,10 +1,10 @@
 package uk.ac.imperial.pipe.dsl;
 
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.token.ColoredToken;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.awt.Color;
 import java.util.Map;

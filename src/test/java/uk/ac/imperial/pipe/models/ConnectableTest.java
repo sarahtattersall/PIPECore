@@ -2,9 +2,9 @@ package uk.ac.imperial.pipe.models;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.arc.Arc;
-import uk.ac.imperial.pipe.models.component.place.AbstractConnectable;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.AbstractConnectable;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;

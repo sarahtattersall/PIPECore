@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedAnnotation;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
+import uk.ac.imperial.pipe.models.petrinet.Annotation;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 

@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import com.google.common.base.Joiner;
-import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;

@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models;
 
-import uk.ac.imperial.pipe.models.component.token.Token;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import java.io.Serializable;
 import java.util.Observable;

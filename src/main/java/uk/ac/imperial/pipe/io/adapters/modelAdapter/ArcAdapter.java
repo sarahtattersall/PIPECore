@@ -2,11 +2,7 @@ package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
 import com.google.common.base.Joiner;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedArc;
-import uk.ac.imperial.pipe.models.component.Connectable;
-import uk.ac.imperial.pipe.models.component.arc.*;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.*;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;

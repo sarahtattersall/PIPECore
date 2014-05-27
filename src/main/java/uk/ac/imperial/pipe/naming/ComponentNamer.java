@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.naming;
 
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.beans.PropertyChangeEvent;

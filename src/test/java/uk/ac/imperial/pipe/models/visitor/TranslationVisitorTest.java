@@ -2,14 +2,14 @@ package uk.ac.imperial.pipe.models.visitor;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.component.PetriNetComponent;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
-import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
-import uk.ac.imperial.pipe.models.component.arc.InboundArc;
-import uk.ac.imperial.pipe.models.component.place.DiscretePlace;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.DiscreteTransition;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
+import uk.ac.imperial.pipe.models.petrinet.Annotation;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.visitor.TranslationVisitor;
 
 import java.awt.Point;

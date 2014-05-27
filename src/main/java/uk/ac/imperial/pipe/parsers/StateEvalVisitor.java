@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.parsers;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.component.place.Place;
+import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
 

@@ -7,11 +7,11 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import uk.ac.imperial.pipe.models.component.arc.Arc;
-import uk.ac.imperial.pipe.models.component.arc.ArcPoint;
-import uk.ac.imperial.pipe.models.component.arc.InboundNormalArc;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.awt.geom.Point2D;
 import java.util.HashMap;

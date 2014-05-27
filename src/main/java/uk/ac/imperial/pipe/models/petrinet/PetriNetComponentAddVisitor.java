@@ -1,19 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
-import uk.ac.imperial.pipe.models.component.annotation.Annotation;
-import uk.ac.imperial.pipe.models.component.annotation.AnnotationVisitor;
-import uk.ac.imperial.pipe.models.component.arc.ArcVisitor;
-import uk.ac.imperial.pipe.models.component.arc.InboundArc;
-import uk.ac.imperial.pipe.models.component.arc.OutboundArc;
-import uk.ac.imperial.pipe.models.component.place.Place;
-import uk.ac.imperial.pipe.models.component.place.PlaceVisitor;
-import uk.ac.imperial.pipe.models.component.rate.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.component.rate.RateParameterVisitor;
-import uk.ac.imperial.pipe.models.component.token.Token;
-import uk.ac.imperial.pipe.models.component.token.TokenVisitor;
-import uk.ac.imperial.pipe.models.component.transition.Transition;
-import uk.ac.imperial.pipe.models.component.transition.TransitionVisitor;
 
 public class PetriNetComponentAddVisitor
         implements PlaceVisitor, ArcVisitor, TransitionVisitor, TokenVisitor, AnnotationVisitor, RateParameterVisitor {
