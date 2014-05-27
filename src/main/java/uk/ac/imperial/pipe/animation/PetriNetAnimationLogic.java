@@ -11,6 +11,7 @@ import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class has useful functions relevant for the animation
@@ -26,6 +27,8 @@ public class PetriNetAnimationLogic implements AnimationLogic {
         this.petriNet = petriNet;
     }
 
+    public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
+
     /**
      *
      * @param state Must be a valid state for the Petri net this class represents
@@ -33,6 +36,9 @@ public class PetriNetAnimationLogic implements AnimationLogic {
      */
     @Override
     public Set<Transition> getEnabledTransitions(State state) {
+        if (cachedEnabledTransitions.containsKey(state)) {
+            return cachedEnabledTransitions.get(state);
+        }
 
         Set<Transition> enabledTransitions = findEnabledTransitions(state);
         boolean hasImmediate = areAnyTransitionsImmediate(enabledTransitions);
@@ -43,6 +49,7 @@ public class PetriNetAnimationLogic implements AnimationLogic {
         }
 
         removePrioritiesLessThan(maxPriority, enabledTransitions);
+        cachedEnabledTransitions.put(state, enabledTransitions);
         return enabledTransitions;
     }
 
@@ -146,6 +153,14 @@ public class PetriNetAnimationLogic implements AnimationLogic {
         }
 
         return result.getResult();
+    }
+
+    /**
+     * Clears cached transitions
+     */
+    @Override
+    public void clear() {
+        cachedEnabledTransitions.clear();
     }
 
 

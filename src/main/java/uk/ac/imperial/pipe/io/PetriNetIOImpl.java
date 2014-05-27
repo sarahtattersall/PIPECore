@@ -30,6 +30,11 @@ public class PetriNetIOImpl implements PetriNetIO {
         context = JAXBContext.newInstance(PetriNetHolder.class);
     }
 
+    /**
+     * Writes the specified petri net to the given path
+     * @param path
+     * @param petriNet
+     */
     @Override
     public void writeTo(String path, PetriNet petriNet) {
         try {
@@ -78,10 +83,19 @@ public class PetriNetIOImpl implements PetriNetIO {
         }
     }
 
+    /**
+     *
+     * @return a new default token
+     */
     private Token createDefaultToken() {
         return new ColoredToken("Default", new Color(0, 0, 0));
     }
 
+    /**
+     *
+     * @return initialised unmarshaller with the correct adapters needed
+     * @throws JAXBException
+     */
     private Unmarshaller initialiseUnmarshaller() throws JAXBException {
 
         Unmarshaller um = context.createUnmarshaller();

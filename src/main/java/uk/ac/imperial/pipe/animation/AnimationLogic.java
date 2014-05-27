@@ -41,4 +41,11 @@ public interface AnimationLogic {
      * @return the evaluated weight for the given state
      */
     double getArcWeight(State state, String weight);
+
+    /**
+     * Clears any caching done in the animation logic
+     * This method helps with memory usage once you know
+     * a state will no longer be visited etc.
+     */
+    void clear();
 }
