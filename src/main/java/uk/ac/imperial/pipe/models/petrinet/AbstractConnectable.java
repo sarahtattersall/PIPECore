@@ -106,64 +106,64 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return id;
     }
 
     @Override
-    public double getNameXOffset() {
+    public final double getNameXOffset() {
         return nameXOffset;
     }
 
     @Override
-    public void setNameXOffset(double nameXOffset) {
+    public final void setNameXOffset(double nameXOffset) {
         double oldValue = this.nameXOffset;
         this.nameXOffset = nameXOffset;
         changeSupport.firePropertyChange(NAME_X_OFFSET_CHANGE_MESSAGE, oldValue, nameXOffset);
     }
 
     @Override
-    public double getNameYOffset() {
+    public final double getNameYOffset() {
         return nameYOffset;
     }
 
     @Override
-    public void setNameYOffset(double nameYOffset) {
+    public final void setNameYOffset(double nameYOffset) {
         double oldValue = this.nameYOffset;
         this.nameYOffset = nameYOffset;
         changeSupport.firePropertyChange(NAME_Y_OFFSET_CHANGE_MESSAGE, oldValue, nameXOffset);
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
     @Override
-    public void setName(String name) {
+    public final void setName(String name) {
         String old = this.name;
         this.name = name;
         changeSupport.firePropertyChange(NAME_CHANGE_MESSAGE, old, name);
     }
 
     @Override
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
     @Override
-    public void setId(String id) {
+    public final void setId(String id) {
         String old = this.id;
         this.id = id;
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
     }
 
     @Override
-    public int getX() {
+    public final int getX() {
         return (int)x;
     }
 
     @Override
-    public void setX(int x) {
+    public final void setX(int x) {
         double oldValue = this.x;
         this.x = x;
         changeSupport.firePropertyChange(X_CHANGE_MESSAGE, oldValue, x);
@@ -171,12 +171,12 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
     }
 
     @Override
-    public int getY() {
+    public final int getY() {
         return (int)y;
     }
 
     @Override
-    public void setY(int y) {
+    public final void setY(int y) {
         double oldValue = this.y;
         this.y = y;
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, oldValue, y);

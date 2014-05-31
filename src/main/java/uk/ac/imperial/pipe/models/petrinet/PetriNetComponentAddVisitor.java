@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 
-public class PetriNetComponentAddVisitor
+public final class PetriNetComponentAddVisitor
         implements PlaceVisitor, ArcVisitor, TransitionVisitor, TokenVisitor, AnnotationVisitor, RateParameterVisitor {
     private final PetriNet petriNet;
 

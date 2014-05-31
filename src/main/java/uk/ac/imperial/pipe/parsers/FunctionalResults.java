@@ -9,7 +9,7 @@ import java.util.Set;
  *
  * @param <T> Numerical result type
  */
-public class FunctionalResults<T extends Number> {
+public final class FunctionalResults<T extends Number> {
     /**
      * Components referenced by the expression used to create this result
      */

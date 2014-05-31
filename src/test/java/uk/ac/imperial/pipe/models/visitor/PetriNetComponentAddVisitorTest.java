@@ -71,7 +71,7 @@ public class PetriNetComponentAddVisitorTest {
 
     @Test
     public void testAddAnnotation() {
-        Annotation annotation = new Annotation(0, 0, "", 0, 0, false);
+        AnnotationImpl annotation = new AnnotationImpl(0, 0, "", 0, 0, false);
         annotation.accept(visitor);
         verify(mockNet).addAnnotation(annotation);
 

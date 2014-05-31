@@ -8,7 +8,7 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
  * Clones a place by visiting the place and calling the correct
  * constructor for each concrete implementation of {@link uk.ac.imperial.pipe.models.petrinet.Place}
  */
-public class PlaceCloner implements DiscretePlaceVisitor {
+public final class PlaceCloner implements DiscretePlaceVisitor {
     public Place cloned = null;
 
     @Override

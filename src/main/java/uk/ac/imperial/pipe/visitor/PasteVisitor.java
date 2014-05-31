@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Paste visitor pastes components into a petri net
  */
-public class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlaceVisitor {
+public final class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlaceVisitor {
 
     private final MultipleNamer multipleNamer;
 

@@ -5,7 +5,7 @@ import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
-public class NormalArcSourceVisitor implements ArcSourceVisitor {
+public final class NormalArcSourceVisitor implements ArcSourceVisitor {
 
     boolean canCreate = false;
 

@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.util.LinkedList;
 import java.util.List;
 
-public class FunctionalEvaluationException extends Exception {
+public final class FunctionalEvaluationException extends Exception {
     private final List<String> errors;
 
     public FunctionalEvaluationException(List<String> errors) {

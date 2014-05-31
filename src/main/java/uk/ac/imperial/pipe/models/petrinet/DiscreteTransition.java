@@ -15,7 +15,7 @@ import java.util.Map;
 import static java.lang.Math.floor;
 
 
-public class DiscreteTransition extends AbstractConnectable implements Transition {
+public final class DiscreteTransition extends AbstractConnectable implements Transition {
 
     private int priority = 1;
 

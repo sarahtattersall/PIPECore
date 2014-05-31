@@ -2,14 +2,7 @@ package uk.ac.imperial.pipe.models.visitor;
 
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
-import uk.ac.imperial.pipe.models.petrinet.Annotation;
-import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.visitor.TranslationVisitor;
 
 import java.awt.Point;
@@ -37,8 +30,8 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesIntermediateArcPointsIfBothSourceAndTargetInSelected() {
-        Place place = mock(DiscretePlace.class);
-        Transition transition = mock(DiscreteTransition.class);
+        Place place = mock(Place.class);
+        Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -62,8 +55,8 @@ public class TranslationVisitorTest {
 
     @Test
     public void doesNotTranslateArcIfSourceIsOnlySelected() {
-        Place place = mock(DiscretePlace.class);
-        Transition transition = mock(DiscreteTransition.class);
+        Place place = mock(Place.class);
+        Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -86,8 +79,8 @@ public class TranslationVisitorTest {
 
     @Test
     public void doesNotTranslateIfTargetsOnlySelected() {
-        Place place = mock(DiscretePlace.class);
-        Transition transition = mock(DiscreteTransition.class);
+        Place place = mock(Place.class);
+        Transition transition = mock(Transition.class);
         InboundArc arc = mock(InboundArc.class);
         when(arc.getSource()).thenReturn(place);
         when(arc.getTarget()).thenReturn(transition);
@@ -109,7 +102,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesPlaceCorrectly() {
-        DiscretePlace place = mock(DiscretePlace.class);
+        Place place = mock(Place.class);
         int x_y_value = 40;
         when(place.getX()).thenReturn(x_y_value);
         when(place.getY()).thenReturn(x_y_value);
@@ -125,7 +118,7 @@ public class TranslationVisitorTest {
 
     @Test
     public void translatesTransitionCorrectly() {
-        DiscreteTransition transition = mock(DiscreteTransition.class);
+        Transition transition = mock(Transition.class);
 
 
         int x_y_value = 40;

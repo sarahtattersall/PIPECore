@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AdaptedRateParameter {
+public final class AdaptedRateParameter {
 
     @XmlAttribute
     private String name;
@@ -18,6 +18,9 @@ public class AdaptedRateParameter {
 
     @XmlAttribute
     private String defType = "real";
+
+    @XmlAttribute
+    private String type = "text";
 
     public String getType() {
         return type;
@@ -58,8 +61,5 @@ public class AdaptedRateParameter {
     public void setDefType(String defType) {
         this.defType = defType;
     }
-
-    @XmlAttribute
-    private String type= "text";
 
 }

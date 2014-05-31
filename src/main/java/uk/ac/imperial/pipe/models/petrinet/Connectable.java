@@ -10,18 +10,18 @@ public interface Connectable extends PlaceablePetriNetComponent {
     /**
      * Message fired when x name offset is changed
      */
-    public static final String NAME_X_OFFSET_CHANGE_MESSAGE = "nameXOffset";
+    static final String NAME_X_OFFSET_CHANGE_MESSAGE = "nameXOffset";
 
     /**
      * Message fired when y name offset is changed
      */
-    public static final String NAME_Y_OFFSET_CHANGE_MESSAGE = "nameYOffset";
+    static final String NAME_Y_OFFSET_CHANGE_MESSAGE = "nameYOffset";
 
     /**
      *
      * @return name label x offset
      */
-    public double getNameXOffset();
+    double getNameXOffset();
 
     /**
      *
@@ -38,7 +38,7 @@ public interface Connectable extends PlaceablePetriNetComponent {
      *
      * @return name label y offset
      */
-    public double getNameYOffset();
+    double getNameYOffset();
 
 
     void setNameYOffset(double nameYOffset);

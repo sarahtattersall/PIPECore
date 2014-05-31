@@ -4,17 +4,28 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 
-public class PetriNetFileName implements PetriNetName {
+/**
+ * Represents a saved file that a Petri net belongs to
+ */
+public final  class PetriNetFileName implements PetriNetName {
     private File file;
 
     public PetriNetFileName(File file) {
         this.file = file;
     }
 
+    /**
+     *
+     * @return absolute path to the Petri net file
+     */
     public String getPath() {
         return file.getAbsolutePath();
     }
 
+    /**
+     *
+     * @return file name minus the path of the Petri net file
+     */
     @Override
     public String getName() {
         return FilenameUtils.removeExtension(file.getName());
@@ -27,6 +38,10 @@ public class PetriNetFileName implements PetriNetName {
         }
     }
 
+    /**
+     *
+     * @return actual file that represents where this Petri net is saved
+     */
     public File getFile() {
         return file;
     }

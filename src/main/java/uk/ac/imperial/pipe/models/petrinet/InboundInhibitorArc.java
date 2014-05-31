@@ -22,7 +22,7 @@ public class InboundInhibitorArc extends InboundArc {
      * @return true if the arc can fire
      */
     @Override
-    public boolean canFire(PetriNet petriNet, State state) {
+    public final boolean canFire(PetriNet petriNet, State state) {
         Map<String, Integer> tokens = state.getTokens(getSource().getId());
         for (Integer tokenCount : tokens.values()) {
             if (tokenCount != 0) {

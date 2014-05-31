@@ -18,35 +18,35 @@ public class AdaptedToken {
     @XmlAttribute
     private int blue;
 
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public final void setId(String id) {
         this.id = id;
     }
 
-    public int getRed() {
+    public final int getRed() {
         return red;
     }
 
-    public void setRed(int red) {
+    public final void setRed(int red) {
         this.red = red;
     }
 
-    public int getGreen() {
+    public final int getGreen() {
         return green;
     }
 
-    public void setGreen(int green) {
+    public final void setGreen(int green) {
         this.green = green;
     }
 
-    public int getBlue() {
+    public final int getBlue() {
         return blue;
     }
 
-    public void setBlue(int blue) {
+    public final void setBlue(int blue) {
         this.blue = blue;
     }
 }

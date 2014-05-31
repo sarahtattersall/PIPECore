@@ -8,9 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Translates PetriNetComponents by a given amount
+ * Translates moveable PetriNetComponents by a given amount
  */
-public class TranslationVisitor implements ArcVisitor, ArcPointVisitor, PlaceVisitor, TransitionVisitor,
+public final class TranslationVisitor implements ArcVisitor, ArcPointVisitor, PlaceVisitor, TransitionVisitor,
         AnnotationVisitor {
     private final Point translation;
 

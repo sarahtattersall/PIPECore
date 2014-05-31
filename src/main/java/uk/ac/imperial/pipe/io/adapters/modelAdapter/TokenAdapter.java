@@ -9,7 +9,10 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
+/**
+ * Used to marshall tokens into and out of PNML format
+ */
+public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
     private final Map<String, Token> tokens;
 
     /**

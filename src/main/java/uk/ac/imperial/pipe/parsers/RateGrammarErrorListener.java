@@ -9,9 +9,21 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RateGrammarErrorListener extends BaseErrorListener {
+/**
+ * Listens for errors in a functional expressions syntax
+ */
+public final class RateGrammarErrorListener extends BaseErrorListener {
     List<String> errors = new LinkedList<>();
 
+    /**
+     * Registers a syntax error in this classes collection of errors
+     * @param recognizer
+     * @param offendingSymbol
+     * @param line
+     * @param charPositionInLine
+     * @param msg
+     * @param e
+     */
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
                             int line, int charPositionInLine, String msg,
@@ -20,10 +32,18 @@ public class RateGrammarErrorListener extends BaseErrorListener {
         errors.add(String.format("line %d:%d %s",line, charPositionInLine, msg));
     }
 
+    /**
+     *
+     * @return true if syntax errors were observed during parsing
+     */
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
 
+    /**
+     *
+     * @return any syntax errors observed during parsing a functional expression
+     */
     public List<String> getErrors() {
         return errors;
     }

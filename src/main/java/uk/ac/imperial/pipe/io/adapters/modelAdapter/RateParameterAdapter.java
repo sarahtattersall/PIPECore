@@ -8,7 +8,10 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter, RateParameter> {
+/**
+ * Responsible for marshalling rate parameters into and out of their PNML format
+ */
+public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter, RateParameter> {
     private final Map<String, FunctionalRateParameter> rateParameters;
 
     public RateParameterAdapter() {

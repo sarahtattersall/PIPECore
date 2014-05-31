@@ -8,7 +8,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 /**
  * A class to determine if an inhibitor arc can be built from the source
  */
-public class InhibitorSourceVisitor implements ArcSourceVisitor {
+public final class InhibitorSourceVisitor implements ArcSourceVisitor {
 
     boolean canCreate = false;
 

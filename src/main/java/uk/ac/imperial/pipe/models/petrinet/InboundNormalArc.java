@@ -11,7 +11,7 @@ public class InboundNormalArc extends InboundArc {
     }
 
     @Override
-    public boolean canFire(PetriNet petriNet, State state) {
+    public final boolean canFire(PetriNet petriNet, State state) {
         Place place = getSource();
 
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
@@ -33,22 +33,5 @@ public class InboundNormalArc extends InboundArc {
             }
         }
         return true;
-
-        //
-        //        for (Map.Entry<String, String> entry : getTokenWeights().entrySet()) {
-        //            int tokenCount = tokenCounts.get(entry.getKey().getId());
-        //            FunctionalResults<Double> results = petriNet.parseExpression(entry.getValue());
-        //            if (results.hasErrors()) {
-        //                //TODO:
-        //                throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
-        //            }
-        //
-        //            double tokenWeight = results.getResult();
-        //
-        //            if (tokenCount < tokenWeight && tokenCount != -1) {
-        //                return false;
-        //            }
-        //        }
-        //        return !tokenCounts.isEmpty();
     }
 }

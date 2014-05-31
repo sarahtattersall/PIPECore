@@ -15,7 +15,7 @@ import java.util.Map;
  * The algorithm for doing this can be found in the Stochastic Petri Net
  * book by Bause and Kritzinger
  */
-public class Expander {
+public final class Expander {
     /**
      * Petri net to unfold
      */

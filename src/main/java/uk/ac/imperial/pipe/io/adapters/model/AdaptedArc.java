@@ -33,51 +33,51 @@ public class AdaptedArc {
 
     private Inscription inscription = new Inscription();
 
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public final void setId(String id) {
         this.id = id;
     }
 
-    public String getSource() {
+    public final String getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public final void setSource(String source) {
         this.source = source;
     }
 
-    public String getTarget() {
+    public final String getTarget() {
         return target;
     }
 
-    public void setTarget(String target) {
+    public final void setTarget(String target) {
         this.target = target;
     }
 
-    public String getType() {
+    public final String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public final void setType(String type) {
         this.type = type;
     }
 
-    public Inscription getInscription() {
+    public final Inscription getInscription() {
         return inscription;
     }
 
-    public void setInscription(Inscription inscription) {
+    public final void setInscription(Inscription inscription) {
         this.inscription = inscription;
     }
 
-    public List<ArcPoint> getArcPoints() {
+    public final List<ArcPoint> getArcPoints() {
         return arcPoints;
     }
 
-    public void setArcPoints(List<ArcPoint> arcPoints) {
+    public final void setArcPoints(List<ArcPoint> arcPoints) {
         this.arcPoints = arcPoints;
     }
 

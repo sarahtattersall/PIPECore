@@ -24,7 +24,7 @@ public class OutboundNormalArc extends OutboundArc {
      *         not cause capacity overflow
      */
     @Override
-    public boolean canFire(PetriNet petriNet, State state) {
+    public final boolean canFire(PetriNet petriNet, State state) {
         Place place = getTarget();
         if (!place.hasCapacityRestriction()) {
             return true;

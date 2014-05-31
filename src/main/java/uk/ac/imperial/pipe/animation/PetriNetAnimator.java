@@ -12,7 +12,7 @@ import java.util.*;
  * Contains methods to help with animating the Petri net and performs
  * in place modifications to the Petri net.
  */
-public class PetriNetAnimator implements Animator {
+public final class PetriNetAnimator implements Animator {
     /**
      * Petri net to animate
      */
@@ -30,7 +30,7 @@ public class PetriNetAnimator implements Animator {
 
 
     @Override
-    public final void saveState() {
+    public void saveState() {
         savedStateTokens.clear();
         for (Place place : petriNet.getPlaces()) {
             savedStateTokens.put(place.getId(), new HashMap<>(place.getTokenCounts()));

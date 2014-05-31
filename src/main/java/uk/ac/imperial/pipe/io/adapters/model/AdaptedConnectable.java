@@ -18,27 +18,27 @@ public class AdaptedConnectable {
     @XmlElement(name = "name")
     private NameDetails name = new NameDetails();
 
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public final void setId(String id) {
         this.id = id;
     }
 
-    public PositionGraphics getGraphics() {
+    public final PositionGraphics getGraphics() {
         return graphics;
     }
 
-    public void setGraphics(PositionGraphics graphics) {
+    public final void setGraphics(PositionGraphics graphics) {
         this.graphics = graphics;
     }
 
-    public NameDetails getName() {
+    public final NameDetails getName() {
         return name;
     }
 
-    public void setNameDetails(NameDetails name) {
+    public final void setNameDetails(NameDetails name) {
         this.name = name;
     }
 

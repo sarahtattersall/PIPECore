@@ -6,16 +6,8 @@ import org.xml.sax.SAXException;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.petrinet.Annotation;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
-import uk.ac.imperial.pipe.models.petrinet.NormalRate;
-import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
-import uk.ac.imperial.pipe.models.petrinet.Token;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
+import uk.ac.imperial.pipe.models.petrinet.AnnotationImpl;
 import utils.FileUtils;
 
 import javax.xml.bind.JAXBException;
@@ -112,7 +104,7 @@ public class PetriNetWriterTest extends XMLTestCase {
 
     public void testMarshalsAnnotation() throws IOException, SAXException {
         PetriNet petriNet = new PetriNet();
-        Annotation annotation = new Annotation(93, 145, "#P12s", 48, 20, false);
+        AnnotationImpl annotation = new AnnotationImpl(93, 145, "#P12s", 48, 20, false);
         petriNet.addAnnotation(annotation);
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getAnnotationFile()), petriNet);
     }

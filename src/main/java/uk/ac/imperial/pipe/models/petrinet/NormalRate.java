@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class NormalRate implements Rate {
+public final class NormalRate implements Rate {
     public final String rate;
 
     public NormalRate(String rate) {

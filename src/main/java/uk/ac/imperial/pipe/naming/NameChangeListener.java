@@ -9,7 +9,7 @@ import java.util.Collection;
 /**
  * Listens for connectable name changes
  */
-public class NameChangeListener implements PropertyChangeListener {
+public final class NameChangeListener implements PropertyChangeListener {
 
     private final Collection<String> names;
 

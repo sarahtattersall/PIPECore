@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  * </value>
  * </name>
  */
-public class StringValueAdapter extends XmlAdapter<StringValueAdapter.AdaptedString, String> {
+public final class StringValueAdapter extends XmlAdapter<StringValueAdapter.AdaptedString, String> {
     @Override
     public String unmarshal(AdaptedString adaptedString) {
         return adaptedString.value;

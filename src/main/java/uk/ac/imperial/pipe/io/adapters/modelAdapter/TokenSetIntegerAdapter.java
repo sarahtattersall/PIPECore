@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TokenSetIntegerAdapter
+public final class TokenSetIntegerAdapter
         extends XmlAdapter<TokenSetIntegerAdapter.AdaptedIntegerTokenSet, Map<Token, Integer>> {
     private final Map<String, Token> tokens;
 

@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
-public class FunctionalRateParameter extends AbstractPetriNetPubSub implements RateParameter {
+public final class FunctionalRateParameter extends AbstractPetriNetPubSub implements RateParameter {
 
     private String expression;
 

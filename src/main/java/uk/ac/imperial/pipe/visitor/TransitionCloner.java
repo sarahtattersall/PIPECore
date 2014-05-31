@@ -4,7 +4,10 @@ import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
-public class TransitionCloner implements DiscreteTransitionVisitor {
+/**
+ * Class used to clone all concrete implementations of {@link uk.ac.imperial.pipe.models.petrinet.Transition}
+ */
+public final class TransitionCloner implements DiscreteTransitionVisitor {
     public Transition cloned;
     @Override
     public void visit(DiscreteTransition transition) {

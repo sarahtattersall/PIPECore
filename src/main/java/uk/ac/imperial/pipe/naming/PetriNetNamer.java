@@ -5,7 +5,7 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 /**
  * This class provides names for petri nets by registering them with this class
  */
-public class PetriNetNamer extends AbstractUniqueNamer {
+public final class PetriNetNamer extends AbstractUniqueNamer {
 
     public PetriNetNamer() {
         super("Petri Net ");

@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.io.adapters.valueAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter, Integer> {
+public final class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter, Integer> {
     @Override
     public Integer unmarshal(IntAdapter intAdapter) {
         return intAdapter.value;

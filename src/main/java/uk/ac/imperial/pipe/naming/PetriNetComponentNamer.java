@@ -5,7 +5,7 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 /**
  * Gives unique names to places, transitions and arcs
  */
-public class PetriNetComponentNamer implements MultipleNamer {
+public final class PetriNetComponentNamer implements MultipleNamer {
 
     private final UniqueNamer placeNamer;
     private final UniqueNamer transitionNamer;

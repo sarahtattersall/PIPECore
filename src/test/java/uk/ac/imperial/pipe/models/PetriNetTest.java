@@ -77,11 +77,10 @@ public class PetriNetTest {
 
     @Test
     public void addingArcNotifiesObservers() {
+        Place place = new DiscretePlace("P0", "P0");
+        Transition transition = new DiscreteTransition("T0", "T0");
         net.addPropertyChangeListener(mockListener);
-        InboundArc mockArc = mock(InboundArc.class);
-        Transition mockTransition = mock(Transition.class);
-        when(mockTransition.getId()).thenReturn("T0");
-        when(mockArc.getTarget()).thenReturn(mockTransition);
+        InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
 
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
@@ -89,10 +88,9 @@ public class PetriNetTest {
 
     @Test
     public void addingDuplicateArcDoesNotNotifyObservers() {
-        InboundArc mockArc = mock(InboundArc.class);
-        Transition mockTransition = mock(Transition.class);
-        when(mockTransition.getId()).thenReturn("T0");
-        when(mockArc.getTarget()).thenReturn(mockTransition);
+        Place place = new DiscretePlace("P0", "P0");
+        Transition transition = new DiscreteTransition("T0", "T0");
+        InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
         net.addPropertyChangeListener(mockListener);
         net.addArc(mockArc);
@@ -103,11 +101,9 @@ public class PetriNetTest {
     @Test
     public void removingArcNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        InboundArc mockArc = mock(InboundArc.class);
-        Place place = mock(DiscretePlace.class);
-        Transition transition = mock(DiscreteTransition.class);
-        when(mockArc.getTarget()).thenReturn(transition);
-        when(mockArc.getSource()).thenReturn(place);
+        Place place = new DiscretePlace("P0", "P0");
+        Transition transition = new DiscreteTransition("T0", "T0");
+        InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
         net.removeArc(mockArc);
 
@@ -168,7 +164,7 @@ public class PetriNetTest {
     @Test
     public void addingAnnotationNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "", 10, 10, false);
         net.addAnnotation(annotation);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
@@ -176,7 +172,7 @@ public class PetriNetTest {
     @Test
     public void containsAnnotation() {
         net.addPropertyChangeListener(mockListener);
-        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "hello", 10, 10, false);
         net.addAnnotation(annotation);
         assertTrue(net.containsComponent(annotation.getId()));
     }
@@ -185,7 +181,7 @@ public class PetriNetTest {
     @Test
     public void containsAnnotationAfterTextChange() {
         net.addPropertyChangeListener(mockListener);
-        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "hello", 10, 10, false);
         net.addAnnotation(annotation);
         annotation.setText("foo");
         assertTrue(net.containsComponent(annotation.getId()));
@@ -194,7 +190,7 @@ public class PetriNetTest {
 
     @Test
     public void removingAnnotationNotifiesObservers() {
-        Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "", 10, 10, false);
         net.addAnnotation(annotation);
         net.addPropertyChangeListener(mockListener);
         net.removeAnnotation(annotation);
@@ -203,7 +199,7 @@ public class PetriNetTest {
 
     @Test
     public void removingAnnotation() {
-        Annotation annotation = new Annotation(10, 10, "hello", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "hello", 10, 10, false);
         net.addAnnotation(annotation);
         net.removeAnnotation(annotation);
         assertFalse(net.containsComponent(annotation.getId()));
@@ -211,7 +207,7 @@ public class PetriNetTest {
 
     @Test
     public void addingDuplicateAnnotationDoesNotNotifyObservers() {
-        Annotation annotation = new Annotation(10, 10, "", 10, 10, false);
+        AnnotationImpl annotation = new AnnotationImpl(10, 10, "", 10, 10, false);
         net.addAnnotation(annotation);
         net.addPropertyChangeListener(mockListener);
         net.addAnnotation(annotation);

@@ -14,7 +14,10 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
+/**
+ * Marhsals Places into and out of their PNML format
+ */
+public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     private final Map<String, Place> places;
 
     private final Map<String, Token> tokens;
@@ -90,15 +93,4 @@ public class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         return tokenWeights;
     }
 
-    /**
-     * @param tokenName token to find in {@link this.tokens}
-     * @return token if exists
-     * @throws RuntimeException if token does not exist
-     */
-    private Token getTokenIfExists(String tokenName) {
-        if (!tokens.containsKey(tokenName)) {
-            throw new RuntimeException("No " + tokenName + " token exists!");
-        }
-        return tokens.get(tokenName);
-    }
 }

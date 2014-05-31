@@ -332,4 +332,25 @@ public class PetriNetAnimationLogicTest {
         int actualP1 = successor.getTokens("P0").get("Default");
         assertEquals(1, actualP1);
     }
+
+    /**
+     * If a state contains Integer.MAX_VALUE then this is considered to be infinite
+     * so infinity addition and subtraction rules should apply
+     */
+    @Test
+    public void infinityLogic() {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                ATransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
+
+
+        State state = AnimationUtils.getState(petriNet);
+        AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
+        Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+
+        assertEquals(1, successors.size());
+        State successor = successors.keySet().iterator().next();
+
+        int actualP1 = successor.getTokens("P0").get("Default");
+        assertEquals(Integer.MAX_VALUE, actualP1);
+    }
 }

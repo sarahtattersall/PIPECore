@@ -10,6 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Parses functional expressions related to the specified Petri net
+ */
 public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
 

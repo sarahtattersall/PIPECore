@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 
 /**
- * This class is a direct map of {@link uk.ac.imperial.pipe.models.petrinet.Annotation}
+ * This class is a direct map of {@link uk.ac.imperial.pipe.models.petrinet.AnnotationImpl}
  * and is used in marshalling the annotation fields into/out of XML.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -48,51 +48,51 @@ public class AdaptedAnnotation {
     @XmlAttribute
     private int height;
 
-    public void setBorder(boolean border) {
+    public final void setBorder(boolean border) {
         this.border = border;
     }
 
-    public boolean hasBoarder() {
+    public final boolean hasBoarder() {
         return border;
     }
 
-    public int getX() {
+    public final  int getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public final void setX(int x) {
         this.x = x;
     }
 
-    public int getY() {
+    public final int getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public final void setY(int y) {
         this.y = y;
     }
 
-    public int getHeight() {
+    public final int getHeight() {
         return height;
     }
 
-    public void setHeight(int height) {
+    public final void setHeight(int height) {
         this.height = height;
     }
 
-    public int getWidth() {
+    public final int getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public final void setWidth(int width) {
         this.width = width;
     }
 
-    public String getText() {
+    public final String getText() {
         return text;
     }
 
-    public void setText(String text) {
+    public final void setText(String text) {
         this.text = text;
     }
 }

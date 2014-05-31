@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet.name;
 
-public class NormalPetriNetName implements PetriNetName {
+public final class NormalPetriNetName implements PetriNetName {
     String name;
 
     @Override

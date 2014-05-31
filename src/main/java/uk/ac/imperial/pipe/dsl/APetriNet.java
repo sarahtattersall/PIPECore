@@ -27,7 +27,7 @@ import java.util.Map;
  * Alternatively to only add one item to the Petri net:
  * APetriNet.withOnly(AToken.withName("Default").andColor(Color.BLACK));
  */
-public class APetriNet {
+public final class APetriNet {
     private Collection<DSLCreator<? extends PetriNetComponent>> creators = new ArrayList<>();
 
 

@@ -18,7 +18,11 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 
-public class PetriNetManagerImpl implements PetriNetManager {
+/**
+ * Manages addition and deletion of Petri nets. It uses the publish-subscribe design
+ * pattern to notify observers of additons and deletions of Petri nets.
+ */
+public final class PetriNetManagerImpl implements PetriNetManager {
     /**
      * Message fired to listeners when a new petri net is created
      */
@@ -65,6 +69,15 @@ public class PetriNetManagerImpl implements PetriNetManager {
         throw new RuntimeException("No Petri nets stored in the manager");
     }
 
+    /**
+     *
+     * Loads the Petri net from the file and adds it to the internal holder,
+     * firing a change message to indicate a Petri net has been added
+     *
+     * @param file location of Petri net xml file
+     * @throws JAXBException
+     * @throws UnparsableException
+     */
     @Override
     public void createFromFile(File file) throws JAXBException, UnparsableException {
         PetriNetReader petriNetIO = new PetriNetIOImpl();
@@ -73,6 +86,12 @@ public class PetriNetManagerImpl implements PetriNetManager {
         changeSupport.firePropertyChange(NEW_PETRI_NET_MESSAGE, null, petriNet);
     }
 
+    /**
+     * Save the petri net to the output file
+     * @param petriNet petri net to save
+     * @param outFile file to save petri net to
+     * @throws JAXBException
+     */
     @Override
     public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException {
 
@@ -82,12 +101,22 @@ public class PetriNetManagerImpl implements PetriNetManager {
         namePetriNetFromFile(petriNet, outFile);
     }
 
+    /**
+     * Removes the petri net from the internal holder, firing a change message that it
+     * has been deleted
+     * @param petriNet
+     */
     @Override
     public void remove(PetriNet petriNet) {
         holder.remove(petriNet);
         changeSupport.firePropertyChange(REMOVE_PETRI_NET_MESSAGE, petriNet, null);
     }
 
+    /**
+     * Sets the petri nets name to the name of the file
+     * @param petriNet
+     * @param file
+     */
     private void namePetriNetFromFile(PetriNet petriNet, File file) {
         PetriNetName petriNetName = new PetriNetFileName(file);
         petriNet.setName(petriNetName);

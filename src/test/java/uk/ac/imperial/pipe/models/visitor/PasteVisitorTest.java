@@ -3,19 +3,12 @@ package uk.ac.imperial.pipe.models.visitor;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.petrinet.Connectable;
-import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
-import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.naming.MultipleNamer;
 import uk.ac.imperial.pipe.visitor.PasteVisitor;
 
@@ -25,21 +18,25 @@ import java.util.*;
 
 import static org.mockito.Mockito.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PasteVisitorTest {
+    private final static String PLACE_NAME = "MOCK_PLACE_COPIED";
+
+    private final static String TRANSITION_NAME = "MOCK_TRANSITION_COPIED";
+
     PasteVisitor visitor;
 
+    @Mock
     PetriNet petriNet;
 
     Collection<PetriNetComponent> pasteComponents;
+
+    @Mock
     MultipleNamer mockNamer;
-    private final static String PLACE_NAME = "MOCK_PLACE_COPIED";
-    private final static String TRANSITION_NAME = "MOCK_TRANSITION_COPIED";
 
     @Before
     public void setUp() {
         pasteComponents = new LinkedList<>();
-        petriNet = mock(PetriNet.class);
-        mockNamer = mock(MultipleNamer.class);
         when(mockNamer.getPlaceName()).thenReturn(PLACE_NAME);
         when(mockNamer.getTransitionName()).thenReturn(TRANSITION_NAME);
     }
@@ -136,8 +133,7 @@ public class PasteVisitorTest {
         verify(petriNet).addArc(argThat(hasCopiedIdAndNameAndBothComponentsAreCopied(arc)));
     }
 
-    private Matcher<InboundArc> hasCopiedIdAndNameAndBothComponentsAreCopied(
-            InboundArc arc) {
+    private Matcher<InboundArc> hasCopiedIdAndNameAndBothComponentsAreCopied(InboundArc arc) {
         return new CopiedArc(arc, PLACE_NAME, TRANSITION_NAME);
     }
 
@@ -157,28 +153,34 @@ public class PasteVisitorTest {
         verify(petriNet).addArc(argThat(hasCopiedIdAndNameAndSourceCopied(arc)));
     }
 
+    private Matcher<InboundArc> hasCopiedIdAndNameAndSourceCopied(
+            Arc<? extends Connectable, ? extends Connectable> arc) {
+        return new CopiedArc<>(arc, PLACE_NAME, arc.getTarget().getName());
+    }
+
     @Test
     public void pastingArcKeepsIntermediatePoints() throws PetriNetComponentException {
 
-            Place place = new DiscretePlace("id", "name");
-            pasteComponents.add(place);
+        Place place = new DiscretePlace("id", "name");
+        pasteComponents.add(place);
 
-            Transition transition = new DiscreteTransition("id", "name");
-            Map<String, String> weights = new HashMap<>();
+        Transition transition = new DiscreteTransition("id", "name");
+        Map<String, String> weights = new HashMap<>();
         InboundArc arc = new InboundNormalArc(place, transition, weights);
-            ArcPoint arcPoint = new ArcPoint(new Point2D.Double(200, 100), true);
-            arc.addIntermediatePoint(arcPoint);
+        ArcPoint arcPoint = new ArcPoint(new Point2D.Double(200, 100), true);
+        arc.addIntermediatePoint(arcPoint);
 
-            pasteComponents.add(arc);
-            visitor = new PasteVisitor(petriNet, pasteComponents, mockNamer);
+        pasteComponents.add(arc);
+        visitor = new PasteVisitor(petriNet, pasteComponents, mockNamer);
 
-            doPaste();
+        doPaste();
 
-            verify(petriNet).addArc(argThat(hasCopiedIntermediatePoints(arc)));
+        verify(petriNet).addArc(argThat(hasCopiedIntermediatePoints(arc)));
     }
 
     /**
      * Ensures arc points are equal but not the same object
+     *
      * @param arc
      * @return
      */
@@ -193,7 +195,7 @@ public class PasteVisitorTest {
                 if (arcPoints.size() != otherPoints.size()) {
                     return false;
                 }
-                for (int index = 1; index < arcPoints.size() -1; index++) {
+                for (int index = 1; index < arcPoints.size() - 1; index++) {
                     ArcPoint arcPoint = arcPoints.get(index);
                     ArcPoint otherArcPoint = otherPoints.get(index);
                     if (arcPoint == otherArcPoint || !arcPoint.equals(otherArcPoint)) {
@@ -203,11 +205,6 @@ public class PasteVisitorTest {
                 return true;
             }
         };
-    }
-
-    private Matcher<InboundArc> hasCopiedIdAndNameAndSourceCopied(
-            Arc<? extends Connectable, ? extends Connectable> arc) {
-        return new CopiedArc<>(arc, PLACE_NAME, arc.getTarget().getName());
     }
 
     @Test
@@ -247,7 +244,7 @@ public class PasteVisitorTest {
         private final Point2D offset;
 
         private CopiedPlace(Place place, String id) {
-            this(place,  new Point2D.Double(0, 0), id);
+            this(place, new Point2D.Double(0, 0), id);
         }
 
         public CopiedPlace(Place place, Point2D offset, String id) {
@@ -259,7 +256,8 @@ public class PasteVisitorTest {
         @Override
         public boolean matches(Object argument) {
             Place otherPlace = (Place) argument;
-            return (otherPlace.getId().equals(id) && otherPlace.getName().equals(id) && otherPlace.getX() == (place.getX() + offset.getX()) &&
+            return (otherPlace.getId().equals(id) && otherPlace.getName().equals(id) && otherPlace.getX() == (
+                    place.getX() + offset.getX()) &&
                     otherPlace.getY() == (place.getY() + offset.getY()) &&
                     otherPlace.getNameXOffset() == place.getNameXOffset() &&
                     otherPlace.getNameYOffset() == place.getNameYOffset() &&
@@ -278,9 +276,9 @@ public class PasteVisitorTest {
 
         private final Point2D offset;
 
-        private Transition transition;
-
         private final String id;
+
+        private Transition transition;
 
         private CopiedTransition(Transition transition, String id) {
             this(transition, new Point2D.Double(0, 0), id);
@@ -297,8 +295,8 @@ public class PasteVisitorTest {
         @Override
         public boolean matches(Object argument) {
             Transition otherTransition = (Transition) argument;
-            return (otherTransition.getId().equals(id) && otherTransition.getName().equals(id) && otherTransition.getX() == (transition.getX() + offset.getX())
-                    &&
+            return (otherTransition.getId().equals(id) && otherTransition.getName().equals(id)
+                    && otherTransition.getX() == (transition.getX() + offset.getX()) &&
                     otherTransition.getY() == (transition.getY() + offset.getY()) &&
                     otherTransition.getNameXOffset() == transition.getNameXOffset() &&
                     otherTransition.getNameYOffset() == transition.getNameYOffset() &&
@@ -310,7 +308,7 @@ public class PasteVisitorTest {
         }
     }
 
-    private static class CopiedArc <T> extends ArgumentMatcher<T> {
+    private static class CopiedArc<T> extends ArgumentMatcher<T> {
 
         private final Arc<? extends Connectable, ? extends Connectable> arc;
 
@@ -318,8 +316,7 @@ public class PasteVisitorTest {
 
         private final String targetName;
 
-        public CopiedArc(Arc<? extends Connectable, ? extends Connectable> arc, String sourceName,
-                         String targetName) {
+        public CopiedArc(Arc<? extends Connectable, ? extends Connectable> arc, String sourceName, String targetName) {
 
             this.arc = arc;
             this.sourceName = sourceName;

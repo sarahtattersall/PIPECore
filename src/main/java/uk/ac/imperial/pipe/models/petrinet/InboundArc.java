@@ -13,7 +13,7 @@ public abstract class InboundArc extends Arc<Place, Transition>{
     }
 
     @Override
-    public void accept(PetriNetComponentVisitor visitor) {
+    public final void accept(PetriNetComponentVisitor visitor) {
         if (visitor instanceof ArcVisitor) {
             ((ArcVisitor) visitor).visit(this);
         }

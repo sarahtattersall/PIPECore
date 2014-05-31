@@ -627,12 +627,6 @@ public class PetriNet {
         return (Map<String, T>) componentMaps.get(clazz);
     }
 
-    //TODO: SHOULD WE BE CATCHING THE ERROR?
-    private int getEvaluatedExpressionAsInt(String expression) {
-        FunctionalResults<Double> result = functionalWeightParser.evaluateExpression(expression);
-        return (int) result.getResult().doubleValue();
-    }
-
     /**
      * @param transition to calculate inbound arc for
      * @return arcs that are inbound to transition, that is arcs that come into the transition

@@ -4,7 +4,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
-public class EvalVisitor extends RateGrammarBaseVisitor<Double> {
+public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
 
     private PetriNet petriNet;
 

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * This class maps to the Place in PNML
  */
-public class DiscretePlace extends AbstractConnectable implements Place {
+public final class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Place diameter

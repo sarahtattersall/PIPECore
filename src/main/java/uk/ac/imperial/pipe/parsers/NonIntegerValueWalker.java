@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.parsers;
 
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-public class NonIntegerValueWalker {
+public final class NonIntegerValueWalker {
     private final org.antlr.v4.runtime.tree.ParseTree parseTree;
 
     public NonIntegerValueWalker(String expression) {

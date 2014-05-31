@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class has useful functions relevant for the animation
  * of a Petri net. It does not alter the state of the Petri net.
  */
-public class PetriNetAnimationLogic implements AnimationLogic {
+public final class PetriNetAnimationLogic implements AnimationLogic {
     /**
      * Petri net this class represents the logic for
      */
@@ -108,10 +108,8 @@ public class PetriNetAnimationLogic implements AnimationLogic {
                     String tokenId = entry.getKey();
                     if (arcWeights.containsKey(tokenId)) {
                         int currentCount = entry.getValue();
-                        double arcWeight = getArcWeight(state, arcWeights.get(tokenId));
-                        int newCount = (int) (currentCount - arcWeight);
-
-                        builder.placeWithToken(placeId, tokenId, newCount);
+                        int arcWeight = (int) getArcWeight(state, arcWeights.get(tokenId));
+                        builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
                     }
                 }
             }
@@ -126,8 +124,8 @@ public class PetriNetAnimationLogic implements AnimationLogic {
                 for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
                     String tokenId = entry.getKey();
                     int currentCount = temporaryState.getTokens(placeId).get(tokenId);
-                    double arcWeight = getArcWeight(state, entry.getValue());
-                    builder.placeWithToken(placeId, tokenId, (int) (currentCount + arcWeight));
+                    int arcWeight = (int) getArcWeight(state, entry.getValue());
+                    builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
                 }
             }
         }
@@ -135,6 +133,38 @@ public class PetriNetAnimationLogic implements AnimationLogic {
         return builder.build();
     }
 
+
+    /**
+     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
+     * from it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return subtracted weight
+     */
+    private int subtractWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight - arcWeight;
+    }
+
+
+
+    /**
+     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
+     * to it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return added weight
+     */
+    private int addWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight + arcWeight;
+    }
 
     /**
      *

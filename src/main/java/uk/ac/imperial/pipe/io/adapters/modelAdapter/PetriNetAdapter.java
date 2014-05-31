@@ -7,7 +7,7 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
+public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     @Override
     public PetriNet unmarshal(AdaptedPetriNet v) throws PetriNetComponentException {
         PetriNet petriNet = new PetriNet();

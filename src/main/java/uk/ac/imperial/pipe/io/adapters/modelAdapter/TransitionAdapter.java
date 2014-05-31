@@ -13,7 +13,10 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition> {
+/**
+ * Used to marshal transitions to and from their PNML representation
+ */
+public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Transition> {
     private final Map<String, Transition> transitions;
     private final Map<String, FunctionalRateParameter> rateParameters;
 

@@ -15,38 +15,38 @@ public class AdaptedArcPoint {
     @XmlAttribute
     private double y;
 
-    public double getX() {
+    public final double getX() {
         return x;
     }
 
-    public void setX(double x) {
+    public final void setX(double x) {
         this.x = x;
     }
 
-    public double getY() {
+    public final double getY() {
         return y;
     }
 
-    public void setY(double y) {
+    public final void setY(double y) {
         this.y = y;
     }
 
-    public boolean isCurved() {
+    public final boolean isCurved() {
         return curved;
     }
 
-    public void setCurved(boolean curved) {
+    public final void setCurved(boolean curved) {
         this.curved = curved;
     }
 
     @XmlAttribute(name = "curvePoint")
     private boolean curved;
 
-    public String getId() {
+    public final String getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public final void setId(String id) {
         this.id = id;
     }
 }

@@ -84,7 +84,13 @@ public class ClonePetriNet {
     }
 
     public void visit(Annotation annotation) {
-        Annotation newAnnotation =  new Annotation(annotation);
+        AnnotationCloner cloner = new AnnotationCloner();
+        try {
+            annotation.accept(cloner);
+        } catch (PetriNetComponentException e) {
+            e.printStackTrace();
+        }
+        Annotation newAnnotation = cloner.cloned;
         newPetriNet.addAnnotation(newAnnotation);
 
     }

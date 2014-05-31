@@ -97,14 +97,6 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     }
 
     /**
-     * @return the default token to use if no token is specified in the
-     * Arc weight XML.
-     */
-    private Token getDefaultToken() {
-        return getTokenIfExists("Default");
-    }
-
-    /**
      * Sets the arc points in the arc based on the adapted.
      * Loses the source and end locations to just provide intermediate pints
      *

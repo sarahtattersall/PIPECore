@@ -29,7 +29,7 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
 
 
     @Override
-    public String getName() {
+    public final String getName() {
         int nameNumber = 0;
         String name = namePrefix + nameNumber;
         while (names.contains(name)) {
@@ -40,7 +40,7 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
     }
 
     @Override
-    public boolean isUniqueName(String name) {
+    public final boolean isUniqueName(String name) {
         return !names.contains(name);
     }
 }

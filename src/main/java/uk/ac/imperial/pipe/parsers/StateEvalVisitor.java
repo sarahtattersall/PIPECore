@@ -8,9 +8,12 @@ import uk.ac.imperial.state.State;
 import java.util.Map;
 
 /**
- * This class evaluates an expression based on a State
+ * This class evaluates an expression based on a State so that the underlying
+ * Petri net need not be editied.
+ *
+ * It is particularly useful for any concurrent analysis.
  */
-public class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
+public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
     private final PetriNet petriNet;
     private final State state;
 

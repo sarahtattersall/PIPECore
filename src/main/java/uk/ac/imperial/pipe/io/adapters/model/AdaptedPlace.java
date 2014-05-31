@@ -15,19 +15,19 @@ public class AdaptedPlace extends AdaptedConnectable {
 
     private InitialMarking initialMarking = new InitialMarking();
 
-    public InitialMarking getInitialMarking() {
+    public final InitialMarking getInitialMarking() {
         return initialMarking;
     }
 
-    public void setInitialMarking(InitialMarking initialMarking) {
+    public final void setInitialMarking(InitialMarking initialMarking) {
         this.initialMarking = initialMarking;
     }
 
-    public Integer getCapacity() {
+    public final Integer getCapacity() {
         return capacity;
     }
 
-    public void setCapacity(Integer capacity) {
+    public final void setCapacity(Integer capacity) {
         this.capacity = capacity;
     }
 
@@ -39,19 +39,19 @@ public class AdaptedPlace extends AdaptedConnectable {
         @XmlElement(name = "value")
         private String tokenCounts = "";
 
-        public String getTokenCounts() {
+        public final String getTokenCounts() {
             return tokenCounts;
         }
 
-        public void setTokenCounts(String tokenCounts) {
+        public final void setTokenCounts(String tokenCounts) {
             this.tokenCounts = tokenCounts;
         }
 
-        public OffsetGraphics getGraphics() {
+        public final OffsetGraphics getGraphics() {
             return graphics;
         }
 
-        public void setGraphics(OffsetGraphics graphics) {
+        public final void setGraphics(OffsetGraphics graphics) {
             this.graphics = graphics;
         }
     }

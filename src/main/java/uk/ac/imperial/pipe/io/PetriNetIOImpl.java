@@ -22,7 +22,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PetriNetIOImpl implements PetriNetIO {
+public final class PetriNetIOImpl implements PetriNetIO {
 
     private final JAXBContext context;
 

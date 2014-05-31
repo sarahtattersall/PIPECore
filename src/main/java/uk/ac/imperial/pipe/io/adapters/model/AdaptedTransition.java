@@ -33,80 +33,56 @@ public class AdaptedTransition extends AdaptedConnectable {
     @XmlElement(name = "toolspecific")
     private ToolSpecific toolSpecific;
 
-    public Boolean getTimed() {
+    public final Boolean getTimed() {
         return timed;
     }
 
-    public void setTimed(Boolean timed) {
+    public final void setTimed(Boolean timed) {
         this.timed = timed;
     }
 
-    public Boolean getInfiniteServer() {
+    public final Boolean getInfiniteServer() {
         return infiniteServer;
     }
 
-    public void setInfiniteServer(Boolean infiniteServer) {
+    public final void setInfiniteServer(Boolean infiniteServer) {
         this.infiniteServer = infiniteServer;
     }
 
-    public int getPriority() {
+    public final int getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public final void setPriority(int priority) {
         this.priority = priority;
     }
 
-    public int getAngle() {
+    public final int getAngle() {
         return angle;
     }
 
-    public void setAngle(int angle) {
+    public final void setAngle(int angle) {
         this.angle = angle;
     }
 
-    public String getRate() {
+    public final String getRate() {
         return rate;
     }
 
-    public void setRate(String rate) {
+    public final void setRate(String rate) {
         this.rate = rate;
     }
 
-    public ToolSpecific getToolSpecific() {
+    public final ToolSpecific getToolSpecific() {
         return toolSpecific;
     }
 
-    public void setToolSpecific(ToolSpecific toolSpecific) {
+    public final void setToolSpecific(ToolSpecific toolSpecific) {
         this.toolSpecific = toolSpecific;
     }
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class ToolSpecific {
-        public String getTool() {
-            return tool;
-        }
-
-        public void setTool(String tool) {
-            this.tool = tool;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        public void setVersion(String version) {
-            this.version = version;
-        }
-
-        public String getRateDefinition() {
-            return rateDefinition;
-        }
-
-        public void setRateDefinition(String rateDefinition) {
-            this.rateDefinition = rateDefinition;
-        }
-
         @XmlAttribute
         private String tool = "PIPE";
 
@@ -115,5 +91,29 @@ public class AdaptedTransition extends AdaptedConnectable {
 
         @XmlAttribute
         private String rateDefinition;
+
+        public final String getTool() {
+            return tool;
+        }
+
+        public final void setTool(String tool) {
+            this.tool = tool;
+        }
+
+        public final String getVersion() {
+            return version;
+        }
+
+        public final void setVersion(String version) {
+            this.version = version;
+        }
+
+        public final String getRateDefinition() {
+            return rateDefinition;
+        }
+
+        public final void setRateDefinition(String rateDefinition) {
+            this.rateDefinition = rateDefinition;
+        }
     }
 }
