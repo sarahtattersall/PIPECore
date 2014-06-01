@@ -51,7 +51,6 @@ public final class FunctionalResults<T extends Number> {
     }
 
     /**
-     *
      * @return result of parsing the grammars. If hasErrors() is true, this result is not valid
      */
     public T getResult() {
@@ -59,12 +58,29 @@ public final class FunctionalResults<T extends Number> {
     }
 
     /**
-     *
      * @return all listed components in the grammar. For example
-     *          '#(P0, Default) * 2' returns {P0, Default} as these
-     *          represent a place and a token respectively
+     * '#(P0, Default) * 2' returns {P0, Default} as these
+     * represent a place and a token respectively
      */
     public Set<String> getComponents() {
         return components;
+    }
+
+    /**
+     * @param seperator string to seperate error messages with. For example "," or "\n"
+     * @return errors conjoined by seperator
+     */
+    public String getErrorString(String seperator) {
+        StringBuilder builder = new StringBuilder();
+        int i = 0;
+        for (String error : errors) {
+            builder.append(error);
+
+            i++;
+            if (i < errors.size()) {
+                builder.append(seperator);
+            }
+        }
+        return builder.toString();
     }
 }
