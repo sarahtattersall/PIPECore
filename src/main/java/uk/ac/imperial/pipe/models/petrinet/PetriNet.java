@@ -416,7 +416,7 @@ public class PetriNet {
             return;
         }
         StringBuilder message = new StringBuilder();
-        message.append("Cannot remove Default token");
+        message.append("Cannot remove ").append(token.getId()).append(" token");
         if (!referencedPlaces.isEmpty()) {
             message.append(" places: ");
             for (Place place : referencedPlaces) {

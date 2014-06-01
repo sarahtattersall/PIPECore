@@ -150,7 +150,19 @@ public class PetriNetTest {
     }
 
     @Test
-    public void cannotRemoveTokenIfTransitionReferencesIt() throws PetriNetComponentException {
+    public void cannotRemoveBlueTokenIfTransitionReferencesIt() throws PetriNetComponentException {
+        expectedException.expect(PetriNetComponentException.class);
+        expectedException.expectMessage("Cannot remove Blue token transitions: T0 reference it\n");
+        Token token = new ColoredToken("Blue", Color.BLUE);
+        Transition transition = new DiscreteTransition("T0", "T0");
+        transition.setRate(new NormalRate("#(P0, Blue)"));
+        net.addTransition(transition);
+        net.removeToken(token);
+    }
+
+
+    @Test
+    public void cannotRemoveDefaultTokenIfTransitionReferencesIt() throws PetriNetComponentException {
         expectedException.expect(PetriNetComponentException.class);
         expectedException.expectMessage("Cannot remove Default token transitions: T0 reference it\n");
         Token token = new ColoredToken("Default", Color.BLACK);
