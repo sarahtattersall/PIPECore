@@ -140,7 +140,7 @@ public class PetriNetTest {
     @Test
     public void cannotRemoveTokenIfPlaceDependsOnIt() throws PetriNetComponentException {
         expectedException.expect(PetriNetComponentException.class);
-        expectedException.expectMessage("Cannot remove Default token places: P0 contain it");
+        expectedException.expectMessage("Cannot remove Default token places: P0 contains it");
         Token token = new ColoredToken("Default", Color.BLACK);
         Place place = new DiscretePlace("P0", "P0");
         place.setTokenCount(token.getId(), 2);

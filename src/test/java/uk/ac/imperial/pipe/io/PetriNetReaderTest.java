@@ -3,24 +3,14 @@ package uk.ac.imperial.pipe.io;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.Connectable;
-import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
-import uk.ac.imperial.pipe.models.petrinet.ArcType;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.RateParameter;
-import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
-import uk.ac.imperial.pipe.models.petrinet.Token;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.parsers.UnparsableException;
 import utils.FileUtils;
 
 import javax.xml.bind.JAXBException;
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.util.Collection;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
@@ -199,6 +189,14 @@ public class PetriNetReaderTest {
         RateParameter rateParameter = petriNet.getComponent("foo", RateParameter.class);
         Transition transition = petriNet.getComponent("T0", Transition.class);
         assertEquals(rateParameter, transition.getRate());
+    }
+
+
+    @Test
+    public void readsTokens() throws UnparsableException, PetriNetComponentNotFoundException {
+        PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/token/two_token.xml"));
+        Collection<Token> tokens = petriNet.getTokens();
+        assertEquals(2,tokens.size());
     }
 
 

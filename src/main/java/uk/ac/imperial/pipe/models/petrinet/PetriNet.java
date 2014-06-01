@@ -422,7 +422,7 @@ public class PetriNet {
             for (Place place : referencedPlaces) {
                 message.append(place.getId());
             }
-            message.append(" contain it\n");
+            message.append(" contains it\n");
         }
         if (!referencedTransitions.isEmpty()) {
             message.append(" transitions: ");
