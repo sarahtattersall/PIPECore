@@ -66,7 +66,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void removingPlaceNotifiesObservers() {
+    public void removingPlaceNotifiesObservers() throws PetriNetComponentException {
         net.addPropertyChangeListener(mockListener);
         Place place = new DiscretePlace("", "");
         net.addPlace(place);
@@ -575,6 +575,54 @@ public class PetriNetTest {
         petriNet.removeArc(arc);
         Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
         assertTrue(outboundArcs.isEmpty());
+    }
+
+    @Test
+    public void cannotDeletePlaceIfReferencedByTransition() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet = APetriNet.with(APlace.withId("P0")).andFinally(
+                ATransition.withId("T0").andRate("#(P0)").whichIsTimed());
+        Place place = petriNet.getComponent("P0", Place.class);
+        try {
+            petriNet.removePlace(place);
+        } catch (PetriNetComponentException e) {
+            String expected = "Cannot delete " + place.getId() + " it is referenced in a functional expression!";
+            assertEquals(expected, e.getMessage());
+            return;
+        }
+        fail("Did not throw Petri net exception!");
+    }
+
+
+    @Test
+    public void cannotDeletePlaceIfReferencedByRateParam() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet = APetriNet.with(APlace.withId("P0")).andFinally(ARateParameter.withId("R1").andExpression("#(P0)"));
+        Place place = petriNet.getComponent("P0", Place.class);
+        try {
+            petriNet.removePlace(place);
+        } catch (PetriNetComponentException e) {
+            String expected = "Cannot delete " + place.getId() + " it is referenced in a functional expression!";
+            assertEquals(expected, e.getMessage());
+            return;
+        }
+        fail("Did not throw Petri net exception!");
+    }
+
+    @Test
+    public void cannotDeletePlaceIfReferencedByArc() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+        Place place = petriNet.getComponent("P0", Place.class);
+        try {
+            petriNet.removePlace(place);
+        } catch (PetriNetComponentException e) {
+            String expected = "Cannot delete " + place.getId() + " it is referenced in a functional expression!";
+            assertEquals(expected, e.getMessage());
+            return;
+        }
+        fail("Did not throw Petri net exception!");
     }
 
 }

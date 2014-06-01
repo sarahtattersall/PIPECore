@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.naming;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -69,7 +70,7 @@ public class PlaceNamerTest {
 
 
     @Test
-    public void reUseDeletedValue() {
+    public void reUseDeletedValue() throws PetriNetComponentException {
         Place place = new DiscretePlace("P0", "P0");
         petriNet.addPlace(place);
 

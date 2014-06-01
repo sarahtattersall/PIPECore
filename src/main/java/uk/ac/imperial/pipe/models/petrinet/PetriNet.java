@@ -17,10 +17,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class PetriNet {
     public static final String PETRI_NET_NAME_CHANGE_MESSAGE = "nameChange";
@@ -261,12 +258,47 @@ public class PetriNet {
      *
      * @param place to remove from Petri net
      */
-    public void removePlace(Place place) {
+    public void removePlace(Place place) throws PetriNetComponentException {
+        Collection<String> components = getComponentsReferencingPlace(place);
+        if (!components.isEmpty()) {
+            throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
+        }
         this.places.remove(place.getId());
         for (InboundArc arc : outboundArcs(place)) {
             removeArc(arc);
         }
         changeSupport.firePropertyChange(DELETE_PLACE_CHANGE_MESSAGE, place, null);
+    }
+
+    /**
+     *
+     * @param place
+     * @return all components ids whose functional expression references the place
+     */
+    private Collection<String> getComponentsReferencingPlace(Place place) {
+        Set<String> results = new HashSet<>();
+        for (Transition transition : getTransitions()) {
+            results.addAll(getComponents(transition.getRateExpr()));
+        }
+        for (Arc<?, ?> arc : getArcs()) {
+            for (String expr : arc.tokenWeights.values()) {
+                results.addAll(getComponents(expr));
+            }
+        }
+        for (RateParameter rateParameter : getRateParameters()) {
+            results.addAll(getComponents(rateParameter.getExpression()));
+        }
+        return results;
+    }
+
+    /**
+     *
+     * @param expression
+     * @return a list of components that the expression references
+     */
+    private Collection<String> getComponents(String expression) {
+        FunctionalResults<Double> results = parseExpression(expression);
+        return results.getComponents();
     }
 
     /**

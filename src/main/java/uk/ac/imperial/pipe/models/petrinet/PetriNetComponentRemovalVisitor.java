@@ -12,7 +12,7 @@ public final class PetriNetComponentRemovalVisitor
     }
 
     @Override
-    public void visit(Place place) {
+    public void visit(Place place) throws PetriNetComponentException {
         net.removePlace(place);
 
     }

@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;
@@ -61,7 +62,7 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     }
 
     @Override
-    public void accept(PetriNetComponentVisitor visitor) {
+    public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
         if (visitor instanceof PlaceVisitor) {
             ((PlaceVisitor) visitor).visit(this);
         }
