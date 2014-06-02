@@ -192,6 +192,15 @@ public class DiscreteTransitionTest {
     }
 
     @Test
+    public void transitionsEqualEvenIfEnabledDifferent() {
+        DiscreteTransition t1 = new DiscreteTransition("id", "name");
+        DiscreteTransition t2  = new DiscreteTransition("id", "name");
+        t2.enable();
+        t1.disable();
+        assertEquals(t1, t2);
+    }
+
+    @Test
     public void evaluatesRateAgainstPetriNet() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(5, "Default").tokens()).and(

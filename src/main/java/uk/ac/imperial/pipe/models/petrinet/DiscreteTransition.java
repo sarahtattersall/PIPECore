@@ -49,23 +49,11 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     }
 
     @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + priority;
-        result = 31 * result + (rate != null ? rate.hashCode() : 0);
-        result = 31 * result + (timed ? 1 : 0);
-        result = 31 * result + (infiniteServer ? 1 : 0);
-        result = 31 * result + angle;
-        result = 31 * result + (enabled ? 1 : 0);
-        return result;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (!(o instanceof DiscreteTransition)) {
             return false;
         }
         if (!super.equals(o)) {
@@ -74,12 +62,6 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
         DiscreteTransition that = (DiscreteTransition) o;
 
-        if (angle != that.angle) {
-            return false;
-        }
-        if (enabled != that.enabled) {
-            return false;
-        }
         if (infiniteServer != that.infiniteServer) {
             return false;
         }
@@ -89,7 +71,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         if (timed != that.timed) {
             return false;
         }
-        if (rate != null ? !rate.equals(that.rate) : that.rate != null) {
+        if (!rate.equals(that.rate)) {
             return false;
         }
 
@@ -97,6 +79,17 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     }
 
     @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + priority;
+        result = 31 * result + rate.hashCode();
+        result = 31 * result + (timed ? 1 : 0);
+        result = 31 * result + (infiniteServer ? 1 : 0);
+        return result;
+    }
+
+    @Override
+
     public Point2D.Double getCentre() {
         return new Point2D.Double(getX() + getWidth() / 2, getY() + getHeight() / 2);
     }
