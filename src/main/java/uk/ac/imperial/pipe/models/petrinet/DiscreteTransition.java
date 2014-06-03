@@ -17,6 +17,10 @@ import static java.lang.Math.floor;
 
 public final class DiscreteTransition extends AbstractConnectable implements Transition {
 
+    public static final int DEGREES_135 = 135;
+
+    public static final int DEGREES_45 = 45;
+
     private int priority = 1;
 
     private Rate rate = new NormalRate("1");
@@ -96,8 +100,8 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     @Override
     public Point2D.Double getArcEdgePoint(double angle) {
-        double halfHeight = getHeight() / 2;
-        double halfWidth = getWidth() / 2;
+        int halfHeight = getHeight() / 2;
+        int halfWidth = getWidth() / 2;
         double centreX = x + halfWidth;
         double centreY = y + halfHeight;
 
@@ -110,7 +114,8 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
             connectionPoint.y += halfHeight;
         } else if (connectToLeft(rotatedAngle)) {
             connectionPoint.x -= halfWidth;
-        } else { //connectToRight
+        } else {
+            //connectToRight
             connectionPoint.x += halfWidth;
         }
 
@@ -133,7 +138,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * of the transition
      */
     private boolean connectToTop(double angle) {
-        return angle > Math.toRadians(45) && angle < Math.toRadians(135);
+        return angle > Math.toRadians(DEGREES_45) && angle < Math.toRadians(DEGREES_135);
     }
 
     //    public void setRateExpr(String string) {
@@ -146,7 +151,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * connect to the top edge of the transition
      */
     private boolean connectToBottom(double angle) {
-        return angle < Math.toRadians(-45) && angle > Math.toRadians(-135);
+        return angle < Math.toRadians(-DEGREES_45) && angle > Math.toRadians(-DEGREES_135);
     }
 
     /**
@@ -155,7 +160,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * connect to the left edge of the transition
      */
     private boolean connectToLeft(double angle) {
-        return angle > Math.toRadians(-45) && angle < Math.toRadians(45);
+        return angle > Math.toRadians(-DEGREES_45) && angle < Math.toRadians(DEGREES_45);
     }
 
     /**
@@ -282,7 +287,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
                 } else {
                     Map<String, Integer> tokenCount = state.getTokens(placeId);
                     int placeTokenCount = tokenCount.get(tokenId);
-                    int currentDegree = (int) floor(placeTokenCount / requiredTokenCount);
+                    int currentDegree = placeTokenCount / requiredTokenCount;
                     if (currentDegree < enablingDegree) {
                         enablingDegree = currentDegree;
                     }

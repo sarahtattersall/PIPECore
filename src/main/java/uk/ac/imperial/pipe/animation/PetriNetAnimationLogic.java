@@ -1,9 +1,9 @@
 package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
@@ -23,14 +23,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     private final PetriNet petriNet;
 
+    public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
+
     public PetriNetAnimationLogic(PetriNet petriNet) {
         this.petriNet = petriNet;
     }
 
-    public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
-
     /**
-     *
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -54,7 +53,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     }
 
     /**
-     *
      * @param state
      * @return all successors of this state
      */
@@ -94,7 +92,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     @Override
     public State getFiredState(State state, Transition transition) {
         HashedStateBuilder builder = new HashedStateBuilder();
-        for (Place place : petriNet.getPlaces()) { //Copy tokens
+        for (Place place : petriNet.getPlaces()) {
+            //Copy tokens
             builder.placeWithTokens(place.getId(), state.getTokens(place.getId()));
         }
 
@@ -115,7 +114,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             }
 
 
-
             State temporaryState = builder.build();
 
             for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
@@ -133,41 +131,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         return builder.build();
     }
 
-
     /**
-     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
-     * from it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return subtracted weight
-     */
-    private int subtractWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight - arcWeight;
-    }
-
-
-
-    /**
-     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
-     * to it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return added weight
-     */
-    private int addWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight + arcWeight;
-    }
-
-    /**
-     *
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
      * @return the evaluated weight for the given state
@@ -193,6 +157,35 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         cachedEnabledTransitions.clear();
     }
 
+    /**
+     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
+     * from it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return subtracted weight
+     */
+    private int subtractWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight - arcWeight;
+    }
+
+    /**
+     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
+     * to it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return added weight
+     */
+    private int addWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight + arcWeight;
+    }
 
     /**
      * @return all the currently enabled transitions in the petri net

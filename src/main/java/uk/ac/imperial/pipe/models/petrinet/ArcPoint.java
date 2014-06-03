@@ -124,12 +124,12 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
 
     @Override
     public String getId() {
-        return null;
+        return "";
     }
 
     @Override
     public void setId(String id) {
-
+        //TODO: Should arc points have an id?
     }
 
     public boolean isCurved() {

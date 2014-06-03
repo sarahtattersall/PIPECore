@@ -97,7 +97,7 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
      */
     static class ComponentListener extends RateGrammarBaseListener {
 
-        Set<String> componentIds = new HashSet<>();
+        private Set<String> componentIds = new HashSet<>();
 
 
         @Override

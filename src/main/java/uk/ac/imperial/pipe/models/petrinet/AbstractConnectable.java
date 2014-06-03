@@ -1,8 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.awt.Point;
-import java.awt.geom.Point2D;
-
 public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implements Connectable {
     /**
      * Connectable position x
@@ -13,8 +10,6 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      * Connectable position y
      */
     protected double y = 0;
-
-    protected Point2D point = new Point(0, 0);
 
     /**
      * Connectable id

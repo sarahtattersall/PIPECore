@@ -10,7 +10,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Map;
 
-public class AnInhibitorArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
+public final class AnInhibitorArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
     private String source;
 
     private String target;

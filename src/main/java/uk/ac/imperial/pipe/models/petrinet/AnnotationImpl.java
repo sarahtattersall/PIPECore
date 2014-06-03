@@ -197,7 +197,6 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         }
     }
 
-    //TODO: WORK OUT WHAT THESE SHOULD DO
     @Override
     public String getId() {
         return getText();
@@ -205,7 +204,7 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
 
     @Override
     public void setId(String id) {
-
+        //TODO: WORK OUT WHAT THESE SHOULD DO
     }
 
     /**

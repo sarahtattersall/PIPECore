@@ -22,7 +22,7 @@ public final class NonIntegerValueWalker {
      */
     private static class NonIntegerListener extends RateGrammarBaseListener {
 
-        boolean possibleNonIntegerValue = false;
+        private boolean possibleNonIntegerValue = false;
 
         @Override
         public void exitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {

@@ -5,11 +5,15 @@ import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.naming.MultipleNamer;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Paste visitor pastes components into a petri net
  */
 public final class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlaceVisitor {
+
+    private static final Logger LOGGER = Logger.getLogger(PasteVisitor.class.getName());
 
     private final MultipleNamer multipleNamer;
 
@@ -84,7 +88,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
         try {
             transition.accept(cloner);
         } catch (PetriNetComponentException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Transition newTransition = cloner.cloned;
         setId(newTransition);

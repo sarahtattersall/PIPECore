@@ -19,8 +19,6 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     private final Map<String, Transition> transitions;
 
-    private final Map<String, Token> tokens;
-
     /**
      * Empty constructor needed for marshalling. Since the method to marshall does not actually
      * use these fields it's ok to initialise them as empty/null.
@@ -28,13 +26,11 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     public ArcAdapter() {
         places = new HashMap<>();
         transitions = new HashMap<>();
-        tokens = new HashMap<>();
     }
 
-    public ArcAdapter(Map<String, Place> places, Map<String, Transition> transitions, Map<String, Token> tokens) {
+    public ArcAdapter(Map<String, Place> places, Map<String, Transition> transitions) {
         this.places = places;
         this.transitions = transitions;
-        this.tokens = tokens;
     }
 
     @Override

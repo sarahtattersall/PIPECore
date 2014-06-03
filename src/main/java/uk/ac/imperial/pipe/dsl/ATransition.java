@@ -9,7 +9,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Map;
 
-public class ATransition implements DSLCreator<Transition> {
+public final class ATransition implements DSLCreator<Transition> {
 
     private String id;
 

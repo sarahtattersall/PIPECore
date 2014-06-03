@@ -44,10 +44,10 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
     @Override
     public Double visitToken_number(RateGrammarParser.Token_numberContext ctx) {
         String name = ctx.ID().getText();
-        double count = 0;
         if (!state.containsTokens(name)) {
             return 0.0;
         }
+        double count = 0;
         for (Integer value : state.getTokens(name).values()) {
             count += value;
         }

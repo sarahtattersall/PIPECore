@@ -15,6 +15,9 @@ public class AdaptedArcPoint {
     @XmlAttribute
     private double y;
 
+    @XmlAttribute(name = "curvePoint")
+    private boolean curved;
+
     public final double getX() {
         return x;
     }
@@ -38,9 +41,6 @@ public class AdaptedArcPoint {
     public final void setCurved(boolean curved) {
         this.curved = curved;
     }
-
-    @XmlAttribute(name = "curvePoint")
-    private boolean curved;
 
     public final String getId() {
         return id;

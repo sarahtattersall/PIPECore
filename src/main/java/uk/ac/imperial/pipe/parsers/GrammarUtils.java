@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 /**
  * Useful utilities for handling PetriNet functional weight grammar
  */
-public class GrammarUtils {
+public final class GrammarUtils {
 
     private GrammarUtils() {}
 

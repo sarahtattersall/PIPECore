@@ -8,7 +8,8 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 public interface AnnotationImplVisitor extends PetriNetComponentVisitor {
     /**
      * Visit the concrete implementation of an annotation
+     *
      * @param annotation
      */
-    void visit (AnnotationImpl annotation);
+    void visit(AnnotationImpl annotation);
 }

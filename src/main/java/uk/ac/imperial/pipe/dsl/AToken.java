@@ -9,7 +9,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 import java.awt.Color;
 import java.util.Map;
 
-public class AToken implements DSLCreator<Token> {
+public final class AToken implements DSLCreator<Token> {
     private String name;
     private Color color = Color.BLACK;
 

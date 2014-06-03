@@ -5,9 +5,14 @@ import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public final class NormalArcSourceVisitor implements ArcSourceVisitor {
 
-    boolean canCreate = false;
+    private static final Logger LOGGER = Logger.getLogger(NormalArcSourceVisitor.class.getName());
+
+    private boolean canCreate = false;
 
     @Override
     public void visit(Place place) {
@@ -27,7 +32,7 @@ public final class NormalArcSourceVisitor implements ArcSourceVisitor {
         try {
             connectable.accept(this);
         } catch (PetriNetComponentException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
             return false;
         }
         return canCreate;

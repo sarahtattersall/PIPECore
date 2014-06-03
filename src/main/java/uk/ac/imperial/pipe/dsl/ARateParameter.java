@@ -7,7 +7,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Map;
 
-public class ARateParameter implements DSLCreator<FunctionalRateParameter> {
+public final class ARateParameter implements DSLCreator<FunctionalRateParameter> {
 
 
     private final String id;

@@ -34,7 +34,7 @@ public class AdaptedPlace extends AdaptedConnectable {
 
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class InitialMarking {
-        OffsetGraphics graphics;
+        private OffsetGraphics graphics;
 
         @XmlElement(name = "value")
         private String tokenCounts = "";

@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class ANormalArcTest {
+public final class ANormalArcTest {
     private Map<String, Token> tokens;
 
     private Map<String, Place> places;

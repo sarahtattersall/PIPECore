@@ -13,13 +13,13 @@ import java.util.Map;
  * Usage:
  * APlace.withId("P0").andCapacity(5).containing(5, "Red).tokens();
  */
-public class APlace implements DSLCreator<Place> {
+public final class APlace implements DSLCreator<Place> {
     private String id;
     private int capacity;
     private Map<String, Integer> tokenCounts = new HashMap<>();
 
-    int x = 0;
-    int y = 0;
+    private int x = 0;
+    private int y = 0;
 
     private APlace(String id) { this.id = id; }
 

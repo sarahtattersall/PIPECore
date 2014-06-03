@@ -15,7 +15,7 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     /**
      * Place diameter
      */
-    private final static int DIAMETER = 30;
+    private static final int DIAMETER = 30;
 
     /**
      * Marking x offset relative to the place x coordinate

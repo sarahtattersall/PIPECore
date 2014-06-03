@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 // Create:
@@ -28,6 +30,7 @@ import java.util.Map;
  * APetriNet.withOnly(AToken.withName("Default").andColor(Color.BLACK));
  */
 public final class APetriNet {
+    private static final Logger LOGGER = Logger.getLogger(APetriNet.class.getName());
     private Collection<DSLCreator<? extends PetriNetComponent>> creators = new ArrayList<>();
 
 
@@ -95,7 +98,7 @@ public final class APetriNet {
             try {
                 petriNet.add(creator.create(tokens, places, transitions, rateParameters));
             } catch (PetriNetComponentException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
         }
         return petriNet;

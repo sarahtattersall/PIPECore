@@ -21,8 +21,12 @@ import java.io.FileReader;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class PetriNetIOImpl implements PetriNetIO {
+
+    private static final Logger LOGGER = Logger.getLogger(PetriNetIOImpl.class.getName());
 
     private final JAXBContext context;
 
@@ -44,7 +48,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
             holder.addNet(petriNet);
             m.marshal(holder, new File(path));
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
     }
 
@@ -57,7 +61,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
             holder.addNet(petriNet);
             m.marshal(holder, stream);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
     }
 
@@ -105,7 +109,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
         Map<String, FunctionalRateParameter> rateParameters = new HashMap<>();
 
         um.setAdapter(new RateParameterAdapter(rateParameters));
-        um.setAdapter(new ArcAdapter(places, transitions, tokens));
+        um.setAdapter(new ArcAdapter(places, transitions));
         um.setAdapter(new PlaceAdapter(places));
         um.setAdapter(new TransitionAdapter(transitions, rateParameters));
         um.setAdapter(new TokenAdapter(tokens));

@@ -7,10 +7,10 @@ import javax.xml.bind.annotation.XmlElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public final class NameDetails {
     @XmlElement(name = "value")
-    String name;
+    private String name;
 
     @XmlElement
-    OffsetGraphics graphics = new OffsetGraphics();
+    private OffsetGraphics graphics = new OffsetGraphics();
 
     public OffsetGraphics getGraphics() {
         return graphics;

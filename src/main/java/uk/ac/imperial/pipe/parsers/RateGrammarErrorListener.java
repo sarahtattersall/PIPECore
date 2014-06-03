@@ -13,7 +13,7 @@ import java.util.List;
  * Listens for errors in a functional expressions syntax
  */
 public final class RateGrammarErrorListener extends BaseErrorListener {
-    List<String> errors = new LinkedList<>();
+    private List<String> errors = new LinkedList<>();
 
     /**
      * Registers a syntax error in this classes collection of errors

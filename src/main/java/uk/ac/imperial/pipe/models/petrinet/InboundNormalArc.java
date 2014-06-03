@@ -18,7 +18,6 @@ public class InboundNormalArc extends InboundArc {
 
         Map<String, String> tokenWeights = getTokenWeights();
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-            String tokenId = entry.getKey();
             FunctionalResults<Double> results = petriNet.parseExpression(entry.getValue());
             if (results.hasErrors()) {
                 //TODO:
@@ -27,6 +26,7 @@ public class InboundNormalArc extends InboundArc {
 
             double tokenWeight = results.getResult();
 
+            String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
             if (currentCount < tokenWeight && currentCount != -1) {
                 return false;

@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet.name;
 
 public final class NormalPetriNetName implements PetriNetName {
-    String name;
+    private String name;
 
     @Override
     public boolean equals(Object o) {

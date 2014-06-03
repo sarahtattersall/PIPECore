@@ -5,12 +5,16 @@ import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * A class to determine if an inhibitor arc can be built from the source
  */
 public final class InhibitorSourceVisitor implements ArcSourceVisitor {
+    private static final Logger LOGGER = Logger.getLogger(InhibitorSourceVisitor.class.getName());
 
-    boolean canCreate = false;
+    private boolean canCreate = false;
 
     @Override
     public void visit(Place place) {
@@ -30,7 +34,7 @@ public final class InhibitorSourceVisitor implements ArcSourceVisitor {
         try {
             connectable.accept(this);
         } catch (PetriNetComponentException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
             return false;
         }
         return canCreate;

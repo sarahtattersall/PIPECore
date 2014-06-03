@@ -7,6 +7,12 @@ import javax.xml.bind.annotation.XmlAttribute;
 @XmlAccessorType(XmlAccessType.FIELD)
 public final class Point {
 
+    @XmlAttribute
+    public double x;
+
+    @XmlAttribute
+    public double y;
+
     public double getX() {
         return x;
     }
@@ -22,10 +28,4 @@ public final class Point {
     public void setY(double y) {
         this.y = y;
     }
-
-    @XmlAttribute
-    public double x;
-
-    @XmlAttribute
-    public double y;
 }

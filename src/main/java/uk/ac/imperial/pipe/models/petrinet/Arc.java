@@ -231,7 +231,7 @@ public abstract class Arc<S extends Connectable, T extends Connectable> extends 
     /**
      * @return The start coordinate of the arc
      */
-    public Point2D.Double getStartPoint() {
+    public final Point2D.Double getStartPoint() {
         double angle;
         if (arcPoints.size() > 1) {
             angle = getAngleBetweenTwoPoints(arcPoints.get(1).getPoint(), source.getCentre());
@@ -244,7 +244,7 @@ public abstract class Arc<S extends Connectable, T extends Connectable> extends 
     /**
      * @return The end coordinate of the arc
      */
-    public Point2D getEndPoint() {
+    public final Point2D getEndPoint() {
         return target.getArcEdgePoint(getEndAngle());
     }
 

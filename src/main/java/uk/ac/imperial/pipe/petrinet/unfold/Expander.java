@@ -9,6 +9,8 @@ import uk.ac.imperial.pipe.visitor.TransitionCloner;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * This class unfolds a coloured petri net into an uncoloured net
@@ -16,6 +18,12 @@ import java.util.Map;
  * book by Bause and Kritzinger
  */
 public final class Expander {
+
+    /**
+     * Logger for logging issues
+     */
+    private static final Logger LOGGER = Logger.getLogger(Expander.class.getName());
+
     /**
      * Petri net to unfold
      */
@@ -39,8 +47,7 @@ public final class Expander {
     /**
      * Arcs for new net mapped arc -> transition
      */
-    private final Map<String, Arc<? extends Connectable, ? extends Connectable>> newArcs =
-            new HashMap<>();
+    private final Map<String, Arc<? extends Connectable, ? extends Connectable>> newArcs = new HashMap<>();
 
 
     public Expander(PetriNet petriNet) {
@@ -125,7 +132,7 @@ public final class Expander {
             try {
                 transition.accept(cloner);
             } catch (PetriNetComponentException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
             Transition newTransition = cloner.cloned;
             newTransitions.put(newTransition.getId(), newTransition);
@@ -151,7 +158,7 @@ public final class Expander {
             try {
                 petriNet.add(arc);
             } catch (PetriNetComponentException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.SEVERE, e.getMessage());
             }
         }
         return petriNet;
@@ -224,7 +231,7 @@ public final class Expander {
         try {
             original.accept(cloner);
         } catch (PetriNetComponentException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
 
 
@@ -263,6 +270,7 @@ public final class Expander {
         switch (type) {
             case INHIBITOR:
                 newArc = new InboundInhibitorArc(source, target);
+                break;
             default:
                 newArc = new InboundNormalArc(source, target, getNewArcWeight(arcWeight));
         }
