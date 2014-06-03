@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * An arc that goes from places to transitions
  */
-public abstract class InboundArc extends Arc<Place, Transition>{
+public abstract class InboundArc extends AbstractArc<Place, Transition> {
     public InboundArc(Place source, Transition target, Map<String, String> tokenWeights, ArcType type) {
         super(source, target, tokenWeights, type);
     }

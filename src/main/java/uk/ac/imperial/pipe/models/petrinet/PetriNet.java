@@ -283,7 +283,7 @@ public class PetriNet {
             }
         }
         for (Arc<?, ?> arc : getArcs()) {
-            for (String expr : arc.tokenWeights.values()) {
+            for (String expr : arc.getTokenWeights().values()) {
                 if (referencesId(expr, componentId)) {
                     results.add(arc.getId());
                     break;

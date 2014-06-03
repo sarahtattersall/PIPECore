@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.models;
 
 import org.junit.Before;
 import org.junit.Test;
+import uk.ac.imperial.pipe.models.petrinet.AbstractArc;
 import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.AbstractConnectable;
@@ -21,13 +22,9 @@ public class ConnectableTest {
 
     private Connectable connectable;
 
-    //TODO: This should really be a dummy, but it's hard to construct.
-    private Arc mockArc;
-
     @Before
     public void setUp() {
         connectable = new DummyConnectable("test", "test");
-        mockArc = mock(Arc.class);
     }
 
     @Test

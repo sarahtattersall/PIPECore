@@ -58,7 +58,7 @@ public class OutboundNormalArc extends OutboundArc {
         return count;
     }
 
-    private int getTokenCounts(PetriNet petriNet, Arc<? extends Connectable, ? extends Connectable> arc) {
+    private int getTokenCounts(PetriNet petriNet, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
         int count = 0;
         for (Map.Entry<String, String> entry : arc.tokenWeights.entrySet()) {
             FunctionalResults<Double> result =  petriNet.parseExpression(entry.getValue());
