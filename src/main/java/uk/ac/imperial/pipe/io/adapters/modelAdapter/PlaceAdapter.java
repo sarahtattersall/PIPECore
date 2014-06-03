@@ -8,7 +8,6 @@ import uk.ac.imperial.pipe.io.adapters.model.Point;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Token;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
@@ -20,19 +19,15 @@ import java.util.Map;
 public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     private final Map<String, Place> places;
 
-    private final Map<String, Token> tokens;
-
     /**
      * Empty constructor needed formarshallingg. Since the method to marshall does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public PlaceAdapter() {
         places = new HashMap<>();
-        tokens = new HashMap<>();
     }
 
-    public PlaceAdapter(Map<String, Place> places, Map<String, Token> tokens) {
-        this.tokens = tokens;
+    public PlaceAdapter(Map<String, Place> places) {
         this.places = places;
     }
 

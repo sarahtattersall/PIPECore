@@ -259,7 +259,7 @@ public class PetriNet {
      * @param place to remove from Petri net
      */
     public void removePlace(Place place) throws PetriNetComponentException {
-        Collection<String> components = getComponentsReferencingPlace(place);
+        Collection<String> components = getComponentsReferencingId(place.getId());
         if (!components.isEmpty()) {
             throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
         }
@@ -272,25 +272,42 @@ public class PetriNet {
 
     /**
      *
-     * @param place
-     * @return all components ids whose functional expression references the place
+     * @param componentId component id to find
+     * @return all components ids whose functional expression references the componentId
      */
-    private Collection<String> getComponentsReferencingPlace(Place place) {
+    private Collection<String> getComponentsReferencingId(String componentId) {
         Set<String> results = new HashSet<>();
         for (Transition transition : getTransitions()) {
-            results.addAll(getComponents(transition.getRateExpr()));
+            if (referencesId(transition.getRateExpr(), componentId)) {
+                results.add(transition.getId());
+            }
         }
         for (Arc<?, ?> arc : getArcs()) {
             for (String expr : arc.tokenWeights.values()) {
-                results.addAll(getComponents(expr));
+                if (referencesId(expr, componentId)) {
+                    results.add(arc.getId());
+                    break;
+                }
             }
         }
         for (RateParameter rateParameter : getRateParameters()) {
-            results.addAll(getComponents(rateParameter.getExpression()));
+            if (referencesId(rateParameter.getExpression(), componentId)) {
+                results.add(rateParameter.getId());
+            }
         }
         return results;
     }
 
+    /**
+     *
+     * @param expr
+     * @param id
+     * @return true if the component id is referenced in the functional expression
+     */
+    private boolean referencesId(String expr, String id) {
+        Collection<String> components = getComponents(expr);
+        return components.contains(id);
+    }
     /**
      *
      * @param expression

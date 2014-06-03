@@ -78,8 +78,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
             return petriNet;
 
         } catch (JAXBException | FileNotFoundException e) {
-            e.printStackTrace();
-            throw new UnparsableException("Could not read PetriNet file properly!");
+            throw new UnparsableException("Could not read PetriNet file properly!", e);
         }
     }
 
@@ -107,7 +106,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
 
         um.setAdapter(new RateParameterAdapter(rateParameters));
         um.setAdapter(new ArcAdapter(places, transitions, tokens));
-        um.setAdapter(new PlaceAdapter(places, tokens));
+        um.setAdapter(new PlaceAdapter(places));
         um.setAdapter(new TransitionAdapter(transitions, rateParameters));
         um.setAdapter(new TokenAdapter(tokens));
         um.setAdapter(new TokenSetIntegerAdapter(tokens));

@@ -12,12 +12,12 @@ public interface PetriNetComponent {
     /**
      * Message fired with the id field is set
      */
-    static final String ID_CHANGE_MESSAGE = "id";
+    String ID_CHANGE_MESSAGE = "id";
 
     /**
      * Message fired when the name field is set
      */
-    static final String NAME_CHANGE_MESSAGE = "name";
+    String NAME_CHANGE_MESSAGE = "name";
 
     boolean isSelectable();
 

@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 public final class FunctionalRateParameter extends AbstractPetriNetPubSub implements RateParameter {
@@ -54,12 +55,12 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
     }
 
     @Override
-    public void accept(PetriNetComponentVisitor visitor) {
+    public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
         if (visitor instanceof RateParameterVisitor) {
             try {
                 ((RateParameterVisitor) visitor).visit(this);
             } catch (InvalidRateException e) {
-                throw new RuntimeException(e.getMessage());
+                throw new PetriNetComponentException(e);
             }
         }
 

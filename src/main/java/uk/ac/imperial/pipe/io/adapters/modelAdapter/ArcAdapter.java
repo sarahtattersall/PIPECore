@@ -74,6 +74,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         String[] commaSeparatedMarkings = weights.split(",");
         if (commaSeparatedMarkings.length == 1) {
             String weight = commaSeparatedMarkings[0];
+            tokenWeights.put("Default", weight);
         } else {
             for (int i = 0; i < commaSeparatedMarkings.length; i += 2) {
                 String weight = commaSeparatedMarkings[i + 1].replace("@", ",");
@@ -82,18 +83,6 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
             }
         }
         return tokenWeights;
-    }
-
-    /**
-     * @param tokenName token to find in {@link this.tokens}
-     * @return token if exists
-     * @throws RuntimeException if token does not exist
-     */
-    private Token getTokenIfExists(String tokenName) {
-        if (!tokens.containsKey(tokenName)) {
-            throw new RuntimeException("No " + tokenName + " token exists!");
-        }
-        return tokens.get(tokenName);
     }
 
     /**

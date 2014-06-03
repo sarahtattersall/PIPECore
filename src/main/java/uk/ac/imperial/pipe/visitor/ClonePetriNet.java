@@ -8,8 +8,12 @@ import uk.ac.imperial.pipe.models.petrinet.name.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClonePetriNet {
+    private static final Logger LOGGER = Logger.getLogger(ClonePetriNet.class.getName());
+
     private final PetriNet petriNet;
     private final PetriNet newPetriNet;
     private final Map<String, RateParameter> rateParameters = new HashMap<>();
@@ -154,7 +158,8 @@ public class ClonePetriNet {
         try {
             newPetriNet.addRateParameter(rateParameter);
             rateParameters.put(rateParameter.getId(), rateParameter);
-        } catch (InvalidRateException ignored) {
+        } catch (InvalidRateException e) {
+            LOGGER.log(Level.SEVERE, e.getMessage());
         }
 
     }
