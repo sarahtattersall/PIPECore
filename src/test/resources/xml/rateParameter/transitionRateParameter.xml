@@ -27,7 +27,7 @@
          <rate>
             <value>6.0</value>
          </rate>
-         <toolspecific tool="PIPE" version="2.5" rateDefinition="foo"/>
+         <toolspecific tool="PIPE" version="5" rateDefinition="foo"/>
       </transition>
    </net>
 </pnml>
