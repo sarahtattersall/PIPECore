@@ -352,6 +352,10 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         return target.getArcEdgePoint(getEndAngle());
     }
 
+    /**
+     *
+     * @return the angle at which this arc connects to the target
+     */
     @Override
     public double getEndAngle() {
         if (arcPoints.size() > 1) {

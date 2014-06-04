@@ -4,8 +4,13 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
+/**
+ * Evaluates a functional expression
+ */
 public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
-
+    /**
+     * Underlying Petri net
+     */
     private PetriNet petriNet;
 
     /**
@@ -91,8 +96,14 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     }
 
 
-    public Place getPlace(String name) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(name, Place.class);
+    /**
+     *
+     * @param id
+     * @return place for id
+     * @throws PetriNetComponentNotFoundException
+     */
+    public Place getPlace(String id) throws PetriNetComponentNotFoundException {
+        return petriNet.getComponent(id, Place.class);
     }
 
 }

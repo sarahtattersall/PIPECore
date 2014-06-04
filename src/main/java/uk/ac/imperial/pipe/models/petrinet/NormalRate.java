@@ -1,17 +1,35 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+/**
+ * Represents a normal rate value for a single transition to refer to
+ */
 public final class NormalRate implements Rate {
+    /**
+     * Functional expression matching the rate grammar
+     */
     public final String rate;
 
+    /**
+     * Constructor
+     * @param rate
+     */
     public NormalRate(String rate) {
         this.rate = rate;
     }
 
+    /**
+     *
+     * @return functional expression matching the rate grammar
+     */
     @Override
     public String getExpression() {
         return rate;
     }
 
+    /**
+     *
+     * @return normal rate
+     */
     @Override
     public RateType getRateType() {
         return RateType.NORMAL_RATE;

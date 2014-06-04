@@ -27,10 +27,19 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         places = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param places
+     */
     public PlaceAdapter(Map<String, Place> places) {
         this.places = places;
     }
 
+    /**
+     *
+     * @param adaptedPlace
+     * @return unmarshaled place
+     */
     @Override
     public Place unmarshal(AdaptedPlace adaptedPlace) {
         NameDetails nameDetails = adaptedPlace.getName();
@@ -43,6 +52,11 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         return place;
     }
 
+    /**
+     *
+     * @param place
+     * @return marshaled place
+     */
     @Override
     public AdaptedPlace marshal(Place place) {
         AdaptedPlace adapted = new AdaptedPlace();
@@ -64,10 +78,19 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         return adapted;
     }
 
+    /**
+     * @param weights
+     * @return comma seperated weights string
+     */
     private String weightToString(Map<String, Integer> weights) {
         return Joiner.on(",").withKeyValueSeparator(",").join(weights);
     }
 
+    /**
+     *
+     * @param value
+     * @return map from comma seperated weights string
+     */
     public Map<String, Integer> stringToWeights(String value) {
         Map<String, Integer> tokenWeights = new HashMap<>();
         if (value.isEmpty()) {

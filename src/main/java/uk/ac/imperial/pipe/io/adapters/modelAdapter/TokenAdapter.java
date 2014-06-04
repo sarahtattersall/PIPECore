@@ -23,11 +23,20 @@ public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
         tokens = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param tokens
+     */
     public TokenAdapter(Map<String, Token> tokens) {
 
         this.tokens = tokens;
     }
 
+    /**
+     *
+     * @param adaptedToken
+     * @return unmarshaled token
+     */
     @Override
     public Token unmarshal(AdaptedToken adaptedToken) {
         Color color = new Color(adaptedToken.getRed(), adaptedToken.getGreen(), adaptedToken.getBlue());
@@ -36,6 +45,11 @@ public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
         return token;
     }
 
+    /**
+     *
+     * @param token
+     * @return marshaled token
+     */
     @Override
     public AdaptedToken marshal(Token token) {
         AdaptedToken adapted = new AdaptedToken();

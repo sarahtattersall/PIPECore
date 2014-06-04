@@ -172,6 +172,10 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         return y;
     }
 
+    /**
+     *
+     * @param y new y location of Petri net component
+     */
     public final void setY(int y) {
         int old = this.y;
         this.y = y;
@@ -263,6 +267,10 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         }
     }
 
+    /**
+     *
+     * @return annotation text
+     */
     @Override
     public String getId() {
         return getText();

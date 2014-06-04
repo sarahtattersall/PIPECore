@@ -12,15 +12,29 @@ import java.util.logging.Logger;
  * A class to determine if an inhibitor arc can be built from the source
  */
 public final class InhibitorSourceVisitor implements ArcSourceVisitor {
+    /**
+     * Class logger
+     */
     private static final Logger LOGGER = Logger.getLogger(InhibitorSourceVisitor.class.getName());
 
+    /**
+     * Determines if an inhibitor arc can be created from the source, defaults to false
+     */
     private boolean canCreate = false;
 
+    /**
+     * Inhibitor arcs can connect to places
+     * @param place
+     */
     @Override
     public void visit(Place place) {
         canCreate = true;
     }
 
+    /**
+     * Inhibitor arcs cannot connect to transitions
+     * @param transition
+     */
     @Override
     public void visit(Transition transition) {
         canCreate = false;

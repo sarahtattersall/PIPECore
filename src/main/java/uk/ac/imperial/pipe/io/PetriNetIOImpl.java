@@ -39,6 +39,10 @@ public final class PetriNetIOImpl implements PetriNetIO {
      */
     private final JAXBContext context;
 
+    /**
+     * Constructor that sets the context to the {@link uk.ac.imperial.pipe.models.PetriNetHolder}
+     * @throws JAXBException
+     */
     public PetriNetIOImpl() throws JAXBException {
         context = JAXBContext.newInstance(PetriNetHolder.class);
     }

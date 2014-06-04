@@ -8,17 +8,36 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Determines if a normal arc can be created from the source component.
+ *
+ * Normal arcs can be created from Places and Transitions
+ */
 public final class NormalArcSourceVisitor implements ArcSourceVisitor {
 
+    /**
+     * Class logger
+     */
     private static final Logger LOGGER = Logger.getLogger(NormalArcSourceVisitor.class.getName());
 
+    /**
+     * Defaults to false
+     */
     private boolean canCreate = false;
 
+    /**
+     * Can create normal arc from any place
+     * @param place
+     */
     @Override
     public void visit(Place place) {
         canCreate = true;
     }
 
+    /**
+     * Can create normal arc from any transition
+     * @param transition
+     */
     @Override
     public void visit(Transition transition) {
         canCreate = true;

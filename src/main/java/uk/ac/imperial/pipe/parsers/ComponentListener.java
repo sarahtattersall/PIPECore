@@ -23,6 +23,10 @@ public class ComponentListener extends RateGrammarBaseListener {
         componentIds.add(ctx.ID().getText());
     }
 
+    /**
+     *
+     * @return referenced component ids
+     */
     public Set<String> getComponentIds() {
         return componentIds;
     }

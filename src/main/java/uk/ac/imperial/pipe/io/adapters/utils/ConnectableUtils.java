@@ -3,6 +3,11 @@ package uk.ac.imperial.pipe.io.adapters.utils;
 import uk.ac.imperial.pipe.io.adapters.model.*;
 import uk.ac.imperial.pipe.models.petrinet.Connectable;
 
+/**
+ * Utilitie methods used when marshalling connectable items.
+ * Primarily useful because PNML requires very verbose formatting and thus
+ * avoids code duplication in marshal adapters.
+ */
 public final class ConnectableUtils {
 
     /**
@@ -30,6 +35,11 @@ public final class ConnectableUtils {
         adaptedConnectable.setNameDetails(details);
     }
 
+    /**
+     * Set the position of the adapted connectable from the given connectable
+     * @param connectable
+     * @param adaptedConnectable
+     */
     public static void setPosition(Connectable connectable, AdaptedConnectable adaptedConnectable) {
         PositionGraphics positionGraphics = new PositionGraphics();
         positionGraphics.point = new Point();

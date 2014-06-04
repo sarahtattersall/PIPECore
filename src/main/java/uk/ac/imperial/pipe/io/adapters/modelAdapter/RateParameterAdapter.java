@@ -12,17 +12,32 @@ import java.util.Map;
  * Responsible for marshalling rate parameters into and out of their PNML format
  */
 public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter, RateParameter> {
+    /**
+     * Rate paramter id -> rate paramter
+     */
     private final Map<String, FunctionalRateParameter> rateParameters;
 
+    /**
+     * Constructor
+     */
     public RateParameterAdapter() {
         this.rateParameters = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param rateParameters
+     */
     public RateParameterAdapter(Map<String, FunctionalRateParameter> rateParameters) {
 
         this.rateParameters = rateParameters;
     }
 
+    /**
+     *
+     * @param adaptedRateParameter
+     * @return unmarshaled rate parameter
+    */
     @Override
     public FunctionalRateParameter unmarshal(AdaptedRateParameter adaptedRateParameter) {
         FunctionalRateParameter rateParameter = new FunctionalRateParameter(adaptedRateParameter.getExpression(), adaptedRateParameter.getId(), adaptedRateParameter.getName());
@@ -30,6 +45,11 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
         return rateParameter;
     }
 
+    /**
+     *
+     * @param rateParameter
+     * @return marshaled rate parameter
+     */
     @Override
     public AdaptedRateParameter marshal(RateParameter rateParameter)  {
         AdaptedRateParameter adaptedRateParameter = new AdaptedRateParameter();

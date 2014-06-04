@@ -14,9 +14,14 @@ import java.util.Map;
  */
 public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable, ? extends Connectable>> {
 
-
+    /**
+     * Place id -> Place
+     */
     private final Map<String, Place> places;
 
+    /**
+     * Transition id -> Transition
+     */
     private final Map<String, Transition> transitions;
 
     /**
@@ -28,11 +33,21 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         transitions = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param places
+     * @param transitions
+     */
     public ArcAdapter(Map<String, Place> places, Map<String, Transition> transitions) {
         this.places = places;
         this.transitions = transitions;
     }
 
+    /**
+     *
+     * @param adaptedArc
+     * @return unmarshaled arc
+     */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc)  {
         Arc<? extends Connectable, ? extends Connectable> arc;
@@ -62,6 +77,11 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         return arc;
     }
 
+    /**
+     *
+     * @param weights
+     * @return marshaled arc
+     */
     private Map<String, String> stringToWeights(String weights) {
         Map<String, String> tokenWeights = new HashMap<>();
         if (weights.isEmpty()) {
@@ -103,6 +123,11 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     }
 
+    /**
+     *
+     * @param arc
+     * @return marshaled arc
+     */
     @Override
     public AdaptedArc marshal(Arc<? extends Connectable, ? extends Connectable> arc) {
         AdaptedArc adapted = new AdaptedArc();
@@ -115,6 +140,11 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         return adapted;
     }
 
+    /**
+     *
+     * @param weights
+     * @return comma seperated weights
+     */
     private String weightToString(Map<String, String> weights) {
         return Joiner.on(",").withKeyValueSeparator(",").join(weights);
     }

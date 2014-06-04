@@ -9,11 +9,21 @@ import java.awt.geom.Point2D;
  */
 public final class PointAdapter extends XmlAdapter<PointAdapter.AdaptedPoint, Point2D> {
 
+    /**
+     *
+     * @param adaptedPoint
+     * @return unmarshaled point
+     */
     @Override
     public Point2D unmarshal(AdaptedPoint adaptedPoint) {
         return new Point2D.Double(adaptedPoint.x, adaptedPoint.y);
     }
 
+    /**
+     *
+     * @param point2D
+     * @return marshaled poinmt
+     */
     @Override
     public AdaptedPoint marshal(Point2D point2D) {
         AdaptedPoint adaptedPoint = new AdaptedPoint();
@@ -22,10 +32,19 @@ public final class PointAdapter extends XmlAdapter<PointAdapter.AdaptedPoint, Po
         return adaptedPoint;
     }
 
+    /**
+     * Adapted point for PNML
+     */
     public static class AdaptedPoint {
+        /**
+         * wraps the x value in a x attribute
+         */
         @XmlAttribute
         public double x;
 
+        /**
+         * wraps the  y value in a y attribute
+         */
         @XmlAttribute
         public double y;
     }

@@ -8,8 +8,15 @@ import java.io.File;
  * Represents a saved file that a Petri net belongs to
  */
 public final  class PetriNetFileName implements PetriNetName {
+    /**
+     * File that this name should represent
+     */
     private File file;
 
+    /**
+     *
+     * @param file file where the Petri net is located and thus its name should represent this
+     */
     public PetriNetFileName(File file) {
         this.file = file;
     }
@@ -31,6 +38,10 @@ public final  class PetriNetFileName implements PetriNetName {
         return FilenameUtils.removeExtension(file.getName());
     }
 
+    /**
+     * Visit a name
+     * @param visitor
+     */
     @Override
     public void visit(NameVisitor visitor) {
         if (visitor instanceof FileNameVisitor) {

@@ -7,7 +7,16 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * Marshals a Petri net into the verbose format needed for PNML
+ */
 public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
+    /**
+     *
+     * @param v
+     * @return unmarshaled Petri net
+     * @throws PetriNetComponentException
+     */
     @Override
     public PetriNet unmarshal(AdaptedPetriNet v) throws PetriNetComponentException {
         PetriNet petriNet = new PetriNet();
@@ -20,6 +29,11 @@ public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet>
         return petriNet;
     }
 
+    /**
+     *
+     * @param v
+     * @return marshaled Petri net
+     */
     @Override
     public AdaptedPetriNet marshal(PetriNet v) {
         AdaptedPetriNet petriNet = new AdaptedPetriNet();
@@ -32,6 +46,12 @@ public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet>
         return petriNet;
     }
 
+    /**
+     * Adds components to the Petri net
+     * @param components
+     * @param petriNet
+     * @throws PetriNetComponentException
+     */
     private void addToPetriNet(Iterable<? extends PetriNetComponent> components, PetriNet petriNet)
             throws PetriNetComponentException {
         if (components != null) {

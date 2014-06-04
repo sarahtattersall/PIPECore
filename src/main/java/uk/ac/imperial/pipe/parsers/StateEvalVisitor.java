@@ -108,8 +108,14 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
     }
 
 
-    public Place getPlace(String name) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(name, Place.class);
+    /**
+     *
+     * @param id
+     * @return place in Petri net with the given id
+     * @throws PetriNetComponentNotFoundException
+     */
+    public Place getPlace(String id) throws PetriNetComponentNotFoundException {
+        return petriNet.getComponent(id, Place.class);
     }
 
 }

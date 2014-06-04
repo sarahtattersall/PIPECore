@@ -100,16 +100,28 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         return true;
     }
 
+    /**
+     *
+     * @return id of the Petri net component
+     */
     @Override
     public final String toString() {
         return id;
     }
 
+    /**
+     *
+     * @return name offset x component for the name label
+     */
     @Override
     public final double getNameXOffset() {
         return nameXOffset;
     }
 
+    /**
+     *
+     * @param nameXOffset new name label x offset
+     */
     @Override
     public final void setNameXOffset(double nameXOffset) {
         double oldValue = this.nameXOffset;
@@ -117,11 +129,19 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(NAME_X_OFFSET_CHANGE_MESSAGE, oldValue, nameXOffset);
     }
 
+    /**
+     *
+     * @return name offset y component for the name label
+     */
     @Override
     public final double getNameYOffset() {
         return nameYOffset;
     }
 
+    /**
+     *
+     * @param nameYOffset name offset y component for the name label
+     */
     @Override
     public final void setNameYOffset(double nameYOffset) {
         double oldValue = this.nameYOffset;
@@ -129,10 +149,18 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(NAME_Y_OFFSET_CHANGE_MESSAGE, oldValue, nameXOffset);
     }
 
+    /**
+     *
+     * @return name of the Petri net component
+     */
     public final String getName() {
         return name;
     }
 
+    /**
+     *
+     * @param name name of Petri net component
+     */
     @Override
     public final void setName(String name) {
         String old = this.name;
@@ -140,11 +168,19 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(NAME_CHANGE_MESSAGE, old, name);
     }
 
+    /**
+     *
+     * @return id of Petri net component
+     */
     @Override
     public final String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id new unique id of Petri net component
+     */
     @Override
     public final void setId(String id) {
         String old = this.id;
@@ -152,11 +188,19 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
     }
 
+    /**
+     *
+     * @return x coordinate of Petri net component
+     */
     @Override
     public final int getX() {
         return (int)x;
     }
 
+    /**
+     *
+     * @param x new x location of Petri net component
+     */
     @Override
     public final void setX(int x) {
         double oldValue = this.x;
@@ -165,11 +209,19 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 
     }
 
+    /**
+     *
+     * @return y coordinate of Petri net component
+     */
     @Override
     public final int getY() {
         return (int)y;
     }
 
+    /**
+     *
+     * @param y new y location of Petri net component
+     */
     @Override
     public final void setY(int y) {
         double oldValue = this.y;

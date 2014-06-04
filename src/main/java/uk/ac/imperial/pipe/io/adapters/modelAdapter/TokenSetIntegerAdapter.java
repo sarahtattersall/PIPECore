@@ -7,23 +7,35 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Used to marshap a map of tokens to their integer counts into a token set for PNML formatiing
+ */
 public final class TokenSetIntegerAdapter
         extends XmlAdapter<TokenSetIntegerAdapter.AdaptedIntegerTokenSet, Map<Token, Integer>> {
     private final Map<String, Token> tokens;
 
     /**
-     * Empty constructor needed formarshallingg. Since the method tomarshalll does not actually
+     * Empty constructor needed for marshaling. Since the method to marshal does not actually
      * use these fields it's ok to initialise them as empty/null.
      */
     public TokenSetIntegerAdapter() {
         tokens = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param tokens
+     */
     public TokenSetIntegerAdapter(Map<String, Token> tokens) {
 
         this.tokens = tokens;
     }
 
+    /**
+     *
+     * @param adaptedTokenSet
+     * @return map of token to integer count
+     */
     @Override
     public Map<Token, Integer> unmarshal(AdaptedIntegerTokenSet adaptedTokenSet)  {
         Map<Token, Integer> tokenWeights = new HashMap<>();
@@ -44,6 +56,11 @@ public final class TokenSetIntegerAdapter
         return tokenWeights;
     }
 
+    /**
+     *
+     * @param tokenIntegerMap
+     * @return marshaled token counts
+     */
     @Override
     public AdaptedIntegerTokenSet marshal(Map<Token, Integer> tokenIntegerMap) {
         AdaptedIntegerTokenSet adapted = new AdaptedIntegerTokenSet();
@@ -71,7 +88,13 @@ public final class TokenSetIntegerAdapter
         return getTokenIfExists("Default");
     }
 
+    /**
+     * Wraps the string in a value field
+     */
     public static class AdaptedIntegerTokenSet {
+        /**
+         * value field
+         */
         public String value;
     }
 }

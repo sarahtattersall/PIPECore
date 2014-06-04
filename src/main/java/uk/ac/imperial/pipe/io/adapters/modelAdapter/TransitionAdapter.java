@@ -29,12 +29,22 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
         rateParameters = new HashMap<>();
     }
 
+    /**
+     * Constructor
+     * @param transitions
+     * @param rateParameters
+     */
     public TransitionAdapter(Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
 
         this.transitions = transitions;
         this.rateParameters = rateParameters;
     }
 
+    /**
+     *
+     * @param adaptedTransition
+     * @return unmarshaled transition
+     */
     @Override
     public Transition unmarshal(AdaptedTransition adaptedTransition) {
         NameDetails nameDetails = adaptedTransition.getName();
@@ -58,6 +68,11 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
         return transition;
     }
 
+    /**
+     *
+     * @param transition
+     * @return marshaled transition
+     */
     @Override
     public AdaptedTransition marshal(Transition transition) {
         AdaptedTransition adaptedTransition = new AdaptedTransition();

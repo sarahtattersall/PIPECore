@@ -19,8 +19,14 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
      */
     public static final String UPDATE_LOCATION_CHANGE_MESSAGE = "updateLocation";
 
+    /**
+     * x location
+     */
     private int x;
 
+    /**
+     * y location
+     */
     private int y;
 
     /**
@@ -65,10 +71,18 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
         this.draggable = arcPoint.draggable;
     }
 
+    /**
+     *
+     * @return location of point
+     */
     public Point2D getPoint() {
         return new Point2D.Double(x, y);
     }
 
+    /**
+     *
+     * @param point new location for the arc point
+     */
     public void setPoint(Point2D point) {
         Point2D old = new Point2D.Double(this.x, this.y);
         this.x = (int) point.getX();
@@ -76,45 +90,81 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
         changeSupport.firePropertyChange(UPDATE_LOCATION_CHANGE_MESSAGE, old, point);
     }
 
+    /**
+     *
+     * @return x coordinate of the point
+     */
     @Override
     public int getX() {
         return x;
     }
 
+    /**
+     *
+     * @param x new x location of Petri net component
+     */
     @Override
     public void setX(int x) {
         this.x = x;
     }
 
+    /**
+     *
+     * @return y coordiate of the point
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     *
+     * @param y new y location of Petri net component
+     */
     @Override
     public void setY(int y) {
         this.y = y;
     }
 
+    /**
+     *
+     * @return height of the arc point
+     */
     @Override
     public int getHeight() {
         return 0;
     }
 
+    /**
+     *
+     * @return width of the displayed arc point
+     */
     @Override
     public int getWidth() {
         return 0;
     }
 
+    /**
+     *
+     * @return false
+     */
     @Override
     public boolean isSelectable() {
         return false;
     }
 
+    /**
+     *
+     * @return true if the arc point is draggable, source and target arc points should not be draggable
+     */
     @Override
     public boolean isDraggable() {
         return draggable;
     }
 
+    /**
+     * visit {@link uk.ac.imperial.pipe.models.petrinet.ArcPointVisitor}
+     * @param visitor
+     */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
         if (visitor instanceof ArcPointVisitor) {
@@ -122,20 +172,36 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
         }
     }
 
+    /**
+     *
+     * @return empty string sine an arc point doesn't yet have an id
+     */
     @Override
     public String getId() {
         return "";
     }
 
+    /**
+     * Performs noop since an arc point doesn't yet have an id
+     * @param id
+     */
     @Override
     public void setId(String id) {
         //TODO: Should arc points have an id?
     }
 
+    /**
+     *
+     * @return true if arc point should be part of a Bezier curve
+     */
     public boolean isCurved() {
         return curved;
     }
 
+    /**
+     *
+     * @param curved true if an arc point should be part of a bezier curve
+     */
     public void setCurved(boolean curved) {
         boolean old = this.curved;
         this.curved = curved;

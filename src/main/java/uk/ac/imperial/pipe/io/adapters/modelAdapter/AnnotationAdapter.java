@@ -6,14 +6,27 @@ import uk.ac.imperial.pipe.models.petrinet.AnnotationImpl;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * Marshals an annotation into an AdaptedAnnotation which is in the verbose format needed for PNML
+ */
 public class AnnotationAdapter extends XmlAdapter<AdaptedAnnotation, Annotation> {
 
+    /**
+     *
+     * @param adaptedAnnotation
+     * @return unmarshaled annotation
+     */
     @Override
     public final AnnotationImpl unmarshal(AdaptedAnnotation adaptedAnnotation) {
         return new AnnotationImpl(adaptedAnnotation.getX(), adaptedAnnotation.getY(), adaptedAnnotation.getText(),
                         adaptedAnnotation.getWidth(), adaptedAnnotation.getHeight(), adaptedAnnotation.hasBoarder());
     }
 
+    /**
+     *
+     * @param annotation
+     * @return marshaled annotation
+     */
     @Override
     public final AdaptedAnnotation marshal(Annotation annotation) {
         AdaptedAnnotation adaptedAnnotation = new AdaptedAnnotation();

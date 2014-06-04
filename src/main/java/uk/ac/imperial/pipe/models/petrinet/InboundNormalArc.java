@@ -11,6 +11,12 @@ import java.util.Map;
  * its specified weight and on firing it should remove these from the place
  */
 public class InboundNormalArc extends InboundArc {
+    /**
+     * Constructor
+     * @param source
+     * @param target
+     * @param tokenWeights
+     */
     public InboundNormalArc(Place source, Transition target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
     }

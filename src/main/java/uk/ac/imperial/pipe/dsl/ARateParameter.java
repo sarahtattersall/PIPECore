@@ -51,7 +51,14 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
     }
 
 
-
+    /**
+     *
+     * @param tokens map of created tokens with id -> Token
+     * @param places map of created places with id -> Connectable
+     * @param transitions
+     * @param rateParameters
+     * @return FunctionalRateParameter
+     */
     @Override
     public FunctionalRateParameter create(Map<String, Token> tokens, Map<String, Place> places,
                                 Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {

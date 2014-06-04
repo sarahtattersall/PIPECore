@@ -2,12 +2,25 @@ package uk.ac.imperial.pipe.io.adapters.valueAdapter;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
+/**
+ * Wraps integers in a field called value
+ */
 public final class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter, Integer> {
+    /**
+     *
+     * @param intAdapter
+     * @return unwrapped int
+     */
     @Override
     public Integer unmarshal(IntAdapter intAdapter) {
         return intAdapter.value;
     }
 
+    /**
+     *
+     * @param integer
+     * @return wrapped int
+     */
     @Override
     public IntAdapter marshal(Integer integer) {
         IntAdapter adapter = new IntAdapter();
@@ -15,7 +28,13 @@ public final class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter
         return adapter;
     }
 
+    /**
+     * Saves the integer within a field called value
+     */
     public static class IntAdapter {
+        /**
+         * integer value
+         */
         public int value;
     }
 }

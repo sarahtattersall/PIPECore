@@ -15,24 +15,49 @@ import java.util.Map;
  * ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("2", "Blue").tokens()
  */
 public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
+    /**
+     * String source
+     */
     private String source;
 
+    /**
+     * String target
+     */
     private String target;
 
+    /**
+     * Map token id -> functional expression
+     */
     private Map<String, String> weights = new HashMap<>();
 
+    /**
+     * intermediate arc points
+     */
     private List<ArcPoint> intermediatePoints = new LinkedList<>();
 
 
+    /**
+     * Private constructor
+     */
     private ANormalArc() {
     }
 
+    /**
+     * Factory constructor
+     * @param source arc source id
+     * @return builder for chaining
+     */
     public static ANormalArc withSource(String source) {
         ANormalArc aNormalArc = new ANormalArc();
         aNormalArc.source = source;
         return aNormalArc;
     }
 
+    /**
+     *
+     * @param target target id
+     * @return builder for chaining
+     */
     public ANormalArc andTarget(String target) {
         this.target = target;
         return this;
@@ -60,6 +85,14 @@ public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? exten
         return with(tokenWeight, tokenName);
     }
 
+    /**
+     *
+     * @param tokens map of created tokens with id -> Token
+     * @param places map of created places with id -> Connectable
+     * @param transitions
+     * @param rateParameters
+     * @return new inbound/outbound arc depending on if the soure was a place/transition
+     */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
                                                                     Map<String, Place> places,
@@ -74,19 +107,44 @@ public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? exten
         return arc;
     }
 
+    /**
+     *
+     * Noop action to aid readability
+     *
+     * @return builder for chaining
+     */
     public ANormalArc tokens() {
         return this;
     }
 
+    /**
+     *
+     * Noop action to aid readability
+     *
+     * @return builder for chaining
+     */
     public ANormalArc token() {
         return this;
     }
 
+    /**
+     *
+     * Registers a straight intermediate point at (x,y)
+     * @param x
+     * @param y
+     * @return builder for chaining
+     */
     public ANormalArc andIntermediatePoint(int x, int y) {
         intermediatePoints.add(new ArcPoint(new Point2D.Double(x, y), false));
         return this;
     }
 
+    /**
+     * Registers a curved intermedaite point at (x,y)
+     * @param x
+     * @param y
+     * @return builder for chaining
+     */
     public ANormalArc andACurvedIntermediatePoint(int x, int y) {
         intermediatePoints.add(new ArcPoint(new Point2D.Double(x, y), true));
         return this;

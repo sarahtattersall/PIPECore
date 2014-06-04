@@ -14,11 +14,21 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
  */
 public final class StringAttributeValueAdaptor
         extends XmlAdapter<StringAttributeValueAdaptor.AdaptedAttributeString, String> {
+    /**
+     *
+     * @param adaptedString
+     * @return unwrapped string
+     */
     @Override
     public String unmarshal(AdaptedAttributeString adaptedString) {
         return adaptedString.value;
     }
 
+    /**
+     *
+     * @param s
+     * @return wrapped string
+     */
     @Override
     public AdaptedAttributeString marshal(String s) {
         AdaptedAttributeString adaptedString = new AdaptedAttributeString();
@@ -26,7 +36,13 @@ public final class StringAttributeValueAdaptor
         return adaptedString;
     }
 
+    /**
+     * Wraps the string in a field called value
+     */
     public static class AdaptedAttributeString {
+        /**
+         * String value attribute
+         */
         @XmlAttribute
         public String value;
     }

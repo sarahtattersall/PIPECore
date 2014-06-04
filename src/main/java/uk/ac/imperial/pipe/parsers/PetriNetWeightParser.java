@@ -37,6 +37,11 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
     }
 
 
+    /**
+     *
+     * @param parseTree
+     * @return components referenced by the functional expression that is being parsed
+     */
     //TODO: Use memoization
     private Set<String> getReferencedComponents(ParseTree parseTree) {
         ParseTreeWalker walker = new ParseTreeWalker();
@@ -62,6 +67,11 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
     }
 
 
+    /**
+     * Evaluate the expression against the given Petri net
+     * @param expression to evaluate
+     * @return evaluated results which contain error, component and the actual value if no errors were reported
+     */
     @Override
     public FunctionalResults<Double> evaluateExpression(String expression) {
 
