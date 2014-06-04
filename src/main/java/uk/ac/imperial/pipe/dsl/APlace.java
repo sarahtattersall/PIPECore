@@ -10,30 +10,71 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ *
+ * APlace DSL to be used in conjunction with {@link uk.ac.imperial.pipe.dsl.APetriNet}
  * Usage:
  * APlace.withId("P0").andCapacity(5).containing(5, "Red).tokens();
  */
 public final class APlace implements DSLCreator<Place> {
+    /**
+     * Place id
+     */
     private String id;
-    private int capacity;
+
+    /**
+     * Place capacity (defaults to 0)
+     */
+    private int capacity = 0;
+
+    /**
+     * Place token counts (defaults to no tokens)
+     */
     private Map<String, Integer> tokenCounts = new HashMap<>();
 
+    /**
+     * Place x location
+     */
     private int x = 0;
+
+    /**
+     * Place y location
+     */
     private int y = 0;
 
+    /**
+     * Hidden constructor
+     * @param id place id
+     */
     private APlace(String id) { this.id = id; }
 
+    /**
+     *
+     * Factory for the place
+     * @param id
+     * @return builder for chaining
+     */
     public static APlace withId(String id) {
         return new APlace(id);
     }
 
+    /**
+     * Sets the place capacity
+     * @param capacity
+     * @return builder for chaining
+     */
     public APlace andCapacity(int capacity) {
         this.capacity = capacity;
         return this;
     }
 
-    public APlace containing(int count, String name) {
-        tokenCounts.put(name, count);
+    /**
+     * Sets the places token count for the specified type of tokens
+     * @param count
+     * @param tokenId
+     * @return builder for chaining
+     */
+    public APlace containing(int count, String tokenId) {
+        tokenCounts.put(tokenId, count);
         return this;
     }
 
@@ -53,6 +94,16 @@ public final class APlace implements DSLCreator<Place> {
         return this;
     }
 
+    /**
+     *
+     * Creates a discrete place
+     *
+     * @param tokens map of created tokens with id -> Token
+     * @param places map of created places with id -> Connectable
+     * @param transitions
+     * @param rateParameters
+     * @return created place
+     */
     @Override
     public Place create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         Place place = new DiscretePlace(id, id);
@@ -80,6 +131,12 @@ public final class APlace implements DSLCreator<Place> {
         return this;
     }
 
+    /**
+     * Set the place net x, y locations
+     * @param x
+     * @param y
+     * @return builder for chaining
+     */
     public APlace locatedAt(int x, int y) {
         this.x = x;
         this.y = y;

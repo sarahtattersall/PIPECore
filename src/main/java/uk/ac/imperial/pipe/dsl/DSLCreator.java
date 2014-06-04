@@ -43,7 +43,8 @@ public interface DSLCreator<T extends PetriNetComponent> {
      * @param tokens map of created tokens with id -> Token
      * @param places map of created places with id -> Connectable
      * @param transitions
-     *@param rateParameters  @return new {@link PetriNetComponent}
+     * @param rateParameters
+     * @return new {@link PetriNetComponent}
      */
     T create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters);
 }

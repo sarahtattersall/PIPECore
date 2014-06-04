@@ -8,6 +8,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * DSL for creating normal Petri net arcs, to be used in conjunction wiht {@link uk.ac.imperial.pipe.dsl.APetriNet}
+ *
+ * Usage:
+ * ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("2", "Blue").tokens()
+ */
 public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
     private String source;
 

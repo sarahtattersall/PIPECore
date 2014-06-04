@@ -8,15 +8,33 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AbstractArc class
+ *
+ * @param <S> Source type
+ * @param <T> Target type
+ */
 public abstract class AbstractArc<S extends Connectable, T extends Connectable> extends AbstractPetriNetPubSub implements
         Arc<S,T> {
 
+    /**
+     * Arc source
+     */
     private S source;
 
+    /**
+     * Arc target
+     */
     private T target;
 
+    /**
+     * Arc id
+     */
     private String id;
 
+    /**
+     * Arc taggged
+     */
     private boolean tagged;
 
     /**
@@ -25,6 +43,9 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
      */
     protected Map<String, String> tokenWeights = new HashMap<>();
 
+    /**
+     * Arc type e.g. Normal, Inhibitor etc.
+     */
     private final ArcType type;
 
     /**
@@ -32,6 +53,13 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
      */
     private final List<ArcPoint> arcPoints = new LinkedList<>();
 
+    /**
+     * Abstract arc constructor sets arc to <source id> TO <target id>
+     * @param source
+     * @param target
+     * @param tokenWeights
+     * @param type
+     */
     public AbstractArc(S source, T target, Map<String, String> tokenWeights, ArcType type) {
         this.source = source;
         this.target = target;
@@ -73,16 +101,29 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     }
 
+    /**
+     *
+     * @return weight of the arc
+     */
     @Override
     public Map<String, String> getTokenWeights() {
         return tokenWeights;
     }
 
+    /**
+     *
+     * @return source
+     */
     @Override
     public S getSource() {
         return source;
     }
 
+    /**
+     * Sets the new source of the arc
+     *
+     * @param source new source of arc
+     */
     @Override
     public void setSource(S source) {
         S old = this.source;
@@ -90,11 +131,19 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         changeSupport.firePropertyChange(SOURCE_CHANGE_MESSAGE, old, source);
     }
 
+    /**
+     *
+     * @return target
+     */
     @Override
     public T getTarget() {
         return target;
     }
 
+    /**
+     *
+     * @param target new target of the arc
+     */
     @Override
     public void setTarget(T target) {
         T old = this.target;
@@ -111,16 +160,28 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         return true;
     }
 
+    /**
+     *
+     * @return true since arcs can always be dragged
+     */
     @Override
     public boolean isDraggable() {
         return true;
     }
 
+    /**
+     *
+     * @return arc id
+     */
     @Override
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id new id for arc
+     */
     @Override
     public void setId(String id) {
         String old = this.id;
@@ -128,22 +189,39 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
     }
 
+    /**
+     *
+     * @return id of arc
+     */
     //TODO: Not sure if arcs should have names
     @Override
     public String getName() {
         return id;
     }
 
+    /**
+     *
+     * @return true if arc is tagged
+     */
     @Override
     public boolean isTagged() {
         return tagged;
     }
 
+    /**
+     *
+     * @param tagged new tagged value
+     */
     @Override
     public void setTagged(boolean tagged) {
         this.tagged = tagged;
     }
 
+    /**
+     *
+     * @param token
+     * @return the functional expression for a single token which is equivalent to that tokens weight on the arc
+     */
     @Override
     public String getWeightForToken(String token) {
         if (tokenWeights.containsKey(token)) {
@@ -153,6 +231,14 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         }
     }
 
+    /**
+     *
+     * Sets the weight of the arc to the token id and new weight.
+     * Overwrites any old token weight for the specified token id
+     *
+     * @param tokenId
+     * @param weight
+     */
     @Override
     public void setWeight(String tokenId, String weight) {
         Map<String, String> old = new HashMap<>(tokenWeights);
@@ -176,12 +262,20 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         return false;
     }
 
+    /**
+     *
+     * @return arc type
+     */
     @Override
     public ArcType getType() {
         return type;
 
     }
 
+    /**
+     * Add intermediate points to the arc
+     * @param points
+     */
     @Override
     public void addIntermediatePoints(Iterable<ArcPoint> points) {
         for (ArcPoint point : points) {
@@ -189,6 +283,11 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         }
     }
 
+    /**
+     * Add an intermediate point to the arc
+     *
+     * @param point
+     */
     @Override
     public void addIntermediatePoint(ArcPoint point) {
         int penultimateIndex = arcPoints.size() - 1;
@@ -196,17 +295,30 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         changeSupport.firePropertyChange(NEW_INTERMEDIATE_POINT_CHANGE_MESSAGE, null, point);
     }
 
+    /**
+     *
+     * @return all intermediate arc points
+     */
     @Override
     public List<ArcPoint> getArcPoints() {
         return arcPoints;
     }
 
+    /**
+     * Remove the intermediate arc point
+     * @param point
+     */
     @Override
     public void removeIntermediatePoint(ArcPoint point) {
         arcPoints.remove(point);
         changeSupport.firePropertyChange(DELETE_INTERMEDIATE_POINT_CHANGE_MESSAGE, point, null);
     }
 
+    /**
+     *
+     * @param arcPoint
+     * @return the arcPoint following this one
+     */
     @Override
     public ArcPoint getNextPoint(ArcPoint arcPoint) {
         int index = arcPoints.indexOf(arcPoint);

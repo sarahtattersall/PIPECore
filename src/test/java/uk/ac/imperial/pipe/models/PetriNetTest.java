@@ -237,14 +237,14 @@ public class PetriNetTest {
     @Test
     public void addingTokenNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
-        Token token = new ColoredToken();
+        Token token = new ColoredToken("Default", Color.BLACK);
         net.addToken(token);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
     @Test
     public void addingDuplicateTokenDoesNotNotifyObservers() {
-        Token token = new ColoredToken();
+        Token token = new ColoredToken("Default", Color.BLACK);
         net.addToken(token);
 
         net.addPropertyChangeListener(mockListener);

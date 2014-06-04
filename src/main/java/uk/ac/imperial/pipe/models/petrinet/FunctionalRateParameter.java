@@ -4,12 +4,24 @@ import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
+/**
+ * Rate parameter that represents a functional expression
+ */
 public final class FunctionalRateParameter extends AbstractPetriNetPubSub implements RateParameter {
 
+    /**
+     * Functional expression that follows the rate grammar
+     */
     private String expression;
 
+    /**
+     * Rate id
+     */
     private String id;
 
+    /**
+     * Rate name
+     */
     private String name;
 
     /**
@@ -21,22 +33,40 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
         this(rateParameter.expression, rateParameter.id, rateParameter.name);
     }
 
+    /**
+     * Constructor
+     * @param expression
+     * @param id
+     * @param name
+     */
     public FunctionalRateParameter(String expression, String id, String name) {
         this.expression = expression;
         this.id = id;
         this.name = name;
     }
 
+    /**
+     *
+     * @return functional expression
+     */
     @Override
     public String getExpression() {
         return expression;
     }
 
+    /**
+     *
+     * @return type of rate parameter
+     */
     @Override
     public RateType getRateType() {
         return RateType.RATE_PARAMETER;
     }
 
+    /**
+     *
+     * @param expression the new expression for the rate parameter, must conform to the rate grammar
+     */
     @Override
     public void setExpression(String expression) {
         String old = this.expression;
@@ -44,16 +74,30 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(EXPRESSION_CHANGE_MESSAGE, old, expression);
     }
 
+    /**
+     *
+     * @return false since rate parameters do not appear on the canvas
+     */
     @Override
     public boolean isSelectable() {
         return false;
     }
 
+    /**
+     *
+     * @return false since rate parameters do not appear on the canvas
+     */
     @Override
     public boolean isDraggable() {
         return false;
     }
 
+    /**
+     * Accepts the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.RateParameterVisitor} or
+     * {@link uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameterVisitor}
+     * @param visitor
+     * @throws PetriNetComponentException
+     */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
         if (visitor instanceof RateParameterVisitor) {
@@ -69,11 +113,19 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
         }
     }
 
+    /**
+     *
+     * @return rate parameter id
+     */
     @Override
     public String getId() {
         return id;
     }
 
+    /**
+     *
+     * @param id new unique id for the rate parameter
+     */
     @Override
     public void setId(String id) {
         String old = this.id;
@@ -113,6 +165,10 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
         return true;
     }
 
+    /**
+     *
+     * @return string representation which is the paramters id followed by its functional expression
+     */
     @Override
     public String toString() {
         return id + ": " + expression;

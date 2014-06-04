@@ -15,34 +15,80 @@ import java.util.Map;
 import static java.lang.Math.floor;
 
 
+/**
+ * Discrete implementation of a transition
+ */
 public final class DiscreteTransition extends AbstractConnectable implements Transition {
 
+    /**
+     * 135 degrees
+     */
     public static final int DEGREES_135 = 135;
 
+    /**
+     * 45 degrees
+     */
     public static final int DEGREES_45 = 45;
 
+    /**
+     * The priority of this transition, the transition(s) with the highest priority will be enabled
+     * when multiple transitions have the possiblity of being enabled
+     */
     private int priority = 1;
 
+    /**
+     * The rate/weight of the transition. It is considered to be the rate if the transition
+     * is timed and the weight otherwise
+     */
+    //TODO: I think this logic would be better split out into different classes
     private Rate rate = new NormalRate("1");
 
+    /**
+     * Defaults to an immediate transition
+     */
     private boolean timed = false;
 
+    /**
+     * Defaults to single server semantics
+     */
     private boolean infiniteServer = false;
 
+    /**
+     * Angle at which this transition should be displayed
+     */
     private int angle = 0;
 
+    /**
+     * Enabled
+     */
     private boolean enabled = false;
 
+    /**
+     * Constructor with default rate and priority
+     * @param id
+     * @param name
+     */
     public DiscreteTransition(String id, String name) {
         super(id, name);
     }
 
+    /**
+     * Constructor with the specified rate and priority
+     * @param id
+     * @param name
+     * @param rate
+     * @param priority
+     */
     public DiscreteTransition(String id, String name, Rate rate, int priority) {
         super(id, name);
         this.rate = rate;
         this.priority = priority;
     }
 
+    /**
+     * Copy constructor
+     * @param transition
+     */
     public DiscreteTransition(DiscreteTransition transition) {
         super(transition);
         this.infiniteServer = transition.infiniteServer;
@@ -94,10 +140,17 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     @Override
 
+    /**
+     * Center of the transition
+     */
     public Point2D.Double getCentre() {
         return new Point2D.Double(getX() + getWidth() / 2, getY() + getHeight() / 2);
     }
 
+    /**
+     * @param angle angle at which the arc meets this component
+     * @return the location where the arc should meet this component
+     */
     @Override
     public Point2D.Double getArcEdgePoint(double angle) {
         int halfHeight = getHeight() / 2;
@@ -122,11 +175,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         return rotateAroundCenter(Math.toRadians(this.angle), connectionPoint);
     }
 
+    /**
+     *
+     * @return the height of the component
+     */
     @Override
     public int getHeight() {
         return TRANSITION_HEIGHT;
     }
 
+    /**
+     *
+     * @return the width of the component
+     */
     @Override
     public int getWidth() {
         return TRANSITION_WIDTH;
@@ -140,10 +201,6 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     private boolean connectToTop(double angle) {
         return angle > Math.toRadians(DEGREES_45) && angle < Math.toRadians(DEGREES_135);
     }
-
-    //    public void setRateExpr(String string) {
-    //        rateExpr = string;
-    //    }
 
     /**
      * @param angle in radians
@@ -179,16 +236,31 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         return rotatedPoint;
     }
 
+    /**
+     *
+     * @return true
+     */
     @Override
     public boolean isEndPoint() {
         return true;
     }
 
+    /**
+     *
+     * Returns the priority of the transition, priorities are used in animation
+     * of a Petri net where the highest priority transitions are enabled
+     *
+     * @return the priority of the transition
+     */
     @Override
     public int getPriority() {
         return priority;
     }
 
+    /**
+     *
+     * @param priority the priority of this transition. Must be > 0.
+     */
     @Override
     public void setPriority(int priority) {
         int old = this.priority;
@@ -196,11 +268,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         changeSupport.firePropertyChange(PRIORITY_CHANGE_MESSAGE, old, priority);
     }
 
+    /**
+     *
+     * @return the rate at which the transition fires
+     */
     @Override
     public Rate getRate() {
         return rate;
     }
 
+    /**
+     *
+     * @param rate the new rate for the transitions firing rate
+     */
     @Override
     public void setRate(Rate rate) {
         this.rate = rate;
@@ -233,11 +313,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         return rate * enablingDegree;
     }
 
+    /**
+     *
+     * @return the unevaluated text representation of a transition reight
+     */
     @Override
     public String getRateExpr() {
         return rate.getExpression();
     }
 
+    /**
+     *
+     * @return true if the transition is an infinite sever, false if it is a single server
+     */
     @Override
     public boolean isInfiniteServer() {
         return infiniteServer;
@@ -331,6 +419,10 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         return result.getResult();
     }
 
+    /**
+     *
+     * @param infiniteServer true => infite server, false => single server
+     */
     @Override
     public void setInfiniteServer(boolean infiniteServer) {
         boolean old = this.infiniteServer;
@@ -338,11 +430,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         changeSupport.firePropertyChange(INFINITE_SEVER_CHANGE_MESSAGE, old, infiniteServer);
     }
 
+    /**
+     *
+     * @return angle at which the transition should be displayed
+     */
     @Override
     public int getAngle() {
         return angle;
     }
 
+    /**
+     *
+     * @param angle new angle starting from pointing NORTH at which the transition should be displayed
+     */
     @Override
     public void setAngle(int angle) {
         int old = this.angle;
@@ -350,11 +450,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         changeSupport.firePropertyChange(ANGLE_CHANGE_MESSAGE, old, angle);
     }
 
+    /**
+     *
+     * @return true if the transition is timed, false for immediate
+     */
     @Override
     public boolean isTimed() {
         return timed;
     }
 
+    /**
+     *
+     * @param timed true => timed, false => immediate
+     */
     @Override
     public void setTimed(boolean timed) {
         boolean old = this.timed;
@@ -362,16 +470,29 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         changeSupport.firePropertyChange(TIMED_CHANGE_MESSAGE, old, timed);
     }
 
+    /**
+     *
+     * @return true since a transition appears on the canvas so is always selectable
+     */
     @Override
     public boolean isSelectable() {
         return true;
     }
 
+    /**
+     *
+     * @return true since a transition appears on the canvas so is always draggable
+     */
     @Override
     public boolean isDraggable() {
         return true;
     }
 
+    /**
+     * visits the visitor of it is a {@link uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor} or a
+     * {@link uk.ac.imperial.pipe.models.petrinet.TransitionVisitor}.
+     * @param visitor
+     */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
         if (visitor instanceof TransitionVisitor) {
@@ -382,18 +503,28 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         }
     }
 
+    /**
+     * Enable the transition
+     */
     @Override
     public void enable() {
         enabled = true;
         changeSupport.firePropertyChange(ENABLED_CHANGE_MESSAGE, false, true);
     }
 
+    /**
+     * Disable the transition
+     */
     @Override
     public void disable() {
         enabled = false;
         changeSupport.firePropertyChange(DISABLED_CHANGE_MESSAGE, true, false);
     }
 
+    /**
+     *
+     * @return true if the transition has been enabled
+     */
     @Override
     public boolean isEnabled() {
         return enabled;

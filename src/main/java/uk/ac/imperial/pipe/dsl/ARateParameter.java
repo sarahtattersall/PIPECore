@@ -7,13 +7,28 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Map;
 
+/**
+ * Rate parameter DSL for use with {@link uk.ac.imperial.pipe.dsl.APetriNet}
+ * Usage:
+ * ARateParameter.withId("R1").andExpression("#(P0)")
+ */
 public final class ARateParameter implements DSLCreator<FunctionalRateParameter> {
 
 
+    /**
+     * Rate paramter id
+     */
     private final String id;
 
+    /**
+     * Rate parameter functional expression
+     */
     private String expression;
 
+    /**
+     * Private constructor
+     * @param id
+     */
     private ARateParameter(String id) {this.id = id;}
 
     /**
@@ -25,6 +40,11 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
         return new ARateParameter(id);
     }
 
+    /**
+     * Functional expression to add to the rate parameter on creation
+     * @param expression
+     * @return builder for chaining
+     */
     public ARateParameter andExpression(String expression) {
         this.expression = expression;
         return this;

@@ -5,10 +5,18 @@ package uk.ac.imperial.pipe.exceptions;
  * when modifying the components it stores
  */
 public class PetriNetComponentException  extends Exception {
+    /**
+     *
+     * @param message message of exception
+     */
     public PetriNetComponentException(String message) {
         super(message);
     }
 
+    /**
+     *
+     * @param throwable throwable exception
+     */
     public PetriNetComponentException(Throwable throwable) {
         super(throwable);
     }

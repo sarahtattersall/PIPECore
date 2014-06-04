@@ -1,5 +1,8 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+/**
+ * Annotation is used
+ */
 public interface Annotation extends PlaceablePetriNetComponent {
     /**
      *

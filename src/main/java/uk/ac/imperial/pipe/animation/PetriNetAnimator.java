@@ -18,17 +18,30 @@ public final class PetriNetAnimator implements Animator {
      */
     private final PetriNet petriNet;
 
+    /**
+     * Underlying animation logic, which returns logic as Markov Chain states
+     */
     private final AnimationLogic animationLogic;
 
+    /**
+     * map of place id -> {token id -> count} and is used to save the underlying
+     * Petri net state so that it can be reapplied to the Petri net at any time
+     */
     private Map<String, Map<String, Integer>> savedStateTokens = new HashMap<>();
 
+    /**
+     * Constructor
+     * @param petriNet petri net to modify the structure for for animaiton
+     */
     public PetriNetAnimator(PetriNet petriNet) {
         this.petriNet = petriNet;
         animationLogic = new PetriNetAnimationLogic(petriNet);
         saveState();
     }
 
-
+    /**
+     * Save the Petri net state into the saved state map
+     */
     @Override
     public void saveState() {
         savedStateTokens.clear();
@@ -37,6 +50,9 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
+    /**
+     * Reset the Petri net by applying the saved state back onto the Petri net
+     */
     @Override
     public void reset() {
         for (Place place : petriNet.getPlaces()) {
@@ -45,6 +61,10 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
+    /**
+     *
+     * @return a random transition which is enabled given the Petri nets current state
+     */
     @Override
     public Transition getRandomEnabledTransition() {
         Collection<Transition> enabledTransitions = getEnabledTransitions();
@@ -63,11 +83,21 @@ public final class PetriNetAnimator implements Animator {
         return transition;
     }
 
+    /**
+     *
+     * @return all enabled transitions for the Petri nets current underlying state
+     */
     @Override
     public Set<Transition> getEnabledTransitions() {
         return animationLogic.getEnabledTransitions(AnimationUtils.getState(petriNet));
     }
 
+    /**
+     *
+     * Fires the transition if it is enabled in the Petri net for the current underlying state
+     *
+     * @param transition transition to fire
+     */
     @Override
     public void fireTransition(Transition transition) {
         State newState = animationLogic.getFiredState(AnimationUtils.getState(petriNet), transition);
@@ -78,6 +108,10 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
+    /**
+     * Undo the firing of the transition
+     * @param transition transition to fire backwards
+     */
     @Override
     public void fireTransitionBackwards(Transition transition) {
         State state = AnimationUtils.getState(petriNet);

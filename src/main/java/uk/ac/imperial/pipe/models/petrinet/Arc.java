@@ -6,6 +6,12 @@ import java.awt.geom.Point2D;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Arc connecting components together. Places can connect to transitions and transitions to places in
+ * a bipartite graph
+ * @param <S> component source type
+ * @param <T> component target type
+ */
 public interface Arc<S extends Connectable, T extends Connectable> extends PetriNetComponent {
     /**
      * Message fired when the arc source is changed
@@ -42,19 +48,49 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      */
     void setSource(S source);
 
+    /**
+     *
+     * @return the target this arc connects to
+     */
     T getTarget();
 
+    /**
+     *
+     * @param target new target for the arc
+     */
     void setTarget(T target);
 
     //TODO: Not sure if arcs should have names
     String getName();
 
+    /**
+     *
+     * @return true if the arc is tagged
+     */
     boolean isTagged();
 
+    /**
+     *
+     * @param tagged new tagged status for the arc
+     */
     void setTagged(boolean tagged);
 
+    /**
+     *
+     * @param token token id
+     * @return the weight of the specific token on the arc
+     */
     String getWeightForToken(String token);
 
+    /**
+     *
+     * Assign add to the arcs weight requirements a token with the specified weight.
+     *
+     * It the token id already exists it will get replaced.
+     *
+     * @param tokenId
+     * @param weight weight for the token id
+     */
     void setWeight(String tokenId, String weight);
 
     /**
@@ -62,16 +98,43 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      */
     boolean hasFunctionalWeight();
 
+    /**
+     *
+     * @return arc type e.g. normal, inhibitor etc.
+     */
     ArcType getType();
 
+    /**
+     *
+     * @param points points to feature along the arc
+     */
     void addIntermediatePoints(Iterable<ArcPoint> points);
 
+    /**
+     *
+     * @param point add this point to the end of the arc
+     */
     void addIntermediatePoint(ArcPoint point);
 
+    /**
+     *
+     * @return all intermediate points
+     */
     List<ArcPoint> getArcPoints();
 
+    /**
+     *
+     * Removes the given point from this arcs intermediate points
+     *
+     * @param point
+     */
     void removeIntermediatePoint(ArcPoint point);
 
+    /**
+     *
+     * @param arcPoint
+     * @return the point after the specified one in the path
+     */
     ArcPoint getNextPoint(ArcPoint arcPoint);
 
     /**
@@ -84,6 +147,10 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      */
     Point2D getEndPoint();
 
+    /**
+     *
+     * @return angle at which the arc connects to its target
+     */
     double getEndAngle();
 
     /**

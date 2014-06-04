@@ -22,7 +22,7 @@ public class TokenTest {
 
     @Before
     public void setUp() {
-        token = new ColoredToken();
+        token = new ColoredToken("Default", Color.BLACK);
     }
 
     /**

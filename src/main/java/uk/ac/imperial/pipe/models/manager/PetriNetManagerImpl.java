@@ -28,6 +28,9 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      */
     public static final String NEW_PETRI_NET_MESSAGE = "New Petri net!";
 
+    /**
+     * Message fired when when you remove the Petri net from the manager
+     */
     public static final String REMOVE_PETRI_NET_MESSAGE = "Removed Petri net";
 
     /**
@@ -46,12 +49,19 @@ public final class PetriNetManagerImpl implements PetriNetManager {
     protected final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
 
-
+    /**
+     *
+     * @param listener notify this listener on any changes
+     */
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
 
+    /**
+     *
+     * @param listener registered listener that no longer wishes to be notified
+     */
     @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
@@ -135,6 +145,10 @@ public final class PetriNetManagerImpl implements PetriNetManager {
         holder.addNet(petriNet);
     }
 
+    /**
+     *
+     * @return token with id "Default" and color black
+     */
     private Token createDefaultToken() {
         return new ColoredToken("Default", Color.BLACK);
     }

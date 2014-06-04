@@ -10,6 +10,11 @@ import java.util.Map;
  * if and only if its source place has no tokens whatsoever.
  */
 public class InboundInhibitorArc extends InboundArc {
+    /**
+     * Constructor
+     * @param source
+     * @param target
+     */
     public InboundInhibitorArc(Place source, Transition target) {
         super(source, target, new HashMap<String, String>(), ArcType.INHIBITOR);
     }

@@ -19,7 +19,14 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.*;
 
+/**
+ * Petri net class that houses Petri net components and performs the logic on their
+ * insertion and deletion.
+ */
 public class PetriNet {
+    /**
+     * Message fired when Petri net name changes
+     */
     public static final String PETRI_NET_NAME_CHANGE_MESSAGE = "nameChange";
 
     /**
@@ -82,6 +89,9 @@ public class PetriNet {
      */
     public static final String DELETE_RATE_PARAMETER_CHANGE_MESSAGE = "deleteRateParameter";
 
+    /**
+     * Property change support used to fire messages and register listeners to
+     */
     protected final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
     /**
@@ -89,24 +99,55 @@ public class PetriNet {
      */
     private final FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(new EvalVisitor(this), this);
 
+    /**
+     * Visitor used to remove petri net components when the type is not directly known
+     */
     //TODO: CYCLIC DEPENDENCY BETWEEN CREATING THIS AND PETRI NET/
     private final PetriNetComponentVisitor deleteVisitor = new PetriNetComponentRemovalVisitor(this);
 
+    /**
+     * Maps transition id -> transition
+     */
     private final Map<String, Transition> transitions = new HashMap<>();
 
+    /**
+     * Maps place id -> place
+     */
     private final Map<String, Place> places = new HashMap<>();
 
+    /**
+     * Maps token id -> token
+     */
     private final Map<String, Token> tokens = new HashMap<>();
 
+    /**
+     * Maps inbound arc id -> inbound arc
+     */
     private final Map<String, InboundArc> inboundArcs = new HashMap<>();
 
+    /**
+     * Maps outbound arc id -> outbound arc
+     */
     private final Map<String, OutboundArc> outboundArcs = new HashMap<>();
 
+    /**
+     * Maps rate paramter id -> rate paramter
+     */
     private final Map<String, RateParameter> rateParameters = new HashMap<>();
 
+    /**
+     * Maps annotation id -> annotation
+     */
     private final Map<String, Annotation> annotations = new HashMap<>();
 
+    /**
+     *  Maps transition id -> outbound arcs out of the transition
+     */
     private final Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
+
+    /**
+     * Maps transition id -> inbound arcs into the transition
+     */
     private final Multimap<String, InboundArc> transitionInboundArcs =  HashMultimap.create();
 
     /**
@@ -119,26 +160,51 @@ public class PetriNet {
     private final Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps =
             new HashMap<>();
 
+    /**
+     * Used to add Petri net components to the Petri net when their type is not directlty known
+     */
     private final PetriNetComponentVisitor addVisitor = new PetriNetComponentAddVisitor(this);
 
+    /**
+     * Name of hte Petri net
+     */
+    //TODO: IS THIS USED?
     public String pnmlName = "";
 
-
+    /**
+     * Petri net name
+     */
     private PetriNetName petriNetName;
 
+    /**
+     * Validated
+     */
+    //TODO: WHAT IS THIS
     private boolean validated = false;
 
 
+    /**
+     * Constructor
+     * @param name the name of the Petri net, it should be unique
+     */
     public PetriNet(PetriNetName name) {
         this();
         this.petriNetName = name;
     }
 
     //TODO: INITIALISE NAME?
+
+    /**
+     * Default constructor initialises the petri net components map
+     */
     public PetriNet() {
         initialiseIdMap();
     }
 
+    /**
+     * Initialises the petri net components map for addtion and retreivals
+     * by mapping the component interface class to the map that contains the components
+     */
     private void initialiseIdMap() {
         componentMaps.put(Place.class, places);
         componentMaps.put(Transition.class, transitions);
@@ -202,32 +268,60 @@ public class PetriNet {
         return true;
     }
 
+    /**
+     *
+     * @param listener listens for changes on the Petri net
+     */
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
 
+    /**
+     *
+     * @param listener current listener listining to the Petri net
+     */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
 
+    /**
+     *
+     * @return PNML name
+     */
     @XmlTransient
     public String getPnmlName() {
         return pnmlName;
     }
 
+    /**
+     *
+     * @param pnmlName file name
+     */
     public void setPnmlName(String pnmlName) {
         this.pnmlName = pnmlName;
     }
 
+    /**
+     *
+     * @return true if validated
+     */
     @XmlTransient
     public boolean isValidated() {
         return validated;
     }
 
+    /**
+     *
+     * @param validated new validated value
+     */
     public void setValidated(boolean validated) {
         this.validated = validated;
     }
 
+    /**
+     * Resets the Petri net name
+     */
+    //TODO: DELETE IF DONT USE PNML
     public void resetPNML() {
         pnmlName = null;
     }
@@ -400,6 +494,12 @@ public class PetriNet {
         return transitions.values();
     }
 
+    /**
+     *
+     * Adds this arc to the petri net
+     *
+     * @param inboundArc inbound arc to include in the Petri net
+     */
     public void addArc(InboundArc inboundArc) {
         if (!inboundArcs.containsKey(inboundArc.getId())) {
             inboundArcs.put(inboundArc.getId(), inboundArc);
@@ -409,6 +509,10 @@ public class PetriNet {
         }
     }
 
+    /**
+     * Adds this arc to the petri net
+     * @param outboundArc outbound arc to include in the Petri net
+     */
     public void addArc(OutboundArc outboundArc) {
         if (!outboundArcs.containsKey(outboundArc.getId())) {
             outboundArcs.put(outboundArc.getId(), outboundArc);
@@ -428,10 +532,18 @@ public class PetriNet {
         return arcs;
     }
 
+    /**
+     *
+     * @return all outbound arcs in the Petri net
+     */
     public Collection<OutboundArc> getOutboundArcs() {
         return outboundArcs.values();
     }
 
+    /**
+     *
+     * @return all inbound arcs in the Petri net
+     */
     public Collection<InboundArc> getInboundArcs() {
         return inboundArcs.values();
     }
@@ -672,6 +784,12 @@ public class PetriNet {
         throw new PetriNetComponentNotFoundException("No component " + id + " exists in Petri net.");
     }
 
+    /**
+     *
+     * @param clazz component map type, this should be the interface of the component
+     * @param <T> componennt class
+     * @return the map that corresponds to the clazz type.
+     */
     private <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
         return (Map<String, T>) componentMaps.get(clazz);
     }
@@ -681,31 +799,42 @@ public class PetriNet {
      * @return arcs that are inbound to transition, that is arcs that come into the transition
      */
     public Collection<InboundArc> inboundArcs(Transition transition) {
-//        Collection<InboundArc> outbound = new LinkedList<>();
-//        for (InboundArc arc : inboundArcs.values()) {
-//            if (arc.getTarget().equals(transition)) {
-//                outbound.add(arc);
-//            }
-//        }
-//        return outbound;
         return transitionInboundArcs.get(transition.getId());
     }
 
+    /**
+     *
+     * @return petri net name
+     */
     @XmlTransient
     public PetriNetName getName() {
         return petriNetName;
     }
 
+    /**
+     * Give the petri net a new name
+     * @param name name to replace the existing name with
+     */
     public void setName(PetriNetName name) {
         PetriNetName old = this.petriNetName;
         this.petriNetName = name;
         changeSupport.firePropertyChange(PETRI_NET_NAME_CHANGE_MESSAGE, old, name);
     }
 
+    /**
+     *
+     * @return string representation of the Petri net name
+     */
     public String getNameValue() {
         return petriNetName.getName();
     }
 
+    /**
+     * Parse the functional expression via the underlyign Petri net state
+     *
+     * @param expr functional expression which conforms to the rate grammar
+     * @return parsed expression
+     */
     public FunctionalResults<Double> parseExpression(String expr) {
         return functionalWeightParser.evaluateExpression(expr);
     }
@@ -715,15 +844,31 @@ public class PetriNet {
      * @param <T>
      */
     private static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
+        /**
+         * Comoponent whose name will change
+         */
         private final T component;
 
+        /**
+         * Component map that houses the component, needs to be updated on name change
+         */
         private final Map<String, T> componentMap;
 
+        /**
+         * Constructor
+         * @param component
+         * @param componentMap
+         */
         public NameChangeListener(T component, Map<String, T> componentMap) {
             this.component = component;
             this.componentMap = componentMap;
         }
 
+        /**
+         * If the name/id of the component changes then it is updated in the component map.
+         * That is the old key is removed and the compoennt is readded with the new name.
+         * @param evt
+         */
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
@@ -737,12 +882,16 @@ public class PetriNet {
     }
 
     /**
-     * This class is responsible for changing inbound and outbound arc refernces from
+     * This class is responsible for changing inbound and outbound arc references from
      * a transition id change
      */
     private class NameChangeArcListener implements PropertyChangeListener {
 
-
+        /**
+         * If a transition changes name then this is updated in the maps by removing the key
+         * and replacing the inbound/outbound arcs with the new name as the key.
+         * @param evt
+         */
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
@@ -756,8 +905,15 @@ public class PetriNet {
         }
     }
 
+    /**
+     * Listens for name changes of a token
+     */
     private class TokenNameChanger implements PropertyChangeListener {
 
+        /**
+         * When a tokens name changes then the maps in the places and arc need adjusting
+         * @param evt
+         */
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {

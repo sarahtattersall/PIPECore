@@ -10,6 +10,9 @@ import uk.ac.imperial.state.State;
  * Utility class for useful static methods for animation
  */
 public final class AnimationUtils {
+    /**
+     * Private utility constructor
+     */
     private AnimationUtils() {}
 
     /**

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This class maps to the Place in PNML
+ * This class maps to the Place in PNML and has a discrete number of tokens
  */
 public final class DiscretePlace extends AbstractConnectable implements Place {
 
@@ -37,10 +37,19 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      */
     private Map<String, Integer> tokenCounts = new HashMap<>();
 
+    /**
+     * Constructor
+     * @param id
+     * @param name
+     */
     public DiscretePlace(String id, String name) {
         super(id, name);
     }
 
+    /**
+     * Copy constructor
+     * @param place
+     */
     public DiscretePlace(DiscretePlace place) {
         super(place);
         this.capacity = place.capacity;
@@ -56,11 +65,21 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         return true;
     }
 
+    /**
+     *
+     * @return true - Place objects can be dragged on the canvas
+     */
     @Override
     public boolean isDraggable() {
         return true;
     }
 
+    /**
+     * Accept the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.PlaceVisitor}
+     * or a {@link uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor}
+     * @param visitor
+     * @throws PetriNetComponentException
+     */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
         if (visitor instanceof PlaceVisitor) {
@@ -71,41 +90,76 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         }
     }
 
+    /**
+     *
+     * @return offset for token markings
+     */
     @Override
     public double getMarkingXOffset() {
         return markingXOffset;
     }
 
+    /**
+     *
+     * @param markingXOffset token x marking offset
+     */
     @Override
     public void setMarkingXOffset(double markingXOffset) {
         this.markingXOffset = markingXOffset;
     }
 
+    /**
+     *
+     * @return y location of token markings
+     */
     @Override
     public double getMarkingYOffset() {
         return markingYOffset;
     }
 
+    /**
+     *
+     * @param markingYOffset new y location for token markings
+     */
     @Override
     public void setMarkingYOffset(double markingYOffset) {
         this.markingYOffset = markingYOffset;
     }
 
+    /**
+     *
+     * @return the token capacity, which is the maximum number of tokens that can be stored in this place
+     */
     @Override
     public int getCapacity() {
         return capacity;
     }
 
+    /**
+     *
+     * @param capacity maximum number of tokens that can be stored in this place or 0 for no capacity restriction.
+     */
     @Override
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
 
+    /**
+     *
+     * @return token id's -> count  i.e. the number of each type of token in this place
+     */
     @Override
     public Map<String, Integer> getTokenCounts() {
         return tokenCounts;
     }
 
+    /**
+     *
+     * Sets the places token counts to those specified. Cannot exceed the capacity
+     *
+     * This overrides any previous token counts.
+     * @param tokenCounts
+     */
     @Override
     public void setTokenCounts(Map<String, Integer> tokenCounts) {
         if (hasCapacityRestriction()) {
@@ -119,6 +173,10 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
+    /**
+     *
+     * @return true if the token has a capacity restriction
+     */
     @Override
     public boolean hasCapacityRestriction() {
         return capacity > 0;
@@ -155,6 +213,11 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
+    /**
+     * Modifies the token count of the specified token
+     * @param token
+     * @param count
+     */
     @Override
     public void setTokenCount(String token, int count) {
         if (hasCapacityRestriction()) {
@@ -178,6 +241,11 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         return getNumberOfTokensStored(tokenCounts);
     }
 
+    /**
+     *
+     * @param token
+     * @return number of tokens stored in this place for the token specified
+     */
     @Override
     public int getTokenCount(String token) {
         if (tokenCounts.containsKey(token)) {
@@ -248,16 +316,28 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         return true;
     }
 
+    /**
+     *
+     * @return centre point of the place
+     */
     @Override
     public Point2D.Double getCentre() {
         return new Point2D.Double(getX() + getWidth() / 2, getY() + getHeight() / 2);
     }
 
+    /**
+     *
+     * @return height of the place
+     */
     @Override
     public int getHeight() {
         return DIAMETER;
     }
 
+    /**
+     *
+     * @return width of the place
+     */
     @Override
     public int getWidth() {
         return DIAMETER;
@@ -289,6 +369,10 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         return new Point2D.Double(attachX, attachY);
     }
 
+    /**
+     *
+     * @return true
+     */
     @Override
     public boolean isEndPoint() {
         return true;

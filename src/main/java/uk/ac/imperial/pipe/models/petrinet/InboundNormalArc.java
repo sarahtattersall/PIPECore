@@ -5,11 +5,22 @@ import uk.ac.imperial.state.State;
 
 import java.util.Map;
 
+/**
+ * Represents a normal arc from places to transitions.
+ * A normal arc requires the number of tokens in its source place to be the same or greater than
+ * its specified weight and on firing it should remove these from the place
+ */
 public class InboundNormalArc extends InboundArc {
     public InboundNormalArc(Place source, Transition target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
     }
 
+    /**
+     *
+     * @param petriNet
+     * @param state current state of the Petri net
+     * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
+     */
     @Override
     public final boolean canFire(PetriNet petriNet, State state) {
         Place place = getSource();

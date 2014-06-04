@@ -12,6 +12,12 @@ import java.util.Map;
  * this arc will produce
  */
 public class OutboundNormalArc extends OutboundArc {
+    /**
+     * Constructor
+     * @param source
+     * @param target
+     * @param tokenWeights
+     */
     public OutboundNormalArc(Transition source, Place target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
     }
@@ -58,6 +64,12 @@ public class OutboundNormalArc extends OutboundArc {
         return count;
     }
 
+    /**
+     *
+     * @param petriNet
+     * @param arc
+     * @return the sum of total number of tokens that the specified arc needs for its weight
+     */
     private int getTokenCounts(PetriNet petriNet, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
         int count = 0;
         for (Map.Entry<String, String> entry : arc.tokenWeights.entrySet()) {
@@ -71,6 +83,11 @@ public class OutboundNormalArc extends OutboundArc {
         return count;
     }
 
+    /**
+     *
+     * @param state
+     * @return the number of tokens in this arcs target place for the given state
+     */
     private int getTokensInPlace(State state) {
         Place place = getTarget();
         int count = 0;

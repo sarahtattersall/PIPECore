@@ -1,7 +1,26 @@
 package uk.ac.imperial.pipe.models.petrinet.name;
 
+/**
+ * Represents a normal Petri net name that is just a String
+ */
 public final class NormalPetriNetName implements PetriNetName {
+    /**
+     * Petri net name
+     */
     private String name;
+
+    /**
+     * Constructor
+     * @param name Petri net name
+     */
+    public NormalPetriNetName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -21,20 +40,19 @@ public final class NormalPetriNetName implements PetriNetName {
         return true;
     }
 
-    @Override
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    public NormalPetriNetName(String name) {
-        this.name = name;
-    }
-
+    /**
+     *
+     * @return Petri net name
+     */
     @Override
     public String getName() {
         return name;
     }
 
+    /**
+     * Visitor method
+     * @param visitor
+     */
     @Override
     public void visit(NameVisitor visitor) {
         if (visitor instanceof FileNameVisitor) {

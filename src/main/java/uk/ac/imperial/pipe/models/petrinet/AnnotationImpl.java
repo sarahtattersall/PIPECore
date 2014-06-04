@@ -109,6 +109,15 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         this(annotation.x, annotation.y, annotation.text, annotation.width, annotation.height, annotation.border);
     }
 
+    /**
+     * Constructor
+     * @param x
+     * @param y
+     * @param text
+     * @param width
+     * @param height
+     * @param border
+     */
     public AnnotationImpl(int x, int y, String text, int width, int height, boolean border) {
         this.border = border;
         this.x = x;
@@ -118,26 +127,46 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         this.height = height;
     }
 
+    /**
+     * Setting border to true implies the annotation should be displayed with a boreder
+     * @param border
+     */
     public final void setBorder(boolean border) {
         this.border = border;
     }
 
+    /**
+     *
+     * @return true if the annotation has a border
+     */
     @Override
     public final boolean hasBorder() {
         return border;
     }
 
+    /**
+     *
+     * @return x location of the top left corner of the annotation
+     */
     @Override
     public int getX() {
         return x;
     }
 
+    /**
+     *
+     * @param x new x location of annotation
+     */
     public void setX(int x) {
         int old = this.x;
         this.x = x;
         changeSupport.firePropertyChange(X_CHANGE_MESSAGE, old, x);
     }
 
+    /**
+     *
+     * @return y coordinate of top left corner
+     */
     @Override
     public int getY() {
         return y;
@@ -149,29 +178,53 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, old, y);
     }
 
+    /**
+     *
+     * @return annotation height
+     */
     @Override
     public int getHeight() {
         return height;
     }
 
+    /**
+     *
+     * @return annotation width
+     */
     @Override
     public int getWidth() {
         return width;
     }
 
+    /**
+     *
+     * @param width new annotation width
+     */
     public void setWidth(int width) {
         this.width = width;
     }
 
+    /**
+     *
+     * @param height new annotation height
+     */
     public void setHeight(int height) {
         this.height = height;
     }
 
+    /**
+     *
+     * @return text on annotation
+     */
     @Override
     public String getText() {
         return text;
     }
 
+    /**
+     *
+     * @param text new text for annotation
+     */
     @Override
     public void setText(String text) {
         String old = this.text;
@@ -180,16 +233,29 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, text);
     }
 
+    /**
+     *
+     * @return true because we can always select annotations
+     */
     @Override
     public boolean isSelectable() {
         return true;
     }
 
+    /**
+     *
+     * @return true because we can always drag annotations
+     */
     @Override
     public boolean isDraggable() {
         return true;
     }
 
+
+    /**
+     * Accept visitor if its an annotation visitor
+     * @param visitor
+     */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
         if (visitor instanceof AnnotationVisitor) {

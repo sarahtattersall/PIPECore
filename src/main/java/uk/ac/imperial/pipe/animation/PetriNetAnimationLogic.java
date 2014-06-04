@@ -23,8 +23,17 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     private final PetriNet petriNet;
 
+    /**
+     * Cache for storing a states enabled transitions
+     * Needs to be concurrent thus to handle multiple calls to methods using this data structure
+     * from different threads running in analysis modules
+     */
     public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
 
+    /**
+     * Constructor
+     * @param petriNet Petri net to perform animation logic on
+     */
     public PetriNetAnimationLogic(PetriNet petriNet) {
         this.petriNet = petriNet;
     }
