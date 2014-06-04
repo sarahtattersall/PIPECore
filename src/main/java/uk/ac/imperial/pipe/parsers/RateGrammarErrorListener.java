@@ -13,6 +13,9 @@ import java.util.List;
  * Listens for errors in a functional expressions syntax
  */
 public final class RateGrammarErrorListener extends BaseErrorListener {
+    /**
+     * Errors in the functional expression
+     */
     private List<String> errors = new LinkedList<>();
 
     /**

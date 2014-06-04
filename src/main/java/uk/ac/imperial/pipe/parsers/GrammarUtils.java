@@ -8,6 +8,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
  */
 public final class GrammarUtils {
 
+    /**
+     * Private utility constructor
+     */
     private GrammarUtils() {}
 
     /**

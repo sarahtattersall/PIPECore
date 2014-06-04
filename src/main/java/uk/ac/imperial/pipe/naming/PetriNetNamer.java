@@ -7,6 +7,9 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
  */
 public final class PetriNetNamer extends AbstractUniqueNamer {
 
+    /**
+     * Constructor, sets the name of the Petri net to be "Petri net <number>"
+     */
     public PetriNetNamer() {
         super("Petri Net ");
     }

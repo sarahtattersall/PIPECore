@@ -29,6 +29,12 @@ public class ComponentNamer extends AbstractUniqueNamer {
         observeChanges(petriNet, newChangeMessage, deleteChangeMessage);
     }
 
+    /**
+     * Sets up to listen to changes in the Petri net correpsonding to the given name change messages
+     * @param petriNet petri net to listen to
+     * @param newChangeMessage message to listen for a new name
+     * @param deleteChangeMessage message to lsten for for a delete
+     */
     private void observeChanges(PetriNet petriNet, final String newChangeMessage, final String deleteChangeMessage) {
         PropertyChangeListener listener = new PropertyChangeListener() {
             @Override

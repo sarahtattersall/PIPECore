@@ -8,7 +8,15 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
  * Class used to clone all concrete implementations of {@link uk.ac.imperial.pipe.models.petrinet.Transition}
  */
 public final class TransitionCloner implements DiscreteTransitionVisitor {
+    /**
+     * Cloned transition, null before visit is called
+     */
     public Transition cloned;
+
+    /**
+     * Clones a discrete transition
+     * @param transition
+     */
     @Override
     public void visit(DiscreteTransition transition) {
         cloned = new DiscreteTransition(transition);

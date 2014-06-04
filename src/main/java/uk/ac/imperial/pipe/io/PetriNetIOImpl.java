@@ -24,10 +24,19 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Petri net IO implementation that writes and reads a Petri net using JAXB
+ */
 public final class PetriNetIOImpl implements PetriNetIO {
 
+    /**
+     * Class logger
+     */
     private static final Logger LOGGER = Logger.getLogger(PetriNetIOImpl.class.getName());
 
+    /**
+     * JAXB context initialised in constructor
+     */
     private final JAXBContext context;
 
     public PetriNetIOImpl() throws JAXBException {
@@ -52,6 +61,11 @@ public final class PetriNetIOImpl implements PetriNetIO {
         }
     }
 
+    /**
+     * Writes the Petri net to the given stream
+     * @param stream
+     * @param petriNet
+     */
     @Override
     public void writeTo(Writer stream, PetriNet petriNet) {
         try {
@@ -65,6 +79,12 @@ public final class PetriNetIOImpl implements PetriNetIO {
         }
     }
 
+    /**
+     * Reads a Petri net from the given path
+     * @param path xml path conaining a PNML representation of a Petri net
+     * @return read Petri net
+     * @throws UnparsableException
+     */
     @Override
     public PetriNet read(String path) throws UnparsableException {
 

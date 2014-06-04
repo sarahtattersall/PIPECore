@@ -13,12 +13,24 @@ import java.util.logging.Logger;
  */
 public final class PasteVisitor implements TransitionVisitor, ArcVisitor, DiscretePlaceVisitor {
 
+    /**
+     * Class logger
+     */
     private static final Logger LOGGER = Logger.getLogger(PasteVisitor.class.getName());
 
+    /**
+     * Used to name pasted components
+     */
     private final MultipleNamer multipleNamer;
 
+    /**
+     * Petri net to paste components into
+     */
     private final PetriNet petriNet;
 
+    /**
+     * Components to paste
+     */
     private final Collection<PetriNetComponent> components = new HashSet<>();
 
     /**
@@ -26,19 +38,40 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
      */
     private final Map<String, Place> createdPlaces = new HashMap<>();
 
+    /**
+     * Maps original id to copied transition
+     */
     private final Map<String, Transition> createdTransitions = new HashMap<>();
 
+    /**
+     * New components created
+     */
     private final Collection<PetriNetComponent> createdComponents = new LinkedList<>();
 
+    /**
+     * x offset to paste components at
+     */
     private final int xOffset;
 
+
+    /**
+     * y offset to paste components at
+     */
     private final int yOffset;
 
+    /**
+     * Constructor
+     * @param petriNet
+     * @param components
+     * @param multipleNamer
+     */
     public PasteVisitor(PetriNet petriNet, Collection<PetriNetComponent> components, MultipleNamer multipleNamer) {
         this(petriNet, components, multipleNamer, 0, 0);
     }
 
     /**
+     * Constructor
+     *
      * @param petriNet
      * @param components    components to paste
      * @param multipleNamer
@@ -54,10 +87,18 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
         this.yOffset = yOffset;
     }
 
+    /**
+     *
+     * @return newly created components
+     */
     public Collection<PetriNetComponent> getCreatedComponents() {
         return createdComponents;
     }
 
+    /**
+     * Visits a place cloning it
+     * @param place
+     */
     @Override
     public void visit(DiscretePlace place) {
         Place newPlace = new DiscretePlace(place);
@@ -69,19 +110,35 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
         createdComponents.add(newPlace);
     }
 
+    /**
+     * Give the place a unique id
+     * @param place
+     */
     private void setId(Place place) {
         place.setId(multipleNamer.getPlaceName());
     }
 
+    /**
+     * Gives the place a name
+     * @param place
+     */
     private void setName(Place place) {
         place.setName(multipleNamer.getPlaceName());
     }
 
+    /**
+     * Sets the offset of the connectable to its x, y + the offset
+     * @param connectable
+     */
     private void setOffset(Connectable connectable) {
         connectable.setX(connectable.getX() + xOffset);
         connectable.setY(connectable.getY() + yOffset);
     }
 
+    /**
+     * Visits a transition cloneing it and adding it to the Petri net
+     * @param transition
+     */
     @Override
     public void visit(Transition transition) {
         TransitionCloner cloner = new TransitionCloner();
@@ -99,14 +156,27 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
         createdComponents.add(newTransition);
     }
 
+    /**
+     * Gives the transition a unique id
+     * @param transition
+     */
     private void setId(Transition transition) {
         transition.setId(multipleNamer.getTransitionName());
     }
 
+    /**
+     * Gives the transition a new name
+     * @param transition
+     */
     private void setName(Transition transition) {
         transition.setName(multipleNamer.getTransitionName());
     }
 
+    /**
+     * Visits the arc cloning it and sets its source/target either to a new cloned component if it
+     * was in the original pasting components, or the old original component if not
+     * @param inboundArc
+     */
     @Override
     public void visit(InboundArc inboundArc) {
         Place source = inboundArc.getSource();
@@ -149,6 +219,11 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
         }
     }
 
+    /**
+     * Visits the arc cloning it and sets its source/target either to a new cloned component if it
+     * was in the original pasting components, or the old original component if not
+     * @param outboundArc
+     */
     @Override
     public void visit(OutboundArc outboundArc) {
         Transition source = outboundArc.getSource();

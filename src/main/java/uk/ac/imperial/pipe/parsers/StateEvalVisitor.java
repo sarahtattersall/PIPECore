@@ -14,13 +14,26 @@ import java.util.Map;
  * It is particularly useful for any concurrent analysis.
  */
 public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
+    /**
+     * Petri net
+     */
     private final PetriNet petriNet;
+
+    /**
+     * A state of the given Petri net
+     */
     private final State state;
 
+    /**
+     * Constructor
+     * @param petriNet
+     * @param state
+     */
     public StateEvalVisitor(PetriNet petriNet, State state) {
         this.petriNet = petriNet;
         this.state = state;
     }
+
 
     @Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {

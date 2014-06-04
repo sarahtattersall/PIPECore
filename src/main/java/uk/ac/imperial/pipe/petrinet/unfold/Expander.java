@@ -49,7 +49,10 @@ public final class Expander {
      */
     private final Map<String, Arc<? extends Connectable, ? extends Connectable>> newArcs = new HashMap<>();
 
-
+    /**
+     * Constructor
+     * @param petriNet Petri net to unfold
+     */
     public Expander(PetriNet petriNet) {
         this.petriNet = petriNet;
         unfoldToken = getCopiedToken();
@@ -142,6 +145,10 @@ public final class Expander {
 
     }
 
+    /**
+     *
+     * @return new unfolded Petri net
+     */
     private PetriNet createPetriNet() {
         PetriNet petriNet = new PetriNet();
         petriNet.addToken(unfoldToken);
@@ -223,6 +230,15 @@ public final class Expander {
         return new Data(placeTokenCount, arcWeight, newNameBuilder.toString());
     }
 
+    /**
+     *
+     * @param original
+     * @param newX
+     * @param newY
+     * @param tokenCount
+     * @param id
+     * @return cloned place
+     */
     private Place getNewPlace(Place original, int newX, int newY, int tokenCount, String id) {
         if (newPlaces.containsKey(id)) {
             return newPlaces.get(id);
@@ -252,6 +268,13 @@ public final class Expander {
 
     }
 
+    /**
+     * creates a new cloned outbound arc
+     * @param source
+     * @param target
+     * @param arcWeight
+     * @param type
+     */
     private void createArc(Transition source, Place target, int arcWeight, ArcType type) {
         Arc<Transition, Place> newArc = new OutboundNormalArc(source, target, getNewArcWeight(arcWeight));
         newArcs.put(newArc.getId(), newArc);
@@ -306,6 +329,12 @@ public final class Expander {
          */
         public final String name;
 
+        /**
+         * Constructor
+         * @param placeTokenCount
+         * @param arcWeight
+         * @param name
+         */
         public Data(int placeTokenCount, int arcWeight, String name) {
             this.placeTokenCount = placeTokenCount;
             this.arcWeight = arcWeight;

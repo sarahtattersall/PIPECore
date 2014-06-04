@@ -12,10 +12,19 @@ import java.util.HashSet;
  */
 public abstract class AbstractUniqueNamer implements UniqueNamer {
 
+    /**
+     * Prefix for this namer
+     */
     private final String namePrefix;
 
+    /**
+     * Names that exist already
+     */
     protected final Collection<String> names = new HashSet<>();
 
+    /**
+     * Listens for name changes and will alter those that are in names
+     */
     protected final PropertyChangeListener nameListener =  new NameChangeListener(names);
 
     /**
@@ -27,7 +36,10 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
     }
 
 
-
+    /**
+     *
+     * @return guaranteed unique name starting with the prefix and having a unique number
+     */
     @Override
     public final String getName() {
         int nameNumber = 0;
@@ -39,6 +51,11 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
         return name;
     }
 
+    /**
+     *
+     * @param name
+     * @return true if this name has not already been used
+     */
     @Override
     public final boolean isUniqueName(String name) {
         return !names.contains(name);

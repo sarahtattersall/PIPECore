@@ -1,5 +1,9 @@
 package uk.ac.imperial.pipe.parsers;
 
+/**
+ * Parses the functional weights procuding the result of type T
+ * @param <T> format of the number result e.g. Double, Integer
+ */
 public interface FunctionalWeightParser<T extends Number> {
     /**
      *

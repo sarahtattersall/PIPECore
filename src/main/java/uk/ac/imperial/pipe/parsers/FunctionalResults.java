@@ -26,10 +26,21 @@ public final class FunctionalResults<T extends Number> {
      */
     private T result;
 
+    /**
+     * Constructor for results which contain no errors
+     * @param result
+     * @param components
+     */
     public FunctionalResults(T result, Set<String> components) {
         this(result, new LinkedList<String>(), components);
     }
 
+    /**
+     * Constructor for results which contain errors
+     * @param result
+     * @param errors
+     * @param components
+     */
     public FunctionalResults(T result, List<String> errors, Set<String> components) {
         this.result = result;
         this.errors = errors;
