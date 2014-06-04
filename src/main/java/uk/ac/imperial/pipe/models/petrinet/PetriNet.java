@@ -830,7 +830,7 @@ public class PetriNet {
     }
 
     /**
-     * Parse the functional expression via the underlyign Petri net state
+     * Parse the functional expression via the under lying Petri net state
      *
      * @param expr functional expression which conforms to the rate grammar
      * @return parsed expression

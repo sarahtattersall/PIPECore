@@ -101,9 +101,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     @Override
     public State getFiredState(State state, Transition transition) {
         HashedStateBuilder builder = new HashedStateBuilder();
-        for (Place place : petriNet.getPlaces()) {
+        for (String placeId : state.getPlaces()) {
             //Copy tokens
-            builder.placeWithTokens(place.getId(), state.getTokens(place.getId()));
+            builder.placeWithTokens(placeId, state.getTokens(placeId));
         }
 
         Set<Transition> enabled = getEnabledTransitions(state);

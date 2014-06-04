@@ -1,6 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
+import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
+import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.state.State;
 
 import java.util.Map;
@@ -36,8 +39,8 @@ public class OutboundNormalArc extends OutboundArc {
             return true;
         }
 
-        int totalTokensIn = getTokenCounts(petriNet, this);
-        int totalTokensOut = getNumberOfTokensLeavingPlace(petriNet);
+        int totalTokensIn = getTokenCounts(petriNet, state, this);
+        int totalTokensOut = getNumberOfTokensLeavingPlace(state, petriNet);
         int tokensInPlace = getTokensInPlace(state);
 
         return (tokensInPlace + totalTokensIn - totalTokensOut <= place.getCapacity());
@@ -53,12 +56,12 @@ public class OutboundNormalArc extends OutboundArc {
      *         via this transition.
      *
      */
-    private int getNumberOfTokensLeavingPlace(PetriNet petriNet) {
+    private int getNumberOfTokensLeavingPlace(State state, PetriNet petriNet) {
         Place place = getTarget();
         int count = 0;
         for (InboundArc arc : petriNet.outboundArcs(place)) {
             if (arc.getSource().equals(getTarget())  && arc.getTarget().equals(getSource())) {
-                count += getTokenCounts(petriNet, arc);
+                count += getTokenCounts(petriNet, state, arc);
             }
         }
         return count;
@@ -67,13 +70,16 @@ public class OutboundNormalArc extends OutboundArc {
     /**
      *
      * @param petriNet
-     * @param arc
-     * @return the sum of total number of tokens that the specified arc needs for its weight
+     * @param state
+     *@param arc  @return the sum of total number of tokens that the specified arc needs for its weight
      */
-    private int getTokenCounts(PetriNet petriNet, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
+    private int getTokenCounts(PetriNet petriNet, State state, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
+        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
+        FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
+
         int count = 0;
         for (Map.Entry<String, String> entry : arc.tokenWeights.entrySet()) {
-            FunctionalResults<Double> result =  petriNet.parseExpression(entry.getValue());
+            FunctionalResults<Double> result =  functionalWeightParser.evaluateExpression(entry.getValue());
             if (result.hasErrors()) {
                 throw new RuntimeException("Cannot parse outbound arc weight");
             }

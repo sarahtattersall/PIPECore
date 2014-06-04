@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.*;
 import uk.ac.imperial.state.State;
 
 import java.util.Map;
@@ -30,12 +30,14 @@ public class InboundNormalArc extends InboundArc {
     @Override
     public final boolean canFire(PetriNet petriNet, State state) {
         Place place = getSource();
-
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
-
         Map<String, String> tokenWeights = getTokenWeights();
+        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
+        FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
+
+
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-            FunctionalResults<Double> results = petriNet.parseExpression(entry.getValue());
+            FunctionalResults<Double> results = functionalWeightParser.evaluateExpression(entry.getValue());
             if (results.hasErrors()) {
                 //TODO:
                 throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
