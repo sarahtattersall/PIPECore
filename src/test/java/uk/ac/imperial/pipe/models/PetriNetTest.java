@@ -507,6 +507,23 @@ public class PetriNetTest {
         assertTrue(petriNet.inboundArcs(t0).isEmpty());
     }
 
+
+    @Test
+    public void removesTransitionInboundWhenDeleted() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("P1").andTarget("T1")).andFinally(
+                        ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        petriNet.removeTransition(t0);
+
+        Collection<InboundArc> inboundArcs = petriNet.inboundArcs(t0);
+        assertTrue(inboundArcs.isEmpty());
+    }
+
+
     @Test
     public void correctInboundArcs() throws PetriNetComponentNotFoundException {
         PetriNet petriNet =
@@ -546,6 +563,19 @@ public class PetriNetTest {
         Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
         assertEquals(1, outboundArcs.size());
         assertTrue(outboundArcs.contains(arc));
+    }
+
+    @Test
+    public void removesAllOutBoundWhenTransitionDeleted() throws PetriNetComponentNotFoundException {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
+        Transition t0 = petriNet.getComponent("T0", Transition.class);
+        petriNet.removeTransition(t0);
+        Collection<OutboundArc> outboundArcs = petriNet.outboundArcs(t0);
+        assertTrue(outboundArcs.isEmpty());
     }
 
     @Test
@@ -624,5 +654,6 @@ public class PetriNetTest {
         }
         fail("Did not throw Petri net exception!");
     }
+
 
 }

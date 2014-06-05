@@ -462,6 +462,8 @@ public class PetriNet {
         for (OutboundArc arc : outboundArcs(transition)) {
             removeArc(arc);
         }
+        transitionOutboundArcs.removeAll(transition.getId());
+        transitionInboundArcs.removeAll(transition.getId());
         changeSupport.firePropertyChange(DELETE_TRANSITION_CHANGE_MESSAGE, transition, null);
     }
 
