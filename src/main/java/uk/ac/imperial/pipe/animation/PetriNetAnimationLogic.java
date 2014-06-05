@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
+import org.cliffc.high_scale_lib.NonBlockingHashMap;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
@@ -11,7 +12,6 @@ import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class has useful functions relevant for the animation
@@ -28,7 +28,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * Needs to be concurrent thus to handle multiple calls to methods using this data structure
      * from different threads running in analysis modules
      */
-    public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
+    public Map<State, Set<Transition>> cachedEnabledTransitions = new NonBlockingHashMap<>();
 
     /**
      * Constructor
