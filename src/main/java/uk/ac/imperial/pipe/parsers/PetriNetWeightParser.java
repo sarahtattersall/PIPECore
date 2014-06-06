@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.parsers;
 
+import com.google.common.primitives.Doubles;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -74,6 +75,11 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
      */
     @Override
     public FunctionalResults<Double> evaluateExpression(String expression) {
+        Double maybeDouble = Doubles.tryParse(expression);
+        if (maybeDouble != null) {
+            return new FunctionalResults<>(maybeDouble, new HashSet<String>());
+        }
+
 
         RateGrammarErrorListener errorListener = new RateGrammarErrorListener();
         ParseTree parseTree = GrammarUtils.parse(expression, errorListener);
