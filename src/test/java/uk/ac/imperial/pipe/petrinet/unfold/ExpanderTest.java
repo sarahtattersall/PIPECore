@@ -96,14 +96,14 @@ public class ExpanderTest {
     @Test
     public void singleTokenPetriNetIsExpandedToItself() {
         petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                ATransition.withId("T0")).andFinally(
+                AnImmediateTransition.withId("T0")).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").with("2", "Default").tokens());
 
         expander = new Expander(petriNet);
 
         PetriNet expected =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0_Default")).and(
-                        ATransition.withId("T0")).andFinally(
+                        AnImmediateTransition.withId("T0")).andFinally(
                         ANormalArc.withSource("P0_Default").andTarget("T0").with("2", "Default").tokens());
 
         PetriNet unfolded = expander.unfold();
@@ -139,7 +139,7 @@ public class ExpanderTest {
         expander = new Expander(petriNet);
 
         PetriNet expected = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P0_Default_Red").and(1, "Default").token()).and(ATransition.withId("T0")).andFinally(
+                APlace.withId("P0_Default_Red").and(1, "Default").token()).and(AnImmediateTransition.withId("T0")).andFinally(
                 ANormalArc.withSource("P0_Default_Red").andTarget("T0").with("1", "Default").token().and("2", "Red").tokens());
 
         PetriNet unfolded = expander.unfold();

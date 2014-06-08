@@ -39,7 +39,7 @@ public class PetriNetAnimatorTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Red").withColor(Color.RED)).and(
                 AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").containing(5, "Default").tokens()).and(APlace.withId("P1")).and(
-                ATransition.withId("T1")).and(
+                AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P0").andTarget("T1").with("#(P0)", "Default").tokens()).andFinally(
                 ANormalArc.withSource("T1").andTarget("P1").with("#(P0)*2", "Red").tokens());
 
@@ -75,7 +75,7 @@ public class PetriNetAnimatorTest {
     public void firingTransitionEnablesNextTransition() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                ATransition.withId("T1")).and(ATransition.withId("T2")).and(
+                AnImmediateTransition.withId("T1")).and(AnImmediateTransition.withId("T2")).and(
                 ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).and(
                 ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P2").andTarget("T2").with("1", "Default").token());
@@ -93,7 +93,7 @@ public class PetriNetAnimatorTest {
     @Test
     public void firingTransitionBackwardMovesTokensBack() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P1").containing(0, "Default").token()).and(ATransition.withId("T1")).andFinally(
+                APlace.withId("P1").containing(0, "Default").token()).and(AnImmediateTransition.withId("T1")).andFinally(
                 ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token());
 
 
@@ -111,7 +111,7 @@ public class PetriNetAnimatorTest {
 
     private PetriNet createSelfLoopPetriNet(String tokenWeight) {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                ATransition.withId("T1")).and(
+                AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens()).andFinally(
                 ANormalArc.withSource("P0").andTarget("T1").with(tokenWeight, "Default").tokens());
     }
@@ -157,7 +157,7 @@ public class PetriNetAnimatorTest {
      */
     public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
-                APlace.withId("P2")).and(ATransition.withId("T1")).and(
+                APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
                 AnInhibitorArc.withSource("P1").andTarget("T1")).andFinally(
                 ANormalArc.withSource("T1").andTarget("P2").with(Integer.toString(tokenWeight), "Default").tokens());
     }
@@ -181,7 +181,7 @@ public class PetriNetAnimatorTest {
     public void firingTransitionBackwardEnablesTransition() throws PetriNetComponentNotFoundException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
-                        APlace.withId("P2").containing(1, "Default").token()).and(ATransition.withId("T1")).andFinally(
+                        APlace.withId("P2").containing(1, "Default").token()).and(AnImmediateTransition.withId("T1")).andFinally(
                         ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token());
 
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -216,7 +216,7 @@ public class PetriNetAnimatorTest {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                ATransition.withId("T1")).and(
+                AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
                 ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
     }

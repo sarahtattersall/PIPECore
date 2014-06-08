@@ -26,7 +26,7 @@ public class APetriNetTest {
     public void createsPetriNetWithMultipleItems() {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.RED))
                                      .and(APlace.withId("P0"))
-                                     .and(ATransition.withId("T0"))
+                                     .and(AnImmediateTransition.withId("T0"))
                                      .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("5", "Default").tokens());
 
         PetriNet expected = new PetriNet();
@@ -55,7 +55,7 @@ public class APetriNetTest {
                 .and(ARateParameter.withId("Foo").andExpression("10"))
                 .and(APlace.withId("P0").andCapacity(10).containing(5, "Blue").tokens().and(2, "Red").tokens())
                 .and(APlace.withId("P1"))
-                .and(ATransition.withId("T0").whichIsTimed().withRateParameter("Foo"))
+                .and(ATimedTransition.withId("T0").withRateParameter("Foo"))
                 .and(AnInhibitorArc.withSource("P1").andTarget("T0"))
                 .andFinally(
                         ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("1", "Blue").token());

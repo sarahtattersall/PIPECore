@@ -87,7 +87,7 @@ public class PetriNetWriterTest extends XMLTestCase {
 
     public void testMarshalsArc() throws IOException, SAXException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P0").locatedAt(0, 0)).and(ATransition.withId("T0").locatedAt(0, 0)).andFinally(
+                APlace.withId("P0").locatedAt(0, 0)).and(AnImmediateTransition.withId("T0").locatedAt(0, 0)).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").and("4", "Default").tokens());
 
 

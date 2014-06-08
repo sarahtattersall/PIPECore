@@ -25,7 +25,7 @@ public class ClonePetriNetTest {
     public void setUp() {
         oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
-                ATransition.withId("T0").whichIsTimed()).and(ATransition.withId("T1").whichIsTimed())
+                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
                 .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
                 .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
                 .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())

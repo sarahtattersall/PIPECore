@@ -29,7 +29,7 @@ public class PetriNetAnimationLogicTest {
     public void infiniteServerSemantics() {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
-                ATransition.withId("T0").andIsAnInfinite()).and(
+                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 
@@ -53,7 +53,7 @@ public class PetriNetAnimationLogicTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P0").containing(1, "Default").token().and(1, "Red").token()).and(
-                APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
                 ANormalArc.withSource("P0").andTarget("T1").with("1", "Red").token()).and(
                 ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).andFinally(
@@ -74,7 +74,7 @@ public class PetriNetAnimationLogicTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P0").containing(1, "Default").token().and(1, "Red").token()).and(
-                APlace.withId("P1")).and(ATransition.withId("T0")).and(ATransition.withId("T1")).and(
+                APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token().and("0", "Red").tokens()).and(
                 ANormalArc.withSource("P0").andTarget("T1").with("0", "Default").tokens().and("1", "Red").token()).and(
                 ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token().and("0", "Red").tokens()
@@ -110,7 +110,7 @@ public class PetriNetAnimationLogicTest {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                ATransition.withId("T1")).and(
+                AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
                 ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
     }
@@ -120,7 +120,7 @@ public class PetriNetAnimationLogicTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P1").containing(1, "Red").token().and(1, "Default").token()).and(
-                APlace.withId("P2")).and(ATransition.withId("T1")).andFinally(
+                APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).andFinally(
                 ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token().and("0", "Red").tokens());
 
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -177,7 +177,7 @@ public class PetriNetAnimationLogicTest {
     public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) {
         String weight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
-                APlace.withId("P2")).and(ATransition.withId("T1")).and(
+                APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P1").andTarget("T1").with(weight, "Default").tokens()).andFinally(
                 ANormalArc.withSource("P2").andTarget("T1").with(weight, "Default").tokens());
     }
@@ -269,7 +269,7 @@ public class PetriNetAnimationLogicTest {
 
     private PetriNet createSelfLoopPetriNet(String tokenWeight) {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                ATransition.withId("T1")).and(
+                AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens()).andFinally(
                 ANormalArc.withSource("P0").andTarget("T1").with(tokenWeight, "Default").tokens());
     }
@@ -292,7 +292,7 @@ public class PetriNetAnimationLogicTest {
      */
     public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
-                APlace.withId("P2")).and(ATransition.withId("T1")).and(
+                APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
                 AnInhibitorArc.withSource("P1").andTarget("T1")).andFinally(
                 ANormalArc.withSource("T1").andTarget("P2").with(Integer.toString(tokenWeight), "Default").tokens());
     }
@@ -318,7 +318,7 @@ public class PetriNetAnimationLogicTest {
     @Test
     public void calculatesSelfLoop() {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P0").and(1, "Default").token()).and(ATransition.withId("T0")).and(
+                APlace.withId("P0").and(1, "Default").token()).and(AnImmediateTransition.withId("T0")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
 
@@ -340,7 +340,7 @@ public class PetriNetAnimationLogicTest {
     @Test
     public void infinityLogic() {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                ATransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
+                AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
 
 
         State state = AnimationUtils.getState(petriNet);

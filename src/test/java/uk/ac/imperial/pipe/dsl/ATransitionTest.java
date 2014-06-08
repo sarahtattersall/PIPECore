@@ -36,21 +36,21 @@ public class ATransitionTest {
 
     @Test
     public void createsTransitionWithId() {
-        Transition transition = ATransition.withId("T0").create(tokens, places, transitions, rateParameters);
+        Transition transition = AnImmediateTransition.withId("T0").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         assertEquals(expected, transition);
     }
 
     @Test
     public void addsTransitionToConnectables() {
-        Transition transition = ATransition.withId("T0").create(tokens, places, transitions, rateParameters);
+        Transition transition = AnImmediateTransition.withId("T0").create(tokens, places, transitions, rateParameters);
         assertThat(transitions).containsEntry("T0", transition);
     }
 
     @Test
     public void createsTransitionWithPriority() {
         Transition transition =
-                ATransition.withId("T0").andPriority(5).create(tokens, places, transitions, rateParameters);
+                AnImmediateTransition.withId("T0").andPriority(5).create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setPriority(5);
         assertEquals(expected, transition);
@@ -60,7 +60,7 @@ public class ATransitionTest {
     @Test
     public void createsTimedTransition() {
         Transition transition =
-                ATransition.withId("T0").whichIsTimed().create(tokens, places, transitions, rateParameters);
+                ATimedTransition.withId("T0").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setTimed(true);
         assertEquals(expected, transition);
@@ -70,7 +70,7 @@ public class ATransitionTest {
     @Test
     public void createsImmediateTransition() {
         Transition transition =
-                ATransition.withId("T0").whichIsImmediate().create(tokens, places, transitions, rateParameters);
+                AnImmediateTransition.withId("T0").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setTimed(false);
         assertEquals(expected, transition);
@@ -79,7 +79,7 @@ public class ATransitionTest {
     @Test
     public void createsInfiniteServerTransition() {
         Transition transition =
-                ATransition.withId("T0").andIsAnInfinite().server().create(tokens, places, transitions, rateParameters);
+                AnImmediateTransition.withId("T0").andIsAnInfinite().server().create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setInfiniteServer(true);
         assertEquals(expected, transition);
@@ -88,7 +88,7 @@ public class ATransitionTest {
     @Test
     public void createsSingleServerTransition() {
         Transition transition =
-                ATransition.withId("T0").andIsASingle().server().create(tokens, places, transitions, rateParameters);
+                AnImmediateTransition.withId("T0").andIsASingle().server().create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setInfiniteServer(false);
         assertEquals(expected, transition);
@@ -97,7 +97,7 @@ public class ATransitionTest {
     @Test
     public void createsNormalRateTransition() {
         Transition transition =
-                ATransition.withId("T0").andRate("5").create(tokens, places, transitions, rateParameters);
+                AnImmediateTransition.withId("T0").andProbability("5").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setRate(new NormalRate("5"));
         assertEquals(expected, transition);
@@ -107,8 +107,9 @@ public class ATransitionTest {
     public void createsTransitionWithARateParameter() {
         rateParameters.put("Foo", new FunctionalRateParameter("5", "Foo", "Foo"));
         Transition transition =
-                ATransition.withId("T0").withRateParameter("Foo").create(tokens, places, transitions, rateParameters);
+                ATimedTransition.withId("T0").withRateParameter("Foo").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
+        expected.setTimed(true);
         expected.setRate(rateParameters.get("Foo"));
         assertEquals(expected, transition);
     }
