@@ -222,12 +222,16 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     private boolean isEnabled(Transition transition, State state) {
         boolean enabledForArcs = true;
         for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-            enabledForArcs &= arc.canFire(petriNet, state);
+            if (!arc.canFire(petriNet, state)) {
+                return false;
+            }
         }
         for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-            enabledForArcs &= arc.canFire(petriNet, state);
+            if (!arc.canFire(petriNet, state)) {
+                return false;
+            }
         }
-        return enabledForArcs;
+        return true;
     }
 
 
