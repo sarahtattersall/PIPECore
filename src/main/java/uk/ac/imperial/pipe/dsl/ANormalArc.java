@@ -14,7 +14,7 @@ import java.util.Map;
  * Usage:
  * ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("2", "Blue").tokens()
  */
-public class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
+public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ? extends Connectable>> {
     /**
      * String source
      */
