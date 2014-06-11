@@ -73,6 +73,14 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     }
 
     /**
+     * Constructor that sets the default rate priority and the name of the transition to its id
+     * @param id
+     */
+    public DiscreteTransition(String id) {
+        super(id, id);
+    }
+
+    /**
      * Constructor with the specified rate and priority
      * @param id
      * @param name

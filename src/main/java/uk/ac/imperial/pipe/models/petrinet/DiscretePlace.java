@@ -47,6 +47,14 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     }
 
     /**
+     * Constructor that sets the Place's name to its id
+     * @param id
+     */
+    public DiscretePlace(String id) {
+        super(id, id);
+    }
+
+    /**
      * Copy constructor
      * @param place
      */
