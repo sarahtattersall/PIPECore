@@ -91,20 +91,15 @@ public final class PetriNetIOImpl implements PetriNetIO {
      */
     @Override
     public PetriNet read(String path) throws UnparsableException {
-
         try {
             Unmarshaller um = initialiseUnmarshaller();
             PetriNetHolder holder = (PetriNetHolder) um.unmarshal(new FileReader(path));
             PetriNet petriNet = holder.getNet(0);
-
-            if (petriNet.getTokens().size() == 0) {
+            if (petriNet.getTokens().isEmpty()) {
                 Token token = createDefaultToken();
                 petriNet.addToken(token);
             }
-
-
             return petriNet;
-
         } catch (JAXBException | FileNotFoundException e) {
             throw new UnparsableException("Could not read PetriNet file properly!", e);
         }
