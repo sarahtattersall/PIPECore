@@ -9,7 +9,7 @@ package uk.ac.imperial.pipe.dsl;
  * ATimedTransition.withID("T0').andASingle().server().andRate("#(P0, Red)")
  *
  */
-public class ATimedTransition extends AnAbstractTransition<ATimedTransition> {
+public final class ATimedTransition extends AnAbstractTransition<ATimedTransition> {
     /**
      * Private constructor
      * @param id transition id
