@@ -28,6 +28,7 @@ public final class PetriNetIOImpl implements PetriNetIO {
 
     /**
      * Constructor that sets the context to the {@link uk.ac.imperial.pipe.models.PetriNetHolder}
+     *
      * @throws JAXBException
      */
     public PetriNetIOImpl() throws JAXBException {
@@ -36,59 +37,53 @@ public final class PetriNetIOImpl implements PetriNetIO {
 
     /**
      * Writes the specified petri net to the given path
+     *
      * @param path
      * @param petriNet
      */
     @Override
     public void writeTo(String path, PetriNet petriNet) throws JAXBException {
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            PetriNetHolder holder = new PetriNetHolder();
-            holder.addNet(petriNet);
-            m.marshal(holder, new File(path));
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        PetriNetHolder holder = new PetriNetHolder();
+        holder.addNet(petriNet);
+        m.marshal(holder, new File(path));
     }
 
     /**
      * Writes the Petri net to the given stream
+     *
      * @param stream
      * @param petriNet
      */
     @Override
     public void writeTo(Writer stream, PetriNet petriNet) throws JAXBException {
-            Marshaller m = context.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-            PetriNetHolder holder = new PetriNetHolder();
-            holder.addNet(petriNet);
-            m.marshal(holder, stream);
+        Marshaller m = context.createMarshaller();
+        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        PetriNetHolder holder = new PetriNetHolder();
+        holder.addNet(petriNet);
+        m.marshal(holder, stream);
     }
 
     /**
      * Reads a Petri net from the given path
+     *
      * @param path xml path containing a PNML representation of a Petri net
      * @return read Petri net
      */
     @Override
     public PetriNet read(String path) throws JAXBException, FileNotFoundException {
-            Unmarshaller um = initialiseUnmarshaller();
-            PetriNetHolder holder = (PetriNetHolder) um.unmarshal(new FileReader(path));
-            PetriNet petriNet = holder.getNet(0);
-            if (petriNet.getTokens().isEmpty()) {
-                Token token = createDefaultToken();
-                petriNet.addToken(token);
-            }
-            return petriNet;
+        Unmarshaller um = initialiseUnmarshaller();
+        PetriNetHolder holder = (PetriNetHolder) um.unmarshal(new FileReader(path));
+        PetriNet petriNet = holder.getNet(0);
+        if (petriNet.getTokens().isEmpty()) {
+            Token token = createDefaultToken();
+            petriNet.addToken(token);
+        }
+        return petriNet;
     }
 
     /**
-     *
-     * @return a new default token
-     */
-    private Token createDefaultToken() {
-        return new ColoredToken("Default", new Color(0, 0, 0));
-    }
-
-    /**
-     *
      * @return initialised unmarshaller with the correct adapters needed
      * @throws JAXBException
      */
@@ -108,6 +103,13 @@ public final class PetriNetIOImpl implements PetriNetIO {
         um.setAdapter(new TokenAdapter(tokens));
         um.setAdapter(new TokenSetIntegerAdapter(tokens));
         return um;
+    }
+
+    /**
+     * @return a new default token
+     */
+    private Token createDefaultToken() {
+        return new ColoredToken("Default", new Color(0, 0, 0));
     }
 
 }
