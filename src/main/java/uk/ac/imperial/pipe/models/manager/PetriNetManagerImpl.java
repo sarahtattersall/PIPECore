@@ -17,6 +17,7 @@ import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Manages addition and deletion of Petri nets. It uses the publish-subscribe design
@@ -89,7 +90,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      * @throws UnparsableException
      */
     @Override
-    public void createFromFile(File file) throws JAXBException, UnparsableException {
+    public void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException {
         PetriNetReader petriNetIO = new PetriNetIOImpl();
         PetriNet petriNet = petriNetIO.read(file.getAbsolutePath());
         namePetriNetFromFile(petriNet, file);

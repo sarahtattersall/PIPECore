@@ -6,6 +6,7 @@ import uk.ac.imperial.pipe.parsers.UnparsableException;
 import javax.xml.bind.JAXBException;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * Responsible for creating and managing Petri nets
@@ -43,7 +44,7 @@ public interface PetriNetManager {
      * Creates Petri net by reading in and parsing the contents of the file
      * @param file location of Petri net xml file
      */
-    void createFromFile(File file) throws JAXBException, UnparsableException;
+    void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException;
 
     /**
      *

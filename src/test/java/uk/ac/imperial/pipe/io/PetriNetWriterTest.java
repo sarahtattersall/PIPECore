@@ -25,7 +25,7 @@ public class PetriNetWriterTest extends XMLTestCase {
         writer = new PetriNetIOImpl();
     }
 
-    public void testMarshalsPlace() throws IOException, SAXException {
+    public void testMarshalsPlace() throws IOException, SAXException, JAXBException {
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("Red", new Color(255, 0, 0));
         Place place = new DiscretePlace("P0", "P0");
@@ -40,7 +40,8 @@ public class PetriNetWriterTest extends XMLTestCase {
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlacePath()), petriNet);
     }
 
-    private void assertResultsEqual(String expectedPath, PetriNet petriNet) throws IOException, SAXException {
+    private void assertResultsEqual(String expectedPath, PetriNet petriNet)
+            throws IOException, SAXException, JAXBException {
         StringWriter stringWriter = new StringWriter();
         writer.writeTo(stringWriter, petriNet);
 
@@ -50,7 +51,7 @@ public class PetriNetWriterTest extends XMLTestCase {
         assertXMLEqual(expected, actual);
     }
 
-    public void testMarshalsTransition() throws IOException, SAXException {
+    public void testMarshalsTransition() throws IOException, SAXException, JAXBException {
         PetriNet petriNet = new PetriNet();
         Transition transition = new DiscreteTransition("T0", "T0");
         transition.setX(375);
@@ -65,7 +66,8 @@ public class PetriNetWriterTest extends XMLTestCase {
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionFile()), petriNet);
     }
 
-    public void testMarshalsTransitionWithRateParameter() throws IOException, SAXException, InvalidRateException {
+    public void testMarshalsTransitionWithRateParameter()
+            throws IOException, SAXException, InvalidRateException, JAXBException {
         PetriNet petriNet = new PetriNet();
         FunctionalRateParameter rateParameter = new FunctionalRateParameter("6.0", "foo", "foo");
 
@@ -85,7 +87,7 @@ public class PetriNetWriterTest extends XMLTestCase {
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionRateParameterFile()), petriNet);
     }
 
-    public void testMarshalsArc() throws IOException, SAXException {
+    public void testMarshalsArc() throws IOException, SAXException, JAXBException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").locatedAt(0, 0)).and(AnImmediateTransition.withId("T0").locatedAt(0, 0)).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").and("4", "Default").tokens());
@@ -95,14 +97,14 @@ public class PetriNetWriterTest extends XMLTestCase {
     }
 
 
-    public void testMarshalsToken() throws IOException, SAXException, PetriNetComponentException {
+    public void testMarshalsToken() throws IOException, SAXException, PetriNetComponentException, JAXBException {
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("red", new Color(255, 0, 0));
         petriNet.add(token);
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTokenFile()), petriNet);
     }
 
-    public void testMarshalsAnnotation() throws IOException, SAXException {
+    public void testMarshalsAnnotation() throws IOException, SAXException, JAXBException {
         PetriNet petriNet = new PetriNet();
         AnnotationImpl annotation = new AnnotationImpl(93, 145, "#P12s", 48, 20, false);
         petriNet.addAnnotation(annotation);
