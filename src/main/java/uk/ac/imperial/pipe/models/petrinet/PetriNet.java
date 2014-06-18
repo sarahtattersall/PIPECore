@@ -402,6 +402,7 @@ public class PetriNet {
         Collection<String> components = getComponents(expr);
         return components.contains(id);
     }
+
     /**
      *
      * @param expression
@@ -958,5 +959,26 @@ public class PetriNet {
                 }
             }
         }
+    }
+
+    /**
+     *
+     * @return a set of all component id's contained within this Petri net
+     */
+    public Set<String> getComponentIds() {
+        Set<String> results = new HashSet<>();
+        for(Map<String, ? extends PetriNetComponent> entry : componentMaps.values()) {
+            results.addAll(entry.keySet());
+        }
+        return results;
+    }
+
+    /**
+     *
+     * @param id
+     * @return true if a component with the given id exists in the Petri net
+     */
+    public boolean contains(String id) {
+        return getComponentIds().contains(id);
     }
 }

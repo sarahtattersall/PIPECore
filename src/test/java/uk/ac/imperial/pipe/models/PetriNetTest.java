@@ -19,9 +19,12 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetTest {
@@ -659,6 +662,48 @@ public class PetriNetTest {
             return;
         }
         fail("Did not throw Petri net exception!");
+    }
+
+    @Test
+    public void allComponents() {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                        AnImmediateTransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+        Set<String> components = petriNet.getComponentIds();
+        assertEquals(7, components.size());
+        assertThat(components).contains("Default", "P0", "P1", "T1", "T0", "T1 TO P1", "T0 TO P0");
+    }
+
+
+    @Test
+    public void containsComponents() {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                        AnImmediateTransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+        assertTrue(petriNet.contains("T0 TO P0"));
+        assertTrue(petriNet.contains("T0"));
+        assertTrue(petriNet.contains("T1"));
+        assertTrue(petriNet.contains("Default"));
+    }
+
+    @Test
+    public void doesNotContainComponents() {
+        PetriNet petriNet =
+                APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                        AnImmediateTransition.withId("T1")).and(
+                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+        assertFalse(petriNet.contains("P0 TO T0"));
+        assertFalse(petriNet.contains("T2"));
+        assertFalse(petriNet.contains("P3"));
+        assertFalse(petriNet.contains("Red"));
     }
 
 
