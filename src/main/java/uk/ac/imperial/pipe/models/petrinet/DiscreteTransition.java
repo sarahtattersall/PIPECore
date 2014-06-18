@@ -236,11 +236,16 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @return rotated point
      */
     private Point2D.Double rotateAroundCenter(double angle, Point2D.Double point) {
-        AffineTransform tx = new AffineTransform();
+        AffineTransform tx = AffineTransform.getRotateInstance(-angle, getCentre().getX(), getCentre().getY());
         Point2D center = getCentre();
-        tx.rotate(angle, center.getX(), center.getY());
         Point2D.Double rotatedPoint = new Point2D.Double();
         tx.transform(point, rotatedPoint);
+
+
+        AffineTransform tx2 = AffineTransform.getRotateInstance(-angle, 10, 10);
+        Point2D.Double rotatedPoint2 = new Point2D.Double();
+        tx2.transform(new Point2D.Double(10,0), rotatedPoint2);
+
         return rotatedPoint;
     }
 

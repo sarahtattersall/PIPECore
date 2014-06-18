@@ -80,7 +80,8 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE)) {
+                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
+
                     sourcePoint.setPoint(getStartPoint());
                     endPoint.setPoint(getEndPoint());
                 }
@@ -91,7 +92,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE)) {
+                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
                     sourcePoint.setPoint(getStartPoint());
                     endPoint.setPoint(getEndPoint());
                 }

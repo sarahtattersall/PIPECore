@@ -39,6 +39,26 @@ public class DiscreteTransitionTest {
         assertEquals(expected, point);
     }
 
+    @Test
+    public void calculatesCorrectArcConnectionForTransitionLeftRotated() {
+        Transition transition = new DiscreteTransition("id", "name");
+        transition.setAngle(90);
+
+        int sourceX = 0;
+        int sourceY = 0;
+        int targetX = 50;
+        int targetY = 0;
+        double angle = getAngleBetweenObjects(sourceX, sourceY, targetX, targetY);
+
+        transition.setX(targetX);
+        transition.setY(targetY);
+
+        Point2D.Double point = transition.getArcEdgePoint(angle);
+        Point2D.Double expected =
+                new Point2D.Double(targetX + transition.getWidth()/2 - transition.getHeight() / 2, targetY + transition.getHeight()/2);
+        assertEquals(expected, point);
+    }
+
     private double getAngleBetweenObjects(double x1, double y1, double x2, double y2) {
         double deltax = x2 - x1;
         double deltay = y2 - y1;
@@ -120,7 +140,7 @@ public class DiscreteTransitionTest {
         transition.setY(targetY);
 
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(5, 70);
+        Point2D.Double expected = new Point2D.Double(5, 60);
         assertEquals(expected, point);
     }
 
