@@ -30,6 +30,10 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      */
     public static final int DEGREES_45 = 45;
 
+    public static final int DEGREES_225 = 225;
+    public static final int DEGREES_315 = 315;
+
+
     /**
      * The priority of this transition, the transition(s) with the highest priority will be enabled
      * when multiple transitions have the possiblity of being enabled
@@ -168,16 +172,19 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
         Point2D.Double connectionPoint = new Point2D.Double(centreX, centreY);
 
-        double rotatedAngle = angle + Math.toRadians(this.angle);
+        double rotatedAngle = angle - Math.toRadians(this.angle);
+        if (rotatedAngle < 0) {
+            rotatedAngle = 2* Math.PI + rotatedAngle;
+        }
         if (connectToTop(rotatedAngle)) {
             connectionPoint.y -= halfHeight;
         } else if (connectToBottom(rotatedAngle)) {
             connectionPoint.y += halfHeight;
-        } else if (connectToLeft(rotatedAngle)) {
-            connectionPoint.x -= halfWidth;
-        } else {
-            //connectToRight
+        } else if (connectToRight(rotatedAngle)) {
             connectionPoint.x += halfWidth;
+        } else {
+            //connect to left
+            connectionPoint.x -= halfWidth;
         }
 
         return rotateAroundCenter(Math.toRadians(this.angle), connectionPoint);
@@ -202,12 +209,13 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     }
 
     /**
-     * @param angle in radians
+     *
+     * @param angle in radians between 0 and 2pi
      * @return true if an arc connecting to this should connect to the bottom edge
      * of the transition
      */
     private boolean connectToTop(double angle) {
-        return angle > Math.toRadians(DEGREES_45) && angle < Math.toRadians(DEGREES_135);
+        return angle >= Math.toRadians(DEGREES_45) && angle < Math.toRadians(DEGREES_135);
     }
 
     /**
@@ -216,7 +224,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * connect to the top edge of the transition
      */
     private boolean connectToBottom(double angle) {
-        return angle < Math.toRadians(-DEGREES_45) && angle > Math.toRadians(-DEGREES_135);
+        return angle < Math.toRadians(DEGREES_315) && angle >= Math.toRadians(DEGREES_225);
     }
 
     /**
@@ -224,8 +232,8 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @return true if an arc connecting to this should
      * connect to the left edge of the transition
      */
-    private boolean connectToLeft(double angle) {
-        return angle > Math.toRadians(-DEGREES_45) && angle < Math.toRadians(DEGREES_45);
+    private boolean connectToRight(double angle) {
+        return angle < Math.toRadians(DEGREES_225) && angle >= Math.toRadians(DEGREES_135);
     }
 
     /**
@@ -236,16 +244,10 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @return rotated point
      */
     private Point2D.Double rotateAroundCenter(double angle, Point2D.Double point) {
-        AffineTransform tx = AffineTransform.getRotateInstance(-angle, getCentre().getX(), getCentre().getY());
+        AffineTransform tx = AffineTransform.getRotateInstance(angle, getCentre().getX(), getCentre().getY());
         Point2D center = getCentre();
         Point2D.Double rotatedPoint = new Point2D.Double();
         tx.transform(point, rotatedPoint);
-
-
-        AffineTransform tx2 = AffineTransform.getRotateInstance(-angle, 10, 10);
-        Point2D.Double rotatedPoint2 = new Point2D.Double();
-        tx2.transform(new Point2D.Double(10,0), rotatedPoint2);
-
         return rotatedPoint;
     }
 

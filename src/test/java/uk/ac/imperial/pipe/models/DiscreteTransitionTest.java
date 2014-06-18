@@ -107,7 +107,7 @@ public class DiscreteTransitionTest {
     }
 
     @Test
-    public void calculatesCorrectArcConnectionPointForBottomRotated180() {
+    public void calculatesCorrectArcConnectionPointForTopRotated180() {
         Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(180);
 
@@ -115,13 +115,13 @@ public class DiscreteTransitionTest {
         int y1 = 100;
         int x2 = 100;
         int y2 = 200;
-        double angle = getAngleBetweenObjects(x1, y1, x2, y2);
+        double angle = getAngleBetweenObjects(x2, y2, x1, y1);
 
         transition.setX(x1);
         transition.setY(y1);
 
         Point2D.Double point = transition.getArcEdgePoint(angle);
-        Point2D.Double expected = new Point2D.Double(100, 115);
+        Point2D.Double expected = new Point2D.Double(105, 130);
         assertEquals(expected, point);
     }
 
@@ -143,6 +143,7 @@ public class DiscreteTransitionTest {
         Point2D.Double expected = new Point2D.Double(5, 60);
         assertEquals(expected, point);
     }
+
 
     @Test
     public void infiniteServerRateMultipliesByEnablingDegreeNonFunctionalArc()
