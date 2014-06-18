@@ -748,7 +748,9 @@ public class PetriNet {
      * @throws PetriNetComponentException
      */
     public void remove(PetriNetComponent component) throws PetriNetComponentException {
-        component.accept(deleteVisitor);
+        if (contains(component.getId())) {
+            component.accept(deleteVisitor);
+        }
     }
 
     /**

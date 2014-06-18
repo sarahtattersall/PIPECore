@@ -68,6 +68,16 @@ public class PetriNetTest {
 
     }
 
+
+    @Test
+    public void deletingNotContainedComponentDoesNotNotifyObservers() throws PetriNetComponentException {
+        Place place = new DiscretePlace("P0", "P0");
+        net.addPropertyChangeListener(mockListener);
+        net.remove(place);
+        verify(mockListener, never()).propertyChange(any(PropertyChangeEvent.class));
+
+    }
+
     @Test
     public void removingPlaceNotifiesObservers() throws PetriNetComponentException {
         net.addPropertyChangeListener(mockListener);
@@ -705,6 +715,8 @@ public class PetriNetTest {
         assertFalse(petriNet.contains("P3"));
         assertFalse(petriNet.contains("Red"));
     }
+
+
 
 
 }
