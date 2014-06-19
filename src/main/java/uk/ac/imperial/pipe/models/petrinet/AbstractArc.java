@@ -293,7 +293,16 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void addIntermediatePoint(ArcPoint point) {
         int penultimateIndex = arcPoints.size() - 1;
         arcPoints.add(penultimateIndex, point);
+        recalculateEndPoint();
         changeSupport.firePropertyChange(NEW_INTERMEDIATE_POINT_CHANGE_MESSAGE, null, point);
+    }
+
+    private void recalculateEndPoint() {
+        arcPoints.remove(arcPoints.size() -1);
+        Point2D lastPoint = arcPoints.get(arcPoints.size() - 1).getPoint();
+        double angle =  getAngleBetweenTwoPoints(lastPoint, target.getCentre());
+        final ArcPoint endPoint = new ArcPoint(target.getArcEdgePoint(angle), false, false);
+        arcPoints.add(endPoint);
     }
 
     /**
@@ -312,6 +321,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     @Override
     public void removeIntermediatePoint(ArcPoint point) {
         arcPoints.remove(point);
+        recalculateEndPoint();
         changeSupport.firePropertyChange(DELETE_INTERMEDIATE_POINT_CHANGE_MESSAGE, point, null);
     }
 
