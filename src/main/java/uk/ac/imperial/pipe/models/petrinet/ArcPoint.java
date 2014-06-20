@@ -85,8 +85,8 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
      */
     public void setPoint(Point2D point) {
         Point2D old = new Point2D.Double(this.x, this.y);
-        this.x = (int) point.getX();
-        this.y = (int) point.getY();
+        this.x = (int) Math.round(point.getX());
+        this.y = (int) Math.round(point.getY());
         changeSupport.firePropertyChange(UPDATE_LOCATION_CHANGE_MESSAGE, old, point);
     }
 

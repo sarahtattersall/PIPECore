@@ -20,6 +20,20 @@ public class AbstractArcTest {
 
     private Transition transition = new DiscreteTransition("P0");
 
+    @Test
+    public void startPoint() {
+        place.setX(0);
+        place.setY(0);
+        transition.setX(50);
+        transition.setY(0);
+        DummyArc dummyArc = new DummyArc(place, transition);
+        List<ArcPoint> arcpoints = dummyArc.getArcPoints();
+        ArcPoint endPoint = arcpoints.get(0);
+        Point2D expected = new Point2D.Double(Place.DIAMETER, Place.DIAMETER/2);
+        assertEquals(expected, endPoint.getPoint());
+    }
+
+
 
     @Test
     public void endPoint() {

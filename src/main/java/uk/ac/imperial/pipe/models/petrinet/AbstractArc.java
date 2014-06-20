@@ -54,6 +54,16 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     private final List<ArcPoint> arcPoints = new LinkedList<>();
 
     /**
+     * The point at which the arc coonnects to the source
+     */
+    private final ArcPoint sourcePoint;
+
+    /**
+     * The point at which the arc connects to the target
+     */
+    private final ArcPoint targetPoint;
+
+    /**
      * Abstract arc constructor sets arc to <source id> TO <target id>
      * @param source
      * @param target
@@ -70,10 +80,10 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         tagged = false;
 
 
-        final ArcPoint sourcePoint = new ArcPoint(getStartPoint(), false, false);
-        final ArcPoint endPoint = new ArcPoint(getEndPoint(), false, false);
+        sourcePoint = new ArcPoint(getStartPoint(), false, false);
+        targetPoint = new ArcPoint(getEndPoint(), false, false);
         arcPoints.add(sourcePoint);
-        arcPoints.add(endPoint);
+        arcPoints.add(targetPoint);
 
         source.addPropertyChangeListener(new PropertyChangeListener(){
 
@@ -83,7 +93,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
                 if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
 
                     sourcePoint.setPoint(getStartPoint());
-                    endPoint.setPoint(getEndPoint());
+                    targetPoint.setPoint(getEndPoint());
                 }
             }
         });
@@ -94,7 +104,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
                 String name = evt.getPropertyName();
                 if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
                     sourcePoint.setPoint(getStartPoint());
-                    endPoint.setPoint(getEndPoint());
+                    targetPoint.setPoint(getEndPoint());
                 }
             }
         });
@@ -293,16 +303,21 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void addIntermediatePoint(ArcPoint point) {
         int penultimateIndex = arcPoints.size() - 1;
         arcPoints.add(penultimateIndex, point);
+        recalculateStartPoint();
         recalculateEndPoint();
         changeSupport.firePropertyChange(NEW_INTERMEDIATE_POINT_CHANGE_MESSAGE, null, point);
     }
 
+    private void recalculateStartPoint() {
+        Point2D startCoords = getStartPoint();
+        sourcePoint.setPoint(startCoords);
+    }
+
     private void recalculateEndPoint() {
-        arcPoints.remove(arcPoints.size() -1);
-        Point2D lastPoint = arcPoints.get(arcPoints.size() - 1).getPoint();
+        Point2D lastPoint = arcPoints.get(arcPoints.size() - 2).getPoint();
         double angle =  getAngleBetweenTwoPoints(lastPoint, target.getCentre());
-        final ArcPoint endPoint = new ArcPoint(target.getArcEdgePoint(angle), false, false);
-        arcPoints.add(endPoint);
+        Point2D newPoint = target.getArcEdgePoint(angle);
+        targetPoint.setPoint(newPoint);
     }
 
     /**
@@ -321,6 +336,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     @Override
     public void removeIntermediatePoint(ArcPoint point) {
         arcPoints.remove(point);
+        recalculateStartPoint();
         recalculateEndPoint();
         changeSupport.firePropertyChange(DELETE_INTERMEDIATE_POINT_CHANGE_MESSAGE, point, null);
     }

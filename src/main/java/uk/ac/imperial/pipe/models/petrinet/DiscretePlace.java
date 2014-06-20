@@ -13,11 +13,6 @@ import java.util.Map;
 public final class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
-     * Place diameter
-     */
-    private static final int DIAMETER = 30;
-
-    /**
      * Marking x offset relative to the place x coordinate
      */
     private double markingXOffset = 0;

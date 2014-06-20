@@ -4,6 +4,11 @@ import java.util.Map;
 
 public interface Place extends Connectable {
     /**
+     * Place diameter
+     */
+    int DIAMETER = 30;
+
+    /**
      * Message fired when the places tokens change in any way
      */
     String TOKEN_CHANGE_MESSAGE = "tokens";
