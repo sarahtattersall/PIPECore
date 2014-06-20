@@ -265,6 +265,9 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
         if (visitor instanceof AnnotationVisitor) {
             ((AnnotationVisitor) visitor).visit(this);
         }
+        if (visitor instanceof AnnotationImplVisitor) {
+            ((AnnotationImplVisitor) visitor).visit(this);
+        }
     }
 
     /**
