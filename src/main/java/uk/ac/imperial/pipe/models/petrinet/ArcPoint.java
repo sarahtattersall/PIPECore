@@ -105,7 +105,7 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
      */
     @Override
     public void setX(int x) {
-        this.x = x;
+        setPoint(new Point2D.Double(x, this.y));
     }
 
     /**
@@ -122,7 +122,7 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
      */
     @Override
     public void setY(int y) {
-        this.y = y;
+        setPoint(new Point2D.Double(this.x, y));
     }
 
     /**

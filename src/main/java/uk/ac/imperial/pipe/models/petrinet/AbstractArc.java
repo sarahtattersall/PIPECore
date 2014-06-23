@@ -63,6 +63,9 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
      */
     private final ArcPoint targetPoint;
 
+    private final PropertyChangeListener intermediateListener = new ArcPointChangeListener();
+
+
     /**
      * Abstract arc constructor sets arc to <source id> TO <target id>
      * @param source
@@ -303,6 +306,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void addIntermediatePoint(ArcPoint point) {
         int penultimateIndex = arcPoints.size() - 1;
         arcPoints.add(penultimateIndex, point);
+        point.addPropertyChangeListener(intermediateListener);
         recalculateStartPoint();
         recalculateEndPoint();
         changeSupport.firePropertyChange(NEW_INTERMEDIATE_POINT_CHANGE_MESSAGE, null, point);
@@ -336,6 +340,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     @Override
     public void removeIntermediatePoint(ArcPoint point) {
         arcPoints.remove(point);
+        point.removePropertyChangeListener(intermediateListener);
         recalculateStartPoint();
         recalculateEndPoint();
         changeSupport.firePropertyChange(DELETE_INTERMEDIATE_POINT_CHANGE_MESSAGE, point, null);
@@ -453,5 +458,17 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     @Override
     public void removeAllTokenWeights(String tokenId) {
         tokenWeights.remove(tokenId);
+    }
+
+    private class ArcPointChangeListener implements PropertyChangeListener {
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+              String name = evt.getPropertyName();
+            if (name.equals(ArcPoint.UPDATE_LOCATION_CHANGE_MESSAGE)) {
+                recalculateEndPoint();
+                recalculateStartPoint();
+            }
+        }
     }
 }

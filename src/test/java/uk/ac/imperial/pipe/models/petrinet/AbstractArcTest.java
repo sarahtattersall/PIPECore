@@ -62,6 +62,49 @@ public class AbstractArcTest {
         assertEquals(expected, endPoint.getPoint());
     }
 
+
+    @Test
+    public void movingIntermediatePointChangesSourceLocation() {
+        place.setX(0);
+        place.setY(100);
+        transition.setX(50);
+        transition.setY(100);
+        DummyArc dummyArc = new DummyArc(place, transition);
+        ArcPoint point = new ArcPoint(new Point2D.Double(place.getCentre().getX(), 0), false);
+        dummyArc.addIntermediatePoint(point);
+        List<ArcPoint> arcpoints = dummyArc.getArcPoints();
+        ArcPoint endPoint = arcpoints.get(0);
+        Point2D expected = new Point2D.Double(place.getCentre().getX(), place.getCentre().getY() - Place.DIAMETER/2);
+        assertEquals(expected, endPoint.getPoint());
+
+        point.setY(200);
+        arcpoints = dummyArc.getArcPoints();
+        endPoint = arcpoints.get(0);
+        expected = new Point2D.Double(place.getCentre().getX(), place.getCentre().getY() + Place.DIAMETER/2);
+        assertEquals(expected, endPoint.getPoint());
+    }
+
+    @Test
+    public void movingIntermediatePointChangesTargetLocation() {
+        place.setX(0);
+        place.setY(100);
+        transition.setX(50);
+        transition.setY(100);
+        DummyArc dummyArc = new DummyArc(place, transition);
+        ArcPoint point = new ArcPoint(new Point2D.Double(transition.getCentre().getX(), 0), false);
+        dummyArc.addIntermediatePoint(point);
+        List<ArcPoint> arcpoints = dummyArc.getArcPoints();
+        ArcPoint endPoint = arcpoints.get(arcpoints.size() - 1);
+        Point2D expected = new Point2D.Double(transition.getCentre().getX(), transition.getCentre().getY() - Transition.TRANSITION_HEIGHT/2);
+        assertEquals(expected, endPoint.getPoint());
+
+        point.setY(200);
+        arcpoints = dummyArc.getArcPoints();
+        endPoint = arcpoints.get(arcpoints.size() - 1);
+        expected = new Point2D.Double(transition.getCentre().getX(), transition.getCentre().getY() + Transition.TRANSITION_HEIGHT/2);
+        assertEquals(expected, endPoint.getPoint());
+    }
+
     @Test
     public void removeIntermediatePointEndPoint() {
         place.setX(331);
