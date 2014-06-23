@@ -63,18 +63,12 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
-        <dependency>
-            <groupId>org.graphstream</groupId>
-            <artifactId>gs-core</artifactId>
-            <version>1.1.1</version>
-        </dependency>
 
         <dependency>
-            <groupId>org.graphstream</groupId>
-            <artifactId>gs-algo</artifactId>
-            <version>1.2</version>
+            <groupId>de.twentyeleven.skysail</groupId>
+            <artifactId>jgraphx-osgi</artifactId>
+            <version>1.10.3.1</version>
         </dependency>
-
 
         <dependency>
             <groupId>junit</groupId>

@@ -1,89 +1,130 @@
 package uk.ac.imperial.pipe.layout;
 
-import org.graphstream.algorithm.Toolkit;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.layout.springbox.implementations.SpringBox;
-import uk.ac.imperial.pipe.dsl.*;
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.layout.mxFastOrganicLayout;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.view.mxGraph;
 import uk.ac.imperial.pipe.models.petrinet.*;
 
-import java.awt.Color;
+import java.awt.Point;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Layout {
 
-    public static void layout(PetriNet petriNet) {
-        Graph graph = new SingleGraph("Tutorial 1");
+    /**
+     * When items are aligned to (0,0) this is the layout offset we want
+     */
+    private static final int LAYOUT_OFFSET = 20;
 
-        for (Place place : petriNet.getPlaces()) {
-            graph.addNode(place.getId());
+    /**
+     * Layout the graph in a hierarchical manner
+     *
+     * @param petriNet       Petri net to lay out
+     * @param interRankCell  inter rank cell spacing
+     * @param interHierarchy inter hierarchy spacing
+     * @param parallelEdge   parallel edge spacing
+     * @param intraCell      intra cell spacing
+     * @param orientation SwingConstants.NORTH, SwingConstants.EAST, SwingConstants.SOUTH or SwingConstants.WEST
+     */
+    public static void layoutHierarchical(PetriNet petriNet, int interRankCell, int interHierarchy, int parallelEdge,
+                                          int intraCell, int orientation) {
+        mxGraph graph = initialiseGraph(petriNet);
+        mxHierarchicalLayout layout = new mxHierarchicalLayout(graph, orientation);
+        layout.setInterRankCellSpacing(interRankCell);
+        layout.setInterHierarchySpacing(interHierarchy);
+        layout.setParallelEdgeSpacing(parallelEdge);
+        layout.setIntraCellSpacing(intraCell);
+        layout.execute(graph.getDefaultParent());
+        layoutPetriNet(graph, petriNet);
+    }
+
+    /**
+     * @param petriNet
+     * @return xmGraph with original Petri net components and their layout
+     */
+    private static mxGraph initialiseGraph(PetriNet petriNet) {
+        mxGraph graph = new mxGraph();
+        Object parent = graph.getDefaultParent();
+        graph.getModel().beginUpdate();
+        Map<String, Object> objectMap = new HashMap<>();
+
+        try {
+
+            for (Place place : petriNet.getPlaces()) {
+                objectMap.put(place.getId(),
+                        graph.insertVertex(parent, place.getId(), place.getId(), 0, 0, Place.DIAMETER, Place.DIAMETER));
+
+            }
+
+            for (Transition transition : petriNet.getTransitions()) {
+                objectMap.put(transition.getId(),
+                        graph.insertVertex(parent, transition.getId(), transition.getId(), 0, 0,
+                                Transition.TRANSITION_WIDTH, Transition.TRANSITION_HEIGHT)
+                );
+            }
+
+            for (Arc<? extends Connectable, ? extends Connectable> arc : petriNet.getArcs()) {
+                Object source = objectMap.get(arc.getSource().getId());
+                Object target = objectMap.get(arc.getTarget().getId());
+                graph.insertEdge(parent, arc.getId(), arc.getId(), source, target);
+            }
+        } finally {
+            graph.getModel().endUpdate();
+        }
+        return graph;
+    }
+
+    /**
+     * Layout the Petri net with the same components from the graph
+     *
+     * @param graph
+     * @param petriNet
+     */
+    private static void layoutPetriNet(mxGraph graph, PetriNet petriNet) {
+        double minX = 0;
+        double minY = 0;
+        Map<String, Point> points = new HashMap<>();
+
+        for (Object o : graph.getChildVertices(graph.getDefaultParent())) {
+            mxCell cell = (mxCell) o;
+            mxGeometry geometry = cell.getGeometry();
+            points.put(cell.getId(), geometry.getPoint());
+            if (geometry.getX() < minX) {
+                minX = geometry.getX();
+            }
+            if (geometry.getY() < minY) {
+                minY = geometry.getY();
+            }
         }
 
         for (Transition transition : petriNet.getTransitions()) {
-            graph.addNode(transition.getId());
+            Point point = points.get(transition.getId());
+            transition.setX((int) (point.getX() + Math.abs(minX) + LAYOUT_OFFSET));
+            transition.setY((int) (point.getY() + Math.abs(minY) + LAYOUT_OFFSET));
         }
-
-        for (Arc<? extends Connectable, ? extends Connectable> arc : petriNet.getArcs()) {
-            graph.addEdge(arc.getId(), arc.getSource().getId(), arc.getTarget().getId());
-        }
-
-//        Viewer v = graph.display(true);
-//        Thread.sleep(1000);
-
-        SpringBox layout = new SpringBox();
-
-        Toolkit.computeLayout(graph);
-
-//        for (Node node : graph.getEachNode()) {
-//            double[] pos = Toolkit.nodePosition(node);
-//            System.out.println(node.getId());
-//            System.out.println("x: " + Math.abs(pos[0]*100) + "y "+ Math.abs(pos[1]*100));
-//        }
 
         for (Place place : petriNet.getPlaces()) {
-            double[] pos = Toolkit.nodePosition(graph, place.getId());
-            int x = getLocation(pos[0]);
-            int y = getLocation(pos[1]);
-            place.setX(x);
-            place.setY(y);
+            Point point = points.get(place.getId());
+            place.setX((int) (point.getX() + Math.abs(minX) + LAYOUT_OFFSET));
+            place.setY((int) (point.getY() + Math.abs(minY) + LAYOUT_OFFSET));
         }
-
-        for (Transition transition : petriNet.getTransitions()) {
-//                  double[] pos = Toolkit.nodePosition(graph, place.getId());
-            double[] pos = Toolkit.nodePosition(graph, transition.getId());
-            int x = getLocation(pos[0]);
-            int y = getLocation(pos[1]);
-            transition.setX(x);
-            transition.setY(y);
-        }
-
     }
 
-    private static int getLocation(double x) {
-        return (int)Math.round(Math.abs(x * 100));
-    }
-
-
-    public static void main(String[] args) throws InterruptedException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                AnImmediateTransition.withId("T1")).and(
-                ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").tokens()).andFinally(
-                ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").tokens());
-//
-        layout(petriNet);
-
-//
-//        Graph g = new AdjacencyListGraph("g");
-//        g.addNode("A");
-//        g.addNode("B");
-//        g.addEdge("AB", "A", "B");
-//
-//        Viewer v = g.display(true);
-//
-//        Thread.sleep(1000);
-//
-//        double[] d = org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition(v.getGraphicGraph(),"A");
-//        System.out.println(d[0] + ", " + d[1] + ", " + d[2]);
-
+    /**
+     * Lays out the Petri net with a graph layout
+     *
+     * @param petriNet
+     * @param forceConstant    force constant by which the attractive forces are divided. A good default is 50.
+     * @param minDistanceLimit minimum distance limit. A good default is 20.
+     */
+    public static void layoutOrganic(PetriNet petriNet, int forceConstant, int minDistanceLimit) {
+        mxGraph graph = initialiseGraph(petriNet);
+        mxFastOrganicLayout layout = new mxFastOrganicLayout(graph);
+        layout.setForceConstant(forceConstant);
+        layout.setMinDistanceLimit(minDistanceLimit);
+        layout.execute(graph.getDefaultParent());
+        layoutPetriNet(graph, petriNet);
     }
 }
