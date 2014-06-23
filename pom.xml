@@ -64,6 +64,11 @@
             <version>17.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>de.twentyeleven.skysail</groupId>
+            <artifactId>jgraphx-osgi</artifactId>
+            <version>1.10.3.1</version>
+        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
@@ -252,5 +257,7 @@
             </plugin>
         </plugins>
     </build>
+
+
 
 </project>
