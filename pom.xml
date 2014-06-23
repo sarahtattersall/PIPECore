@@ -63,6 +63,17 @@
             <artifactId>guava</artifactId>
             <version>17.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.graphstream</groupId>
+            <artifactId>gs-core</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.graphstream</groupId>
+            <artifactId>gs-algo</artifactId>
+            <version>1.2</version>
+        </dependency>
 
 
         <dependency>
@@ -252,5 +263,7 @@
             </plugin>
         </plugins>
     </build>
+
+
 
 </project>
