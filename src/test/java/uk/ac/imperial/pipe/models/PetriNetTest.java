@@ -715,7 +715,12 @@ public class PetriNetTest {
         assertFalse(petriNet.contains("P3"));
         assertFalse(petriNet.contains("Red"));
     }
-
+    @Test
+	public void hasHierarchicalPetriNetWithSelfOnly() throws Exception
+	{
+    	assertEquals(1, net.getPetriNetHierarchy().size()); 
+    	assertEquals(net, net.getPetriNetHierarchy().getTopNet());
+	}
 
 
 

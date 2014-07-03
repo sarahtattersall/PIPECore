@@ -182,6 +182,8 @@ public class PetriNet {
     //TODO: WHAT IS THIS
     private boolean validated = false;
 
+	private PetriNetHierarchy hierarchicalPetriNet;
+
 
     /**
      * Constructor
@@ -199,6 +201,7 @@ public class PetriNet {
      */
     public PetriNet() {
         initialiseIdMap();
+        hierarchicalPetriNet = new PetriNetHierarchy(this); 
     }
 
     /**
@@ -983,4 +986,13 @@ public class PetriNet {
     public boolean contains(String id) {
         return getComponentIds().contains(id);
     }
+
+    /**
+     *
+     * @return the PetriNetHierarchy representing any PetriNets imported directly by this net, or indirectly by imports done in imported in Petri nets. 
+     */
+	public PetriNetHierarchy getPetriNetHierarchy()
+	{
+		return hierarchicalPetriNet;
+	}
 }
