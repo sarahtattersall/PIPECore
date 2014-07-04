@@ -184,6 +184,8 @@ public class PetriNet {
 
 	private PetriNetHierarchy hierarchicalPetriNet;
 
+	private ExecutablePetriNet executablePetriNet;
+
 
     /**
      * Constructor
@@ -994,5 +996,14 @@ public class PetriNet {
 	public PetriNetHierarchy getPetriNetHierarchy()
 	{
 		return hierarchicalPetriNet;
+	}
+
+	public ExecutablePetriNet makeExecutablePetriNet() {
+		if (executablePetriNet == null) {
+			executablePetriNet = new ExecutablePetriNet(this); 
+			addPropertyChangeListener(executablePetriNet); 
+		}
+		else executablePetriNet.refresh(); 
+		return executablePetriNet;
 	}
 }

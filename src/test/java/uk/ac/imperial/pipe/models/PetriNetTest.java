@@ -721,7 +721,16 @@ public class PetriNetTest {
     	assertEquals(1, net.getPetriNetHierarchy().size()); 
     	assertEquals(net, net.getPetriNetHierarchy().getTopNet());
 	}
-
-
-
+    @Test
+	public void createsAnExecutablePetriNet() throws Exception {
+    	ExecutablePetriNet epn = net.makeExecutablePetriNet(); 
+    	assertThat(epn.getPlaces()).hasSize(0);
+	}
+    @Test
+	public void executablePetriNetRefreshesAutomaticallyUponChangeToPetriNet() throws Exception {
+    	ExecutablePetriNet epn = net.makeExecutablePetriNet(); 
+    	assertThat(epn.getPlaces()).hasSize(0);
+    	net.addPlace(new DiscretePlace("P0")); 
+    	assertThat(epn.getPlaces()).hasSize(1);
+	}
 }
