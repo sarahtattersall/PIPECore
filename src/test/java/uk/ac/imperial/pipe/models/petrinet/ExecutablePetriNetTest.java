@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -38,32 +39,39 @@ public class ExecutablePetriNetTest {
     }
     @Test
     public void collectionsMatchOriginalPetriNet() {
-        net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
-                        AnImmediateTransition.withId("T1")).and(
-                        ANormalArc.withSource("T1").andTarget("P1")).andFinally(
-                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+        buildTestNet();
         epn = net.makeExecutablePetriNet();  
         assertThat(epn.getAnnotations()).hasSize(0); 
         assertThat(epn.getTokens()).hasSize(1); 
         assertThat(epn.getTransitions()).hasSize(2); 
-        assertThat(epn.getInboundArcs()).hasSize(0); 
-        assertThat(epn.getOutboundArcs()).hasSize(2); 
+        assertThat(epn.getInboundArcs()).hasSize(1); 
+        assertThat(epn.getOutboundArcs()).hasSize(1); 
         assertThat(epn.getArcs()).hasSize(2); 
         assertThat(epn.getPlaces()).hasSize(2); 
         assertThat(epn.getRateParameters()).hasSize(0); 
     }
-//    @Test
-	public void verifyTopLevelPetriNet() throws Exception
-	{
-    	expectedException.expect(IllegalArgumentException.class);
-    	expectedException.expectMessage("Top level petri net may not be null.");
-//    	hierarchy = new PetriNetHierarchy(null);
+	protected void buildTestNet() {
+		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                        AnImmediateTransition.withId("T1")).and(
+                        ANormalArc.withSource("P1").andTarget("T1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
 	}
-    //TODO verifyImportsAreNotRecursive or verifyNumberOfCascadedImportsIsLessThanSomeConstant
-    //TODO verifyNamingOfEachImportedNetIsDoneSeparately
-    //TODO verifyDuplicateAliasIsSuffixedToEnsureUniqueness
-    //TODO verifyDefaultAssignedWhenAliasIsBlank
-    //TODO verifyAliasesAreStackedAsImportsAreAdded
+    @Test
+	public void componentsFound() throws Exception
+	{
+    	buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+    	assertTrue(epn.containsComponent("T0")); 
+    	assertFalse(epn.containsComponent("FRED")); 
+    	
+    	Transition t0 = epn.getComponent("T0", Transition.class);
+    	Transition t1 = epn.getComponent("T1", Transition.class);
+    	assertThat(epn.inboundArcs(t1)).hasSize(1); 
+    	assertThat(epn.inboundArcs(t0)).hasSize(0); 
+    	assertThat(epn.outboundArcs(t0)).hasSize(1); 
+    	InboundArc arc = epn.getComponent("P1 TO T1", InboundArc.class);
+    	assertTrue(epn.inboundArcs(t1).contains(arc));
+	}
 
 }

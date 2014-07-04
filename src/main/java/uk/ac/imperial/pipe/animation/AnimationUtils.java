@@ -20,6 +20,7 @@ public final class AnimationUtils {
      * @param petriNet
      * @return Markov chain state representing the current placing of tokens in the Petri net
      */
+    //TODO move to ExecutablePetriNet
     public static State getState(PetriNet petriNet) {
         HashedStateBuilder builder = new HashedStateBuilder();
         for (Place place : petriNet.getPlaces()) {

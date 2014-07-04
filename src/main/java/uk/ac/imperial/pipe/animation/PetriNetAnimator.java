@@ -12,6 +12,7 @@ import java.util.*;
  * Contains methods to help with animating the Petri net and performs
  * in place modifications to the Petri net.
  */
+//TODO move saveState logic to ExecutablePetriNet
 public final class PetriNetAnimator implements Animator {
     /**
      * Petri net to animate

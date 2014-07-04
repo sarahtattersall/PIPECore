@@ -36,6 +36,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	private Collection<Place> places;
 	private Collection<Transition> transitions;
 	private boolean refreshRequired;
+	private PetriNet clonedPetriNet;
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
@@ -45,7 +46,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 
 	public void refresh() {
 		if (refreshRequired) {
-		    PetriNet clonedPetriNet = ClonePetriNet.clone(petriNet);
+		    clonedPetriNet = ClonePetriNet.clone(petriNet);
 			annotations = clonedPetriNet.getAnnotations(); 
 			arcs = clonedPetriNet.getArcs(); 
 			inboundArcs = clonedPetriNet.getInboundArcs();  
@@ -75,10 +76,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @param place
 	 * @return arcs that are outbound from place
 	 */
-	public Collection<InboundArc> outboundArcs(Place place) {
-		refresh(); 
-		return null;
-	}
+//	public Collection<InboundArc> outboundArcs(Place place) {
+//		refresh(); 
+//		return null;
+//	}
 	/**
 	 * An outbound arc of a transition is any arc that starts at the transition
 	 * and connects elsewhere
@@ -86,10 +87,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @param transition to find outbound arcs for
 	 * @return arcs that are outbound from transition
 	 */
-//	public Collection<OutboundArc> outboundArcs(Transition transition) {
-//		refresh(); 
-//		return null;
-//	}
+	public Collection<OutboundArc> outboundArcs(Transition transition) {
+		refresh(); 
+		return clonedPetriNet.outboundArcs(transition);
+	}
 	/**
 	 * @return all transitions in the Petri net
 	 */
@@ -152,9 +153,9 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @param id
 	 * @return true if any component in the Petri net has this id
 	 */
-//	public boolean containsComponent(String id) {
-//		return false; 
-//	}
+	public boolean containsComponent(String id) {
+		return clonedPetriNet.containsComponent(id); 
+	}
 
 	/**
 	 * @param id    component name
@@ -163,20 +164,19 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @return component with the specified id if it exists in the Petri net
 	 * @throws PetriNetComponentNotFoundException if component does not exist in Petri net
 	 */
-//	public <T extends PetriNetComponent> T getComponent(String id,
-//			Class<T> clazz) throws PetriNetComponentNotFoundException {
-//		return null; 
-//	}
+	public <T extends PetriNetComponent> T getComponent(String id,
+			Class<T> clazz) throws PetriNetComponentNotFoundException {
+		return clonedPetriNet.getComponent(id, clazz); 
+	}
 
 	/**
 	 * @param transition to calculate inbound arc for
 	 * @return arcs that are inbound to transition, that is arcs that come into the transition
 	 */
-//	public Collection<InboundArc> inboundArcs(Transition transition) {
-//		return null; 
-////		refresh(); 
-////		return inboundArcs;
-//	}
+	public Collection<InboundArc> inboundArcs(Transition transition) {
+		refresh(); 
+		return clonedPetriNet.inboundArcs(transition); 
+	}
 	/**
 	 *
 	 * @return petri net name
