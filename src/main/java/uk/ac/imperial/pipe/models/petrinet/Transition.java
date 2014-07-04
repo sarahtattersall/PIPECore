@@ -78,6 +78,7 @@ public interface Transition extends Connectable {
      */
     Double getActualRate(PetriNet petriNet, State state);
 
+    Double getActualRate(ExecutablePetriNet executablePetriNet, State state);
     /**
      *
      * @return string representation of the rate
@@ -138,4 +139,5 @@ public interface Transition extends Connectable {
      * @return true if enabled
      */
     boolean isEnabled();
+
 }

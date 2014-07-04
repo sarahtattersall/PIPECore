@@ -9,6 +9,8 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
@@ -37,6 +39,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	private Collection<Transition> transitions;
 	private boolean refreshRequired;
 	private PetriNet clonedPetriNet;
+	private PetriNetName petriNetName;
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
@@ -55,6 +58,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 			rateParameters = clonedPetriNet.getRateParameters();  
 			places = clonedPetriNet.getPlaces();  
 			transitions = clonedPetriNet.getTransitions();  
+			petriNetName = clonedPetriNet.getName(); 
 			refreshRequired = false; 
 		}
 	}
@@ -76,10 +80,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @param place
 	 * @return arcs that are outbound from place
 	 */
-//	public Collection<InboundArc> outboundArcs(Place place) {
-//		refresh(); 
-//		return null;
-//	}
+	public Collection<InboundArc> outboundArcs(Place place) {
+		refresh(); 
+		return clonedPetriNet.outboundArcs(place);
+	}
 	/**
 	 * An outbound arc of a transition is any arc that starts at the transition
 	 * and connects elsewhere
@@ -181,10 +185,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 *
 	 * @return petri net name
 	 */
-//	@XmlTransient
-//	public PetriNetName getName() {
-//		return null;
-//	}
+	@XmlTransient
+	public PetriNetName getName() {
+		return petriNetName;
+	}
 
 	/**
 	 *
@@ -212,5 +216,59 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 //	public boolean contains(String id) {
 //		return false; 
 //	}
+    @Override
+    //TODO work out reasonable hashcode for Collection coll.values(); 
+    public int hashCode() {
+    	return clonedPetriNet.hashCode(); 
+//    	int result = 1; 
+//        int result = transitions.hashCode();
+//        result = 31 * result + places.hashCode();
+//        result = 31 * result + tokens.hashCode();
+//        result = 31 * result + inboundArcs.hashCode();
+//        result = 31 * result + outboundArcs.hashCode();
+//        result = 31 * result + annotations.hashCode();
+//        result = 31 * result + rateParameters.hashCode();
+//        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
+//        return result;
+    }
+    @Override
+    public boolean equals(Object o) {
+	    if (this == o) {
+	        return true;
+	    }
+	    if (!(o instanceof ExecutablePetriNet)) {
+	        return false;
+	    }
+	
+	    ExecutablePetriNet executablePetriNet = (ExecutablePetriNet) o;
+	
+	
+	    if (!CollectionUtils.isEqualCollection(annotations, executablePetriNet.annotations)) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(inboundArcs, executablePetriNet.inboundArcs)) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(outboundArcs, executablePetriNet.outboundArcs)) {
+	        return false;
+	    }
+	    if (petriNetName != null ? !petriNetName.equals(executablePetriNet.petriNetName) : executablePetriNet.petriNetName != null) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(places, executablePetriNet.places)) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(rateParameters, executablePetriNet.rateParameters)) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(tokens, executablePetriNet.tokens)) {
+	        return false;
+	    }
+	    if (!CollectionUtils.isEqualCollection(transitions, executablePetriNet.transitions)) {
+	        return false;
+	    }
+	
+	    return true;
+	}
 
 }

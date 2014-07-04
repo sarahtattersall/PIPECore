@@ -309,6 +309,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @param state given state of a petri net to evaluate the functional rate of
      * @return actual evaluated rate of the Petri net
      */
+    //TODO refactor to ExecutablePetriNet
     @Override
     public Double getActualRate(PetriNet petriNet, State state) {
         StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
@@ -327,6 +328,24 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
         int enablingDegree = getEnablingDegree(state, arcWeights);
         return rate * enablingDegree;
     }
+	@Override
+	public Double getActualRate(ExecutablePetriNet executablePetriNet, State state) {
+		StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(executablePetriNet, state);
+		PetriNetWeightParser parser = new PetriNetWeightParser(stateEvalVisitor, executablePetriNet);
+		FunctionalResults<Double> results = parser.evaluateExpression(getRateExpr());
+		if (results.hasErrors()) {
+			//TODO:
+			return -1.;
+		}
+		Double rate = results.getResult();
+		
+		if (!isInfiniteServer()) {
+			return rate;
+		}
+		Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(parser, executablePetriNet.inboundArcs(this));
+		int enablingDegree = getEnablingDegree(state, arcWeights);
+		return rate * enablingDegree;
+	}
 
     /**
      *
@@ -544,4 +563,5 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     public boolean isEnabled() {
         return enabled;
     }
+
 }

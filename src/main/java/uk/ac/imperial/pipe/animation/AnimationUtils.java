@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -30,5 +31,15 @@ public final class AnimationUtils {
         }
         return builder.build();
     }
+
+	public static State getState(ExecutablePetriNet executablePetriNet) {
+		HashedStateBuilder builder = new HashedStateBuilder();
+		for (Place place : executablePetriNet.getPlaces()) {
+			for (Token token : executablePetriNet.getTokens()) {
+				builder.placeWithToken(place.getId(), token.getId(), place.getTokenCount(token.getId()));
+			}
+		}
+		return builder.build();
+	}
 
 }

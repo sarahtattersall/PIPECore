@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 
 public class ExecutablePetriNetTest {
 
@@ -38,8 +39,29 @@ public class ExecutablePetriNetTest {
         epn = net.makeExecutablePetriNet();  
     }
     @Test
+    public void equalsAndHashCodeLawsWhenEqual() {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet(); 
+    	PetriNet net2 = buildTestNet();
+    	ExecutablePetriNet epn2 = net2.makeExecutablePetriNet(); 
+        assertTrue(epn.equals(epn2));
+        assertEquals(epn.hashCode(), epn2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCodeLawsWhenNotEqual() throws PetriNetComponentException {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet(); 
+    	PetriNet net2 = buildTestNet();
+    	net2.add(new DiscreteTransition("T99")); 
+    	ExecutablePetriNet epn2 = net2.makeExecutablePetriNet(); 
+    	assertFalse(epn.equals(epn2));
+    	assertNotEquals(epn.hashCode(), epn2.hashCode());
+    }
+
+    @Test
     public void collectionsMatchOriginalPetriNet() {
-        buildTestNet();
+        net = buildTestNet();
         epn = net.makeExecutablePetriNet();  
         assertThat(epn.getAnnotations()).hasSize(0); 
         assertThat(epn.getTokens()).hasSize(1); 
@@ -50,17 +72,18 @@ public class ExecutablePetriNetTest {
         assertThat(epn.getPlaces()).hasSize(2); 
         assertThat(epn.getRateParameters()).hasSize(0); 
     }
-	protected void buildTestNet() {
-		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+	protected PetriNet buildTestNet() {
+		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(
                         ANormalArc.withSource("P1").andTarget("T1")).andFinally(
                         ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+		return net; 
 	}
     @Test
 	public void componentsFound() throws Exception
 	{
-    	buildTestNet();
+    	net = buildTestNet();
     	epn = net.makeExecutablePetriNet();
     	assertTrue(epn.containsComponent("T0")); 
     	assertFalse(epn.containsComponent("FRED")); 
@@ -72,6 +95,7 @@ public class ExecutablePetriNetTest {
     	assertThat(epn.outboundArcs(t0)).hasSize(1); 
     	InboundArc arc = epn.getComponent("P1 TO T1", InboundArc.class);
     	assertTrue(epn.inboundArcs(t1).contains(arc));
+    	//TODO outboundArcs(Place place) s
 	}
 
 }

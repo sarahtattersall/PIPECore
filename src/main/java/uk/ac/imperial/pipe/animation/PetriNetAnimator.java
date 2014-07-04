@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -17,8 +18,12 @@ public final class PetriNetAnimator implements Animator {
     /**
      * Petri net to animate
      */
-    private final PetriNet petriNet;
+    private  PetriNet petriNet;
 
+    /**
+     * Executable Petri net to animate
+     */
+    private ExecutablePetriNet executablePetriNet;
     /**
      * Underlying animation logic, which returns logic as Markov Chain states
      */
@@ -30,6 +35,7 @@ public final class PetriNetAnimator implements Animator {
      */
     private Map<String, Map<String, Integer>> savedStateTokens = new HashMap<>();
 
+
     /**
      * Constructor
      * @param petriNet petri net to modify the structure for for animaiton
@@ -40,13 +46,22 @@ public final class PetriNetAnimator implements Animator {
         saveState();
     }
 
-    /**
+    public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
+    	this.executablePetriNet = executablePetriNet;
+    	animationLogic = new PetriNetAnimationLogic(executablePetriNet);
+    	saveState();
+    	
+	}
+
+	/**
      * Save the Petri net state into the saved state map
      */
+    //TODO save the state here, but have the ExecutablePetriNet create it
     @Override
     public void saveState() {
         savedStateTokens.clear();
-        for (Place place : petriNet.getPlaces()) {
+//        for (Place place : petriNet.getPlaces()) {
+        for (Place place : executablePetriNet.getPlaces()) {
             savedStateTokens.put(place.getId(), new HashMap<>(place.getTokenCounts()));
         }
     }
@@ -56,7 +71,8 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void reset() {
-        for (Place place : petriNet.getPlaces()) {
+//    	for (Place place : petriNet.getPlaces()) {
+        for (Place place : executablePetriNet.getPlaces()) {
             Map<String, Integer> originalTokens = savedStateTokens.get(place.getId());
             place.setTokenCounts(originalTokens);
         }
@@ -90,7 +106,8 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledTransitions(AnimationUtils.getState(petriNet));
+//    	return animationLogic.getEnabledTransitions(AnimationUtils.getState(petriNet));
+        return animationLogic.getEnabledTransitions(AnimationUtils.getState(executablePetriNet));
     }
 
     /**
@@ -101,10 +118,12 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void fireTransition(Transition transition) {
-        State newState = animationLogic.getFiredState(AnimationUtils.getState(petriNet), transition);
+//    	State newState = animationLogic.getFiredState(AnimationUtils.getState(petriNet), transition);
+        State newState = animationLogic.getFiredState(AnimationUtils.getState(executablePetriNet), transition);
 
         //Set all counts
-        for (Place place : petriNet.getPlaces()) {
+//        for (Place place : petriNet.getPlaces()) {
+        for (Place place : executablePetriNet.getPlaces()) {
             place.setTokenCounts(newState.getTokens(place.getId()));
         }
     }
@@ -115,9 +134,11 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void fireTransitionBackwards(Transition transition) {
-        State state = AnimationUtils.getState(petriNet);
+//    	State state = AnimationUtils.getState(petriNet);
+        State state = AnimationUtils.getState(executablePetriNet);
         //Increment previous places
-        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+//        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+        for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
             Place place = arc.getSource();
             for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
                 String tokenId = entry.getKey();
@@ -130,7 +151,8 @@ public final class PetriNetAnimator implements Animator {
         }
 
         //Decrement new places
-        for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
+//        for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
+        for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
             Place place = arc.getTarget(); for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
                 String tokenId = entry.getKey();
                 String functionalWeight = entry.getValue();

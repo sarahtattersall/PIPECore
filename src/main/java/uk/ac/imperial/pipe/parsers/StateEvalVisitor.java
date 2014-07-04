@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.parsers;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.State;
@@ -17,12 +18,14 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
     /**
      * Petri net
      */
-    private final PetriNet petriNet;
+    private  PetriNet petriNet;
 
     /**
      * A state of the given Petri net
      */
     private final State state;
+
+	private ExecutablePetriNet executablePetriNet;
 
     /**
      * Constructor
@@ -34,8 +37,14 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
         this.state = state;
     }
 
+    //TODO add final back to this.executablePetriNet 
+    public StateEvalVisitor(ExecutablePetriNet executablePetriNet, State state) {
+    	this.executablePetriNet = executablePetriNet; 
+    	this.state = state;
+	}
 
-    @Override
+
+	@Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
         Double left = visit(ctx.expression(0));
         Double right = visit(ctx.expression(1));
@@ -115,7 +124,8 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
      * @throws PetriNetComponentNotFoundException
      */
     public Place getPlace(String id) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(id, Place.class);
+        return executablePetriNet.getComponent(id, Place.class);
+//        return petriNet.getComponent(id, Place.class);
     }
 
 }

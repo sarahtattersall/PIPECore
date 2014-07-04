@@ -143,6 +143,12 @@ public class AbstractArcTest {
         public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
 
         }
+
+		@Override
+		public boolean canFire(ExecutablePetriNet executablePetriNet,
+				State state) {
+			return false;
+		}
     }
 
 }

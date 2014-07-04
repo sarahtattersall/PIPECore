@@ -4,6 +4,8 @@ import com.google.common.primitives.Doubles;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.util.HashSet;
@@ -17,15 +19,17 @@ import java.util.Set;
 public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
 
-    /**
-     * Petri net to parse results against
-     */
-    private final PetriNet petriNet;
+    private PetriNet petriNet;
 
     /**
      * Evaluator for the PetriNet and functional expression
      */
     private final RateGrammarBaseVisitor<Double> evalVisitor;
+
+    /**
+     * Executable Petri net to parse results against
+     */
+	private ExecutablePetriNet executablePetriNet;
 
     /**
      * Parses Transition Rates to determine their value and
@@ -37,8 +41,15 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
         this.petriNet = petriNet;
     }
 
+    //TODO add final to this.executablePetriNet 
+//    public PetriNetWeightParser(StateEvalVisitor evalVisitor, ExecutablePetriNet executablePetriNet) {
+   	public PetriNetWeightParser(RateGrammarBaseVisitor<Double> evalVisitor, ExecutablePetriNet executablePetriNet) {
+    	this.evalVisitor = evalVisitor;
+    	this.executablePetriNet = executablePetriNet; 
+	}
 
-    /**
+
+	/**
      *
      * @param parseTree
      * @return components referenced by the functional expression that is being parsed
@@ -58,14 +69,30 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
      * @return true if all referenced components in expression
      * are valid in the Petri net
      */
+    //FIXME kludge until refactor some logic into ExecutablePetriNet
     private boolean allComponentsInPetriNet(Set<String> components) {
-        for (String id : components) {
-            if (!petriNet.containsComponent(id)) {
+    	if (executablePetriNet != null)
+    	return newAllComponentsInPetriNet(components);
+    	else return oldAllComponentsInPetriNet(components); 
+    }
+
+	private boolean newAllComponentsInPetriNet(Set<String> components) {
+		for (String id : components) {
+//        	if (!petriNet.containsComponent(id)) {
+            if (!executablePetriNet.containsComponent(id)) {
                 return false;
             }
         }
         return true;
-    }
+	}
+	private boolean oldAllComponentsInPetriNet(Set<String> components) {
+		for (String id : components) {
+        	if (!petriNet.containsComponent(id)) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 
     /**

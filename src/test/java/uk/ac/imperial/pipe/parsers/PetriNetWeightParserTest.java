@@ -7,6 +7,7 @@ import org.junit.rules.ExpectedException;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.awt.Color;
@@ -22,28 +23,34 @@ public class PetriNetWeightParserTest {
 
     @Before
     public void setUp() {
-        evalVisitor = new EvalVisitor(EMPTY_PETRI_NET);
+        executablePetriNet = EMPTY_PETRI_NET.makeExecutablePetriNet(); 
+//        evalVisitor = new EvalVisitor(EMPTY_PETRI_NET);
+        evalVisitor = new EvalVisitor(executablePetriNet);
     }
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+	private ExecutablePetriNet executablePetriNet;
 
     @Test
     public void correctlyIdentifiesErrors() {
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("2 +");
         assertTrue(result.hasErrors());
     }
 
     @Test
     public void producesCorrectErrorMessage() {
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("2 *");
         assertThat(result.getErrors()).containsExactly("line 1:3 no viable alternative at input '<EOF>'");
     }
 
     @Test
     public void expressionIsNegativeIfContainsErrors() throws UnparsableException {
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("2 *");
         assertEquals(new Double(-1.), result.getResult());
     }
@@ -51,7 +58,8 @@ public class PetriNetWeightParserTest {
 
     @Test
     public void returnsErrorIfResultIsLessThanZero() throws UnparsableException {
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, EMPTY_PETRI_NET);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("2 - 6");
         assertThat(result.getErrors()).containsExactly("Expression result cannot be less than zero!");
     }
@@ -60,19 +68,22 @@ public class PetriNetWeightParserTest {
     @Test
     public void willNotEvaluateExpressionIfPetriNetDoesNotContainComponent() throws UnparsableException {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P1"));
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0)");
         assertThat(result.getErrors()).contains("Not all referenced components exist in the Petri net!");
     }
-
-
 
     @Test
     public void evaluatesIfPlaceIsInPetriNet() throws UnparsableException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 
-        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+//        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
+        EvalVisitor evalVisitor = new EvalVisitor(executablePetriNet);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0)");
         assertEquals(new Double(10), result.getResult());
     }
@@ -81,8 +92,11 @@ public class PetriNetWeightParserTest {
     public void returnsCorrectComponentsForTotalTokens() {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
-        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+//        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
+        EvalVisitor evalVisitor = new EvalVisitor(executablePetriNet);
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0)");
         assertTrue(result.getComponents().contains("P0"));
     }
@@ -93,11 +107,12 @@ public class PetriNetWeightParserTest {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 
-        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
+//        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0, Default)");
         assertTrue(result.getComponents().contains("P0"));
         assertTrue(result.getComponents().contains("Default"));
     }
-
 
 }

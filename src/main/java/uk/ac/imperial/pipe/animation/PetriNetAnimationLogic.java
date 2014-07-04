@@ -1,10 +1,12 @@
 package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.state.HashedStateBuilder;
@@ -21,7 +23,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     /**
      * Petri net this class represents the logic for
      */
-    private final PetriNet petriNet;
+    private  PetriNet petriNet;
 
     /**
      * Cache for storing a states enabled transitions
@@ -30,6 +32,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
 
+	private  ExecutablePetriNet executablePetriNet;
+
     /**
      * Constructor
      * @param petriNet Petri net to perform animation logic on
@@ -37,8 +41,12 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     public PetriNetAnimationLogic(PetriNet petriNet) {
         this.petriNet = petriNet;
     }
+    //TODO put final back in this.executablePetriNet 
+    public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
+    	this.executablePetriNet = executablePetriNet; 
+	}
 
-    /**
+	/**
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -109,7 +117,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         Set<Transition> enabled = getEnabledTransitions(state);
         if (enabled.contains(transition)) {
             //Decrement previous places
-            for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+//            for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+            for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
                 String placeId = arc.getSource().getId();
                 Map<String, String> arcWeights = arc.getTokenWeights();
                 for (Map.Entry<String, Integer> entry : state.getTokens(placeId).entrySet()) {
@@ -125,7 +134,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
             State temporaryState = builder.build();
 
-            for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
+//            for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
+            for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
                 String placeId = arc.getTarget().getId();
                 Map<String, String> arcWeights = arc.getTokenWeights();
                 for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
@@ -145,10 +155,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
+    //TODO maybe move to ExecutablePetriNet; same logic appears in NormalInboundArc
     @Override
     public double getArcWeight(State state, String weight) {
-        StateEvalVisitor evalVisitor = new StateEvalVisitor(petriNet, state);
-        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, petriNet);
+//        StateEvalVisitor evalVisitor = new StateEvalVisitor(petriNet, state);
+//        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, petriNet);
+        StateEvalVisitor evalVisitor = new StateEvalVisitor(executablePetriNet, state);
+        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression(weight);
         if (result.hasErrors()) {
             //TODO:
@@ -202,7 +215,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     private Set<Transition> findEnabledTransitions(State state) {
 
         Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : petriNet.getTransitions()) {
+//        for (Transition transition : petriNet.getTransitions()) {
+        for (Transition transition : executablePetriNet.getTransitions()) {
             if (isEnabled(transition, state)) {
                 enabledTransitions.add(transition);
             }
@@ -220,18 +234,31 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @return true if transition is enabled
      */
     private boolean isEnabled(Transition transition, State state) {
-        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-            if (!arc.canFire(petriNet, state)) {
+        for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
+            if (!arc.canFire(executablePetriNet, state)) {
                 return false;
             }
         }
-        for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-            if (!arc.canFire(petriNet, state)) {
+        for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
+            if (!arc.canFire(executablePetriNet, state)) {
                 return false;
             }
         }
         return true;
     }
+//    private boolean isEnabledOld(Transition transition, State state) {
+//    	for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+//    		if (!arc.canFire(petriNet, state)) {
+//    			return false;
+//    		}
+//    	}
+//    	for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
+//    		if (!arc.canFire(petriNet, state)) {
+//    			return false;
+//    		}
+//    	}
+//    	return true;
+//    }
 
 
     /**
