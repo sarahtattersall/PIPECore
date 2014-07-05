@@ -156,7 +156,8 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = AnimationUtils.getState(executablePetriNet);
+        State state = executablePetriNet.getCurrentState();
+//        State state = AnimationUtils.getState(executablePetriNet);
 //        State state = AnimationUtils.getState(petriNet);
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
@@ -178,7 +179,8 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = AnimationUtils.getState(executablePetriNet);
+        State state = executablePetriNet.getCurrentState();
+//        State state = AnimationUtils.getState(executablePetriNet);
 //        State state = AnimationUtils.getState(petriNet);
 
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
@@ -200,7 +202,8 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = AnimationUtils.getState(executablePetriNet);
+        State state = executablePetriNet.getCurrentState();
+//        State state = AnimationUtils.getState(executablePetriNet);
 //        State state = AnimationUtils.getState(petriNet);
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
@@ -247,7 +250,8 @@ public class DiscreteTransitionTest {
 
 //        Transition transition = petriNet.getComponent("T0", Transition.class);
 //        double rate = transition.getActualRate(petriNet, AnimationUtils.getState(petriNet));
-        double rate = transition.getActualRate(executablePetriNet, AnimationUtils.getState(executablePetriNet));
+//        double rate = transition.getActualRate(executablePetriNet, AnimationUtils.getState(executablePetriNet));
+        double rate = transition.getActualRate(executablePetriNet, executablePetriNet.getCurrentState());
         assertEquals(5, rate, 0.0001);
     }
 }

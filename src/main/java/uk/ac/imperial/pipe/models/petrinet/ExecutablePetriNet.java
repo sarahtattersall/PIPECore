@@ -5,7 +5,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -14,6 +13,8 @@ import org.apache.commons.collections.CollectionUtils;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
+import uk.ac.imperial.state.HashedStateBuilder;
+import uk.ac.imperial.state.State;
 
 /**
  * Makes a PetriNet available for execution, that is, animation or analysis by a module.  Returns the state of the Petri net as a collections of its constituent components. 
@@ -40,6 +41,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	private boolean refreshRequired;
 	private PetriNet clonedPetriNet;
 	private PetriNetName petriNetName;
+	private State currentState;
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
@@ -60,7 +62,22 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 			transitions = clonedPetriNet.getTransitions();  
 			petriNetName = clonedPetriNet.getName(); 
 			refreshRequired = false; 
+			buildState(); 
 		}
+	}
+	private void buildState() {
+		HashedStateBuilder builder = new HashedStateBuilder();
+		for (Place place : places) {
+			for (Token token : tokens) {
+				builder.placeWithToken(place.getId(), token.getId(), place.getTokenCount(token.getId()));
+			}
+		}
+		currentState = builder.build();
+	}
+	
+	public State getCurrentState() {
+		refresh(); 
+		return currentState;
 	}
 
 	@Override
