@@ -4,6 +4,8 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -392,4 +394,12 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     public void removeAllTokens(String token) {
         tokenCounts.remove(token);
     }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
+			setTokenCounts((Map<String, Integer>) evt.getNewValue()); 
+		}
+	}
 }

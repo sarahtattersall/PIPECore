@@ -107,7 +107,8 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public Set<Transition> getEnabledTransitions() {
 //    	return animationLogic.getEnabledTransitions(AnimationUtils.getState(petriNet));
-        return animationLogic.getEnabledTransitions(AnimationUtils.getState(executablePetriNet));
+//        return animationLogic.getEnabledTransitions(AnimationUtils.getState(executablePetriNet));
+        return animationLogic.getEnabledTransitions(executablePetriNet.getCurrentState());
     }
 
     /**
@@ -119,8 +120,8 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public void fireTransition(Transition transition) {
 //    	State newState = animationLogic.getFiredState(AnimationUtils.getState(petriNet), transition);
-        State newState = animationLogic.getFiredState(AnimationUtils.getState(executablePetriNet), transition);
-
+//        State newState = animationLogic.getFiredState(AnimationUtils.getState(executablePetriNet), transition);
+        State newState = animationLogic.getFiredState(executablePetriNet.getCurrentState(), transition);
         //Set all counts
 //        for (Place place : petriNet.getPlaces()) {
         for (Place place : executablePetriNet.getPlaces()) {
@@ -135,7 +136,8 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public void fireTransitionBackwards(Transition transition) {
 //    	State state = AnimationUtils.getState(petriNet);
-        State state = AnimationUtils.getState(executablePetriNet);
+//        State state = AnimationUtils.getState(executablePetriNet);
+        State state = executablePetriNet.getCurrentState();
         //Increment previous places
 //        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {

@@ -62,8 +62,25 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 			transitions = clonedPetriNet.getTransitions();  
 			petriNetName = clonedPetriNet.getName(); 
 			refreshRequired = false; 
+			addListenersToMirrorTokenCountsToOriginalPlaces(); 
 			buildState(); 
 		}
+	}
+	private void addListenersToMirrorTokenCountsToOriginalPlaces() {
+		Place originalPlace = null; 
+		for (Place place: places) {
+			try {
+				originalPlace = petriNet.getComponent(place.getId(), Place.class);
+			} catch (PetriNetComponentNotFoundException e) {
+				System.err.println("ExecutablePetriNet.addListenersToMirrorTokenCountsToOriginalPlaces:  logic error; place not found in source Petri net: "+place.getId());;
+			} 
+			place.addPropertyChangeListener(originalPlace); 
+			place.addPropertyChangeListener(this);  // force refresh 
+		}
+	}
+
+	public void refreshRequired() {
+		refreshRequired = true; 
 	}
 	private void buildState() {
 		HashedStateBuilder builder = new HashedStateBuilder();
@@ -286,6 +303,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	    }
 	
 	    return true;
+	}
+
+	public PetriNet getPetriNet() {
+		return petriNet;
 	}
 
 }

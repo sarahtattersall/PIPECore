@@ -97,5 +97,16 @@ public class ExecutablePetriNetTest {
     	assertTrue(epn.inboundArcs(t1).contains(arc));
     	//TODO outboundArcs(Place place) s
 	}
+    @Test
+	public void verifyPlaceCountUpdateIsMirroredToPlaceInOriginalPetriNet() throws Exception {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+    	Place epnp1 = epn.getComponent("P1", Place.class); 
+    	Place netp1 = net.getComponent("P1", Place.class); 
+    	assertEquals(0, epnp1.getTokenCount("Default")); 
+    	epnp1.setTokenCount("Default", 2); 
+    	assertEquals(2, epnp1.getTokenCount("Default")); 
+    	assertEquals(2, netp1.getTokenCount("Default")); 
+	}
 
 }

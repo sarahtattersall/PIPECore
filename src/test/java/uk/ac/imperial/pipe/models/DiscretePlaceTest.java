@@ -263,6 +263,12 @@ public class DiscretePlaceTest {
         place.setTokenCounts(tokenCounts);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
-
+    @Test
+	public void canMirrorTokenCountOfAnotherPlace() throws Exception {
+    	DiscretePlace mirror = new DiscretePlace("P99", "P99"); 
+    	place.addPropertyChangeListener(mirror); 
+    	place.setTokenCount("Default", 3); 
+    	assertEquals(3, mirror.getTokenCount("Default")); 
+	}
 
 }

@@ -1,8 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 
-public interface Place extends Connectable {
+public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Place diameter
      */
