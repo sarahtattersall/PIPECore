@@ -1,18 +1,27 @@
 package uk.ac.imperial.pipe.models;
 
-import org.junit.Test;
-import uk.ac.imperial.pipe.animation.AnimationUtils;
-import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.*;
-import uk.ac.imperial.state.State;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import org.junit.Test;
+
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.TransitionVisitor;
+import uk.ac.imperial.state.State;
 
 public class DiscreteTransitionTest {
 

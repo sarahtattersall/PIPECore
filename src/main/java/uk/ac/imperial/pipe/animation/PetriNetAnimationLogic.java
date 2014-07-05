@@ -20,11 +20,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * of a Petri net. It does not alter the state of the Petri net.
  */
 public final class PetriNetAnimationLogic implements AnimationLogic {
-    /**
-     * Petri net this class represents the logic for
-     */
-    private  PetriNet petriNet;
 
+    /**
+     * Executable Petri net this class represents the logic for
+     */
+    private final ExecutablePetriNet executablePetriNet;
     /**
      * Cache for storing a states enabled transitions
      * Needs to be concurrent thus to handle multiple calls to methods using this data structure
@@ -32,16 +32,10 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
 
-	private  ExecutablePetriNet executablePetriNet;
-
     /**
      * Constructor
-     * @param petriNet Petri net to perform animation logic on
+     * @param executablePetriNet executable Petri net to perform animation logic on
      */
-    public PetriNetAnimationLogic(PetriNet petriNet) {
-        this.petriNet = petriNet;
-    }
-    //TODO put final back in this.executablePetriNet 
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
 	}
@@ -117,7 +111,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         Set<Transition> enabled = getEnabledTransitions(state);
         if (enabled.contains(transition)) {
             //Decrement previous places
-//            for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
             for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
                 String placeId = arc.getSource().getId();
                 Map<String, String> arcWeights = arc.getTokenWeights();
@@ -134,7 +127,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
             State temporaryState = builder.build();
 
-//            for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
             for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
                 String placeId = arc.getTarget().getId();
                 Map<String, String> arcWeights = arc.getTokenWeights();
@@ -155,11 +147,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
-    //TODO maybe move to ExecutablePetriNet; same logic appears in NormalInboundArc
+    //TODO maybe move to ExecutablePetriNet; same logic appears in NormalInboundArc.  
     @Override
     public double getArcWeight(State state, String weight) {
-//        StateEvalVisitor evalVisitor = new StateEvalVisitor(petriNet, state);
-//        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, petriNet);
         StateEvalVisitor evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
         FunctionalResults<Double> result = parser.evaluateExpression(weight);
@@ -215,7 +205,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     private Set<Transition> findEnabledTransitions(State state) {
 
         Set<Transition> enabledTransitions = new HashSet<>();
-//        for (Transition transition : petriNet.getTransitions()) {
         for (Transition transition : executablePetriNet.getTransitions()) {
             if (isEnabled(transition, state)) {
                 enabledTransitions.add(transition);
@@ -246,20 +235,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         }
         return true;
     }
-//    private boolean isEnabledOld(Transition transition, State state) {
-//    	for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-//    		if (!arc.canFire(petriNet, state)) {
-//    			return false;
-//    		}
-//    	}
-//    	for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-//    		if (!arc.canFire(petriNet, state)) {
-//    			return false;
-//    		}
-//    	}
-//    	return true;
-//    }
-
 
     /**
      * @param transitions to check if any are timed
@@ -273,7 +248,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         }
         return false;
     }
-
 
     /**
      * @param transitions to find max priority of
@@ -326,5 +300,4 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             }
         }
     }
-
 }
