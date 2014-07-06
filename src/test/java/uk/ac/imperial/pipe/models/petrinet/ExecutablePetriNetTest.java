@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,6 +21,11 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
+import uk.ac.imperial.state.HashedStateBuilder;
+import uk.ac.imperial.state.State;
 
 public class ExecutablePetriNetTest {
 
@@ -108,5 +115,29 @@ public class ExecutablePetriNetTest {
     	assertEquals(2, epnp1.getTokenCount("Default")); 
     	assertEquals(2, netp1.getTokenCount("Default")); 
 	}
-
+    @Test
+	public void evaluatesFunctionalExpressionAgainstCurrentState() throws Exception {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+    	Place epnp1 = epn.getComponent("P1", Place.class); 
+    	epnp1.setTokenCount("Default", 2); 
+    	assertEquals(new Double(2.0), epn.evaluateExpressionAgainstCurrentState("#(P1)")); 
+	}
+    @Test
+    public void evaluatesFunctionalExpressionGivenState() throws Exception {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+        HashedStateBuilder builder = new HashedStateBuilder();
+        builder.placeWithToken("P1", "Default", 4);
+        State state = builder.build();
+    	assertEquals(new Double(4.0), epn.evaluateExpression(state, "#(P1)")); 
+    }
+    @Test
+    public void returnsNegativeOneForInvalidFunctionalExpression() throws Exception {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+    	Place epnp1 = epn.getComponent("P1", Place.class); 
+    	epnp1.setTokenCount("Default", 2); 
+    	assertEquals(new Double(-1.0), epn.evaluateExpressionAgainstCurrentState("Fred(P1)")); 
+    }
 }

@@ -12,6 +12,10 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
+import uk.ac.imperial.pipe.parsers.EvalVisitor;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
+import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
+import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
@@ -42,6 +46,10 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	private PetriNet clonedPetriNet;
 	private PetriNetName petriNetName;
 	private State currentState;
+    /**
+     * Functional weight parser
+     */
+    private FunctionalWeightParser<Double> functionalWeightParser; 
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
@@ -101,8 +109,31 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	public void propertyChange(PropertyChangeEvent evt) {
 		refreshRequired = true; 
 	}
+	/**
+	 * @param String functional expression
+	 * @return double result of the evaluation of the expression against the current state of this executable petri net, or -1.0 if the expression is not valid. 
+	 */
+	public Double evaluateExpressionAgainstCurrentState(String expression) {
+		return evaluateExpression(getCurrentState(), expression);
+	}
+	/**
+	 * @param State representing a possible marking of the places in this executable Petri net.  <i>Note that the expression is evaluated against the given state, 
+	 * not the current state.  If evaluation against the current state is needed, invoke evaluateExpressionAgainstCurrentState(String expression)<i>.  
+	 * @param String functional expression
+	 * @return double result of the evaluation of the expression against the given state, or -1.0 if the expression is not valid. 
+	 */
+	public Double evaluateExpression(State state, String expression) {
+		return buildFunctionalWeightParser(state).evaluateExpression(expression).getResult();
+	}
+	public FunctionalWeightParser<Double> getFunctionalWeightParserForCurrentState() {
+		functionalWeightParser = buildFunctionalWeightParser(getCurrentState());
+		return functionalWeightParser;
+	}
+	private FunctionalWeightParser<Double> buildFunctionalWeightParser(State state) {
+		return new PetriNetWeightParser(new StateEvalVisitor(this, state), this);
+	}
 
-
+	
 	/**
 	 * @return all Places currently in the Petri net
 	 */
@@ -308,5 +339,8 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	public PetriNet getPetriNet() {
 		return petriNet;
 	}
+
+
+
 
 }

@@ -21,7 +21,6 @@ import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.TransitionVisitor;
-import uk.ac.imperial.state.State;
 
 public class DiscreteTransitionTest {
 
@@ -165,15 +164,10 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = executablePetriNet.getCurrentState();
-//        State state = AnimationUtils.getState(executablePetriNet);
-//        State state = AnimationUtils.getState(petriNet);
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
-//        Transition t0 = petriNet.getComponent("T0", Transition.class);
-//        double actualRate = t0.getActualRate(petriNet, state);
 
-        double actualRate = t0.getActualRate(executablePetriNet, state);
+        double actualRate = t0.getActualRate(executablePetriNet);
         int expectedEnablingDegree = 2;
         int expectedISRate = expectedEnablingDegree * 4;
         assertEquals(expectedISRate, actualRate, 0.0001);
@@ -188,14 +182,9 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = executablePetriNet.getCurrentState();
-//        State state = AnimationUtils.getState(executablePetriNet);
-//        State state = AnimationUtils.getState(petriNet);
 
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
-//        Transition t0 = petriNet.getComponent("T0", Transition.class);
-//        double actualRate = t0.getActualRate(petriNet, state);
-        double actualRate = t0.getActualRate(executablePetriNet, state);
+        double actualRate = t0.getActualRate(executablePetriNet);
         int expectedEnablingDegree = 1;
         int expectedISRate = expectedEnablingDegree * 4;
         assertEquals(expectedISRate, actualRate, 0.0001);
@@ -211,14 +200,9 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
-        State state = executablePetriNet.getCurrentState();
-//        State state = AnimationUtils.getState(executablePetriNet);
-//        State state = AnimationUtils.getState(petriNet);
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
-//        Transition t0 = petriNet.getComponent("T0", Transition.class);
-//        double actualRate = t0.getActualRate(petriNet, state);
-        double actualRate = t0.getActualRate(executablePetriNet, state);
+        double actualRate = t0.getActualRate(executablePetriNet);
         assertEquals(4, actualRate, 0.0001);
     }
 
@@ -256,11 +240,7 @@ public class DiscreteTransitionTest {
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
         executablePetriNet = petriNet.makeExecutablePetriNet(); 
         Transition transition = executablePetriNet.getComponent("T0", Transition.class);
-
-//        Transition transition = petriNet.getComponent("T0", Transition.class);
-//        double rate = transition.getActualRate(petriNet, AnimationUtils.getState(petriNet));
-//        double rate = transition.getActualRate(executablePetriNet, AnimationUtils.getState(executablePetriNet));
-        double rate = transition.getActualRate(executablePetriNet, executablePetriNet.getCurrentState());
+        double rate = transition.getActualRate(executablePetriNet);
         assertEquals(5, rate, 0.0001);
     }
 }

@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
@@ -306,50 +307,31 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * <p/>
      * If an infinite server the transition will return its rate * enabling degree
      *
-     * @param state given state of a petri net to evaluate the functional rate of
      * @return actual evaluated rate of the Petri net
      */
-    //TODO refactor to ExecutablePetriNet
-    @Override
-    public Double getActualRate(PetriNet petriNet, State state) {
-        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
-        PetriNetWeightParser parser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
-        FunctionalResults<Double> results = parser.evaluateExpression(getRateExpr());
-        if (results.hasErrors()) {
-            //TODO:
-            return -1.;
-        }
-        Double rate = results.getResult();
-
-        if (!isInfiniteServer()) {
-            return rate;
-        }
-        Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(parser, petriNet.inboundArcs(this));
-        int enablingDegree = getEnablingDegree(state, arcWeights);
-        return rate * enablingDegree;
-    }
 	@Override
-	public Double getActualRate(ExecutablePetriNet executablePetriNet, State state) {
-		StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(executablePetriNet, state);
-		PetriNetWeightParser parser = new PetriNetWeightParser(stateEvalVisitor, executablePetriNet);
-		FunctionalResults<Double> results = parser.evaluateExpression(getRateExpr());
-		if (results.hasErrors()) {
+	public Double getActualRate(ExecutablePetriNet executablePetriNet) {
+		Double rate = getRateGivenCurrentState(executablePetriNet);
+		if (rate == -1) {
 			//TODO:
-			return -1.;
+			return rate;
 		}
-		Double rate = results.getResult();
 		
 		if (!isInfiniteServer()) {
 			return rate;
 		}
-		Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(parser, executablePetriNet.inboundArcs(this));
-		int enablingDegree = getEnablingDegree(state, arcWeights);
+		Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(executablePetriNet.getFunctionalWeightParserForCurrentState(), executablePetriNet.inboundArcs(this));
+		int enablingDegree = getEnablingDegree(executablePetriNet.getCurrentState(), arcWeights);
 		return rate * enablingDegree;
+	}
+
+	private Double getRateGivenCurrentState(ExecutablePetriNet executablePetriNet) {
+		return executablePetriNet.evaluateExpressionAgainstCurrentState(getRateExpr());
 	}
 
     /**
      *
-     * @return the unevaluated text representation of a transition reight
+     * @return the unevaluated text representation of a transition weight
      */
     @Override
     public String getRateExpr() {
@@ -370,7 +352,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @param arcs   set of inbound arcs to evaluate weight against the current state
      * @return map of arc place id -> arc weights associated with it
      */
-    private Map<String, Map<String, Double>> evaluateInboundArcWeights(PetriNetWeightParser parser,
+    private Map<String, Map<String, Double>> evaluateInboundArcWeights(FunctionalWeightParser<Double> parser,
                                                                        Collection<InboundArc> arcs) {
         Map<String, Map<String, Double>> result = new HashMap<>();
         for (InboundArc arc : arcs) {
@@ -428,7 +410,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @return arc weights evaluated to the current state
      */
 
-    private Map<String, Double> evaluateArcWeight(PetriNetWeightParser parser, Map<String, String> arcWeights) {
+    private Map<String, Double> evaluateArcWeight(FunctionalWeightParser<Double> parser, Map<String, String> arcWeights) {
         Map<String, Double> result = new HashMap<>();
         for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
             String tokenId = entry.getKey();
@@ -443,7 +425,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
      * @param weight arc functional rate
      * @return arc weight for a given state
      */
-    private double getArcWeight(PetriNetWeightParser parser, String weight) {
+    private double getArcWeight(FunctionalWeightParser<Double> parser, String weight) {
         FunctionalResults<Double> result = parser.evaluateExpression(weight);
         if (result.hasErrors()) {
             //TODO:

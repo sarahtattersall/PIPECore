@@ -147,18 +147,14 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
-    //TODO maybe move to ExecutablePetriNet; same logic appears in NormalInboundArc.  
     @Override
     public double getArcWeight(State state, String weight) {
-        StateEvalVisitor evalVisitor = new StateEvalVisitor(executablePetriNet, state);
-        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
-        FunctionalResults<Double> result = parser.evaluateExpression(weight);
-        if (result.hasErrors()) {
+    	double result =  executablePetriNet.evaluateExpression(state, weight); 
+        if (result == -1.0) {
             //TODO:
             throw new RuntimeException("Could not parse arc weight");
         }
-
-        return result.getResult();
+        return result; 
     }
 
     /**
