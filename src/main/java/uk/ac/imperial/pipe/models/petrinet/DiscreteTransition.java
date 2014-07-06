@@ -1,11 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.parsers.FunctionalResults;
-import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
-import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
-import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
-import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
-import uk.ac.imperial.state.State;
+import static java.lang.Math.floor;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -13,7 +8,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.floor;
+import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
+import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
+import uk.ac.imperial.state.State;
 
 
 /**

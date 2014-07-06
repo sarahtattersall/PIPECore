@@ -160,7 +160,6 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      * @return true if given the current state the arc can fire
      */
     //TODO: Don't pass in Petri net, get around this with better design
-    boolean canFire(PetriNet petriNet, State state);
     boolean canFire(ExecutablePetriNet executablePetriNet, State state);
 
     /**

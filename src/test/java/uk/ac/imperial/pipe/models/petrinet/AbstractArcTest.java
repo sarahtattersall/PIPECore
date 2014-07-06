@@ -134,10 +134,6 @@ public class AbstractArcTest {
             super(source, target, new HashMap<String, String>(), ArcType.NORMAL);
         }
 
-        @Override
-        public boolean canFire(PetriNet petriNet, State state) {
-            return false;
-        }
 
         @Override
         public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {

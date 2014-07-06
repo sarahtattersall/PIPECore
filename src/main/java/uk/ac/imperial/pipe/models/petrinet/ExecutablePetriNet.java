@@ -12,7 +12,6 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
-import uk.ac.imperial.pipe.parsers.EvalVisitor;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
@@ -31,7 +30,7 @@ import uk.ac.imperial.state.State;
  */
 // * In the PIPE 5.0 gui, each imported Petri net is displayed in its own tab, and may be edited and persisted separately.  
 // * Expanded Petri nets are not visible in the gui; their updated markings are visible in the tabs of the corresponding imported Petri net. 
-public class ExecutablePetriNet implements PropertyChangeListener {
+public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChangeListener {
 
 	private PetriNet petriNet;
 	private Collection<Annotation> annotations;
@@ -222,6 +221,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @param id
 	 * @return true if any component in the Petri net has this id
 	 */
+	@Override
 	public boolean containsComponent(String id) {
 		return clonedPetriNet.containsComponent(id); 
 	}
@@ -233,6 +233,7 @@ public class ExecutablePetriNet implements PropertyChangeListener {
 	 * @return component with the specified id if it exists in the Petri net
 	 * @throws PetriNetComponentNotFoundException if component does not exist in Petri net
 	 */
+	@Override
 	public <T extends PetriNetComponent> T getComponent(String id,
 			Class<T> clazz) throws PetriNetComponentNotFoundException {
 		return clonedPetriNet.getComponent(id, clazz); 

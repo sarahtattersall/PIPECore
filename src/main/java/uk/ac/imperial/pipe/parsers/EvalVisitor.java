@@ -1,9 +1,8 @@
 package uk.ac.imperial.pipe.parsers;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 /**
  * Evaluates a functional expression
@@ -12,20 +11,15 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     /**
      * Underlying Petri net
      */
-    private PetriNet petriNet;
-	private ExecutablePetriNet executablePetriNet;
+    private AbstractPetriNet abstractPetriNet;
 
     /**
      * Constructor for evaluating expressions that contain petri
      * net components, i.e places
      */
-    public EvalVisitor(PetriNet petriNet) {
-        this.petriNet = petriNet;
+    public EvalVisitor(AbstractPetriNet abstractPetriNet) {
+        this.abstractPetriNet = abstractPetriNet;
     }
-
-    public EvalVisitor(ExecutablePetriNet executablePetriNet) {
-    	this.executablePetriNet = executablePetriNet; 
-	}
 
 	@Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
@@ -99,28 +93,14 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
         Double value = visit(ctx.expression());
         return Math.ceil(value);
     }
-
-
     /**
      *
      * @param id
      * @return place for id
      * @throws PetriNetComponentNotFoundException
      */
-    //FIXME kludge until refactor ExecutablePetriNet
-    public Place getPlace(String id) throws PetriNetComponentNotFoundException {
-        if (executablePetriNet != null) return newGetPlace(id);
-        else return oldGetPlace(id); 
-//        return petriNet.getComponent(id, Place.class);
-    }
-
-	private Place newGetPlace(String id)
-			throws PetriNetComponentNotFoundException {
-		return executablePetriNet.getComponent(id, Place.class);
-	}
-	private Place oldGetPlace(String id)
-			throws PetriNetComponentNotFoundException {
-		return petriNet.getComponent(id, Place.class);
+	public Place getPlace(String id) throws PetriNetComponentNotFoundException {
+		return abstractPetriNet.getComponent(id, Place.class);
 	}
 
 }

@@ -1,8 +1,19 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.annotation.XmlTransient;
+
 import org.apache.commons.collections.CollectionUtils;
+
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
@@ -13,17 +24,14 @@ import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
-import javax.xml.bind.annotation.XmlTransient;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.*;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 /**
  * Petri net class that houses Petri net components and performs the logic on their
  * insertion and deletion.
  */
-public class PetriNet {
+public class PetriNet extends AbstractPetriNet {
     /**
      * Message fired when Petri net name changes
      */
@@ -769,6 +777,7 @@ public class PetriNet {
      * @param id
      * @return true if any component in the Petri net has this id
      */
+    @Override
     public boolean containsComponent(String id) {
         for (Map<String, ? extends PetriNetComponent> map : componentMaps.values()) {
             if (map.containsKey(id)) {
@@ -785,6 +794,7 @@ public class PetriNet {
      * @return component with the specified id if it exists in the Petri net
      * @throws PetriNetComponentNotFoundException if component does not exist in Petri net
      */
+    @Override
     public <T extends PetriNetComponent> T getComponent(String id, Class<T> clazz)
             throws PetriNetComponentNotFoundException {
         Map<String, T> map = getMapForClass(clazz);

@@ -32,19 +32,13 @@ public class InboundNormalArc extends InboundArc {
         Place place = getSource();
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
         Map<String, String> tokenWeights = getTokenWeights();
-        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(executablePetriNet, state);
-        FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(stateEvalVisitor, executablePetriNet);
-
-
+        double tokenWeight = 0; 
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-            FunctionalResults<Double> results = functionalWeightParser.evaluateExpression(entry.getValue());
-            if (results.hasErrors()) {
+        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue()); 
+            if (tokenWeight == -1.0) {
                 //TODO:
                 throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
             }
-
-            double tokenWeight = results.getResult();
-
             String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
             if (currentCount < tokenWeight && currentCount != -1) {
@@ -52,31 +46,5 @@ public class InboundNormalArc extends InboundArc {
             }
         }
         return true;
-    }
-    @Override
-    public final boolean canFire(PetriNet petriNet, State state) {
-    	Place place = getSource();
-    	Map<String, Integer> tokenCounts = state.getTokens(place.getId());
-    	Map<String, String> tokenWeights = getTokenWeights();
-    	StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
-    	FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
-    	
-    	
-    	for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-    		FunctionalResults<Double> results = functionalWeightParser.evaluateExpression(entry.getValue());
-    		if (results.hasErrors()) {
-    			//TODO:
-    			throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
-    		}
-    		
-    		double tokenWeight = results.getResult();
-    		
-    		String tokenId = entry.getKey();
-    		int currentCount = tokenCounts.get(tokenId);
-    		if (currentCount < tokenWeight && currentCount != -1) {
-    			return false;
-    		}
-    	}
-    	return true;
     }
 }
