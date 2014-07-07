@@ -103,7 +103,9 @@ public class PetriNetReaderTest {
         PetriNet petriNet = reader.read(FileUtils.fileLocation(getNoPlaceTokenPath()));
         assertThat(petriNet.getPlaces()).isNotEmpty();
         Place place = petriNet.getPlaces().iterator().next();
-        assertThat(place.getTokenCounts()).isEmpty();
+        assertThat(place.getTokenCounts()).containsEntry(DEFAULT_TOKEN, 0);
+        //SJD place will have a 0 count for each token instead of null token count
+//        assertThat(place.getTokenCounts()).isEmpty();  
     }
 
     private String getNoPlaceTokenPath() {
@@ -130,6 +132,7 @@ public class PetriNetReaderTest {
 
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getArcNoWeightFile()));
         Place expectedSource = new DiscretePlace("P0", "P0");
+        expectedSource.setTokenCount(DEFAULT_TOKEN, 0);
         Transition expectedTarget = new DiscreteTransition("T0", "T0");
         assertThat(petriNet.getArcs()).extracting("type", "source", "target", "id").contains(
                 tuple(ArcType.NORMAL, expectedSource, expectedTarget, "P0 TO T0"));

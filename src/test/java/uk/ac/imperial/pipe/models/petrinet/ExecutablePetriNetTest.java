@@ -140,4 +140,24 @@ public class ExecutablePetriNetTest {
     	epnp1.setTokenCount("Default", 2); 
     	assertEquals(new Double(-1.0), epn.evaluateExpressionAgainstCurrentState("Fred(P1)")); 
     }
+    @Test
+    public void stateCanBeExtractedAndThenReappliedResettingBothExecutableAndSourcePetriNets() throws Exception {
+    	net = buildTestNet();
+    	epn = net.makeExecutablePetriNet();
+    	State beforeState = epn.getState(); 
+    	Place epnp1 = epn.getComponent("P1", Place.class); 
+    	Place netp1 = net.getComponent("P1", Place.class); 
+    	assertEquals(0, epnp1.getTokenCount("Default")); 
+    	assertEquals(0, netp1.getTokenCount("Default")); 
+    	epnp1.setTokenCount("Default", 2); 
+    	assertEquals(2, epnp1.getTokenCount("Default")); 
+    	assertEquals(2, netp1.getTokenCount("Default")); 
+    	assertNotEquals(beforeState, epn.getState()); 
+    	epn.setState(beforeState); 
+    	epnp1 = epn.getComponent("P1", Place.class); 
+    	netp1 = net.getComponent("P1", Place.class); 
+    	assertEquals(0, epnp1.getTokenCount("Default")); 
+    	assertEquals(0, netp1.getTokenCount("Default")); 
+    	assertEquals(beforeState, epn.getState()); 
+    }
 }

@@ -5,6 +5,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -44,7 +45,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private boolean refreshRequired;
 	private PetriNet clonedPetriNet;
 	private PetriNetName petriNetName;
-	private State currentState;
+	private State state;
     /**
      * Functional weight parser
      */
@@ -96,14 +97,24 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 				builder.placeWithToken(place.getId(), token.getId(), place.getTokenCount(token.getId()));
 			}
 		}
-		currentState = builder.build();
+		state = builder.build();
 	}
 	
-	public State getCurrentState() {
+	public State getState() {
 		refresh(); 
-		return currentState;
+		return state;
+	}
+	public void setState(State state) {
+		this.state = state; 
+        for (Place place : places) {
+        	place.setTokenCounts(state.getTokens(place.getId()));
+//            Map<String, Integer> originalTokens = savedStateTokens.get(place.getId());
+//            place.setTokenCounts(originalTokens);
+        }
+
 	}
 
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		refreshRequired = true; 
@@ -113,7 +124,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * @return double result of the evaluation of the expression against the current state of this executable petri net, or -1.0 if the expression is not valid. 
 	 */
 	public Double evaluateExpressionAgainstCurrentState(String expression) {
-		return evaluateExpression(getCurrentState(), expression);
+		return evaluateExpression(getState(), expression);
 	}
 	/**
 	 * @param State representing a possible marking of the places in this executable Petri net.  <i>Note that the expression is evaluated against the given state, 
@@ -125,7 +136,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return buildFunctionalWeightParser(state).evaluateExpression(expression).getResult();
 	}
 	public FunctionalWeightParser<Double> getFunctionalWeightParserForCurrentState() {
-		functionalWeightParser = buildFunctionalWeightParser(getCurrentState());
+		functionalWeightParser = buildFunctionalWeightParser(getState());
 		return functionalWeightParser;
 	}
 	private FunctionalWeightParser<Double> buildFunctionalWeightParser(State state) {
@@ -340,6 +351,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public PetriNet getPetriNet() {
 		return petriNet;
 	}
+
 
 
 

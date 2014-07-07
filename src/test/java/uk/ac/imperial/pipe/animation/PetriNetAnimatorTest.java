@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
+import uk.ac.imperial.state.HashedState;
 
 import java.awt.Color;
 import java.util.Collection;
@@ -231,17 +232,15 @@ public class PetriNetAnimatorTest {
     }
 
     @Test
-    public void restoresPetriNet() {
+    public void restoresPetriNet() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = createSimplePetriNet(1);
         PetriNet copy = ClonePetriNet.clone(petriNet);
         ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
-        ExecutablePetriNet copyepn = copy.makeExecutablePetriNet(); 
-
-//        Animator animator = new PetriNetAnimator(petriNet);
+        ExecutablePetriNet copyepn = copy.makeExecutablePetriNet();
         Animator animator = new PetriNetAnimator(epn);
         animator.fireTransition(animator.getRandomEnabledTransition());
-
-        animator.reset();
+        
+        animator.reset(); 
         assertEquals(copyepn, epn);
     }
 

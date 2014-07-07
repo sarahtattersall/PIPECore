@@ -733,4 +733,24 @@ public class PetriNetTest {
     	net.addPlace(new DiscretePlace("P0")); 
     	assertThat(epn.getPlaces()).hasSize(1);
 	}
+    @Test
+	public void verifyPlaceHasTokenCountZeroForEachToken() throws Exception {
+        Place place = new DiscretePlace("P1", "P1");
+        net.addPlace(place);
+        Token token = new ColoredToken("Default", Color.black);
+        net.addToken(token);
+        int count = place.getTokenCounts().get("Default");
+        assertEquals(0, count);
+	}
+    @Test
+    public void removeTokenCleansUpPlaceReferencesIfCountIsStillZero() throws PetriNetComponentException {
+    	Token token = new ColoredToken("Default", Color.BLACK);
+    	Place place = new DiscretePlace("P0", "P0");
+    	net.addPlace(place);
+    	net.addToken(token); 
+    	assertThat(place.getTokenCounts()).containsEntry("Default", 0);
+    	net.removeToken(token);
+    	assertThat(place.getTokenCounts()).doesNotContainKey("Default");
+    }
+
 }

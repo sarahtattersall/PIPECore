@@ -394,12 +394,19 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     public void removeAllTokens(String token) {
         tokenCounts.remove(token);
     }
-
+    
+    
+    
+    /**
+     * Token count change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net
+     *
+     * @param event 
+     */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
-			setTokenCounts((Map<String, Integer>) evt.getNewValue()); 
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
+			setTokenCounts((Map<String, Integer>) event.getNewValue()); 
 		}
 	}
 }

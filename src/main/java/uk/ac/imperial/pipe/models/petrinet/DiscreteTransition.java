@@ -319,7 +319,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 			return rate;
 		}
 		Map<String, Map<String, Double>> arcWeights = evaluateInboundArcWeights(executablePetriNet.getFunctionalWeightParserForCurrentState(), executablePetriNet.inboundArcs(this));
-		int enablingDegree = getEnablingDegree(executablePetriNet.getCurrentState(), arcWeights);
+		int enablingDegree = getEnablingDegree(executablePetriNet.getState(), arcWeights);
 		return rate * enablingDegree;
 	}
 

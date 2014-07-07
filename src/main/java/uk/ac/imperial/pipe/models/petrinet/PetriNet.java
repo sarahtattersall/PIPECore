@@ -348,6 +348,11 @@ public class PetriNet extends AbstractPetriNet {
         if (!places.containsValue(place)) {
             places.put(place.getId(), place);
             place.addPropertyChangeListener(new NameChangeListener<>(place, places));
+            for (Token token: tokens.values()) {
+            	if (!place.getTokenCounts().containsKey(token.getId())) {
+            		place.setTokenCount(token.getId(), 0); 
+            	}
+            }
             changeSupport.firePropertyChange(NEW_PLACE_CHANGE_MESSAGE, null, place);
         }
     }
@@ -574,6 +579,9 @@ public class PetriNet extends AbstractPetriNet {
             tokens.put(token.getId(), token);
             token.addPropertyChangeListener(new NameChangeListener<>(token, tokens));
             token.addPropertyChangeListener(new TokenNameChanger());
+            for (Place place: places.values()) {
+            	place.setTokenCount(token.getId(), 0); 
+            }
             changeSupport.firePropertyChange(NEW_TOKEN_CHANGE_MESSAGE, null, token);
         }
     }
@@ -589,6 +597,7 @@ public class PetriNet extends AbstractPetriNet {
         Collection<Transition> referencedTransitions = getTransitionsReferencingToken(token);
         if (referencedPlaces.isEmpty() && referencedTransitions.isEmpty()) {
             tokens.remove(token.getId());
+            cleanupZeroCountEntriesInPlaces(token);
             changeSupport.firePropertyChange(DELETE_TOKEN_CHANGE_MESSAGE, token, null);
             return;
         }
@@ -612,7 +621,13 @@ public class PetriNet extends AbstractPetriNet {
         throw new PetriNetComponentException(message.toString());
     }
 
-    /**
+    private void cleanupZeroCountEntriesInPlaces(Token token) {
+    	for (Place place: places.values()) {
+    		place.removeAllTokens(token.getId()); 
+    	}
+	}
+
+	/**
      * @param token
      * @return collection of Places that contain 1 or more of these tokens
      */
@@ -803,6 +818,44 @@ public class PetriNet extends AbstractPetriNet {
         }
         throw new PetriNetComponentNotFoundException("No component " + id + " exists in Petri net.");
     }
+    /**
+    *
+    * @return a set of all component id's contained within this Petri net
+    */
+   public Set<String> getComponentIds() {
+       Set<String> results = new HashSet<>();
+       for(Map<String, ? extends PetriNetComponent> entry : componentMaps.values()) {
+           results.addAll(entry.keySet());
+       }
+       return results;
+   }
+
+   /**
+    *
+    * @param id
+    * @return true if a component with the given id exists in the Petri net
+    */
+   public boolean contains(String id) {
+       return getComponentIds().contains(id);
+   }
+
+   /**
+    *
+    * @return the PetriNetHierarchy representing any PetriNets imported directly by this net, or indirectly by imports done in imported in Petri nets. 
+    */
+	public PetriNetHierarchy getPetriNetHierarchy()
+	{
+		return hierarchicalPetriNet;
+	}
+
+	public ExecutablePetriNet makeExecutablePetriNet() {
+		if (executablePetriNet == null) {
+			executablePetriNet = new ExecutablePetriNet(this); 
+			addPropertyChangeListener(executablePetriNet); 
+		}
+		else executablePetriNet.refresh(); 
+		return executablePetriNet;
+	}
 
     /**
      *
@@ -978,42 +1031,4 @@ public class PetriNet extends AbstractPetriNet {
         }
     }
 
-    /**
-     *
-     * @return a set of all component id's contained within this Petri net
-     */
-    public Set<String> getComponentIds() {
-        Set<String> results = new HashSet<>();
-        for(Map<String, ? extends PetriNetComponent> entry : componentMaps.values()) {
-            results.addAll(entry.keySet());
-        }
-        return results;
-    }
-
-    /**
-     *
-     * @param id
-     * @return true if a component with the given id exists in the Petri net
-     */
-    public boolean contains(String id) {
-        return getComponentIds().contains(id);
-    }
-
-    /**
-     *
-     * @return the PetriNetHierarchy representing any PetriNets imported directly by this net, or indirectly by imports done in imported in Petri nets. 
-     */
-	public PetriNetHierarchy getPetriNetHierarchy()
-	{
-		return hierarchicalPetriNet;
-	}
-
-	public ExecutablePetriNet makeExecutablePetriNet() {
-		if (executablePetriNet == null) {
-			executablePetriNet = new ExecutablePetriNet(this); 
-			addPropertyChangeListener(executablePetriNet); 
-		}
-		else executablePetriNet.refresh(); 
-		return executablePetriNet;
-	}
 }
