@@ -5,7 +5,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -21,7 +20,8 @@ import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 /**
- * Makes a PetriNet available for execution, that is, animation or analysis by a module.  Returns the state of the Petri net as a collections of its constituent components. 
+ * Makes a PetriNet available for execution, that is, animation or analysis by a module.  The complete state of the Petri net is a set of collections of its constituent components.
+ * For efficiency of processing the marking of the Petri net is saved as State  
  * <p>
  * If the Petri net is a composite Petri net, each import statement has been replaced with the components that comprise the imported Petri net, resulting in a single Petri net, 
  * with corresponding collections of all the constituent components.  
@@ -51,12 +51,26 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      */
     private FunctionalWeightParser<Double> functionalWeightParser; 
 
+    /**
+	 * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize the structure of the 
+	 * two Petri nets.
+	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
+	 */
+
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
 		refreshRequired = true; 
 		refresh(); 
 	}
 
+	/**
+	 * This will cause the executable Petri net to be immediately re-built from the underlying source Petri net, using {@link uk.ac.imperial.pipe.visitor.ClonePetriNet.clone(PetriNet)} 
+	 * Assumes that {@link #refreshRequired() refreshRequired} has been called since the last refresh.  
+	 * <p>
+	 * In addition to cloning the source Petri net, a listener is added for each place in the source Petri net to update its token counts whenever they 
+	 * change in the executable Petri net.
+	 * Finally, a representation of the marking of this executable Petri net is saved as a {@link uk.ac.imperial.state.State}.  This can be retrieved with {@link getState()}
+	 */
 	public void refresh() {
 		if (refreshRequired) {
 		    clonedPetriNet = ClonePetriNet.clone(petriNet);
@@ -86,7 +100,12 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			place.addPropertyChangeListener(this);  // force refresh 
 		}
 	}
-
+	/**
+	 * This will cause the executable Petri net to be re-built from the underlying source Petri net.  Used when the structure of the underlying source Petri net has 
+	 * changed, although most changes are detected automatically.  
+	 * <p>
+	 * The refresh is done lazily, when the next "get" request is received. 
+	 */
 	public void refreshRequired() {
 		refreshRequired = true; 
 	}
@@ -100,21 +119,30 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		state = builder.build();
 	}
 	
+    /**
+    * Supports calculating State independently of this executable petri net, and then applying an updated State later {@see setState(State state)}
+    *
+    * @return the State of the executable Petri net.
+    */
+
 	public State getState() {
 		refresh(); 
 		return state;
 	}
+	/**
+	 * Updates the State of the executable Petri net.  All places will be updated with corresponding token counts, both in the 
+	 * executable Petri net and the underlying source Petri net.
+	 * <p>
+	 * Note that if the structure of the underlying source Petri net has changed since this state was originally saved, the results are undefined. 
+	 * <p>
+	 * @param state 
+	 */
 	public void setState(State state) {
-		this.state = state; 
+		refreshRequired(); 
         for (Place place : places) {
         	place.setTokenCounts(state.getTokens(place.getId()));
-//            Map<String, Integer> originalTokens = savedStateTokens.get(place.getId());
-//            place.setTokenCounts(originalTokens);
         }
-
 	}
-
-	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		refreshRequired = true; 
@@ -128,7 +156,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 	/**
 	 * @param State representing a possible marking of the places in this executable Petri net.  <i>Note that the expression is evaluated against the given state, 
-	 * not the current state.  If evaluation against the current state is needed, invoke evaluateExpressionAgainstCurrentState(String expression)<i>.  
+	 * not the current state.  If evaluation against the current state is needed, invoke {@link #evaluateExpressionAgainstCurrentState(String)}</i>.  
 	 * @param String functional expression
 	 * @return double result of the evaluation of the expression against the given state, or -1.0 if the expression is not valid. 
 	 */
