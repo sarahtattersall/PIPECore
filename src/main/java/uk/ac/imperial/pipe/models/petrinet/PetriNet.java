@@ -190,7 +190,7 @@ public class PetriNet extends AbstractPetriNet {
     //TODO: WHAT IS THIS
     private boolean validated = false;
 
-	private PetriNetHierarchy hierarchicalPetriNet;
+	private PetriNetHierarchy petriNetHierarchy;
 
 	private ExecutablePetriNet executablePetriNet;
 
@@ -211,7 +211,7 @@ public class PetriNet extends AbstractPetriNet {
      */
     public PetriNet() {
         initialiseIdMap();
-        hierarchicalPetriNet = new PetriNetHierarchy(this); 
+        petriNetHierarchy = new PetriNetHierarchy(this); 
     }
 
     /**
@@ -845,7 +845,7 @@ public class PetriNet extends AbstractPetriNet {
     */
 	public PetriNetHierarchy getPetriNetHierarchy()
 	{
-		return hierarchicalPetriNet;
+		return petriNetHierarchy;
 	}
 
 	public ExecutablePetriNet makeExecutablePetriNet() {
@@ -863,7 +863,8 @@ public class PetriNet extends AbstractPetriNet {
      * @param <T> componennt class
      * @return the map that corresponds to the clazz type.
      */
-    private <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+	protected <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
         return (Map<String, T>) componentMaps.get(clazz);
     }
 

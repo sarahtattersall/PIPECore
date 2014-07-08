@@ -100,7 +100,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @param transition
      * @return Map of places whose token counts differ from those in the initial state
      */
-    //TODO: This method is a bit too long
+    //TODO:  refactor to ExecutablePetriNet 
     @Override
     public State getFiredState(State state, Transition transition) {
         HashedStateBuilder builder = new HashedStateBuilder();
