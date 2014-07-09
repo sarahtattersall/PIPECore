@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 public class EvalVisitorTest {
     private static final PetriNet EMPTY_PETRI_NET = new PetriNet();
-    private static final ExecutablePetriNet EMPTY_EXECUTABLE_PETRI_NET = EMPTY_PETRI_NET.makeExecutablePetriNet();
+    private static final ExecutablePetriNet EMPTY_EXECUTABLE_PETRI_NET = EMPTY_PETRI_NET.getExecutablePetriNet();
 	private ExecutablePetriNet executablePetriNet;
 
     public ParseTree parseTreeForExpr(String expr) {
@@ -169,7 +169,7 @@ public class EvalVisitorTest {
     public void parsesPlaceTokenNumber() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 //      ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(petriNet);
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(executablePetriNet);
 
@@ -185,7 +185,7 @@ public class EvalVisitorTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens().and(6, "Red").tokens());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 //      ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(petriNet);
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(executablePetriNet);
 
@@ -200,7 +200,7 @@ public class EvalVisitorTest {
     public void parsesPlaceTokenNumberAsZeroIfDoesNotExist() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 //      ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(petriNet);
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(executablePetriNet);
 
@@ -215,7 +215,7 @@ public class EvalVisitorTest {
     public void parsesPlaceCapacity() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 //        ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(petriNet);
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(executablePetriNet);
         ParseTree parseTree = parseTreeForExpr("cap(P0)");
@@ -229,7 +229,7 @@ public class EvalVisitorTest {
     public void parsesPlaceCapacityAsZeroIfDoesNotExist() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 //      ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(petriNet);
         ParseTreeVisitor<Double> evalVisitor = new EvalVisitor(executablePetriNet);
 

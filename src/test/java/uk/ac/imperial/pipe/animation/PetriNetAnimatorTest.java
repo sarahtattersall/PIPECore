@@ -31,7 +31,7 @@ public class PetriNetAnimatorTest {
 
 //        Animator animator = new PetriNetAnimator(petriNet);
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
@@ -55,7 +55,7 @@ public class PetriNetAnimatorTest {
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
@@ -75,7 +75,7 @@ public class PetriNetAnimatorTest {
         place.setTokenCount(token.getId(), 2);
 
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
 //        Animator animator = new PetriNetAnimator(petriNet);
@@ -96,7 +96,7 @@ public class PetriNetAnimatorTest {
                 ANormalArc.withSource("P2").andTarget("T2").with("1", "Default").token());
 
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -118,7 +118,7 @@ public class PetriNetAnimatorTest {
 
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransitionBackwards(transition);
@@ -148,7 +148,7 @@ public class PetriNetAnimatorTest {
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
@@ -166,7 +166,7 @@ public class PetriNetAnimatorTest {
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
@@ -203,7 +203,7 @@ public class PetriNetAnimatorTest {
 
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
@@ -222,7 +222,7 @@ public class PetriNetAnimatorTest {
 
 //        Transition transition = petriNet.getComponent("T1", Transition.class);
 //        Animator animator = new PetriNetAnimator(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransitionBackwards(transition);
@@ -235,8 +235,8 @@ public class PetriNetAnimatorTest {
     public void restoresPetriNet() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = createSimplePetriNet(1);
         PetriNet copy = ClonePetriNet.clone(petriNet);
-        ExecutablePetriNet epn = petriNet.makeExecutablePetriNet(); 
-        ExecutablePetriNet copyepn = copy.makeExecutablePetriNet();
+        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
+        ExecutablePetriNet copyepn = copy.getExecutablePetriNet();
         Animator animator = new PetriNetAnimator(epn);
         animator.fireTransition(animator.getRandomEnabledTransition());
         

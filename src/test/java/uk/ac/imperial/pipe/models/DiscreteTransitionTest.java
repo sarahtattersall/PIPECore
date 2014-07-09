@@ -163,7 +163,7 @@ public class DiscreteTransitionTest {
                 ATimedTransition.withId("T0").andIsAnInfinite().server().andRate("4")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
 
@@ -181,7 +181,7 @@ public class DiscreteTransitionTest {
                 ATimedTransition.withId("T0").andIsAnInfinite().server().andRate("4")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("#(P1)", "Default").token());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
 
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(executablePetriNet);
@@ -199,7 +199,7 @@ public class DiscreteTransitionTest {
                 ATimedTransition.withId("T0").andIsASingle().server().andRate("4")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
                 ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(executablePetriNet);
@@ -238,7 +238,7 @@ public class DiscreteTransitionTest {
                 APlace.withId("P0").and(5, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsASingle().server().andRate("#(P0)")).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         Transition transition = executablePetriNet.getComponent("T0", Transition.class);
         double rate = transition.getActualRate(executablePetriNet);
         assertEquals(5, rate, 0.0001);

@@ -23,7 +23,7 @@ public class PetriNetWeightParserTest {
 
     @Before
     public void setUp() {
-        executablePetriNet = EMPTY_PETRI_NET.makeExecutablePetriNet(); 
+        executablePetriNet = EMPTY_PETRI_NET.getExecutablePetriNet(); 
 //        evalVisitor = new EvalVisitor(EMPTY_PETRI_NET);
         evalVisitor = new EvalVisitor(executablePetriNet);
     }
@@ -68,7 +68,7 @@ public class PetriNetWeightParserTest {
     @Test
     public void willNotEvaluateExpressionIfPetriNetDoesNotContainComponent() throws UnparsableException {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P1"));
-        executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
 //        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0)");
@@ -79,7 +79,7 @@ public class PetriNetWeightParserTest {
     public void evaluatesIfPlaceIsInPetriNet() throws UnparsableException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 
-        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
 //        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
         EvalVisitor evalVisitor = new EvalVisitor(executablePetriNet);
 //        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
@@ -92,7 +92,7 @@ public class PetriNetWeightParserTest {
     public void returnsCorrectComponentsForTotalTokens() {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
-        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
 //        EvalVisitor evalVisitor = new EvalVisitor(petriNet);
         EvalVisitor evalVisitor = new EvalVisitor(executablePetriNet);
         FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
@@ -107,7 +107,7 @@ public class PetriNetWeightParserTest {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 
-        ExecutablePetriNet executablePetriNet = petriNet.makeExecutablePetriNet(); 
+        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
         FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
 //        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0, Default)");

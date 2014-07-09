@@ -190,7 +190,7 @@ public class PetriNet extends AbstractPetriNet {
     //TODO: WHAT IS THIS
     private boolean validated = false;
 
-	private PetriNetHierarchy petriNetHierarchy;
+	private IncludeHierarchy includes;
 
 	private ExecutablePetriNet executablePetriNet;
 
@@ -211,7 +211,7 @@ public class PetriNet extends AbstractPetriNet {
      */
     public PetriNet() {
         initialiseIdMap();
-        petriNetHierarchy = new PetriNetHierarchy(this); 
+        includes = new IncludeHierarchy(this, null); 
     }
 
     /**
@@ -841,14 +841,14 @@ public class PetriNet extends AbstractPetriNet {
 
    /**
     *
-    * @return the PetriNetHierarchy representing any PetriNets imported directly by this net, or indirectly by imports done in imported in Petri nets. 
+    * @return the IncludeHierarchy representing any PetriNets included directly by this net, or indirectly by includes done in included in Petri nets. 
     */
-	public PetriNetHierarchy getPetriNetHierarchy()
+	public IncludeHierarchy getIncludeHierarchy()
 	{
-		return petriNetHierarchy;
+		return includes;
 	}
 
-	public ExecutablePetriNet makeExecutablePetriNet() {
+	public ExecutablePetriNet getExecutablePetriNet() {
 		if (executablePetriNet == null) {
 			executablePetriNet = new ExecutablePetriNet(this); 
 			addPropertyChangeListener(executablePetriNet); 
