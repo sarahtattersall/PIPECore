@@ -34,17 +34,9 @@ import uk.ac.imperial.state.State;
 public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChangeListener {
 
 	private PetriNet petriNet;
-	private Collection<Annotation> annotations;
 	private Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
-	private Collection<InboundArc> inboundArcs;
-	private Collection<OutboundArc> outboundArcs;
-	private Collection<Token> tokens;
-	private Collection<RateParameter> rateParameters;
-	private Collection<Place> places;
-	private Collection<Transition> transitions;
 	private boolean refreshRequired;
 	private PetriNet clonedPetriNet;
-	private PetriNetName petriNetName;
 	private State state;
     /**
      * Functional weight parser
@@ -74,23 +66,24 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public void refresh() {
 		if (refreshRequired) {
 		    clonedPetriNet = ClonePetriNet.clone(petriNet);
-			annotations = clonedPetriNet.getAnnotations(); 
+			annotations = clonedPetriNet.annotations; 
 			arcs = clonedPetriNet.getArcs(); 
-			inboundArcs = clonedPetriNet.getInboundArcs();  
-			outboundArcs = clonedPetriNet.getOutboundArcs();  
-			tokens	= clonedPetriNet.getTokens();  
-			rateParameters = clonedPetriNet.getRateParameters();  
-			places = clonedPetriNet.getPlaces();  
-			transitions = clonedPetriNet.getTransitions();  
+			inboundArcs = clonedPetriNet.inboundArcs;  
+			outboundArcs = clonedPetriNet.outboundArcs;  
+			tokens	= clonedPetriNet.tokens;  
+			rateParameters = clonedPetriNet.rateParameters;  
+			places = clonedPetriNet.places;  
+			transitions = clonedPetriNet.transitions;  
 			petriNetName = clonedPetriNet.getName(); 
 			refreshRequired = false; 
+			initialiseIdMap(); 
 			addListenersToMirrorTokenCountsToOriginalPlaces(); 
 			buildState(); 
 		}
 	}
 	private void addListenersToMirrorTokenCountsToOriginalPlaces() {
 		Place originalPlace = null; 
-		for (Place place: places) {
+		for (Place place: places.values()) {
 			try {
 				originalPlace = petriNet.getComponent(place.getId(), Place.class);
 			} catch (PetriNetComponentNotFoundException e) {
@@ -111,8 +104,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 	private void buildState() {
 		HashedStateBuilder builder = new HashedStateBuilder();
-		for (Place place : places) {
-			for (Token token : tokens) {
+		for (Place place : places.values()) {
+			for (Token token : tokens.values()) {
 				builder.placeWithToken(place.getId(), token.getId(), place.getTokenCount(token.getId()));
 			}
 		}
@@ -139,7 +132,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public void setState(State state) {
 		refreshRequired(); 
-        for (Place place : places) {
+        for (Place place : places.values()) {
         	place.setTokenCounts(state.getTokens(place.getId()));
         }
 	}
@@ -177,7 +170,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public Collection<Place> getPlaces() {
 		refresh(); 
-		return places;
+		return places.values();
 	}
 	/**
 	 * @param place
@@ -203,7 +196,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public Collection<Transition> getTransitions() {
 		refresh(); 
-		return transitions;
+		return transitions.values();
 	}
 	/**
 	 * @return Petri net's collection of arcs
@@ -218,7 +211,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public Collection<OutboundArc> getOutboundArcs() {
 		refresh(); 
-		return outboundArcs;
+		return outboundArcs.values();
 	}
 	/**
 	 *
@@ -226,28 +219,28 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public Collection<InboundArc> getInboundArcs() {
 		refresh(); 
-		return inboundArcs;
+		return inboundArcs.values();
 	}
 	/**
 	 * @return Petri net's list of tokens
-	 */
+	 */	
 	public Collection<Token> getTokens() {
 		refresh(); 
-		return tokens;
+		return tokens.values();
 	}
 	/**
 	 * @return annotations stored in the Petri net
 	 */
 	public Collection<Annotation> getAnnotations() {
 		refresh(); 
-		return annotations;
+		return annotations.values();
 	}
 	/**
 	 * @return rate parameters stored in the Petri net
 	 */
 	public Collection<RateParameter> getRateParameters() {
 		refresh(); 
-		return rateParameters;
+		return rateParameters.values();
 	}
 	/**
 	 * @return true if the Petri net contains a default token
@@ -263,19 +256,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	@Override
 	public boolean containsComponent(String id) {
 		return clonedPetriNet.containsComponent(id); 
-	}
-
-	/**
-	 * @param id    component name
-	 * @param clazz PetriNetComponent class
-	 * @param <T>   type of Petri net component required
-	 * @return component with the specified id if it exists in the Petri net
-	 * @throws PetriNetComponentNotFoundException if component does not exist in Petri net
-	 */
-	@Override
-	public <T extends PetriNetComponent> T getComponent(String id,
-			Class<T> clazz) throws PetriNetComponentNotFoundException {
-		return clonedPetriNet.getComponent(id, clazz); 
 	}
 
 	/**
@@ -336,45 +316,45 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 //        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
 //        return result;
     }
-    @Override
-    public boolean equals(Object o) {
-	    if (this == o) {
-	        return true;
-	    }
-	    if (!(o instanceof ExecutablePetriNet)) {
-	        return false;
-	    }
-	
-	    ExecutablePetriNet executablePetriNet = (ExecutablePetriNet) o;
-	
-	
-	    if (!CollectionUtils.isEqualCollection(annotations, executablePetriNet.annotations)) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(inboundArcs, executablePetriNet.inboundArcs)) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(outboundArcs, executablePetriNet.outboundArcs)) {
-	        return false;
-	    }
-	    if (petriNetName != null ? !petriNetName.equals(executablePetriNet.petriNetName) : executablePetriNet.petriNetName != null) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(places, executablePetriNet.places)) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(rateParameters, executablePetriNet.rateParameters)) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(tokens, executablePetriNet.tokens)) {
-	        return false;
-	    }
-	    if (!CollectionUtils.isEqualCollection(transitions, executablePetriNet.transitions)) {
-	        return false;
-	    }
-	
-	    return true;
-	}
+//    @Override
+//    public boolean equals(Object o) {
+//	    if (this == o) {
+//	        return true;
+//	    }
+//	    if (!(o instanceof ExecutablePetriNet)) {
+//	        return false;
+//	    }
+//	
+//	    ExecutablePetriNet executablePetriNet = (ExecutablePetriNet) o;
+//	
+//	
+//	    if (!CollectionUtils.isEqualCollection(annotations, executablePetriNet.annotations)) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(inboundArcs, executablePetriNet.inboundArcs)) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(outboundArcs, executablePetriNet.outboundArcs)) {
+//	        return false;
+//	    }
+//	    if (petriNetName != null ? !petriNetName.equals(executablePetriNet.petriNetName) : executablePetriNet.petriNetName != null) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(places, executablePetriNet.places)) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(rateParameters, executablePetriNet.rateParameters)) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(tokens, executablePetriNet.tokens)) {
+//	        return false;
+//	    }
+//	    if (!CollectionUtils.isEqualCollection(transitions, executablePetriNet.transitions)) {
+//	        return false;
+//	    }
+//	
+//	    return true;
+//	}
 
 	public PetriNet getPetriNet() {
 		return petriNet;
