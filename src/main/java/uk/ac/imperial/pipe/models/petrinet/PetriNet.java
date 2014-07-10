@@ -102,12 +102,12 @@ public class PetriNet extends AbstractPetriNet {
     /**
      *  Maps transition id -> outbound arcs out of the transition
      */
-    private final Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
+    final Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
 
     /**
      * Maps transition id -> inbound arcs into the transition
      */
-    private final Multimap<String, InboundArc> transitionInboundArcs =  HashMultimap.create();
+    final Multimap<String, InboundArc> transitionInboundArcs =  HashMultimap.create();
 
     /**
      * Used to add Petri net components to the Petri net when their type is not directlty known
@@ -227,17 +227,23 @@ public class PetriNet extends AbstractPetriNet {
      * @param place place to add to Petri net
      */
     public void addPlace(Place place) {
-        if (!places.containsValue(place)) {
-            places.put(place.getId(), place);
-            place.addPropertyChangeListener(new NameChangeListener<>(place, places));
-            for (Token token: tokens.values()) {
-            	if (!place.getTokenCounts().containsKey(token.getId())) {
-            		place.setTokenCount(token.getId(), 0); 
-            	}
-            }
-            changeSupport.firePropertyChange(NEW_PLACE_CHANGE_MESSAGE, null, place);
+//        if (!places.containsValue(place)) {
+    	if (addComponentToMap(place, places)) {
+            setInitialTokenCountsToZero(place);
+            addAndNotifyListeners(place, places, NEW_PLACE_CHANGE_MESSAGE);
         }
     }
+
+	private void setInitialTokenCountsToZero(Place place) {
+		for (Token token: tokens.values()) {
+			if (!place.getTokenCounts().containsKey(token.getId())) {
+				place.setTokenCount(token.getId(), 0); 
+			}
+		}
+	}
+
+
+
 
     /**
      * Removes the place and all arcs connected to the place from the
@@ -337,11 +343,10 @@ public class PetriNet extends AbstractPetriNet {
      * @param transition transition to add to the Petri net
      */
     public void addTransition(Transition transition) {
-        if (!transitions.containsValue(transition)) {
-            transitions.put(transition.getId(), transition);
-            transition.addPropertyChangeListener(new NameChangeListener<>(transition, transitions));
+//    	if (!transitions.containsValue(transition)) {
+        if (addComponentToMap(transition, transitions)) {
             transition.addPropertyChangeListener(new NameChangeArcListener());
-            changeSupport.firePropertyChange(NEW_TRANSITION_CHANGE_MESSAGE, null, transition);
+            addAndNotifyListeners(transition, transitions, NEW_TRANSITION_CHANGE_MESSAGE);
         }
     }
 
@@ -390,24 +395,20 @@ public class PetriNet extends AbstractPetriNet {
      * @param inboundArc inbound arc to include in the Petri net
      */
     public void addArc(InboundArc inboundArc) {
-        if (!inboundArcs.containsKey(inboundArc.getId())) {
-            inboundArcs.put(inboundArc.getId(), inboundArc);
+        if (addComponentToMap(inboundArc, inboundArcs)) {
             transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
-            inboundArc.addPropertyChangeListener(new NameChangeListener<>(inboundArc, inboundArcs));
-            changeSupport.firePropertyChange(NEW_ARC_CHANGE_MESSAGE, null, inboundArc);
+            addAndNotifyListeners(inboundArc, inboundArcs, NEW_ARC_CHANGE_MESSAGE);
         }
     }
-
+    
     /**
      * Adds this arc to the petri net
      * @param outboundArc outbound arc to include in the Petri net
      */
     public void addArc(OutboundArc outboundArc) {
-        if (!outboundArcs.containsKey(outboundArc.getId())) {
-            outboundArcs.put(outboundArc.getId(), outboundArc);
+        if (addComponentToMap(outboundArc, outboundArcs)) {
             transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
-            outboundArc.addPropertyChangeListener(new NameChangeListener<>(outboundArc, outboundArcs));
-            changeSupport.firePropertyChange(NEW_ARC_CHANGE_MESSAGE, null, outboundArc);
+            addAndNotifyListeners(outboundArc, outboundArcs, NEW_ARC_CHANGE_MESSAGE);
         }
     }
 
@@ -417,16 +418,19 @@ public class PetriNet extends AbstractPetriNet {
      * @param token
      */
     public void addToken(Token token) {
-        if (!tokens.containsValue(token)) {
-            tokens.put(token.getId(), token);
-            token.addPropertyChangeListener(new NameChangeListener<>(token, tokens));
+//    	if (!tokens.containsValue(token)) {
+        if (addComponentToMap(token, tokens)) {
+            updateAllPlacesWithCountZeroForThisToken(token);
             token.addPropertyChangeListener(new TokenNameChanger());
-            for (Place place: places.values()) {
-            	place.setTokenCount(token.getId(), 0); 
-            }
-            changeSupport.firePropertyChange(NEW_TOKEN_CHANGE_MESSAGE, null, token);
+            addAndNotifyListeners(token, tokens, NEW_TOKEN_CHANGE_MESSAGE);
         }
     }
+
+	private void updateAllPlacesWithCountZeroForThisToken(Token token) {
+		for (Place place: places.values()) {
+			place.setTokenCount(token.getId(), 0); 
+		}
+	}
 
     /**
      * Tries to remove the token
@@ -504,12 +508,15 @@ public class PetriNet extends AbstractPetriNet {
      * @param annotation
      */
     public void addAnnotation(Annotation annotation) {
-        if (!annotations.containsKey(annotation.getId())) {
-            annotations.put(annotation.getId(), annotation);
-            annotation.addPropertyChangeListener(new NameChangeListener<>(annotation, annotations));
-            changeSupport.firePropertyChange(NEW_ANNOTATION_CHANGE_MESSAGE, null, annotation);
+        if (addComponentToMap(annotation, annotations)) {
+        	addAndNotifyListeners(annotation, annotations, NEW_ANNOTATION_CHANGE_MESSAGE);
         }
     }
+
+	<T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
+		component.addPropertyChangeListener(new NameChangeListener<>(component, components));
+		changeSupport.firePropertyChange(newMessage, null, component);
+	}
 
     /**
      * Removes the specified annotation from the Petri net
@@ -531,11 +538,9 @@ public class PetriNet extends AbstractPetriNet {
         if (!validFunctionalExpression(rateParameter.getExpression())) {
             throw new InvalidRateException(rateParameter.getExpression());
         }
-
-        if (!rateParameters.containsValue(rateParameter)) {
-            rateParameters.put(rateParameter.getId(), rateParameter);
-            rateParameter.addPropertyChangeListener(new NameChangeListener<>(rateParameter, rateParameters));
-            changeSupport.firePropertyChange(NEW_RATE_PARAMETER_CHANGE_MESSAGE, null, rateParameter);
+//        if (!rateParameters.containsValue(rateParameter)) {
+        if (addComponentToMap(rateParameter, rateParameters)) {
+            addAndNotifyListeners(rateParameter, rateParameters, NEW_RATE_PARAMETER_CHANGE_MESSAGE);
         }
     }
 
@@ -692,7 +697,7 @@ public class PetriNet extends AbstractPetriNet {
      * Listener for changing a components name in the set it is referenced by
      * @param <T>
      */
-    private static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
+    static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
         /**
          * Comoponent whose name will change
          */
@@ -734,7 +739,7 @@ public class PetriNet extends AbstractPetriNet {
      * This class is responsible for changing inbound and outbound arc references from
      * a transition id change
      */
-    private class NameChangeArcListener implements PropertyChangeListener {
+    class NameChangeArcListener implements PropertyChangeListener {
 
         /**
          * If a transition changes name then this is updated in the maps by removing the key
@@ -757,7 +762,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Listens for name changes of a token
      */
-    private class TokenNameChanger implements PropertyChangeListener {
+    class TokenNameChanger implements PropertyChangeListener {
 
         /**
          * When a tokens name changes then the maps in the places and arc need adjusting

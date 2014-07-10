@@ -13,6 +13,7 @@ import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 
 import java.awt.Color;
 import java.io.File;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -64,4 +65,8 @@ public class ClonePetriNetTest {
         assertTrue(arc.getSource() == clonedP0);
         assertTrue(arc.getTarget() == clonedT0);
     }
+    @Test
+	public void cloneIndividualComponentMapsToRebuildExecutablePetrNetState() throws Exception {
+//    	Map<String, Place> places = ClonePetriNet.cloneMap(Place.class, oldPetriNet); 
+	}
 }

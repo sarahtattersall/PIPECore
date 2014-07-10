@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.models.petrinet.name.*;
 
@@ -26,9 +27,13 @@ public final class ClonePetriNet {
     private final PetriNet petriNet;
 
     /**
-     * Closed Petri net
+     * Cloned Petri net
      */
-    private final PetriNet newPetriNet;
+    private  AbstractPetriNet newPetriNet;
+    /**
+     * Target executable Petri net
+     */
+    private  ExecutablePetriNet targetExecutablePetriNet;
 
     /**
      * cloned rate parameters
@@ -44,6 +49,10 @@ public final class ClonePetriNet {
      * cloned transitions
      */
     private final Map<String, Transition> transitions = new HashMap<>();
+    /**
+     * prefix the Id with its fully qualified name, when adding to Executable Petri Net
+     */
+	private boolean addFullyQualifiedNamePrefix = false;
 
     /**
      * private constructor
@@ -53,8 +62,15 @@ public final class ClonePetriNet {
         this.petriNet = petriNet;
         newPetriNet = new PetriNet();
     }
+    //TODO consider using newPetriNet in both cases, and converting to abstract
+    private ClonePetriNet(PetriNet sourcePetriNet,
+			ExecutablePetriNet targetExecutablePetriNet) {
+    	this.petriNet = sourcePetriNet;
+    	this.targetExecutablePetriNet = targetExecutablePetriNet;
+    	this.addFullyQualifiedNamePrefix = true;
+	}
 
-    /**
+	/**
      *
      * @param petriNet
      * @return  cloned Petri net
@@ -62,6 +78,15 @@ public final class ClonePetriNet {
     public static PetriNet clone(PetriNet petriNet) {
         ClonePetriNet clone = new ClonePetriNet(petriNet);
         return clone.clonePetriNet();
+    }
+    /**
+     * Visits each component of the source PetriNet and adds it to the target ExecutablePetriNet, prefixing its Id depending on the position of the source PetriNet in the IncludeHierarchy
+     * @param petriNet:  source
+     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, whose components will be replaced. 
+     */
+    public static void clone(PetriNet sourcePetriNet, ExecutablePetriNet targetExecutablePetriNet) {
+    	ClonePetriNet clone = new ClonePetriNet(sourcePetriNet, targetExecutablePetriNet);
+    	clone.clonePetriNet();
     }
 
     /**
@@ -101,7 +126,7 @@ public final class ClonePetriNet {
         for (OutboundArc arc : petriNet.getOutboundArcs()) {
             visit(arc);
         }
-        return newPetriNet;
+        return (PetriNet) newPetriNet;
     }
 
     /**
@@ -156,9 +181,14 @@ public final class ClonePetriNet {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Annotation newAnnotation = cloner.cloned;
+        prefixIdWithQualifiedNameIfProvided(newAnnotation); 
         newPetriNet.addAnnotation(newAnnotation);
 
     }
+	protected void prefixIdWithQualifiedNameIfProvided(PetriNetComponent component) {
+		//TODO what is the right IncludeHierarchy level for this? 
+//		if (fullyQualifiedName != null) component.setId(fullyQualifiedName+"."+component.getId());
+	}
 
     /**
      * Clones and adds the new place to the new Petri net
@@ -262,5 +292,24 @@ public final class ClonePetriNet {
             newPetriNet.setName(new NormalPetriNetName(name.getName()));
         }
     }
+//	public <T extends PetriNetComponent> T getComponent(String id,
+//			Class<T> clazz) throws PetriNetComponentNotFoundException {
+//			    Map<String, T> map = getMapForClass(clazz);
+//			    if (map.containsKey(id)) {
+//			        return map.get(id);
+//			    }
+//			    throw new PetriNetComponentNotFoundException("No component " + id + " exists in Petri net.");
+
+//    public static Map<String, T extends PetriNetComponent> T cloneMap(Class<T> clazz,
+//	public static <T extends PetriNetComponent> void cloneMap(Class<T> clazz, PetriNet oldPetriNet, ExecutablePetriNet targetExecutablePetriNet) {
+//		for (T component : oldPetriNet.getMapForClass(clazz).values()) {
+//			visit(component); 
+//		}
+//		
+////		Map<String, T> map = new HashMap<>(); 	
+//	}
+//    for (OutboundArc arc : petriNet.getOutboundArcs()) {
+//        visit(arc);
+//    }
 
 }

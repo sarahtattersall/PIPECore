@@ -10,7 +10,11 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet.NameChangeArcListener;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet.NameChangeListener;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet.TokenNameChanger;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 
 public abstract class AbstractPetriNet  {
@@ -171,7 +175,7 @@ public abstract class AbstractPetriNet  {
 	 * @return the map that corresponds to the clazz type.
 	 */
 	@SuppressWarnings("unchecked")
-	protected <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
+	public <T extends PetriNetComponent> Map<String, T> getMapForClass(Class<T> clazz) {
 	    return (Map<String, T>) componentMaps.get(clazz);
 	}
 
@@ -236,6 +240,61 @@ public abstract class AbstractPetriNet  {
 	    this.petriNetName = name;
 	    changeSupport.firePropertyChange(PETRI_NET_NAME_CHANGE_MESSAGE, old, name);
 	}
- 
+
+	/**
+	 * Adds the annotation to the Petri net
+	 *
+	 * @param annotation
+	 */
+	public abstract void addAnnotation(Annotation annotation); 
+
+	/**
+	 * Adds place to the Petri net
+	 *
+	 * @param place place to add to Petri net
+	 */
+	public abstract void addPlace(Place place);
+
+	/**
+	 * Adds transition to the Petri net
+	 *
+	 * @param transition transition to add to the Petri net
+	 */
+	public abstract void addTransition(Transition transition) ;
+	/**
+	 *
+	 * Adds this arc to the petri net
+	 *
+	 * @param inboundArc inbound arc to include in the Petri net
+	 */
+	public abstract void addArc(InboundArc inboundArc);
+
+	/**
+	 * Adds this arc to the petri net
+	 * @param outboundArc outbound arc to include in the Petri net
+	 */
+	public abstract void addArc(OutboundArc outboundArc);
 	
+	/**
+	 * Adds the token to the Petri net
+	 *
+	 * @param token
+	 */
+	public abstract void addToken(Token token);
+	/**
+	 * Adds the RateParameter to the Petri Net
+	 *
+	 * @param rateParameter to add to Petri net
+	 * @throws InvalidRateException if the rate is not parseable
+	 */
+	public abstract void addRateParameter(RateParameter rateParameter) throws InvalidRateException; 
+
+	protected <T extends PetriNetComponent> boolean addComponentToMap(T component, Map<String, T> components) {
+		if (!components.containsKey(component.getId())) {
+			components.put(component.getId(), component);
+			return true;
+		}
+		else return false; 
+	}
 }
+

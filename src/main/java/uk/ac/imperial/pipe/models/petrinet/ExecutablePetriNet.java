@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
@@ -302,7 +303,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 //		return false; 
 //	}
     @Override
-    //TODO work out reasonable hashcode for Collection coll.values(); 
+    //FIXME work out reasonable hashcode for Collection coll.values(); -- move to super?  
     public int hashCode() {
     	return clonedPetriNet.hashCode(); 
 //    	int result = 1; 
@@ -316,48 +317,45 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 //        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
 //        return result;
     }
-//    @Override
-//    public boolean equals(Object o) {
-//	    if (this == o) {
-//	        return true;
-//	    }
-//	    if (!(o instanceof ExecutablePetriNet)) {
-//	        return false;
-//	    }
-//	
-//	    ExecutablePetriNet executablePetriNet = (ExecutablePetriNet) o;
-//	
-//	
-//	    if (!CollectionUtils.isEqualCollection(annotations, executablePetriNet.annotations)) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(inboundArcs, executablePetriNet.inboundArcs)) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(outboundArcs, executablePetriNet.outboundArcs)) {
-//	        return false;
-//	    }
-//	    if (petriNetName != null ? !petriNetName.equals(executablePetriNet.petriNetName) : executablePetriNet.petriNetName != null) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(places, executablePetriNet.places)) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(rateParameters, executablePetriNet.rateParameters)) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(tokens, executablePetriNet.tokens)) {
-//	        return false;
-//	    }
-//	    if (!CollectionUtils.isEqualCollection(transitions, executablePetriNet.transitions)) {
-//	        return false;
-//	    }
-//	
-//	    return true;
-//	}
 
 	public PetriNet getPetriNet() {
 		return petriNet;
+	}
+
+	@Override
+	public void addAnnotation(Annotation annotation) {
+		addComponentToMap(annotation, annotations);
+	}
+
+	@Override
+	public void addPlace(Place place) {
+		addComponentToMap(place, places);
+	}
+
+	@Override
+	public void addTransition(Transition transition) {
+		addComponentToMap(transition, transitions);
+	}
+
+	@Override
+	public void addArc(InboundArc inboundArc) {
+		addComponentToMap(inboundArc, inboundArcs);
+	}
+
+	@Override
+	public void addArc(OutboundArc outboundArc) {
+		addComponentToMap(outboundArc, outboundArcs);
+	}
+
+	@Override
+	public void addToken(Token token) {
+		addComponentToMap(token, tokens);
+	}
+
+	@Override
+	public void addRateParameter(RateParameter rateParameter)
+			throws InvalidRateException {
+		addComponentToMap(rateParameter, rateParameters);
 	}
 
 
