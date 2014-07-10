@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
 
-
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
@@ -20,8 +19,6 @@ import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 
 /**
  * Petri net class that houses Petri net components and performs the logic on their
@@ -100,22 +97,12 @@ public class PetriNet extends AbstractPetriNet {
     private final PetriNetComponentVisitor deleteVisitor = new PetriNetComponentRemovalVisitor(this);
 
     /**
-     *  Maps transition id -> outbound arcs out of the transition
-     */
-    final Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
-
-    /**
-     * Maps transition id -> inbound arcs into the transition
-     */
-    final Multimap<String, InboundArc> transitionInboundArcs =  HashMultimap.create();
-
-    /**
-     * Used to add Petri net components to the Petri net when their type is not directlty known
+     * Used to add Petri net components to the Petri net when their type is not directly known
      */
     private final PetriNetComponentVisitor addVisitor = new PetriNetComponentAddVisitor(this);
 
     /**
-     * Name of hte Petri net
+     * Name of the Petri net
      */
     //TODO: IS THIS USED?
     public String pnmlName = "";
@@ -125,8 +112,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     //TODO: WHAT IS THIS
     private boolean validated = false;
-
-	private IncludeHierarchy includes;
 
 	private ExecutablePetriNet executablePetriNet;
 
@@ -226,6 +211,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param place place to add to Petri net
      */
+    @Override 
     public void addPlace(Place place) {
 //        if (!places.containsValue(place)) {
     	if (addComponentToMap(place, places)) {
@@ -313,20 +299,6 @@ public class PetriNet extends AbstractPetriNet {
     }
 
     /**
-     * @param place
-     * @return arcs that are outbound from place
-     */
-    public Collection<InboundArc> outboundArcs(Place place) {
-        Collection<InboundArc> outbound = new LinkedList<>();
-        for (InboundArc arc : inboundArcs.values()) {
-            if (arc.getSource().equals(place)) {
-                outbound.add(arc);
-            }
-        }
-        return outbound;
-    }
-
-    /**
      * Removes the specified arc from the Petri net
      *
      * @param arc to remove from the Petri net
@@ -342,6 +314,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param transition transition to add to the Petri net
      */
+    @Override
     public void addTransition(Transition transition) {
 //    	if (!transitions.containsValue(transition)) {
         if (addComponentToMap(transition, transitions)) {
@@ -367,17 +340,6 @@ public class PetriNet extends AbstractPetriNet {
     }
 
     /**
-     * An outbound arc of a transition is any arc that starts at the transition
-     * and connects elsewhere
-     *
-     * @param transition to find outbound arcs for
-     * @return arcs that are outbound from transition
-     */
-    public Collection<OutboundArc> outboundArcs(Transition transition) {
-        return transitionOutboundArcs.get(transition.getId());
-    }
-
-    /**
      * Removes the specified arc from the Petri net
      *
      * @param arc to remove from the Petri net
@@ -394,6 +356,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param inboundArc inbound arc to include in the Petri net
      */
+    @Override
     public void addArc(InboundArc inboundArc) {
         if (addComponentToMap(inboundArc, inboundArcs)) {
             transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
@@ -405,6 +368,7 @@ public class PetriNet extends AbstractPetriNet {
      * Adds this arc to the petri net
      * @param outboundArc outbound arc to include in the Petri net
      */
+    @Override
     public void addArc(OutboundArc outboundArc) {
         if (addComponentToMap(outboundArc, outboundArcs)) {
             transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
@@ -417,6 +381,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param token
      */
+    @Override
     public void addToken(Token token) {
 //    	if (!tokens.containsValue(token)) {
         if (addComponentToMap(token, tokens)) {
@@ -507,16 +472,13 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param annotation
      */
+    @Override
     public void addAnnotation(Annotation annotation) {
         if (addComponentToMap(annotation, annotations)) {
         	addAndNotifyListeners(annotation, annotations, NEW_ANNOTATION_CHANGE_MESSAGE);
         }
     }
 
-	<T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
-		component.addPropertyChangeListener(new NameChangeListener<>(component, components));
-		changeSupport.firePropertyChange(newMessage, null, component);
-	}
 
     /**
      * Removes the specified annotation from the Petri net
@@ -534,6 +496,7 @@ public class PetriNet extends AbstractPetriNet {
      * @param rateParameter to add to Petri net
      * @throws InvalidRateException if the rate is not parseable
      */
+    @Override
     public void addRateParameter(RateParameter rateParameter) throws InvalidRateException {
         if (!validFunctionalExpression(rateParameter.getExpression())) {
             throw new InvalidRateException(rateParameter.getExpression());
@@ -615,20 +578,6 @@ public class PetriNet extends AbstractPetriNet {
     }
 
     /**
-     * @param id
-     * @return true if any component in the Petri net has this id
-     */
-    @Override
-    public boolean containsComponent(String id) {
-        for (Map<String, ? extends PetriNetComponent> map : componentMaps.values()) {
-            if (map.containsKey(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
     *
     * @return a set of all component id's contained within this Petri net
     */
@@ -649,16 +598,7 @@ public class PetriNet extends AbstractPetriNet {
        return getComponentIds().contains(id);
    }
 
-   /**
-    *
-    * @return the IncludeHierarchy representing any PetriNets included directly by this net, or indirectly by includes done in included in Petri nets. 
-    */
-	public IncludeHierarchy getIncludeHierarchy()
-	{
-		return includes;
-	}
-
-	public ExecutablePetriNet getExecutablePetriNet() {
+   public ExecutablePetriNet getExecutablePetriNet() {
 		if (executablePetriNet == null) {
 			executablePetriNet = new ExecutablePetriNet(this); 
 			addPropertyChangeListener(executablePetriNet); 
@@ -666,14 +606,6 @@ public class PetriNet extends AbstractPetriNet {
 		else executablePetriNet.refresh(); 
 		return executablePetriNet;
 	}
-
-    /**
-     * @param transition to calculate inbound arc for
-     * @return arcs that are inbound to transition, that is arcs that come into the transition
-     */
-    public Collection<InboundArc> inboundArcs(Transition transition) {
-        return transitionInboundArcs.get(transition.getId());
-    }
 
     /**
      *
@@ -693,11 +625,16 @@ public class PetriNet extends AbstractPetriNet {
         return functionalWeightParser.evaluateExpression(expr);
     }
 
+    private <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
+		component.addPropertyChangeListener(new NameChangeListener<>(component, components));
+		changeSupport.firePropertyChange(newMessage, null, component);
+	}
+
     /**
      * Listener for changing a components name in the set it is referenced by
      * @param <T>
      */
-    static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
+    private static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
         /**
          * Comoponent whose name will change
          */
@@ -739,7 +676,7 @@ public class PetriNet extends AbstractPetriNet {
      * This class is responsible for changing inbound and outbound arc references from
      * a transition id change
      */
-    class NameChangeArcListener implements PropertyChangeListener {
+    private class NameChangeArcListener implements PropertyChangeListener {
 
         /**
          * If a transition changes name then this is updated in the maps by removing the key
@@ -762,7 +699,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Listens for name changes of a token
      */
-    class TokenNameChanger implements PropertyChangeListener {
+    private class TokenNameChanger implements PropertyChangeListener {
 
         /**
          * When a tokens name changes then the maps in the places and arc need adjusting

@@ -45,7 +45,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     private FunctionalWeightParser<Double> functionalWeightParser; 
 
     /**
-	 * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize the structure of the 
+     * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize the structure of the 
 	 * two Petri nets.
 	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
 	 */
@@ -75,6 +75,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			rateParameters = clonedPetriNet.rateParameters;  
 			places = clonedPetriNet.places;  
 			transitions = clonedPetriNet.transitions;  
+			transitionInboundArcs = clonedPetriNet.transitionInboundArcs; 
+			transitionOutboundArcs = clonedPetriNet.transitionOutboundArcs; 
 			petriNetName = clonedPetriNet.getName(); 
 			refreshRequired = false; 
 			initialiseIdMap(); 
@@ -169,17 +171,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	/**
 	 * @return all Places currently in the Petri net
 	 */
+	@Override
 	public Collection<Place> getPlaces() {
 		refresh(); 
-		return places.values();
-	}
-	/**
-	 * @param place
-	 * @return arcs that are outbound from place
-	 */
-	public Collection<InboundArc> outboundArcs(Place place) {
-		refresh(); 
-		return clonedPetriNet.outboundArcs(place);
+		return super.getPlaces();
 	}
 	/**
 	 * An outbound arc of a transition is any arc that starts at the transition
@@ -188,134 +183,96 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * @param transition to find outbound arcs for
 	 * @return arcs that are outbound from transition
 	 */
+	@Override
 	public Collection<OutboundArc> outboundArcs(Transition transition) {
 		refresh(); 
-		return clonedPetriNet.outboundArcs(transition);
+		return super.outboundArcs(transition);
 	}
 	/**
 	 * @return all transitions in the Petri net
 	 */
+	@Override
 	public Collection<Transition> getTransitions() {
 		refresh(); 
-		return transitions.values();
+		return super.getTransitions();
 	}
 	/**
 	 * @return Petri net's collection of arcs
 	 */
+	@Override
 	public Collection<Arc<? extends Connectable, ? extends Connectable>> getArcs() {
 		refresh(); 
-		return arcs;
+		return super.getArcs();
 	}
 	/**
 	 *
 	 * @return all outbound arcs in the Petri net
 	 */
+	@Override
 	public Collection<OutboundArc> getOutboundArcs() {
 		refresh(); 
-		return outboundArcs.values();
+		return super.getOutboundArcs();
 	}
 	/**
 	 *
 	 * @return all inbound arcs in the Petri net
 	 */
+	@Override
 	public Collection<InboundArc> getInboundArcs() {
 		refresh(); 
-		return inboundArcs.values();
+		return super.getInboundArcs();
 	}
 	/**
 	 * @return Petri net's list of tokens
 	 */	
+	@Override
 	public Collection<Token> getTokens() {
 		refresh(); 
-		return tokens.values();
+		return super.getTokens();
 	}
 	/**
 	 * @return annotations stored in the Petri net
 	 */
+	@Override 
 	public Collection<Annotation> getAnnotations() {
 		refresh(); 
-		return annotations.values();
+		return super.getAnnotations();
 	}
 	/**
 	 * @return rate parameters stored in the Petri net
 	 */
 	public Collection<RateParameter> getRateParameters() {
 		refresh(); 
-		return rateParameters.values();
+		return super.getRateParameters();
 	}
 	/**
 	 * @return true if the Petri net contains a default token
 	 */
-//	public boolean containsDefaultToken() {
-//		return false; 
-//	}
-
-	/**
-	 * @param id
-	 * @return true if any component in the Petri net has this id
-	 */
-	@Override
-	public boolean containsComponent(String id) {
-		return clonedPetriNet.containsComponent(id); 
-	}
 
 	/**
 	 * @param transition to calculate inbound arc for
 	 * @return arcs that are inbound to transition, that is arcs that come into the transition
 	 */
+	@Override
 	public Collection<InboundArc> inboundArcs(Transition transition) {
 		refresh(); 
-		return clonedPetriNet.inboundArcs(transition); 
-	}
-	/**
-	 *
-	 * @return petri net name
-	 */
-	@XmlTransient
-	public PetriNetName getName() {
-		return petriNetName;
+		return super.inboundArcs(transition); 
 	}
 
-	/**
-	 *
-	 * @return string representation of the Petri net name
-	 */
-//	public String getNameValue() {
-//		return null; 
-//	}
-
-	/**
-	 *
-	 * @return a set of all component id's contained within this Petri net
-	 */
-//	public Set<String> getComponentIds() {
-//		return null; 
-//	}
-//	refresh(); 
-//	return places;
-
-	/**
-	 *
-	 * @param id
-	 * @return true if a component with the given id exists in the Petri net
-	 */
-//	public boolean contains(String id) {
-//		return false; 
-//	}
     @Override
     //FIXME work out reasonable hashcode for Collection coll.values(); -- move to super?  
     public int hashCode() {
-    	return clonedPetriNet.hashCode(); 
+//    	return clonedPetriNet.hashCode(); 
 //    	int result = 1; 
-//        int result = transitions.hashCode();
-//        result = 31 * result + places.hashCode();
-//        result = 31 * result + tokens.hashCode();
-//        result = 31 * result + inboundArcs.hashCode();
-//        result = 31 * result + outboundArcs.hashCode();
-//        result = 31 * result + annotations.hashCode();
-//        result = 31 * result + rateParameters.hashCode();
-//        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
-//        return result;
+        int result = transitions.hashCode();
+        result = 31 * result + places.hashCode();
+        result = 31 * result + tokens.hashCode();
+        result = 31 * result + inboundArcs.hashCode();
+        result = 31 * result + outboundArcs.hashCode();
+        result = 31 * result + annotations.hashCode();
+        result = 31 * result + rateParameters.hashCode();
+        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
+        return result;
     }
 
 	public PetriNet getPetriNet() {
@@ -339,12 +296,16 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	@Override
 	public void addArc(InboundArc inboundArc) {
-		addComponentToMap(inboundArc, inboundArcs);
+		if (addComponentToMap(inboundArc, inboundArcs)) {
+			transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
+		}
 	}
 
 	@Override
 	public void addArc(OutboundArc outboundArc) {
-		addComponentToMap(outboundArc, outboundArcs);
+		if (addComponentToMap(outboundArc, outboundArcs)) {
+			transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
+		}
 	}
 
 	@Override

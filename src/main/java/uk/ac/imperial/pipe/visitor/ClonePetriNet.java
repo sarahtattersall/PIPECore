@@ -30,10 +30,6 @@ public final class ClonePetriNet {
      * Cloned Petri net
      */
     private  AbstractPetriNet newPetriNet;
-    /**
-     * Target executable Petri net
-     */
-    private  ExecutablePetriNet targetExecutablePetriNet;
 
     /**
      * cloned rate parameters
@@ -66,7 +62,7 @@ public final class ClonePetriNet {
     private ClonePetriNet(PetriNet sourcePetriNet,
 			ExecutablePetriNet targetExecutablePetriNet) {
     	this.petriNet = sourcePetriNet;
-    	this.targetExecutablePetriNet = targetExecutablePetriNet;
+    	newPetriNet = targetExecutablePetriNet;
     	this.addFullyQualifiedNamePrefix = true;
 	}
 
@@ -121,7 +117,6 @@ public final class ClonePetriNet {
         for (InboundArc arc : petriNet.getInboundArcs()) {
             visit(arc);
         }
-
 
         for (OutboundArc arc : petriNet.getOutboundArcs()) {
             visit(arc);

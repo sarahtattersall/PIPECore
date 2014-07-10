@@ -12,10 +12,10 @@ import org.apache.commons.collections.CollectionUtils;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet.NameChangeArcListener;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet.NameChangeListener;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet.TokenNameChanger;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
+
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 
 public abstract class AbstractPetriNet  {
 
@@ -67,12 +67,17 @@ public abstract class AbstractPetriNet  {
 	 * Petri net name
 	 */
 	protected PetriNetName petriNetName;
-
 	/**
-     * @param id
-     * @return true if any component in the Petri net has this id
-     */
-    public  abstract boolean containsComponent(String id);
+	 *  Maps transition id -> outbound arcs out of the transition
+	 */
+	protected Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
+	/**
+	 * Maps transition id -> inbound arcs into the transition
+	 */
+	protected Multimap<String, InboundArc> transitionInboundArcs = HashMultimap.create();
+
+	protected IncludeHierarchy includes;
+
 
     public AbstractPetriNet() {
     	initialiseIdMap();
@@ -295,6 +300,59 @@ public abstract class AbstractPetriNet  {
 			return true;
 		}
 		else return false; 
+	}
+
+	/**
+	 * An outbound arc of a transition is any arc that starts at the transition
+	 * and connects elsewhere
+	 *
+	 * @param transition to find outbound arcs for
+	 * @return arcs that are outbound from transition
+	 */
+	public Collection<OutboundArc> outboundArcs(Transition transition) {
+	    return transitionOutboundArcs.get(transition.getId());
+	}
+
+	/**
+	    *
+	    * @return the IncludeHierarchy representing any PetriNets included directly by this net, or indirectly by includes done in included in Petri nets. 
+	    */
+	public IncludeHierarchy getIncludeHierarchy() {
+		return includes;
+	}
+
+	/**
+	 * @param transition to calculate inbound arc for
+	 * @return arcs that are inbound to transition, that is arcs that come into the transition
+	 */
+	public Collection<InboundArc> inboundArcs(Transition transition) {
+	    return transitionInboundArcs.get(transition.getId());
+	}
+
+	/**
+	 * @param id
+	 * @return true if any component in the Petri net has this id
+	 */
+	public boolean containsComponent(String id) {
+	    for (Map<String, ? extends PetriNetComponent> map : componentMaps.values()) {
+	        if (map.containsKey(id)) {
+	            return true;
+	        }
+	    }
+	    return false;
+	}
+	/**
+	 * @param place
+	 * @return arcs that are outbound from place
+	 */
+	public Collection<InboundArc> outboundArcs(Place place) {
+	    Collection<InboundArc> outbound = new LinkedList<>();
+	    for (InboundArc arc : inboundArcs.values()) {
+	        if (arc.getSource().equals(place)) {
+	            outbound.add(arc);
+	        }
+	    }
+	    return outbound;
 	}
 }
 
