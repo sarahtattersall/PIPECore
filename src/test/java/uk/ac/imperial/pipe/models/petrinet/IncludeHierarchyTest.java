@@ -101,11 +101,11 @@ public class IncludeHierarchyTest {
         includes.getInclude("fred"); 
 	}
     @Test
-    public void topNameDefaultsToRootIfNotProvided() throws Exception {
+    public void topNameDefaultsToBlankIfNotProvided() throws Exception {
     	includes = new IncludeHierarchy(net1, null); 
-    	assertEquals("root", includes.getName()); 
+    	assertEquals("", includes.getName()); 
     	includes = new IncludeHierarchy(net1, " "); 
-    	assertEquals("root", includes.getName()); 
+    	assertEquals("", includes.getName()); 
     }
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
@@ -182,6 +182,29 @@ public class IncludeHierarchyTest {
   			.getInclude("lowlevel-function").getFullyQualifiedName()); 
 	}
     @Test
+    public void idPrefixIsSuffixedWithDot() throws Exception {
+		includes = new IncludeHierarchy(net1, "top"); 
+		includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
+		assertEquals("top.", includes.getFullyQualifiedNameAsPrefix()); 
+		assertEquals("top.right-function.", includes.getInclude("right-function").getFullyQualifiedNameAsPrefix()); 
+		assertEquals("top.right-function.lowlevel-function.", includes.getInclude("right-function")
+				.getInclude("lowlevel-function").getFullyQualifiedNameAsPrefix()); 
+    }
+    @Test
+    public void blankTopLevelGivesBlankPrefix() throws Exception {
+    	includes = new IncludeHierarchy(net1, null); 
+    	assertEquals("", includes.getFullyQualifiedNameAsPrefix()); 
+    }
+    @Test
+    public void lowerLevelPrefixIsPrefixedWithDotIfRootLevelIsBlank() throws Exception {
+    	includes = new IncludeHierarchy(net1, null); 
+    	includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
+    	assertEquals(".right-function.", includes.getInclude("right-function").getFullyQualifiedNameAsPrefix()); 
+    	assertEquals(".right-function.lowlevel-function.", includes.getInclude("right-function")
+    			.getInclude("lowlevel-function").getFullyQualifiedNameAsPrefix()); 
+    }
+    
+    @Test
 	public void aNetCanBeIncludedMultipleTimesUnderDifferentAliases() throws Exception {
 	  	includes.include(net1, "left-function"); 
 	  	includes.include(net1, "right-function"); 
@@ -191,13 +214,6 @@ public class IncludeHierarchyTest {
 	public void returnsAllComponentsWithIdPrefixedWithAlias() throws Exception {
 	  	includes.include(net2, "a-function");
 	  	Map<String, Place> places = includes.getPlaces();
-//	  	for (Place place: places.values()) {
-//	  		System.out.println(place.getId()+", "+place.getName());
-//	  	}
-//	  	for (String id : places.keySet()) {
-//	  		System.out.println(id);
-//	  	}
-	  		
 	  	assertEquals("P0", places.get("P0").getName());
 	  	assertEquals("P0", places.get("top.a-function.P0").getName()); 
 	}

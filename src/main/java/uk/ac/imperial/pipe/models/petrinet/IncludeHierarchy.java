@@ -46,6 +46,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private IncludeHierarchy parent;
 	private String fullyQualifiedName;
 	private PetriNet petriNet;
+	private String fullyQualifiedNameAsPrefix;
 
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
@@ -55,8 +56,8 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
 		this.includeMap = new HashMap<>(); 
-		this.parent = parent;	
-		if (!isValid(name)) name = "root";
+		this.parent = parent;
+		if (!isValid(name)) name = "";
 		this.name = name; 
 		buildFullyQualifiedName();
 	}
@@ -89,6 +90,12 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 			parent = parent.parent(); 
 		}
 		fullyQualifiedName =  sb.toString();
+		buildFullyQualifiedNameAsPrefix(); 
+	}
+
+	private void buildFullyQualifiedNameAsPrefix() {
+		if (fullyQualifiedName.equals("")) fullyQualifiedNameAsPrefix = ""; 
+		else fullyQualifiedNameAsPrefix = fullyQualifiedName+"."; 
 	}
 
 	public Map<String, IncludeHierarchy> includeMap() {
@@ -150,7 +157,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
     public Map<String, Place> getPlaces() {
     	Map<String, Place> allPlaces = new HashMap<>();
     	allPlaces.putAll(ClonePetriNet.clone(petriNet).getMapForClass(Place.class)); 
-    	//TODO needs to be nested
+    	//FIXME  replace with clone(pn epn)
     	for (IncludeHierarchy alias: includeMap.values()) {
     		allPlaces.putAll(aliasPlaces(alias.getPetriNet().getPlaces(), alias));  
     	}
@@ -170,5 +177,9 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 			aliasPlaces.put(aliasId, place); 
 		}
 		return aliasPlaces;
+	}
+
+	public String getFullyQualifiedNameAsPrefix() {
+		return fullyQualifiedNameAsPrefix;
 	}
 }

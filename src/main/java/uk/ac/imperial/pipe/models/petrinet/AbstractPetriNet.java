@@ -58,7 +58,7 @@ public abstract class AbstractPetriNet  {
 	 * do this then please change it. It is used to easily get a Petri net component of type T
 	 * by id.
 	 */
-	protected final Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps = new HashMap<>();
+	protected Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps = new HashMap<>();
 	/**
 	 * Property change support used to fire messages and register listeners to
 	 */
@@ -224,6 +224,18 @@ public abstract class AbstractPetriNet  {
 	
 	    return true;
 	}
+	@Override
+	public int hashCode() {
+	        int result = transitions.hashCode();
+	        result = 31 * result + places.hashCode();
+	        result = 31 * result + tokens.hashCode();
+	        result = 31 * result + inboundArcs.hashCode();
+	        result = 31 * result + outboundArcs.hashCode();
+	        result = 31 * result + annotations.hashCode();
+	        result = 31 * result + rateParameters.hashCode();
+	        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
+	        return result;
+    }
 
 
 	/**

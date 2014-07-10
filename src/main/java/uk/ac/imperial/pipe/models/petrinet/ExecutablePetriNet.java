@@ -5,20 +5,17 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-
-import javax.xml.bind.annotation.XmlTransient;
-
-import org.apache.commons.collections.CollectionUtils;
+import java.util.HashMap;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
+
+import com.google.common.collect.HashMultimap;
 
 /**
  * Makes a PetriNet available for execution, that is, animation or analysis by a module.  The complete state of the Petri net is a set of collections of its constituent components.
@@ -35,9 +32,7 @@ import uk.ac.imperial.state.State;
 public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChangeListener {
 
 	private PetriNet petriNet;
-	private Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
 	private boolean refreshRequired;
-	private PetriNet clonedPetriNet;
 	private State state;
     /**
      * Functional weight parser
@@ -52,6 +47,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
+		includes = petriNet.getIncludeHierarchy(); 
 		refreshRequired = true; 
 		refresh(); 
 	}
@@ -65,34 +61,31 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * Finally, a representation of the marking of this executable Petri net is saved as a {@link uk.ac.imperial.state.State}.  This can be retrieved with {@link getState()}
 	 */
 	public void refresh() {
-		if (refreshRequired) {
-		    clonedPetriNet = ClonePetriNet.clone(petriNet);
-			annotations = clonedPetriNet.annotations; 
-			arcs = clonedPetriNet.getArcs(); 
-			inboundArcs = clonedPetriNet.inboundArcs;  
-			outboundArcs = clonedPetriNet.outboundArcs;  
-			tokens	= clonedPetriNet.tokens;  
-			rateParameters = clonedPetriNet.rateParameters;  
-			places = clonedPetriNet.places;  
-			transitions = clonedPetriNet.transitions;  
-			transitionInboundArcs = clonedPetriNet.transitionInboundArcs; 
-			transitionOutboundArcs = clonedPetriNet.transitionOutboundArcs; 
-			petriNetName = clonedPetriNet.getName(); 
-			refreshRequired = false; 
-			initialiseIdMap(); 
-			addListenersToMirrorTokenCountsToOriginalPlaces(); 
+		if (isRefreshRequired()) {
+			initializeMaps(); 
+			ClonePetriNet.clone(petriNet, this); 
+			addSelfAsListenerForPlaceTokenCountChanges(); 
 			buildState(); 
+			refreshRequired = false; 
 		}
 	}
-	private void addListenersToMirrorTokenCountsToOriginalPlaces() {
-		Place originalPlace = null; 
+	private void initializeMaps() {
+		transitions = new HashMap<>();
+		places = new HashMap<>();
+		tokens = new HashMap<>();
+		inboundArcs = new HashMap<>();
+		outboundArcs = new HashMap<>();
+		rateParameters = new HashMap<>();
+		annotations = new HashMap<>();
+		transitionOutboundArcs = HashMultimap.create();
+		transitionInboundArcs = HashMultimap.create();
+		
+		componentMaps = new HashMap<>();
+		initialiseIdMap(); 
+	}
+
+	private void addSelfAsListenerForPlaceTokenCountChanges() {
 		for (Place place: places.values()) {
-			try {
-				originalPlace = petriNet.getComponent(place.getId(), Place.class);
-			} catch (PetriNetComponentNotFoundException e) {
-				System.err.println("ExecutablePetriNet.addListenersToMirrorTokenCountsToOriginalPlaces:  logic error; place not found in source Petri net: "+place.getId());;
-			} 
-			place.addPropertyChangeListener(originalPlace); 
 			place.addPropertyChangeListener(this);  // force refresh 
 		}
 	}
@@ -245,9 +238,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refresh(); 
 		return super.getRateParameters();
 	}
-	/**
-	 * @return true if the Petri net contains a default token
-	 */
 
 	/**
 	 * @param transition to calculate inbound arc for
@@ -259,22 +249,9 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return super.inboundArcs(transition); 
 	}
 
-    @Override
-    //FIXME work out reasonable hashcode for Collection coll.values(); -- move to super?  
-    public int hashCode() {
-//    	return clonedPetriNet.hashCode(); 
-//    	int result = 1; 
-        int result = transitions.hashCode();
-        result = 31 * result + places.hashCode();
-        result = 31 * result + tokens.hashCode();
-        result = 31 * result + inboundArcs.hashCode();
-        result = 31 * result + outboundArcs.hashCode();
-        result = 31 * result + annotations.hashCode();
-        result = 31 * result + rateParameters.hashCode();
-        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
-        return result;
-    }
-
+	/**
+	 * @return petriNet from which this executable petri net was built. 
+	 */
 	public PetriNet getPetriNet() {
 		return petriNet;
 	}
@@ -317,6 +294,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public void addRateParameter(RateParameter rateParameter)
 			throws InvalidRateException {
 		addComponentToMap(rateParameter, rateParameters);
+	}
+
+	public boolean isRefreshRequired() {
+		return refreshRequired;
 	}
 
 

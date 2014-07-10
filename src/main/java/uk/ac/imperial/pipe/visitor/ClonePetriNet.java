@@ -50,6 +50,8 @@ public final class ClonePetriNet {
      */
 	private boolean addFullyQualifiedNamePrefix = false;
 
+	private boolean originalPlaceTracksExecutablePlaceCounts = false;
+
     /**
      * private constructor
      * @param petriNet petri net to clone
@@ -64,6 +66,7 @@ public final class ClonePetriNet {
     	this.petriNet = sourcePetriNet;
     	newPetriNet = targetExecutablePetriNet;
     	this.addFullyQualifiedNamePrefix = true;
+    	this.originalPlaceTracksExecutablePlaceCounts = true; 
 	}
 
 	/**
@@ -82,17 +85,24 @@ public final class ClonePetriNet {
      */
     public static void clone(PetriNet sourcePetriNet, ExecutablePetriNet targetExecutablePetriNet) {
     	ClonePetriNet clone = new ClonePetriNet(sourcePetriNet, targetExecutablePetriNet);
-    	clone.clonePetriNet();
+    	clone.clonePetriNetToExecutablePetriNet();
     }
 
-    /**
+    private void clonePetriNetToExecutablePetriNet() {
+    	visitAllComponents();
+	}
+	/**
      *
      * Clones the petri net by visiting all its components and adding them to the new Petri net
      *
      * @return cloned Petri net
      */
     private PetriNet clonePetriNet() {
-        visit(petriNet.getName());
+        visitAllComponents();
+        return (PetriNet) newPetriNet;  //TODO genericize to lose the cast 
+    }
+	private void visitAllComponents() {
+		visit(petriNet.getName());
 
         for (Token token : petriNet.getTokens()) {
             visit(token);
@@ -121,8 +131,7 @@ public final class ClonePetriNet {
         for (OutboundArc arc : petriNet.getOutboundArcs()) {
             visit(arc);
         }
-        return (PetriNet) newPetriNet;
-    }
+	}
 
     /**
      * Clone a Petri net name
@@ -176,13 +185,12 @@ public final class ClonePetriNet {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Annotation newAnnotation = cloner.cloned;
-        prefixIdWithQualifiedNameIfProvided(newAnnotation); 
+        if (addFullyQualifiedNamePrefix) prefixIdWithQualifiedName(newAnnotation); 
         newPetriNet.addAnnotation(newAnnotation);
 
     }
-	protected void prefixIdWithQualifiedNameIfProvided(PetriNetComponent component) {
-		//TODO what is the right IncludeHierarchy level for this? 
-//		if (fullyQualifiedName != null) component.setId(fullyQualifiedName+"."+component.getId());
+	protected void prefixIdWithQualifiedName(PetriNetComponent component) {
+		component.setId(newPetriNet.getIncludeHierarchy().getFullyQualifiedNameAsPrefix()+component.getId());
 	}
 
     /**
@@ -197,10 +205,12 @@ public final class ClonePetriNet {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Place newPlace = cloner.cloned;
+        if (addFullyQualifiedNamePrefix) prefixIdWithQualifiedName(newPlace); 
         for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
             newPlace.setTokenCount(entry.getKey(), entry.getValue());
         }
         newPetriNet.addPlace(newPlace);
+        if (originalPlaceTracksExecutablePlaceCounts ) newPlace.addPropertyChangeListener(place); 
         places.put(place.getId(), newPlace);
     }
 
@@ -216,6 +226,7 @@ public final class ClonePetriNet {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Transition newTransition = cloner.cloned;
+        if (addFullyQualifiedNamePrefix) prefixIdWithQualifiedName(newTransition); 
         if (transition.getRate().getRateType().equals(RateType.RATE_PARAMETER)) {
             FunctionalRateParameter rateParameter = (FunctionalRateParameter) transition.getRate();
             newTransition.setRate(rateParameters.get(rateParameter.getId()));
@@ -244,6 +255,7 @@ public final class ClonePetriNet {
             newArc.addIntermediatePoint(arcPoints.get(i));
         }
         newArc.setId(arc.getId());
+        if (addFullyQualifiedNamePrefix) prefixIdWithQualifiedName(newArc); 
         newPetriNet.addArc(newArc);
     }
 
@@ -261,6 +273,7 @@ public final class ClonePetriNet {
             newArc.addIntermediatePoint(arcPoints.get(i));
         }
         newArc.setId(arc.getId());
+        if (addFullyQualifiedNamePrefix) prefixIdWithQualifiedName(newArc); 
         newPetriNet.addArc(newArc);
     }
 
@@ -287,24 +300,5 @@ public final class ClonePetriNet {
             newPetriNet.setName(new NormalPetriNetName(name.getName()));
         }
     }
-//	public <T extends PetriNetComponent> T getComponent(String id,
-//			Class<T> clazz) throws PetriNetComponentNotFoundException {
-//			    Map<String, T> map = getMapForClass(clazz);
-//			    if (map.containsKey(id)) {
-//			        return map.get(id);
-//			    }
-//			    throw new PetriNetComponentNotFoundException("No component " + id + " exists in Petri net.");
-
-//    public static Map<String, T extends PetriNetComponent> T cloneMap(Class<T> clazz,
-//	public static <T extends PetriNetComponent> void cloneMap(Class<T> clazz, PetriNet oldPetriNet, ExecutablePetriNet targetExecutablePetriNet) {
-//		for (T component : oldPetriNet.getMapForClass(clazz).values()) {
-//			visit(component); 
-//		}
-//		
-////		Map<String, T> map = new HashMap<>(); 	
-//	}
-//    for (OutboundArc arc : petriNet.getOutboundArcs()) {
-//        visit(arc);
-//    }
 
 }

@@ -128,24 +128,11 @@ public class PetriNet extends AbstractPetriNet {
     //TODO: INITIALISE NAME?
 
     /**
-     * Default constructor initialises the petri net components map
+     * Default constructor initializes the petri net components map
      */
     public PetriNet() {
     	super(); 
         includes = new IncludeHierarchy(this, null); 
-    }
-
-    @Override
-    public int hashCode() {
-        int result = transitions.hashCode();
-        result = 31 * result + places.hashCode();
-        result = 31 * result + tokens.hashCode();
-        result = 31 * result + inboundArcs.hashCode();
-        result = 31 * result + outboundArcs.hashCode();
-        result = 31 * result + annotations.hashCode();
-        result = 31 * result + rateParameters.hashCode();
-        result = 31 * result + (petriNetName != null ? petriNetName.hashCode() : 0);
-        return result;
     }
 
     /**

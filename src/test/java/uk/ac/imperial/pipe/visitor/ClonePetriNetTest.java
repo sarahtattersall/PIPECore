@@ -4,7 +4,9 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -24,15 +26,18 @@ public class ClonePetriNetTest {
 
     @Before
     public void setUp() {
-        oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+        buildSimpleNet();
+    }
+
+	private void buildSimpleNet() {
+		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
                 ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
                 .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
                 .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
                 .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
                 .andFinally(ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token());
-
-    }
+	}
 
     @Test
     public void cloneEquality() {
@@ -66,7 +71,23 @@ public class ClonePetriNetTest {
         assertTrue(arc.getTarget() == clonedT0);
     }
     @Test
-	public void cloneIndividualComponentMapsToRebuildExecutablePetrNetState() throws Exception {
-//    	Map<String, Place> places = ClonePetriNet.cloneMap(Place.class, oldPetriNet); 
+	public void clonePetriNetToExecutablePetriNetReplacingExistingState() throws Exception {
+    	oldPetriNet = new PetriNet(); 
+    	ExecutablePetriNet executablePetriNet = new TestingExecutablePetriNet(oldPetriNet); 
+    	buildSimpleNet(); 
+    	ClonePetriNet.clone(oldPetriNet, executablePetriNet); 
+    	assertEquals("root.P0", executablePetriNet.getComponent("root.P0", Place.class).getId()); 
+    	assertEquals("root.T0", executablePetriNet.getComponent("root.T0", Transition.class).getId()); 
+    	assertEquals("root.P0 TO T0", executablePetriNet.getComponent("root.P0 TO T0", InboundArc.class).getId()); 
 	}
+    private class TestingExecutablePetriNet extends ExecutablePetriNet {
+
+		public TestingExecutablePetriNet(PetriNet petriNet) {
+			super(petriNet);
+			includes = new IncludeHierarchy(petriNet, "root"); 
+		}
+    	public boolean isRefreshRequired() {
+    		return false ; 
+    	}
+    }
 }
