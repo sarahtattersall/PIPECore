@@ -190,7 +190,7 @@ public final class ClonePetriNet {
 
     }
 	protected void prefixIdWithQualifiedName(PetriNetComponent component) {
-		component.setId(newPetriNet.getIncludeHierarchy().getFullyQualifiedNameAsPrefix()+component.getId());
+		component.setId(newPetriNet.getIncludeHierarchy().current().getFullyQualifiedNameAsPrefix()+component.getId());
 	}
 
     /**

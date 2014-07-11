@@ -5,6 +5,7 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
@@ -47,6 +48,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private String fullyQualifiedName;
 	private PetriNet petriNet;
 	private String fullyQualifiedNameAsPrefix;
+	private IncludeIterator iterator;
 
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
@@ -154,32 +156,15 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return petriNet;
 	}
 
-    public Map<String, Place> getPlaces() {
-    	Map<String, Place> allPlaces = new HashMap<>();
-    	allPlaces.putAll(ClonePetriNet.clone(petriNet).getMapForClass(Place.class)); 
-    	//FIXME  replace with clone(pn epn)
-    	for (IncludeHierarchy alias: includeMap.values()) {
-    		allPlaces.putAll(aliasPlaces(alias.getPetriNet().getPlaces(), alias));  
-    	}
-        return allPlaces;
-    }
-
-	private Map<String, Place> aliasPlaces(Collection<Place> places, IncludeHierarchy alias) {
-		Map<String, Place> aliasPlaces = new HashMap<>();
-		String aliasId = null;
-		Collection<Place> newPlaces = new ArrayList<>(); 
-		for (Place place : places) {
-			newPlaces.add(place); 
-		}
-		for (Place place : newPlaces) {
-			aliasId = alias.getFullyQualifiedName()+"."+place.getId();
-			place.setId(aliasId);
-			aliasPlaces.put(aliasId, place); 
-		}
-		return aliasPlaces;
-	}
 
 	public String getFullyQualifiedNameAsPrefix() {
 		return fullyQualifiedNameAsPrefix;
+	}
+	public IncludeIterator iterator() {
+		iterator = new IncludeIterator(this);
+		return iterator; 
+	}
+	public IncludeHierarchy current() {
+		return iterator.current(); 
 	}
 }

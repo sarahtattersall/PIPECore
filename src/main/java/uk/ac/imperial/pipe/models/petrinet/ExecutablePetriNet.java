@@ -63,10 +63,17 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public void refresh() {
 		if (isRefreshRequired()) {
 			initializeMaps(); 
-			ClonePetriNet.clone(petriNet, this); 
+			cloneIncludeHierarchyComponents(); 
 			addSelfAsListenerForPlaceTokenCountChanges(); 
 			buildState(); 
 			refreshRequired = false; 
+		}
+	}
+
+	private void cloneIncludeHierarchyComponents() {
+		IncludeIterator iterator = getIncludeHierarchy().iterator(); 
+		while (iterator.hasNext()) {
+			ClonePetriNet.clone(iterator.next().getPetriNet(), this);
 		}
 	}
 	private void initializeMaps() {

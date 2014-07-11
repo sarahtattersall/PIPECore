@@ -161,23 +161,23 @@ public class ExecutablePetriNetTest {
     	assertEquals(0, netp1.getTokenCount("Default")); 
     	assertEquals(beforeState, executablePetriNet.getState()); 
     }
-//    @Test
-	public void verifyExecutablePetriNetSeesAllIncludedComponents() throws Exception {
+    @Test
+	public void verifyExecutablePetriNetSeesAllIncludedComponentsWithAppropriatePrefixes() throws Exception {
 	  	net.addPlace(new DiscretePlace("P0", "P0")); 
+	  	net2 = new PetriNet();
 	  	net2.addPlace(new DiscretePlace("P1", "P1")); 
 	  	net2.addPlace(new DiscretePlace("P2", "P2")); 
-	  	hierarchy.include(net2, "some-function"); 
+	  	net.getIncludeHierarchy().include(net2, "some-function"); 
 	  	assertEquals("source PN only sees root components",1, net.getPlaces().size()); 
 	  	assertEquals("...but EPN sees all components",3, executablePetriNet.getPlaces().size()); 
-	}
-//    @Test
-	public void componentIdPrefixedWithAliasInExecutablePetriNetWhileNameIsUnchanged() throws Exception {
-	  	net2.addPlace(new DiscretePlace("P0", "P0")); 
-	  	hierarchy.include(net2, "a-function"); 
-	  	Place place = executablePetriNet.getComponent("a-function.P0", Place.class); 
-	  	assertEquals("name stays the same", "P0",place.getName()); 
-//  	place = executablePetriNet.getComponent("P0", Place.class); 
-//  	assertNull("no unaliased places exist in executable PN below the root level",place); 
-	}
+	  	assertEquals("components from root net default to no prefix",
+	  			"P0", executablePetriNet.getComponent("P0", Place.class).getId()); 
+	  	assertEquals("components from included nets are prefixed in the executable PN",
+	  			".some-function.P1", executablePetriNet.getComponent(".some-function.P1", Place.class).getId()); 
+	  	assertEquals(".some-function.P2", executablePetriNet.getComponent(".some-function.P2", Place.class).getId()); 
 
+	  	assertEquals("source PN component ids unaffected",
+	  			"P0", net.getComponent("P0", Place.class).getId()); 
+	  	assertEquals("P1", net2.getComponent("P1", Place.class).getId()); 
+	}
 }

@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,10 +24,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
-import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyTest {
     @Rule
@@ -40,13 +36,18 @@ public class IncludeHierarchyTest {
 	private IncludeHierarchy includes;
 	private PetriNet net1;
 	private PetriNet net2; 
-	private PetriNet net3; 
+	private PetriNet net3;
+	@SuppressWarnings("unused")
+	private PetriNet net4, net5, net6 ;
 
 	@Before
 	public void setUp() throws Exception {
-		net1 = createSimpleNet();
-		net2 = createSimpleNet();
-		net3 = createSimpleNet();
+		net1 = createSimpleNet(1);
+		net2 = createSimpleNet(2);
+		net3 = createSimpleNet(3);
+		net4 = createSimpleNet(4);
+		net5 = createSimpleNet(5);
+		net6 = createSimpleNet(6);
 		includes = new IncludeHierarchy(net1, "top"); 
 	}
 	@Test
@@ -146,12 +147,15 @@ public class IncludeHierarchyTest {
 	public void savesAndReturnsNet() throws Exception {
     	assertEquals(net1, includes.getPetriNet()); 
 	}
-	public PetriNet createSimpleNet() {
-		return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+	public PetriNet createSimpleNet(int i) {
+		PetriNet net = 
+				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
 				AnImmediateTransition.withId("T1")).and(
 				ANormalArc.withSource("T1").andTarget("P1")).andFinally(
 				ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+		net.setName(new NormalPetriNetName("net"+i));
+		return net; 
 	}
 	@Test
 	public void topLevelPetriNetIsNotNull() throws Exception
@@ -210,15 +214,14 @@ public class IncludeHierarchyTest {
 	  	includes.include(net1, "right-function"); 
 	  	assertEquals(includes.getInclude("left-function").getPetriNet(), includes.getInclude("right-function").getPetriNet()); 
 	}
-    @Test
-	public void returnsAllComponentsWithIdPrefixedWithAlias() throws Exception {
-	  	includes.include(net2, "a-function");
-	  	Map<String, Place> places = includes.getPlaces();
-	  	assertEquals("P0", places.get("P0").getName());
-	  	assertEquals("P0", places.get("top.a-function.P0").getName()); 
-	}
-  //TODO AliasInclude class
-  //TODO generic getMap function.  use Id change 
+//    @Test
+//	public void returnsAllComponentsWithIdPrefixedWithAlias() throws Exception {
+//	  	includes.include(net2, "a-function");
+//	  	Map<String, Place> places = includes.getPlaces();
+//	  	assertEquals("P0", places.get("P0").getName());
+//	  	assertEquals("P0", places.get("top.a-function.P0").getName()); 
+//	}
+  //TODO verifyTopLevelCanBeRenamedToOrFromBlank
   //TODO verifyImportsAreNotRecursive or verifyNumberOfCascadedImportsIsLessThanSomeConstant
   //TODO verifyDuplicateAliasIsSuffixedToEnsureUniqueness
   //TODO verifyDefaultAssignedWhenAliasIsBlank
