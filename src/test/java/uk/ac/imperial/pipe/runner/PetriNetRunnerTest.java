@@ -67,7 +67,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	runner.addPropertyChangeListener(this); 
     	runner.setFiringLimit(5); 
     	runner.run();
-    	assertEquals(8, events); 
+    	assertEquals(7, events); 
     }
     //TODO runsNetsWithMultipleColors
     //TODO runsNetsWithTimedTransitions
@@ -125,10 +125,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			if (events == 4) checkFiring(firing, 3,  "T0", 0,1); 
 			if (events == 5) checkFiring(firing, 4, "T1", 1,0); 
 			if (events == 6) checkFiring(firing, 5,  "T0", 0,1); 
-			if (events == 7) checkFiring(firing, 6, "T1", 1,0); 
 		}
 		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
-			assertEquals(8, events); 
+			assertEquals(7, events); 
 		}
 	}
 	private void checkFiring(Firing firing, int round, String transition, int... placeCols) {

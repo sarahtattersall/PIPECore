@@ -50,7 +50,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 
 	public void run() {
 		start(); 
-		while ((round <= firingLimit) && transitionsToFire()) {
+		while ((round < firingLimit) && transitionsToFire()) {
 			round++; 
 			fireOneTransition();
 		}
