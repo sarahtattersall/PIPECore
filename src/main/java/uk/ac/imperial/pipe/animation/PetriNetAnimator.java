@@ -1,7 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -11,7 +10,6 @@ import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.state.HashedState;
 import uk.ac.imperial.state.State;
 
 /**
@@ -33,7 +31,11 @@ public final class PetriNetAnimator implements Animator {
      * Saved State of the underlying
      * Petri net so that it can be reapplied to the Petri net at any time
      */
-    private State savedState; 
+    private State savedState;
+    /**
+     * Random for use in random firing.   
+     */
+	private Random random; 
 
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
@@ -63,15 +65,15 @@ public final class PetriNetAnimator implements Animator {
      *
      * @return a random transition which is enabled given the Petri nets current state
      */
+    //TODO rather than throwing, should return null when no more transitions, and caller should check for that
     @Override
     public Transition getRandomEnabledTransition() {
         Collection<Transition> enabledTransitions = getEnabledTransitions();
         if (enabledTransitions.isEmpty()) {
-            throw new RuntimeException("Error - no transitions to fire!");
+            throw new RuntimeException(ERROR_NO_TRANSITIONS_TO_FIRE);
         }
 
-        Random random = new Random();
-        int index = random.nextInt(enabledTransitions.size());
+        int index = getRandom().nextInt(enabledTransitions.size());
 
         Iterator<Transition> iter = enabledTransitions.iterator();
         Transition transition = iter.next();
@@ -96,6 +98,7 @@ public final class PetriNetAnimator implements Animator {
      *
      * @param transition transition to fire
      */
+    //TODO move state logic to Executable PN
     @Override
     public void fireTransition(Transition transition) {
         State newState = animationLogic.getFiredState(executablePetriNet.getState(), transition);
@@ -136,4 +139,20 @@ public final class PetriNetAnimator implements Animator {
             }
         }
     }
+
+	private Random getRandom() {
+		if (random == null) {
+			random = new Random(); 
+		}
+		return random;
+	}
+	/**
+	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
+	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
+	 * @param random
+	 */
+	@Override
+	public void setRandom(Random random) {
+		this.random = random;
+	}
 }

@@ -13,7 +13,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -24,6 +26,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ExecutablePetriNetTest {
 
     @Rule
