@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.runner.StateReport.Record;
+import uk.ac.imperial.pipe.runner.StateReport.TokenFiringRecord;
 import uk.ac.imperial.state.State;
 
 import com.google.common.hash.HashCode;
@@ -76,12 +76,12 @@ public class StateReportTest {
 	}
 	@Test
 	public void returnsRecordsSortedByPlaceIdThenToken() {
-		checkRecord(stateReport.getRecords().get(0), "Default", 0, 1);  
-		checkRecord(stateReport.getRecords().get(1), "red", 0, 2);  
-		checkRecord(stateReport.getRecords().get(0), "Default", 1, 3);  
-		checkRecord(stateReport.getRecords().get(1), "red", 1, 4);  
-		checkRecord(stateReport.getRecords().get(0), "Default", 2, 0);  
-		checkRecord(stateReport.getRecords().get(1), "red", 2, 1);  
+		checkRecord(stateReport.getTokenFiringRecords().get(0), "Default", 0, 1);  
+		checkRecord(stateReport.getTokenFiringRecords().get(1), "red", 0, 2);  
+		checkRecord(stateReport.getTokenFiringRecords().get(0), "Default", 1, 3);  
+		checkRecord(stateReport.getTokenFiringRecords().get(1), "red", 1, 4);  
+		checkRecord(stateReport.getTokenFiringRecords().get(0), "Default", 2, 0);  
+		checkRecord(stateReport.getTokenFiringRecords().get(1), "red", 2, 1);  
 	}
 	@Test
 	public void throwsIfTokenColorsAreNotSameForAllPlaces() {
@@ -102,7 +102,7 @@ public class StateReportTest {
 	
 	
 
-	private void checkRecord(Record record, String token, int placeCol, int count) {
+	private void checkRecord(TokenFiringRecord record, String token, int placeCol, int count) {
 		assertEquals(token, record.token); 
 		assertEquals(count, (int) record.getCounts().get(placeCol)); 
 	}

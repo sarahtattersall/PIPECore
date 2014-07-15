@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import uk.ac.imperial.state.State;
@@ -25,7 +24,7 @@ import uk.ac.imperial.state.State;
 public class StateReport {
 
 	private State state;
-	private List<Record> records;
+	private List<TokenFiringRecord> tokenFiringRecords;
 	private List<String> places;
 	private int numberTokens;
 	private SortedSet<String> tokens;
@@ -37,7 +36,7 @@ public class StateReport {
 	}
 
 	private void buildReport() {
-		records = new ArrayList<Record>(); 
+		tokenFiringRecords = new ArrayList<TokenFiringRecord>(); 
 		map = state.asMap();
 		buildPlaces();
 		buildTokens();
@@ -53,20 +52,8 @@ public class StateReport {
 				if (count != null) counts.add(count);
 				else throw new IllegalStateException("StateReport:  null count found for token: "+token); 
 			}
-			records.add(new Record(token, counts)); 
+			tokenFiringRecords.add(new TokenFiringRecord(token, counts)); 
 		}
-//		List<Integer> counts = null; 
-//		List<Map<String, Integer>> tokenCounts = new ArrayList<>(); 
-//		for (String place: places) {
-//			tokenCounts.add(new TreeMap<String, Integer>(map.get(place))); 
-//		}
-//		for (int i = 0; i < places.size(); i++) {
-//			Map<String, Integer> tokenCount = tokenCounts.get(i); 
-//				for (String token : tokenCount.keySet()) {
-//					records.add(new Record(places.get(i), token, tokenCount.get(token))); 
-//			}
-//		}
-		
 	}
 	private void buildTokens() {
 		String firstPlace = places.get(0); 
@@ -83,18 +70,18 @@ public class StateReport {
 	}
 	
 
-	public List<Record> getRecords() {
-		return records;
+	public List<TokenFiringRecord> getTokenFiringRecords() {
+		return tokenFiringRecords;
 	}
 	public List<String> getPlaces() {
 		return places; 
 	}
 	
-	public class Record {
+	public class TokenFiringRecord {
 		public final String token; 
 		private final List<Integer> placeCounts; 
 
-		public Record(String token, List<Integer> placeCounts) {
+		public TokenFiringRecord(String token, List<Integer> placeCounts) {
 			this.token = token; 
 			this.placeCounts = placeCounts; 
 		}
