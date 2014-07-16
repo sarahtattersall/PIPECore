@@ -2,12 +2,15 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
+import uk.ac.imperial.pipe.commands.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
 /**
@@ -35,20 +38,24 @@ import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
 public class IncludeHierarchy extends AbstractPetriNetPubSub implements PropertyChangeListener {
 
-	public static final String WOULD_CAUSE_DUPLICATE = " would cause duplicate: ";
 	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL = "IncludeHierarchy attempted rename at level ";
+	public static final String WOULD_CAUSE_DUPLICATE = " would cause duplicate: ";
+	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE = "IncludeHierarchy attempted rename would cause duplicate: ";
 	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL = "Include alias not found at level ";
 	public static final String INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL = "Include alias name duplicated at level ";
 	public static final String INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL = "Include alias name may not be blank or null";
 	public static final String INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL = "IncludeHierarchy:  PetriNet may not be null";
 	public static final String NEW_INCLUDE_ALIAS_NAME = "new include alias name";
+	public static final String INCLUDE_ALIAS_NOT_FOUND = "Include alias not found: ";
 	private Map<String, IncludeHierarchy> includeMap;
+	private Map<String, IncludeHierarchy> includeFullyQualifiedMap;
 	private String name;
 	private IncludeHierarchy parent;
 	private String fullyQualifiedName;
 	private PetriNet petriNet;
 	private String fullyQualifiedNameAsPrefix;
 	private IncludeIterator iterator;
+	private Map<String, InterfacePlace> interfacePlaces;
 
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
@@ -57,7 +64,9 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private IncludeHierarchy(PetriNet petriNet, IncludeHierarchy parent, String name) {
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
-		this.includeMap = new HashMap<>(); 
+		this.includeMap = new HashMap<>();
+		this.includeFullyQualifiedMap = new HashMap<>(); 
+		this.interfacePlaces = new HashMap<>(); 
 		this.parent = parent;
 		if (!isValid(name)) name = "";
 		this.name = name; 
@@ -108,9 +117,10 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		if (net == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		if (!isValid(alias)) throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
 		if (includeMap.containsKey(alias)) throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL+name+": "+alias);
-		IncludeHierarchy childAlias = new IncludeHierarchy(ClonePetriNet.clone(net), this, alias);
-		addPropertyChangeListener(childAlias); 
-		includeMap.put(alias, childAlias);
+		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(net), this, alias);
+		addPropertyChangeListener(childHierarchy); 
+		includeMap.put(alias, childHierarchy);
+		includeFullyQualifiedMap.put(childHierarchy.getFullyQualifiedName(), childHierarchy);
 		return includeMap.get(alias); 
 	}
 
@@ -128,11 +138,23 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 
 	public void rename(String newName) {
 		String oldName = name; 
+		String oldFullyQualifiedName = fullyQualifiedName; 
 		name = newName; 
-		if (parent != null) parent.renameChild(oldName, newName); 
 		buildFullyQualifiedName(); 
+		if (parent != null) { 
+			parent.renameChild(oldName, newName);
+			parent.renameFullyQualifiedName(oldFullyQualifiedName, fullyQualifiedName); 
+		}
 		notifyChildren(newName, oldName);
  	}
+	private void renameFullyQualifiedName(String oldFullyQualifiedName,
+			String fullyQualifiedName) {
+		if (includeFullyQualifiedMap.containsKey(fullyQualifiedName)) throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE+fullyQualifiedName);
+		IncludeHierarchy child = includeFullyQualifiedMap.get(oldFullyQualifiedName);
+		includeMap.put(fullyQualifiedName, child); 	
+		includeMap.remove(oldFullyQualifiedName);
+	}
+
 	public void renameChild(String oldName, String newName) {
 		if (includeMap.containsKey(newName)) throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL+name+WOULD_CAUSE_DUPLICATE+newName);
 		IncludeHierarchy child = includeMap.get(oldName);
@@ -166,5 +188,55 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	}
 	public IncludeHierarchy current() {
 		return iterator.current(); 
+	}
+	public void addToInterface(Place place) {
+		InterfacePlace interfacePlace = place.buildInterfacePlace(); 
+//		InterfaceDiscretePlace interfacePlace = new InterfaceDiscretePlace(place); 
+		interfacePlace.setFullyQualifiedName(fullyQualifiedName); 
+		if (!interfacePlaces.containsKey(interfacePlace.getId())) {
+			interfacePlaces.put(interfacePlace.getId(), interfacePlace); 
+		}
+	}
+
+	public Collection<InterfacePlace> getInterfacePlaces() {
+		return interfacePlaces.values();
+	}
+
+	public InterfacePlace getInterfacePlace(String id) {
+		return interfacePlaces.get(id);
+	}
+
+	public void removeFromInterface(DiscretePlace place) {
+		for (String id : interfacePlaces.keySet()) {
+			if (interfacePlaces.get(id).getPlace().getId().equals(place.getId())) {
+				interfacePlaces.remove(id); 
+			}
+		}
+		//TODO do same for the rest of the hierarchy
+	}
+	/**
+	 * Execute the command for this hierarchy and pass to its parent.  This will result in the command being 
+	 * executed in all of the parents of the target include hierarchy.  
+	 * An error encountered by the command at each level of the hierarchy will be added as a message to the list of messages 
+	 * 
+	 * @param command
+	 * @return List<String> messages encountered when the command was executed at each level
+	 */
+	public List<String> parents(IncludeHierarchyCommand command) {
+		List<String> messages = command.execute(this); 
+		if (parent != null) {
+			messages = parent.parents(command);  
+//			List<String> parentMessages = parent.parents(command);  
+//			messages.addAll(parentMessages); 
+		}
+		return messages; 
+	}
+
+	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {
+		IncludeHierarchy child = includeFullyQualifiedMap.get(fullyQualifiedName); 
+		if (child == null) {			
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND+fullyQualifiedName);
+		}
+		return child;
 	}
 }

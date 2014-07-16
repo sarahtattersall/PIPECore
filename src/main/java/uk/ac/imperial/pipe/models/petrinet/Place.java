@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 
+
 public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Place diameter
@@ -61,4 +62,15 @@ public interface Place extends Connectable, PropertyChangeListener {
      * @param token
      */
     void removeAllTokens(String token);
+
+    /**
+     * 
+     * @return whether this place is in the interface for the Petri net.  
+     */
+	public  boolean isInInterface();
+
+	/**
+	 * @return an InterfacePlace corresponding to this place
+	 */
+	public InterfacePlace buildInterfacePlace();
 }

@@ -28,7 +28,7 @@ public class ClonePetriNetTest {
     public void setUp() {
         buildSimpleNet();
     }
-
+    //TODO clones InterfacePlaces (?)
 	private void buildSimpleNet() {
 		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(

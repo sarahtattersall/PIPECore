@@ -10,6 +10,8 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -19,11 +21,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.ac.imperial.pipe.commands.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyTest {
@@ -214,13 +218,75 @@ public class IncludeHierarchyTest {
 	  	includes.include(net1, "right-function"); 
 	  	assertEquals(includes.getInclude("left-function").getPetriNet(), includes.getInclude("right-function").getPetriNet()); 
 	}
-//    @Test
-//	public void returnsAllComponentsWithIdPrefixedWithAlias() throws Exception {
-//	  	includes.include(net2, "a-function");
-//	  	Map<String, Place> places = includes.getPlaces();
-//	  	assertEquals("P0", places.get("P0").getName());
-//	  	assertEquals("P0", places.get("top.a-function.P0").getName()); 
-//	}
+    @Test
+	public void interfacePlaceCanBeAddedButOnceOnly() throws Exception {
+    	Place place = net1.getComponent("P0", Place.class); 
+    	includes.addToInterface(place); 
+    	assertThat(includes.getInterfacePlaces()).hasSize(1);
+    	includes.addToInterface(place); 
+    	assertThat(includes.getInterfacePlaces()).hasSize(1);
+    	assertEquals("P0-I", includes.getInterfacePlace("P0-I").getId()); 
+	}
+    @Test
+	public void interfacePlaceHasFullyQualifiedPrefixOfItsHierarchy() throws Exception {
+    	buildHierarchyWithInterfacePlaces(); 
+    	InterfacePlace interfacePlace = includes.getInterfacePlace("P0-I"); 
+    	assertEquals("", interfacePlace.getFullyQualifiedPrefix()); 
+    	InterfacePlace interfacePlace2 = includes.getInclude("right-function").getInterfacePlace("P0-I"); 
+    	assertEquals(".right-function", interfacePlace2.getFullyQualifiedPrefix()); 
+	}
+	private void buildHierarchyWithInterfacePlaces()
+			throws PetriNetComponentNotFoundException {
+		includes = new IncludeHierarchy(net1, null); 
+    	includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
+    	Place place = net1.getComponent("P0", Place.class); 
+    	Place place2 = net2.getComponent("P0", Place.class); 
+    	Place place3 = net3.getComponent("P0", Place.class); 
+    	includes.addToInterface(place); 
+    	includes.getInclude("right-function").addToInterface(place2);
+    	includes.getInclude("right-function").getInclude("lowlevel-function").addToInterface(place3);
+	}
+//	@Test
+	//FIXME incomplete support for fully qualified name
+	public void includesCanBeRetrievedDirectlyByFullyQualifiedName() throws Exception {
+		includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
+//		assertEquals(includes, includes.getFullyQualifiedInclude("top")); 
+		assertEquals(includes.getInclude("right-function"), includes.getFullyQualifiedInclude("top.right-function")); 
+		assertEquals(includes.getInclude("right-function").getInclude("lowlevel-function"), includes.getFullyQualifiedInclude("top.right-function.lowlevel-function")); 
+	}
+	@Test
+	public void propagatesCommandsToAllParents() throws Exception {
+		includes.include(net2, "two").include(net3,"three").include(net4, "four"); 
+		includes.include(net5, "five"); 
+		IncludeHierarchy include = includes.getInclude("two").getInclude("three"); 
+		List<String> messages = new ArrayList<String>(); 
+		messages = include.parents(new DummyIncludeCommand(messages));  
+		assertEquals(3, messages.size()); 
+		assertEquals("three", messages.get(0)); 
+		assertEquals("two", messages.get(1)); 
+		assertEquals("top", messages.get(2)); 
+	}
+	//TODO propagateCommandsToAllChildren
+	private class DummyIncludeCommand implements IncludeHierarchyCommand {
+
+		
+		private List<String> messages;
+
+		public DummyIncludeCommand(List<String> messages) {
+			this.messages = messages; 
+		}
+
+
+		@Override
+		public List<String> execute(IncludeHierarchy includeHierarchy) {
+			messages.add(includeHierarchy.getName()); 
+			return messages;
+		}
+		
+	}
+    //TODO fullyqualified name renamed when hierarchy is renamed
+    //TODO interfacePlace mirrors to EPN and vice versa
+    //TODO InterfacePlaces from one include are visible under another include appropriately prefixed
   //TODO verifyTopLevelCanBeRenamedToOrFromBlank
   //TODO verifyImportsAreNotRecursive or verifyNumberOfCascadedImportsIsLessThanSomeConstant
   //TODO verifyDuplicateAliasIsSuffixedToEnsureUniqueness

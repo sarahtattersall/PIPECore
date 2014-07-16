@@ -50,10 +50,24 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 		TEST_NETS = new HashMap<String, PetriNet>(); 
 		TEST_NETS.put("testSimple", buildTestNet()); 
 		TEST_NETS.put("testLooping", buildLoopingTestNet()); 
+		TEST_NETS.put("testHierarchy", buildNetWithHierarchy()); 
+		TEST_NETS.put("testLoopingHierarchy", buildNetWithLoopingHierarchy()); 
 	}
     private static PetriNet buildLoopingTestNet() {
     	return buildNet("P0"); 
     }
+	private static PetriNet buildNetWithLoopingHierarchy() {
+		PetriNet petriNet = buildLoopingTestNet(); 
+		petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "left"); 
+		petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "right"); 
+		return petriNet;
+	}
+	private static PetriNet buildNetWithHierarchy() {
+		PetriNet petriNet = buildTestNet(); 
+		petriNet.getIncludeHierarchy().include(buildTestNet(), "left"); 
+		petriNet.getIncludeHierarchy().include(buildTestNet(), "right"); 
+		return petriNet;
+	}
 	private static PetriNet buildTestNet() {
 		return buildNet("P2"); 
 	}

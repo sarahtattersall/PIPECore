@@ -210,7 +210,7 @@ public final class ClonePetriNet {
             newPlace.setTokenCount(entry.getKey(), entry.getValue());
         }
         newPetriNet.addPlace(newPlace);
-        if (originalPlaceTracksExecutablePlaceCounts ) newPlace.addPropertyChangeListener(place); 
+        if (originalPlaceTracksExecutablePlaceCounts ) newPlace.addPropertyChangeListener(Place.TOKEN_CHANGE_MESSAGE, place); 
         places.put(place.getId(), newPlace);
     }
 

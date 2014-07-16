@@ -1,18 +1,17 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
-
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 /**
  * This class maps to the Place in PNML and has a discrete number of tokens
  */
-public final class DiscretePlace extends AbstractConnectable implements Place {
+public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Marking x offset relative to the place x coordinate
@@ -33,6 +32,8 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      * Place tokens
      */
     private Map<String, Integer> tokenCounts = new HashMap<>();
+
+	private boolean inInterface;
 
     /**
      * Constructor
@@ -394,7 +395,17 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     public void removeAllTokens(String token) {
         tokenCounts.remove(token);
     }
-    
+    /**
+     * 
+     * @return whether this Place is in the interface for the Petri net.  
+     */
+    @Override
+	public boolean isInInterface() {
+    	return inInterface;
+    }
+	private void setInInterface(boolean inInterface) {
+    	this.inInterface = inInterface;
+    }
     
     
     /**
@@ -406,7 +417,15 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
-			setTokenCounts((Map<String, Integer>) event.getNewValue()); 
+				setTokenCounts((Map<String, Integer>) event.getNewValue()); 
 		}
 	}
+
+	@Override
+	public InterfacePlace buildInterfacePlace() {
+		setInInterface(true); 
+		return new InterfaceDiscretePlace(this);
+	}
+
+
 }

@@ -7,15 +7,20 @@ import org.junit.rules.ExpectedException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PlaceVisitor;
+import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
@@ -270,5 +275,15 @@ public class DiscretePlaceTest {
     	place.setTokenCount("Default", 3); 
     	assertEquals(3, mirror.getTokenCount("Default")); 
 	}
-
+    
+    // Hier.addToInterface(place)
+    //   place.setIsInInterface
+    @Test
+    public void knowsThatItsInInterface() throws Exception {
+    	assertFalse(place.isInInterface()); 
+    	IncludeHierarchy hierarchy = new IncludeHierarchy(new PetriNet(), null);
+    	hierarchy.addToInterface(place); 
+    	assertTrue(place.isInInterface()); 
+    	hierarchy.removeFromInterface(place); 
+    }
 }
