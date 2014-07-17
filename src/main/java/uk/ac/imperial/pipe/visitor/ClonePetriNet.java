@@ -1,16 +1,36 @@
 package uk.ac.imperial.pipe.visitor;
 
-import uk.ac.imperial.pipe.exceptions.InvalidRateException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.*;
-import uk.ac.imperial.pipe.models.petrinet.name.*;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Annotation;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
+import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
+import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
+import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
+import uk.ac.imperial.pipe.models.petrinet.RateType;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.name.FileNameVisitor;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalNameVisitor;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
+import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 
 /**
  * Class for cloning exactly a Petri net
@@ -79,9 +99,11 @@ public final class ClonePetriNet {
         return clone.clonePetriNet();
     }
     /**
-     * Visits each component of the source PetriNet and adds it to the target ExecutablePetriNet, prefixing its Id depending on the position of the source PetriNet in the IncludeHierarchy
+     * Visits each component of the source PetriNet and adds it to the target ExecutablePetriNet, 
+     * prefixing its Id depending on the position of the source PetriNet in the IncludeHierarchy
      * @param petriNet:  source
-     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, whose components will be replaced. 
+     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, 
+     * whose components will be replaced. 
      */
     public static void clone(PetriNet sourcePetriNet, ExecutablePetriNet targetExecutablePetriNet) {
     	ClonePetriNet clone = new ClonePetriNet(sourcePetriNet, targetExecutablePetriNet);
@@ -190,7 +212,8 @@ public final class ClonePetriNet {
 
     }
 	protected void prefixIdWithQualifiedName(PetriNetComponent component) {
-		component.setId(newPetriNet.getIncludeHierarchy().current().getFullyQualifiedNameAsPrefix()+component.getId());
+		component.setId(newPetriNet.getIncludeHierarchy().current().
+				getFullyQualifiedNameAsPrefix()+component.getId());
 	}
 
     /**

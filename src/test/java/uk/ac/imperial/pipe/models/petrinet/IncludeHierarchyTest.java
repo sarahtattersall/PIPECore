@@ -10,8 +10,6 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import uk.ac.imperial.pipe.commands.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
@@ -245,44 +242,6 @@ public class IncludeHierarchyTest {
     	includes.addToInterface(place); 
     	includes.getInclude("right-function").addToInterface(place2);
     	includes.getInclude("right-function").getInclude("lowlevel-function").addToInterface(place3);
-	}
-//	@Test
-	//FIXME incomplete support for fully qualified name
-	public void includesCanBeRetrievedDirectlyByFullyQualifiedName() throws Exception {
-		includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
-//		assertEquals(includes, includes.getFullyQualifiedInclude("top")); 
-		assertEquals(includes.getInclude("right-function"), includes.getFullyQualifiedInclude("top.right-function")); 
-		assertEquals(includes.getInclude("right-function").getInclude("lowlevel-function"), includes.getFullyQualifiedInclude("top.right-function.lowlevel-function")); 
-	}
-	@Test
-	public void propagatesCommandsToAllParents() throws Exception {
-		includes.include(net2, "two").include(net3,"three").include(net4, "four"); 
-		includes.include(net5, "five"); 
-		IncludeHierarchy include = includes.getInclude("two").getInclude("three"); 
-		List<String> messages = new ArrayList<String>(); 
-		messages = include.parents(new DummyIncludeCommand(messages));  
-		assertEquals(3, messages.size()); 
-		assertEquals("three", messages.get(0)); 
-		assertEquals("two", messages.get(1)); 
-		assertEquals("top", messages.get(2)); 
-	}
-	//TODO propagateCommandsToAllChildren
-	private class DummyIncludeCommand implements IncludeHierarchyCommand {
-
-		
-		private List<String> messages;
-
-		public DummyIncludeCommand(List<String> messages) {
-			this.messages = messages; 
-		}
-
-
-		@Override
-		public List<String> execute(IncludeHierarchy includeHierarchy) {
-			messages.add(includeHierarchy.getName()); 
-			return messages;
-		}
-		
 	}
     //TODO fullyqualified name renamed when hierarchy is renamed
     //TODO interfacePlace mirrors to EPN and vice versa

@@ -2,11 +2,8 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,26 +11,35 @@ import uk.ac.imperial.pipe.commands.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
 /**
- * A composite Petri net is one that include other Petri nets {@see uk.ac.imperial.pipe.models.petrinet.CompositePetriNet}.  A Petri net that does not 
+ * A composite Petri net is one that include other Petri nets.  A Petri net that does not 
  * include other Petri nets is a "single Petri net", or just a "Petri net".    
  * The composite Petri net is a tree, with a single root, the Petri net that imports other Petri nets.
- * Included Petri nets may be either single Petri nets or composite Petri nets.  An included composite Petri net forms the root of its own sub-tree.
+ * Included Petri nets may be either single Petri nets or composite Petri nets.  
+ * An included composite Petri net forms the root of its own sub-tree.
  * A composite Petri net may not be imported recursively, either directly or indirectly.     
  * <p>
  * A composite Petri net behaves differently depending on its status:
  * <ul>
- * <li>editable:  only the components that have been added or modified in this Petri net are accessible.  Components of included Petri nets are not accessible.  
- * A persisted Petri net contains the XML for the components at the root level only, as well as XML for the statements that include other Petri nets.  
+ * <li>editable:  only the components that have been added or modified in this Petri net are accessible.  
+ * Components of included Petri nets are not accessible.  
+ * A persisted Petri net contains the XML for the components at the root level only, 
+ * as well as XML for the statements that include other Petri nets.  
  * In this status, components may be added, modified or removed, and markings may be manually modified.  
- * <li>executable:  all the components for the root level and for all included Petri nets are accessible, as part of an executable Petri net (@see uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet).  
- * An executable Petri net is one where all include statements have been replaced with the components that comprise the included Petri net, resulting in a single Petri net.  
- * In this status:  the Petri net may be animated or analyzed by a module, and the markings that result from firing enabled transitions will be populated in the affected places.  
- * When the affected places are components in an included Petri net, the markings in the updated places in the expanded Petri net are mirrored to the corresponding included Petri net.
+ * <li>executable:  all the components for the root level and for all included Petri nets are accessible, 
+ * as part of an executable Petri net (@see uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet).  
+ * An executable Petri net is one where all include statements have been replaced with the components 
+ * that comprise the included Petri net, resulting in a single Petri net.  
+ * In this status:  the Petri net may be animated or analyzed by a module, 
+ * and the markings that result from firing enabled transitions will be populated in the affected places.  
+ * When the affected places are components in an included Petri net, the markings in the updated places 
+ * in the expanded Petri net are mirrored to the corresponding included Petri net.
  * </ul>
  * As of PIPE 5.0, single Petri nets behave identically regardless of their status. 
  * <p>
- * In the PIPE 5.0 gui, each included Petri net is displayed in its own tab, and may be edited and persisted separately.  
- * Expanded Petri nets are not visible in the gui; their updated markings are visible in the tabs of the corresponding included Petri net. 
+ * In the PIPE 5.0 gui, each included Petri net is displayed in its own tab, 
+ * and may be edited and persisted separately.  
+ * Expanded Petri nets are not visible in the gui; their updated markings are visible 
+ * in the tabs of the corresponding included Petri net. 
  */
 
 public class IncludeHierarchy extends AbstractPetriNetPubSub implements PropertyChangeListener {
@@ -105,8 +111,12 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	}
 
 	private void buildFullyQualifiedNameAsPrefix() {
-		if (fullyQualifiedName.equals("")) fullyQualifiedNameAsPrefix = ""; 
-		else fullyQualifiedNameAsPrefix = fullyQualifiedName+"."; 
+		if (fullyQualifiedName.isEmpty()) { 
+			fullyQualifiedNameAsPrefix = ""; 
+		}
+		else { 
+			fullyQualifiedNameAsPrefix = fullyQualifiedName+"."; 
+		}
 	}
 
 	public Map<String, IncludeHierarchy> includeMap() {
@@ -114,9 +124,15 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	}
 
 	public IncludeHierarchy include(PetriNet net, String alias) {
-		if (net == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
-		if (!isValid(alias)) throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
-		if (includeMap.containsKey(alias)) throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL+name+": "+alias);
+		if (net == null) { 
+			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
+		}
+		if (!isValid(alias)) { 
+			throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
+		}
+		if (includeMap.containsKey(alias)) { 
+			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
+		}
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(net), this, alias);
 		addPropertyChangeListener(childHierarchy); 
 		includeMap.put(alias, childHierarchy);
@@ -127,7 +143,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	public IncludeHierarchy getInclude(String includeAlias) {
 		IncludeHierarchy child = includeMap.get(includeAlias); 
 		if (child == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL+name+": "+includeAlias);
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
 		}
 		return child;
 	}
@@ -149,14 +165,19 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
  	}
 	private void renameFullyQualifiedName(String oldFullyQualifiedName,
 			String fullyQualifiedName) {
-		if (includeFullyQualifiedMap.containsKey(fullyQualifiedName)) throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE+fullyQualifiedName);
+		if (includeFullyQualifiedMap.containsKey(fullyQualifiedName)) { 
+			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE + fullyQualifiedName);
+		}
 		IncludeHierarchy child = includeFullyQualifiedMap.get(oldFullyQualifiedName);
 		includeMap.put(fullyQualifiedName, child); 	
 		includeMap.remove(oldFullyQualifiedName);
 	}
 
 	public void renameChild(String oldName, String newName) {
-		if (includeMap.containsKey(newName)) throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL+name+WOULD_CAUSE_DUPLICATE+newName);
+		if (includeMap.containsKey(newName)) { 
+			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL + 
+					name + WOULD_CAUSE_DUPLICATE + newName);
+		}
 		IncludeHierarchy child = includeMap.get(oldName);
 		includeMap.put(newName, child); 	
 		includeMap.remove(oldName);
@@ -215,9 +236,11 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		//TODO do same for the rest of the hierarchy
 	}
 	/**
-	 * Execute the command for this hierarchy and pass to its parent.  This will result in the command being 
+	 * Execute the command for this hierarchy and pass to its parent.  
+	 * This will result in the command being 
 	 * executed in all of the parents of the target include hierarchy.  
-	 * An error encountered by the command at each level of the hierarchy will be added as a message to the list of messages 
+	 * An error encountered by the command at each level of the hierarchy 
+	 * will be added as a message to the list of messages 
 	 * 
 	 * @param command
 	 * @return List<String> messages encountered when the command was executed at each level
