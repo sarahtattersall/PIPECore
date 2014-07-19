@@ -72,19 +72,12 @@ public class ClonePetriNetTest {
     }
     @Test
 	public void clonePetriNetToExecutablePetriNetReplacingExistingState() throws Exception {
-    	oldPetriNet = new TestingPetriNet(); 
-    	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	buildSimpleNet(); 
-    	ClonePetriNet.clone(oldPetriNet, executablePetriNet); 
+    	oldPetriNet.setIncludesForTesting(new IncludeHierarchy(oldPetriNet, "root"));
+    	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
+    	ClonePetriNet.cloneFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("root.P0", executablePetriNet.getComponent("root.P0", Place.class).getId()); 
     	assertEquals("root.T0", executablePetriNet.getComponent("root.T0", Transition.class).getId()); 
     	assertEquals("root.P0 TO T0", executablePetriNet.getComponent("root.P0 TO T0", InboundArc.class).getId()); 
 	}
-    private class TestingPetriNet extends PetriNet {
-    	
-    	public TestingPetriNet() {
-    		super(); 
-			includes = new IncludeHierarchy(this, "root"); 
-		}
-    }
 }

@@ -207,9 +207,6 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		iterator = new IncludeIterator(this);
 		return iterator; 
 	}
-	public IncludeHierarchy current() {
-		return iterator.current(); 
-	}
 	public void addToInterface(Place place) {
 		InterfacePlace interfacePlace = place.buildInterfacePlace(); 
 //		InterfaceDiscretePlace interfacePlace = new InterfaceDiscretePlace(place); 

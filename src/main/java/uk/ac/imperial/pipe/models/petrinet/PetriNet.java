@@ -736,4 +736,8 @@ public class PetriNet extends AbstractPetriNet {
         }
     }
 
+	public void setIncludesForTesting(IncludeHierarchy includeHierarchy) {
+		this.includes = includeHierarchy;
+	}
+
 }

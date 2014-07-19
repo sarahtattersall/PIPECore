@@ -10,7 +10,6 @@ public class IncludeIterator implements Iterator<IncludeHierarchy> {
 
 	private Iterator<IncludeHierarchy> iterator;
 	private IncludeHierarchy includeHierarchy;
-	private IncludeHierarchy current;
 	private Stack<Iterator<IncludeHierarchy>> stackIterator;
 	private ArrayList<IncludeHierarchy> includes;
 	public IncludeIterator(IncludeHierarchy includeHierarchy) {
@@ -51,9 +50,6 @@ public class IncludeIterator implements Iterator<IncludeHierarchy> {
 		}
 	}
 
-	public IncludeHierarchy current() {
-		return current;
-	}
 	@Override
 	public void remove() {
 		throw new UnsupportedOperationException("Include Iterator does not support remove method."); 
@@ -67,7 +63,6 @@ public class IncludeIterator implements Iterator<IncludeHierarchy> {
 	}
 	@Override
 	public IncludeHierarchy next() {
-		current = iterator.next();
-		return current;
+		return iterator.next();
 	}
 }

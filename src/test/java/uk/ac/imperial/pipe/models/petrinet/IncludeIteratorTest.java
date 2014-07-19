@@ -59,24 +59,6 @@ public class IncludeIteratorTest {
 		return net; 
 	}
 	@Test
-	public void currentOnlyWorksAfterNextForFirstRequest() throws Exception {
-		expectedException.expect(NoSuchElementException.class);
-		includes = new IncludeHierarchy(net1, "top"); 
-		iterator = includes.iterator(); 
-		assertTrue(iterator.hasNext()); 
-		assertEquals("net1", iterator.next().getPetriNet().getName().getName()); 
-		assertEquals("net1", iterator.current().getPetriNet().getName().getName()); 
-		assertFalse(iterator.hasNext()); 
-		iterator = includes.iterator(); 
-		assertTrue(iterator.hasNext()); 
-		assertNull("current not set til we do next", iterator.current()); 
-		assertEquals("net1", iterator.next().getPetriNet().getName().getName()); 
-		assertEquals("net1", iterator.current().getPetriNet().getName().getName()); 
-		assertFalse(iterator.hasNext()); 
-		iterator.next();  // throws 
-		iterator.current(); 
-	}
-	@Test
 	public void buildsListOfIncludesThroughWhichToIterate() throws Exception {
 		includes.include(net2, "two"); 
 		includes.include(net3, "three").include(net4, "four").include(net5, "five");
@@ -118,40 +100,10 @@ public class IncludeIteratorTest {
 		assertEquals("net6",it.next().getPetriNet().getName().getName()); 
 	}
     @Test
-	public void iteratesThroughHierarchyTrackingCurrentLevel() throws Exception {
-        expectedException.expect(NoSuchElementException.class);
-    	includes.include(net2, "two"); 
-    	includes.include(net3, "three").include(net4, "four").include(net5, "five");
-    	includes.getInclude("three").getInclude("four").include(net6, "six");
-    	iterator = includes.iterator(); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net1", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net1", iterator.current().getPetriNet().getName().getName()); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net2", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net2", iterator.current().getPetriNet().getName().getName()); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net3", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net3", iterator.current().getPetriNet().getName().getName()); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net4", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net4", iterator.current().getPetriNet().getName().getName()); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net5", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net5", iterator.current().getPetriNet().getName().getName()); 
-    	assertTrue(iterator.hasNext()); 
-    	assertEquals("net6", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net6", iterator.current().getPetriNet().getName().getName()); 
-    	assertFalse(iterator.hasNext()); 
-    	iterator.next();  // throws 
-    	iterator.current(); 
-	}
-    @Test
     public void returnsOnceForSingleNet() throws Exception {
     	iterator = includes.iterator(); 
     	assertTrue(iterator.hasNext()); 
     	assertEquals("net1", iterator.next().getPetriNet().getName().getName()); 
-    	assertEquals("net1", iterator.current().getPetriNet().getName().getName()); 
     	assertFalse(iterator.hasNext()); 
     }
 }

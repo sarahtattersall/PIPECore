@@ -17,6 +17,8 @@ import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -41,10 +43,11 @@ public final class ClonePetriNet {
      */
     private static final Logger LOGGER = Logger.getLogger(ClonePetriNet.class.getName());
 
+
     /**
      * Original Petri net to clone
      */
-    private final PetriNet petriNet;
+    private  PetriNet petriNet;
 
     /**
      * Cloned Petri net
@@ -72,6 +75,31 @@ public final class ClonePetriNet {
 
 	private boolean originalPlaceTracksExecutablePlaceCounts = false;
 
+	private IncludeHierarchy includeHierarchy;
+
+
+	private IncludeHierarchy currentIncludeHierarchy;
+
+	/**
+	 *
+	 * @param petriNet
+	 * @return  cloned Petri net
+	 */
+	public static PetriNet clone(PetriNet petriNet) {
+		ClonePetriNet clone = new ClonePetriNet(petriNet);
+		return clone.clonePetriNet();
+	}
+//    /**
+//     * Visits each component of the source PetriNet and adds it to the target ExecutablePetriNet, 
+//     * prefixing its Id depending on the position of the source PetriNet in the IncludeHierarchy
+//     * @param petriNet:  source
+//     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, 
+//     * whose components will be replaced. 
+//     */
+	public static void cloneFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
+		ClonePetriNet clone = new ClonePetriNet(targetExecutablePetriNet);
+		clone.clonePetriNetToExecutablePetriNet();
+	}
     /**
      * private constructor
      * @param petriNet petri net to clone
@@ -80,38 +108,24 @@ public final class ClonePetriNet {
         this.petriNet = petriNet;
         newPetriNet = new PetriNet();
     }
-    //TODO consider using newPetriNet in both cases, and converting to abstract
-    private ClonePetriNet(PetriNet sourcePetriNet,
-			ExecutablePetriNet targetExecutablePetriNet) {
-    	this.petriNet = sourcePetriNet;
-    	newPetriNet = targetExecutablePetriNet;
-    	this.addFullyQualifiedNamePrefix = true;
-    	this.originalPlaceTracksExecutablePlaceCounts = true; 
+
+    private ClonePetriNet(ExecutablePetriNet targetExecutablePetriNet) {
+		this.newPetriNet = targetExecutablePetriNet; 
+		this.includeHierarchy = targetExecutablePetriNet.getIncludeHierarchy(); 
+		this.addFullyQualifiedNamePrefix = true;
+		this.originalPlaceTracksExecutablePlaceCounts = true; 
 	}
 
-	/**
-     *
-     * @param petriNet
-     * @return  cloned Petri net
-     */
-    public static PetriNet clone(PetriNet petriNet) {
-        ClonePetriNet clone = new ClonePetriNet(petriNet);
-        return clone.clonePetriNet();
-    }
-    /**
-     * Visits each component of the source PetriNet and adds it to the target ExecutablePetriNet, 
-     * prefixing its Id depending on the position of the source PetriNet in the IncludeHierarchy
-     * @param petriNet:  source
-     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, 
-     * whose components will be replaced. 
-     */
-    public static void clone(PetriNet sourcePetriNet, ExecutablePetriNet targetExecutablePetriNet) {
-    	ClonePetriNet clone = new ClonePetriNet(sourcePetriNet, targetExecutablePetriNet);
-    	clone.clonePetriNetToExecutablePetriNet();
-    }
+
 
     private void clonePetriNetToExecutablePetriNet() {
-    	visitAllComponents();
+    	IncludeIterator iterator = includeHierarchy.iterator(); 
+    	currentIncludeHierarchy = null; 
+    	while (iterator.hasNext()) {
+    		currentIncludeHierarchy = iterator.next();  
+    		this.petriNet = currentIncludeHierarchy.getPetriNet(); 
+    		visitAllComponents();
+    	}
 	}
 	/**
      *
@@ -212,7 +226,7 @@ public final class ClonePetriNet {
 
     }
 	protected void prefixIdWithQualifiedName(PetriNetComponent component) {
-		component.setId(newPetriNet.getIncludeHierarchy().current().
+		component.setId(currentIncludeHierarchy.
 				getFullyQualifiedNameAsPrefix()+component.getId());
 	}
 
@@ -323,5 +337,7 @@ public final class ClonePetriNet {
             newPetriNet.setName(new NormalPetriNetName(name.getName()));
         }
     }
+
+
 
 }

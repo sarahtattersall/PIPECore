@@ -78,12 +78,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			refreshRequired = false; 
 		}
 	}
-
 	private void cloneIncludeHierarchyComponents() {
-		IncludeIterator iterator = getIncludeHierarchy().iterator(); 
-		while (iterator.hasNext()) {
-			ClonePetriNet.clone(iterator.next().getPetriNet(), this);
-		}
+		ClonePetriNet.cloneFromIncludeHierarchy(this);
 	}
 	private void initializeMaps() {
 		transitions = new HashMap<>();
