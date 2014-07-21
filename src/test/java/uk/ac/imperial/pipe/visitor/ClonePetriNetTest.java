@@ -75,7 +75,7 @@ public class ClonePetriNetTest {
     	buildSimpleNet(); 
     	oldPetriNet.setIncludesForTesting(new IncludeHierarchy(oldPetriNet, "root"));
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
-    	ClonePetriNet.cloneFromIncludeHierarchy(executablePetriNet); 
+    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("root.P0", executablePetriNet.getComponent("root.P0", Place.class).getId()); 
     	assertEquals("root.T0", executablePetriNet.getComponent("root.T0", Transition.class).getId()); 
     	assertEquals("root.P0 TO T0", executablePetriNet.getComponent("root.P0 TO T0", InboundArc.class).getId()); 

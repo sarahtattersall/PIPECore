@@ -96,7 +96,7 @@ public final class ClonePetriNet {
 //     * @param executablePetriNet:  target -- existing ExecutablePetriNet instance, 
 //     * whose components will be replaced. 
 //     */
-	public static void cloneFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
+	public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
 		ClonePetriNet clone = new ClonePetriNet(targetExecutablePetriNet);
 		clone.clonePetriNetToExecutablePetriNet();
 	}
