@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.models;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import org.junit.Before;
 import org.junit.Test;

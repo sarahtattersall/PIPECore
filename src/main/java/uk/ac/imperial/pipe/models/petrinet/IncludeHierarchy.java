@@ -246,8 +246,6 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		List<String> messages = command.execute(this); 
 		if (parent != null) {
 			messages = parent.parents(command);  
-//			List<String> parentMessages = parent.parents(command);  
-//			messages.addAll(parentMessages); 
 		}
 		return messages; 
 	}

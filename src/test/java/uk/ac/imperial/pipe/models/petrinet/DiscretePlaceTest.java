@@ -1,17 +1,25 @@
-package uk.ac.imperial.pipe.models;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceVisitor;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.awt.geom.Point2D.Double;
@@ -20,6 +28,7 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -287,3 +296,4 @@ public class DiscretePlaceTest {
     	hierarchy.removeFromInterface(place); 
     }
 }
+

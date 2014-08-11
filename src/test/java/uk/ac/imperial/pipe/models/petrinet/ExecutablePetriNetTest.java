@@ -40,10 +40,6 @@ public class ExecutablePetriNetTest {
 
 	private PetriNet net2;
 
-	private IncludeHierarchy hierarchy;
-
-
-
     @Before
     public void setUp() {
         net = new PetriNet();
@@ -83,14 +79,6 @@ public class ExecutablePetriNetTest {
         assertThat(executablePetriNet.getPlaces()).hasSize(2); 
         assertThat(executablePetriNet.getRateParameters()).hasSize(0); 
     }
-	protected PetriNet buildTestNet() {
-		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
-                        AnImmediateTransition.withId("T1")).and(
-                        ANormalArc.withSource("P1").andTarget("T1")).andFinally(
-                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
-		return net; 
-	}
     @Test
 	public void componentsFound() throws Exception
 	{
@@ -182,5 +170,13 @@ public class ExecutablePetriNetTest {
 	  	assertEquals("source PN component ids unaffected",
 	  			"P0", net.getComponent("P0", Place.class).getId()); 
 	  	assertEquals("P1", net2.getComponent("P1", Place.class).getId()); 
+	}
+	protected PetriNet buildTestNet() {
+		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+                        APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                        AnImmediateTransition.withId("T1")).and(
+                        ANormalArc.withSource("P1").andTarget("T1")).andFinally(
+                        ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+		return net; 
 	}
 }

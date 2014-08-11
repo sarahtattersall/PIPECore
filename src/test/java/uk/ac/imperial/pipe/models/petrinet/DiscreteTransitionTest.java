@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.models;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
