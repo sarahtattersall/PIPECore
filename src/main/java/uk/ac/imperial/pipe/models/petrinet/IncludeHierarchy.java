@@ -1,9 +1,12 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import static org.junit.Assert.assertEquals;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +67,9 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private String fullyQualifiedNameAsPrefix;
 	private IncludeIterator iterator;
 	private Map<String, InterfacePlace> interfacePlaces;
-
+	private boolean isRoot;
+	private IncludeHierarchy root; 
+	
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
 	}
@@ -79,6 +84,17 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		if (!isValid(name)) name = "";
 		this.name = name; 
 		buildFullyQualifiedName();
+		buildRoot(parent); 
+	}
+
+	private void buildRoot(IncludeHierarchy parent) {
+		isRoot = (parent == null) ? true : false;
+		if (isRoot) {
+			root = this; 
+		}
+		else {
+			root = parent.getRoot(); 
+		}
 	}
  
 //	return alias.include(net, aliasName); 
@@ -251,6 +267,9 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * in order beginning with the lowest (immediate) parent and ending with the root. 
 	 * An error encountered by the command at each level of the hierarchy 
 	 * will be added as a message to the list of messages 
+	 * <p>
+	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * 
 	 * @param command
 	 * @return List<String> messages encountered when the command was executed at each level
@@ -264,16 +283,86 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return messages; 
 	}
 	/**
+	 * Execute an {@link IncludeHierarchyCommand} for the children of this IncludeHierarchy. 
+	 * An error encountered by the command  
+	 * will be added as a message to the list of messages 
+	 * <p>
+	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * @param command
+	 * @return List<String> messages encountered when the command was executed at each level
+	 */
+	public List<String> children(IncludeHierarchyCommand command) {
+		List<String> messages = command.getMessages();  
+		iterator = iterator();
+		iterator.next(); // skip self
+		while (iterator.hasNext()) {
+			messages = command.execute(iterator.next()); 
+    	}
+		return messages;
+	}
+	/**
+	 * Execute an {@link IncludeHierarchyCommand} for the siblings of this IncludeHierarchy under the same immediate parent. 
+	 * An error encountered by the command  
+	 * will be added as a message to the list of messages 
+	 * <p>
+	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * @param command
+	 * @return List<String> messages encountered when the command was executed at each level
+	 */
+	public List<String> siblings(IncludeHierarchyCommand command) {
+		List<String> messages = command.getMessages();  
+		if (parent != null) {
+			iterator = parent.iterator();
+			IncludeHierarchy current = null; 
+			while (iterator.hasNext()) {
+				current = iterator.next(); 
+				if ((!current.equals(this)) && (current.parent.equals(parent))) {
+					messages = command.execute(current); 
+				}
+			}
+		}
+		return messages;
+	}
+	/**
 	 * Execute an {@link IncludeHierarchyCommand} for this IncludeHierarchy. 
 	 * An error encountered by the command  
 	 * will be added as a message to the list of messages 
 	 * <p>
 	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * @param command
 	 * @return List<String> messages encountered when the command was executed at each level
 	 */
 	public List<String> self(IncludeHierarchyCommand command) {
 		return command.execute(this); 
+	}
+	/**
+	 * Execute an {@link IncludeHierarchyCommand} for all levels of this IncludeHierarchy. 
+	 * An error encountered by the command  
+	 * will be added as a message to the list of messages 
+	 * <p>
+	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * @param command
+	 * @return List<String> messages encountered when the command was executed at each level
+	 */
+	public List<String> all(IncludeHierarchyCommand command) {
+		List<String> messages = command.getMessages();  
+		iterator = getRoot().iterator();
+		while (iterator.hasNext()) {
+			messages = command.execute(iterator.next()); 
+		}
+		return messages;
 	}
 
 	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {
@@ -283,4 +372,11 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		}
 		return child;
 	}
+
+	public IncludeHierarchy getRoot() {
+		return root; 
+	}
+
+
+
 }

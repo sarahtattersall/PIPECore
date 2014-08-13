@@ -70,14 +70,13 @@ public class IncludeIteratorTest {
 		//          five
 		//          six 
 		iterator = includes.iterator(); 
+		assertEquals("net1",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net2",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net3",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net4",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net5",iterator.next().getPetriNet().getName().getName()); 
 		assertEquals(6, iterator.getIncludes().size()); 
-		Iterator<IncludeHierarchy> it = iterator.getIncludes().iterator(); 
-		assertEquals("net1",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net2",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net3",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net4",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net5",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net6",it.next().getPetriNet().getName().getName()); 
+		assertEquals("net6",iterator.next().getPetriNet().getName().getName()); 
 		// another flavor
 		includes = new IncludeHierarchy(net1, "top"); 
 		includes.include(net2, "two").include(net3, "three").include(net4, "four");; 
@@ -90,14 +89,13 @@ public class IncludeIteratorTest {
 		//           four
 		//    six 
 		iterator = includes.iterator(); 
-		assertEquals(6, iterator.getIncludes().size()); 
-		it = iterator.getIncludes().iterator(); 
-		assertEquals("net1",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net2",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net5",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net3",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net4",it.next().getPetriNet().getName().getName()); 
-		assertEquals("net6",it.next().getPetriNet().getName().getName()); 
+		assertEquals("net1",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net2",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net5",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net3",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net4",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("net6",iterator.next().getPetriNet().getName().getName()); 
+		assertEquals("underlying list",6, iterator.getIncludes().size()); 
 	}
     @Test
     public void returnsOnceForSingleNet() throws Exception {

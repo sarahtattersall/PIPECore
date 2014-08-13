@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,6 +27,8 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.includeCommands.DummyCommand;
+import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyTest {
@@ -63,6 +67,11 @@ public class IncludeHierarchyTest {
 		assertThat(includes.includeMap()).hasSize(2); 
 		assertThat(includes.getInclude("first-child").includeMap()).hasSize(0); 
 		assertEquals(includes, includes.getInclude("first-child").parent()); 
+	}
+	@Test
+	public void lowerLevelsKnowTheRootLevel() throws Exception {
+		includes.include(net2, "b").include(net3, "c"); 
+		assertEquals(includes, includes.getInclude("b").getInclude("c").getRoot());
 	}
 	@Test
 	public void nameIsIndependentForEachLevelButFullyQualifiedNameBuildsByLevel() throws Exception {
@@ -243,7 +252,52 @@ public class IncludeHierarchyTest {
     	expectedException.expect(RecursiveIncludeException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY);
     	includes.include(net2, "fred").include(net1, "mary");         
+    }	
+    @Test
+	public void commandExecutesAtEachParentLevel() throws Exception {
+		IncludeHierarchyCommand command = new DummyCommand(); 
+		includes.include(net2, "2nd").include(net3, "3rd"); 
+		List<String> messages = includes.getInclude("2nd").getInclude("3rd").parents(command); 
+		assertEquals(2, messages.size());
+		assertTrue(messages.get(0).endsWith("2")); 
+		assertTrue(messages.get(1).endsWith("1")); 
+	}
+    @Test
+    public void commandExecutesAtEachChildLevel() throws Exception {
+    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	includes.include(net2, "2a").include(net3, "3rd"); 
+    	includes.include(net4, "2b"); 
+    	List<String> messages = includes.children(command); 
+    	assertEquals(3, messages.size());
+    	assertTrue(messages.get(0).endsWith("2")); 
+    	assertTrue(messages.get(1).endsWith("3")); 
+    	assertTrue(messages.get(2).endsWith("4")); 
     }
+    @Test
+    public void commandExecutesForPeersButNotAuntsOrNieces() throws Exception {
+    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	includes.include(net2, "aunt"); 
+    	includes.include(net2, "mom").include(net3, "me"); 
+    	includes.getInclude("mom").include(net4, "sis"); 
+    	includes.getInclude("mom").getInclude("sis").include(net6, "niece"); 
+    	includes.getInclude("mom").include(net5, "other-sis"); 
+    	List<String> messages = includes.getInclude("mom").getInclude("me").siblings(command); 
+    	assertEquals(2, messages.size());
+    	assertTrue(messages.get(0).endsWith("4")); 
+    	assertTrue(messages.get(1).endsWith("5")); 
+    }
+    @Test
+    public void commandExecutesForAllLevelsInHierarchy() throws Exception {
+    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	includes.include(net2, "aunt"); 
+    	includes.include(net2, "mom").include(net3, "me"); 
+    	includes.getInclude("mom").include(net4, "sis"); 
+    	includes.getInclude("mom").getInclude("sis").include(net6, "niece"); 
+    	includes.getInclude("mom").include(net5, "other-sis"); 
+    	List<String> messages = includes.getInclude("mom").getInclude("me").all(command); 
+    	assertEquals(7, messages.size());
+    }
+
 	private void buildHierarchyWithInterfacePlaces()
 			throws PetriNetComponentNotFoundException, RecursiveIncludeException {
 		includes = new IncludeHierarchy(net1, null); 
