@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 import uk.ac.imperial.pipe.parsers.EvalVisitor;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
@@ -117,22 +118,19 @@ public class PetriNet extends AbstractPetriNet {
 
 
     /**
-     * Constructor
+     * Constructor initializes the petri net components map, include hierarchy, and sets PetriNetName
      * @param name the name of the Petri net, it should be unique
      */
     public PetriNet(PetriNetName name) {
-        this();
+    	super(); 
+    	includes = new IncludeHierarchy(this, null); 
         this.petriNetName = name;
     }
-
-    //TODO: INITIALISE NAME?
-
     /**
-     * Default constructor initializes the petri net components map
+     * Default constructor sets name to blank 
      */
     public PetriNet() {
-    	super(); 
-        includes = new IncludeHierarchy(this, null); 
+    	this(new NormalPetriNetName("")); 
     }
 
     /**

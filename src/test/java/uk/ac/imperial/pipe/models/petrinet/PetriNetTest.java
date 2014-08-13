@@ -12,6 +12,7 @@ import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
@@ -47,7 +48,12 @@ public class PetriNetTest {
         PetriNet petriNet2 = new PetriNet();
         assertEquals(petriNet1, petriNet2);
     }
-
+    @Test
+	public void hasNameOrDefaultsToBlank() throws Exception {
+    	assertEquals("", net.getName().getName()); 
+    	net = new PetriNet(new NormalPetriNetName("net1")); 
+    	assertEquals("net1", net.getName().getName()); 
+	}
     @Test
     public void addingPlaceNotifiesObservers() {
         net.addPropertyChangeListener(mockListener);
@@ -342,7 +348,6 @@ public class PetriNetTest {
         assertTrue("Transition rate was not changed to normal rate on deletion",
                 transition.getRate() instanceof NormalRate);
     }
-
     @Test
     public void testEqualityEqualPetriNets() {
         PetriNet net1 = createSimplePetriNet(1);

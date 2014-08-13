@@ -7,7 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.imperial.pipe.commands.IncludeHierarchyCommand;
+import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommand;
+import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommandDuplicateNameCheck;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
 /**
@@ -53,6 +54,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	public static final String INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL = "IncludeHierarchy:  PetriNet may not be null";
 	public static final String NEW_INCLUDE_ALIAS_NAME = "new include alias name";
 	public static final String INCLUDE_ALIAS_NOT_FOUND = "Include alias not found: ";
+	public static final String INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY = "Included Petri net name may not exist as a parent Petri net in this include hierarchy.";
 	private Map<String, IncludeHierarchy> includeMap;
 	private Map<String, IncludeHierarchy> includeFullyQualifiedMap;
 	private String name;
@@ -123,8 +125,8 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return includeMap;
 	}
 
-	public IncludeHierarchy include(PetriNet net, String alias) {
-		if (net == null) { 
+	public IncludeHierarchy include(PetriNet petriNet, String alias) throws RecursiveIncludeException {
+		if (petriNet == null) { 
 			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		}
 		if (!isValid(alias)) { 
@@ -133,11 +135,21 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		if (includeMap.containsKey(alias)) { 
 			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
 		}
-		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(net), this, alias);
+		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
+		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(petriNet), this, alias);
 		addPropertyChangeListener(childHierarchy); 
 		includeMap.put(alias, childHierarchy);
 		includeFullyQualifiedMap.put(childHierarchy.getFullyQualifiedName(), childHierarchy);
 		return includeMap.get(alias); 
+	}
+
+	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
+		IncludeHierarchyCommandDuplicateNameCheck duplicateCheck = new IncludeHierarchyCommandDuplicateNameCheck(petriNet.getName()); 
+		List<String> messages = self(duplicateCheck); 
+		messages = parents(duplicateCheck); 
+		if (messages.size() != 0) {
+	    	throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+messages.get(0));
+		}
 	}
 
 	public IncludeHierarchy getInclude(String includeAlias) {
@@ -233,9 +245,10 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		//TODO do same for the rest of the hierarchy
 	}
 	/**
-	 * Execute the command for this hierarchy and pass to its parent.  
+	 * Execute the command for the parents, if any, of this hierarchy.  
 	 * This will result in the command being 
-	 * executed in all of the parents of the target include hierarchy.  
+	 * executed in all of the parents of the target include hierarchy, 
+	 * in order beginning with the lowest (immediate) parent and ending with the root. 
 	 * An error encountered by the command at each level of the hierarchy 
 	 * will be added as a message to the list of messages 
 	 * 
@@ -243,11 +256,24 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * @return List<String> messages encountered when the command was executed at each level
 	 */
 	public List<String> parents(IncludeHierarchyCommand command) {
-		List<String> messages = command.execute(this); 
+		List<String> messages = command.getMessages();  
 		if (parent != null) {
+			messages = command.execute(parent); 
 			messages = parent.parents(command);  
 		}
 		return messages; 
+	}
+	/**
+	 * Execute an {@link IncludeHierarchyCommand} for this IncludeHierarchy. 
+	 * An error encountered by the command  
+	 * will be added as a message to the list of messages 
+	 * <p>
+	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * @param command
+	 * @return List<String> messages encountered when the command was executed at each level
+	 */
+	public List<String> self(IncludeHierarchyCommand command) {
+		return command.execute(this); 
 	}
 
 	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {

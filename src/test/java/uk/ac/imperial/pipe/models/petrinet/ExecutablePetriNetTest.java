@@ -23,6 +23,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -42,7 +43,7 @@ public class ExecutablePetriNetTest {
 
     @Before
     public void setUp() {
-        net = new PetriNet();
+        net = new PetriNet(new NormalPetriNetName("net"));
         executablePetriNet = net.getExecutablePetriNet();  
     }
     @Test

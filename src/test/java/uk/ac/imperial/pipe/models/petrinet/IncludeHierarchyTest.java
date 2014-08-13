@@ -58,15 +58,15 @@ public class IncludeHierarchyTest {
 	}
 	@Test
 	public void verifyIncludeHierarchyForFirstIncludedLevel() throws Exception {
-		includes.include(net1, "first-child");
-		includes.include(net1, "second-child");
+		includes.include(net2, "first-child");
+		includes.include(net2, "second-child");
 		assertThat(includes.includeMap()).hasSize(2); 
 		assertThat(includes.getInclude("first-child").includeMap()).hasSize(0); 
 		assertEquals(includes, includes.getInclude("first-child").parent()); 
 	}
 	@Test
 	public void nameIsIndependentForEachLevelButFullyQualifiedNameBuildsByLevel() throws Exception {
-		includes.include(net1, "first-child").include(net1, "grand-child");
+		includes.include(net2, "first-child").include(net3, "grand-child");
 		assertEquals("top",includes.getName());
 		assertEquals("first-child",includes.getInclude("first-child").getName());
 		assertEquals("grand-child",includes.getInclude("first-child").getInclude("grand-child").getName());
@@ -76,7 +76,7 @@ public class IncludeHierarchyTest {
 	}
 	@Test
 	public void verifyRenameOfHigherLevelCascadedIntoAllFullyQualifiedNames() throws Exception {
-		includes.include(net1, "first-child").include(net1, "grand-child");
+		includes.include(net2, "first-child").include(net3, "grand-child");
 		includes.rename("newtop"); 
 		assertEquals("newtop",includes.getName());
 		assertEquals("newtop",includes.getFullyQualifiedName());
@@ -88,9 +88,9 @@ public class IncludeHierarchyTest {
 		assertEquals("newtop.fred.grand-child",includes.getInclude("fred").getInclude("grand-child").getFullyQualifiedName());
 	}
     @Test
-    public void childHearsThatParentHasRenamed() {
+    public void childHearsThatParentHasRenamed() throws Exception {
     	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
-    	includes.include(net1, "child");
+    	includes.include(net2, "child");
         includes.getInclude("child").addPropertyChangeListener(mockListener);
         includes.rename("root");
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
@@ -99,7 +99,7 @@ public class IncludeHierarchyTest {
 	public void throwsIfNameDoesNotExist() throws Exception {
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL+"top: fred");
-        includes.include(net1, "child");
+        includes.include(net2, "child");
         includes.getInclude("fred"); 
 	}
     @Test
@@ -113,27 +113,27 @@ public class IncludeHierarchyTest {
     public void throwsIfChildNameIsDuplicate() throws Exception {
     	expectedException.expect(RuntimeException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL+"top: child");
-    	includes.include(net1, "child");
-    	includes.include(net1, "child");
+    	includes.include(net2, "child");
+    	includes.include(net2, "child");
     }
     @Test
     public void throwsIfChildNameIsBlankOrNull() throws Exception {
     	expectedException.expect(IllegalArgumentException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
-    	includes.include(net1, " ");
-    	includes.include(net1, null);
+    	includes.include(net2, " ");
+    	includes.include(net2, null);
     }
     @Test
-	public void sameNameMayAppearAtDifferentLevels() throws Exception {
-    	includes.include(net1, "child").include(net1, "child");
+	public void sameAliasMayAppearAtDifferentLevels() throws Exception {
+    	includes.include(net2, "child").include(net3, "child");
     	assertEquals("top.child.child",includes.getInclude("child").getInclude("child").getFullyQualifiedName()); 
 	}
     @Test
     public void throwsIfRenameWouldCauseDuplicateAtParentLevel() throws Exception {
     	expectedException.expect(RuntimeException.class);
     	expectedException.expectMessage("IncludeHierarchy attempted rename at level top would cause duplicate: child");
-    	includes.include(net1, "child");
-    	includes.include(net1, "second-child");
+    	includes.include(net2, "child");
+    	includes.include(net2, "second-child");
     	includes.getInclude("second-child").rename("child"); 
     }
     @Test
@@ -165,7 +165,7 @@ public class IncludeHierarchyTest {
 		includes = new IncludeHierarchy(null, "top");
 	}
     @Test
-    public void includedNetsAddedSubordinateToTop() {
+    public void includedNetsAddedSubordinateToTop() throws Exception {
       assertEquals("hierarchy is everything below the root",0, includes.includeMap().size()); 
       includes.include(net2, "some-function"); 
       includes.include(net3, "another-function"); 
@@ -211,8 +211,8 @@ public class IncludeHierarchyTest {
     
     @Test
 	public void aNetCanBeIncludedMultipleTimesUnderDifferentAliases() throws Exception {
-	  	includes.include(net1, "left-function"); 
-	  	includes.include(net1, "right-function"); 
+	  	includes.include(net2, "left-function"); 
+	  	includes.include(net2, "right-function"); 
 	  	assertEquals(includes.getInclude("left-function").getPetriNet(), includes.getInclude("right-function").getPetriNet()); 
 	}
     @Test
@@ -232,8 +232,20 @@ public class IncludeHierarchyTest {
     	InterfacePlace interfacePlace2 = includes.getInclude("right-function").getInterfacePlace("P0-I"); 
     	assertEquals(".right-function", interfacePlace2.getFullyQualifiedPrefix()); 
 	}
+    @Test
+	public void toAvoidRecursionIncludedPetriNetMustNotHaveSameNameAsItsParent() throws Exception {
+    	expectedException.expect(RecursiveIncludeException.class);
+    	expectedException.expectMessage(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY);
+    	includes.include(net1, "fred");         
+	}
+    @Test
+    public void toAvoidRecursionIncludedPetriNetMustNotHaveSameNameAsAnyParent() throws Exception {
+    	expectedException.expect(RecursiveIncludeException.class);
+    	expectedException.expectMessage(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY);
+    	includes.include(net2, "fred").include(net1, "mary");         
+    }
 	private void buildHierarchyWithInterfacePlaces()
-			throws PetriNetComponentNotFoundException {
+			throws PetriNetComponentNotFoundException, RecursiveIncludeException {
 		includes = new IncludeHierarchy(net1, null); 
     	includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
     	Place place = net1.getComponent("P0", Place.class); 

@@ -71,7 +71,7 @@ public class InterfaceDiscretePlaceTest {
     	assertEquals(1, interfaceDiscretePlace.getTokenCount("Default")); 
     }
     @Test
-	public void interfacePlaceCantBeBuildFromAnotherInterfacePlace() throws Exception {
+	public void interfacePlaceCantBeBuiltFromAnotherInterfacePlace() throws Exception {
     	exception.expect(IllegalArgumentException.class);
     	exception.expectMessage("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
     	interfaceDiscretePlace2 = new InterfaceDiscretePlace(interfaceDiscretePlace);

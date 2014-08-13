@@ -21,6 +21,7 @@ import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RecursiveIncludeException;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.state.State;
 
@@ -58,14 +59,20 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
     }
 	private static PetriNet buildNetWithLoopingHierarchy() {
 		PetriNet petriNet = buildLoopingTestNet(); 
-		petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "left"); 
-		petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "right"); 
+		try {
+			petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "left");
+			petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "right"); 
+		} catch (RecursiveIncludeException e) {
+		} 
 		return petriNet;
 	}
 	private static PetriNet buildNetWithHierarchy() {
 		PetriNet petriNet = buildTestNet(); 
-		petriNet.getIncludeHierarchy().include(buildTestNet(), "left"); 
-		petriNet.getIncludeHierarchy().include(buildTestNet(), "right"); 
+		try {
+			petriNet.getIncludeHierarchy().include(buildTestNet(), "left");
+			petriNet.getIncludeHierarchy().include(buildTestNet(), "right"); 
+		} catch (RecursiveIncludeException e) {
+		} 
 		return petriNet;
 	}
 	private static PetriNet buildTestNet() {

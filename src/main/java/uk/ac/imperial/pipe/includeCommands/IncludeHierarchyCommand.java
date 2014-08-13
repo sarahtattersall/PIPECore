@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.commands;
+package uk.ac.imperial.pipe.includeCommands;
 
 import java.util.List;
 
@@ -21,5 +21,8 @@ public interface IncludeHierarchyCommand {
 	 * @return list of error messages that resulted from the command 
 	 */
 	List<String> execute(IncludeHierarchy includeHierarchy);
-
+	/**
+	 * @return list of current error messages 
+	 */
+	List<String> getMessages();
 }
