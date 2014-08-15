@@ -6,7 +6,7 @@ public enum IncludeHierarchyCommandScopeEnum {
 	PARENTS_AND_SIBLINGS { public IncludeHierarchyCommandScope buildScope(IncludeHierarchy includes) {
 		return new ParentsSiblingsCommandScope(includes);} }, 
 	ALL { public IncludeHierarchyCommandScope buildScope(IncludeHierarchy includes) {
-		return new AllCommandScope(includes);} };
+		return new AllCommandScope(includes);} }; 
 
 	public abstract IncludeHierarchyCommandScope buildScope(IncludeHierarchy includes);
 

@@ -65,7 +65,9 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private IncludeIterator iterator;
 	private Map<String, InterfacePlace> interfacePlaces;
 	private boolean isRoot;
-	private IncludeHierarchy root; 
+	private IncludeHierarchy root;
+	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
+	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum; 
 	
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
@@ -82,6 +84,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		this.name = name; 
 		buildFullyQualifiedName();
 		buildRoot(parent); 
+		setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS);  
 	}
 
 	private void buildRoot(IncludeHierarchy parent) {
@@ -151,6 +154,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(petriNet), this, alias);
 		addPropertyChangeListener(childHierarchy); 
+		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
 		includeMap.put(alias, childHierarchy);
 		includeFullyQualifiedMap.put(childHierarchy.getFullyQualifiedName(), childHierarchy);
 		return includeMap.get(alias); 
@@ -372,6 +376,15 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 
 	public IncludeHierarchy getRoot() {
 		return root; 
+	}
+
+	public void setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum scopeEnum) {
+		interfacePlaceAccessScopeEnum = scopeEnum;
+		interfacePlaceAccessScope = scopeEnum.buildScope(this);
+	}
+
+	public IncludeHierarchyCommandScope getInterfacePlaceAccessScope() {
+		return interfacePlaceAccessScope;
 	}
 
 

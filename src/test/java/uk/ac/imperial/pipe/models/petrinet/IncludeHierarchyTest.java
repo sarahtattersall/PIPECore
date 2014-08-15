@@ -297,7 +297,21 @@ public class IncludeHierarchyTest {
     	List<String> messages = includes.getInclude("mom").getInclude("me").all(command); 
     	assertEquals(7, messages.size());
     }
-
+    @Test
+	public void hasInterfacePlaceAccessScopeWithParentsCommandScopeAsDefault() throws Exception {
+    	assertTrue("default",includes.getInterfacePlaceAccessScope() instanceof ParentsCommandScope); 
+    	includes.setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS_AND_SIBLINGS);
+    	assertTrue(includes.getInterfacePlaceAccessScope() instanceof ParentsSiblingsCommandScope); 
+    	includes.setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.ALL);
+    	assertTrue(includes.getInterfacePlaceAccessScope() instanceof AllCommandScope); 
+	}
+    @Test
+	public void accessScopeCascadesDownward() throws Exception {
+    	includes.setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS_AND_SIBLINGS);
+    	includes.include(net2, "a").include(net3, "b"); 
+    	assertTrue(includes.getInclude("a").getInclude("b")
+    			.getInterfacePlaceAccessScope() instanceof ParentsSiblingsCommandScope); 
+	}
 	private void buildHierarchyWithInterfacePlaces()
 			throws PetriNetComponentNotFoundException, RecursiveIncludeException {
 		includes = new IncludeHierarchy(net1, null); 
@@ -313,10 +327,7 @@ public class IncludeHierarchyTest {
     //TODO interfacePlace mirrors to EPN and vice versa
     //TODO InterfacePlaces from one include are visible under another include appropriately prefixed
   //TODO verifyTopLevelCanBeRenamedToOrFromBlank
-  //TODO verifyImportsAreNotRecursive or verifyNumberOfCascadedImportsIsLessThanSomeConstant
   //TODO verifyDuplicateAliasIsSuffixedToEnsureUniqueness
-  //TODO verifyDefaultAssignedWhenAliasIsBlank
   //TODO verifyAliasesAreStackedAsImportsAreAdded
-	//TODO verifyAliasIsOptionalForRoot
-    
+  //TODO consider whether different access scopes should be permitted at different levels     
 }
