@@ -62,7 +62,7 @@ public class IncludeIteratorTest {
 	public void buildsListOfIncludesThroughWhichToIterate() throws Exception {
 		includes.include(net2, "two"); 
 		includes.include(net3, "three").include(net4, "four").include(net5, "five");
-		includes.getInclude("three").getInclude("four").include(net6, "six");
+		includes.getChildInclude("three").getChildInclude("four").include(net6, "six");
 		// one ("top")
 		//    two
 		//    three
@@ -80,7 +80,7 @@ public class IncludeIteratorTest {
 		// another flavor
 		includes = new IncludeHierarchy(net1, "top"); 
 		includes.include(net2, "two").include(net3, "three").include(net4, "four");; 
-		includes.getInclude("two").include(net5, "five"); 
+		includes.getChildInclude("two").include(net5, "five"); 
 		includes.include(net6, "six"); 
 		// one ("top")
 		//    two

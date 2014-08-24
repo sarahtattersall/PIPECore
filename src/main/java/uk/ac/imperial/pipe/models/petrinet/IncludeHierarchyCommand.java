@@ -1,8 +1,7 @@
-package uk.ac.imperial.pipe.includeCommands;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.List;
 
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 /**
  * Used to implement the same command for multiple levels in an {@link uk.ac.imperial.models.petrinet.IncludeHierarchy}.  Each level is its own IncludeHierarchy
  * and each level may report errors.  Used to simplify the process whereby an {@link uk.ac.imperial.models.petrinet.IncludeHierarchy} requests  

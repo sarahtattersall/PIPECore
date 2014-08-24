@@ -1,7 +1,8 @@
-package uk.ac.imperial.pipe.includeCommands;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.List;
 
+import uk.ac.imperial.pipe.models.petrinet.AbstractIncludeHierarchyCommand;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 
 public class DummyCommand extends AbstractIncludeHierarchyCommand  {

@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommand;
-import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommandDuplicateNameCheck;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
 /**
@@ -55,8 +53,10 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	public static final String NEW_INCLUDE_ALIAS_NAME = "new include alias name";
 	public static final String INCLUDE_ALIAS_NOT_FOUND = "Include alias not found: ";
 	public static final String INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY = "Included Petri net name may not exist as a parent Petri net in this include hierarchy.";
+	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL = "Include alias not found at any level: ";
 	private Map<String, IncludeHierarchy> includeMap;
 	private Map<String, IncludeHierarchy> includeFullyQualifiedMap;
+	private Map<String, IncludeHierarchy> includeMapAll; 
 	private String name;
 	private IncludeHierarchy parent;
 	private String fullyQualifiedName;
@@ -67,8 +67,11 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	private boolean isRoot;
 	private IncludeHierarchy root;
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
-	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum; 
-	
+	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
+	private int level;
+	private String uniqueName;
+	private String uniqueNameAsPrefix;
+	//TODO consider renaming name to alias
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
 	}
@@ -78,41 +81,90 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		this.petriNet = petriNet; 
 		this.includeMap = new HashMap<>();
 		this.includeFullyQualifiedMap = new HashMap<>(); 
+		this.includeMapAll = new HashMap<>(); 
 		this.interfacePlaces = new HashMap<>(); 
 		this.parent = parent;
 		if (!isValid(name)) name = "";
 		this.name = name; 
+		buildRootAndLevelRelativeToRoot(parent); 
 		buildFullyQualifiedName();
-		buildRoot(parent); 
+		buildMinimallyUniqueName(); 
 		setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS);  
 	}
 
-	private void buildRoot(IncludeHierarchy parent) {
+	private void buildRootAndLevelRelativeToRoot(IncludeHierarchy parent) {
 		isRoot = (parent == null) ? true : false;
 		if (isRoot) {
 			root = this; 
+			level = 0; 
 		}
 		else {
 			root = parent.getRoot(); 
+			level = parent.getLevelRelativeToRoot()+1; 
 		}
 	}
  
-//	return alias.include(net, aliasName); 
-//	clone.getPetriNetHierarchy().setAlias(alias.getAlias(aliasName)); 
-//	includeMap.put(aliasName, clone); 
-
 	private boolean isValid(String name) {
 		if (name == null) return false;
 		if (name.trim().isEmpty()) return false;
 		return true;
 	}
 
-	public String getName() {
-		return name;
+	protected void buildMinimallyUniqueName() {
+		getIncludeMapAll().put(name, this); 
+		IncludeHierarchy conflict = getRoot().getIncludeMapAll().get(name);  
+		if (conflict == null) {
+			registerMinimallyUniqueNameWithParents(name);
+		} else {
+			buildNewNameToDistinguishFromExistingName(conflict);
+		}
+		uniqueNameAsPrefix = buildNameAsPrefix(uniqueName); 
 	}
 
-	public String getFullyQualifiedName() {
-		return fullyQualifiedName;
+	protected void buildNewNameToDistinguishFromExistingName(IncludeHierarchy conflict) {
+		if (this.equals(conflict)) {
+			if (!name.equals(uniqueName)) {
+				registerMinimallyUniqueNameWithParents(name);
+			}
+		}
+		else if (this.hasParent(conflict)) {
+			IncludeHierarchy parent = parent(); 
+			String tempName = name; 
+			while (parent != null) {
+				tempName = parent.getName()+"."+tempName; 
+				if (parent.equals(conflict)) {
+					uniqueName = tempName; 
+				}
+				parent = parent.parent(); 
+			}
+			registerMinimallyUniqueNameWithParents(uniqueName);
+		}
+		else if (conflict.hasParent(this)) {
+			// implies this has been renamed to create a conflict with a lower level; handled by rename.  
+		}
+		else if (lowerLevelInHierarchyThanOther(conflict)) {
+			registerMinimallyUniqueNameWithParents(getFullyQualifiedName());
+		}
+		else if (higherLevelInHierarchyThanOther(conflict)) {
+			registerMinimallyUniqueNameWithParents(name);
+			conflict.buildMinimallyUniqueName(); 
+		}
+	}
+
+	protected boolean higherLevelInHierarchyThanOther(IncludeHierarchy conflict) {
+		return getLevelRelativeToRoot() < conflict.getLevelRelativeToRoot();
+	}
+	protected boolean lowerLevelInHierarchyThanOther(IncludeHierarchy conflict) {
+		return getLevelRelativeToRoot() > conflict.getLevelRelativeToRoot();
+	}
+
+	protected void registerMinimallyUniqueNameWithParents(String name) {
+		uniqueName = name; 
+		IncludeHierarchy parent = parent(); 
+		while (parent != null) {
+			parent.getIncludeMapAll().put(uniqueName, this); 
+			parent = parent.parent(); 
+		}
 	}
 
 	private void buildFullyQualifiedName() {
@@ -125,20 +177,18 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 			parent = parent.parent(); 
 		}
 		fullyQualifiedName =  sb.toString();
-		buildFullyQualifiedNameAsPrefix(); 
+		fullyQualifiedNameAsPrefix = buildNameAsPrefix(fullyQualifiedName); 
 	}
 
-	private void buildFullyQualifiedNameAsPrefix() {
-		if (fullyQualifiedName.isEmpty()) { 
-			fullyQualifiedNameAsPrefix = ""; 
+	protected String buildNameAsPrefix(String name) {
+		String nameAsPrefix = null; 
+		if (name.isEmpty()) { 
+			nameAsPrefix = ""; 
 		}
 		else { 
-			fullyQualifiedNameAsPrefix = fullyQualifiedName+"."; 
+			nameAsPrefix = name+"."; 
 		}
-	}
-
-	public Map<String, IncludeHierarchy> includeMap() {
-		return includeMap;
+		return nameAsPrefix; 
 	}
 
 	public IncludeHierarchy include(PetriNet petriNet, String alias) throws RecursiveIncludeException {
@@ -152,7 +202,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
 		}
 		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
-		IncludeHierarchy childHierarchy = new IncludeHierarchy(ClonePetriNet.clone(petriNet), this, alias);
+		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
 		addPropertyChangeListener(childHierarchy); 
 		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
 		includeMap.put(alias, childHierarchy);
@@ -160,16 +210,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return includeMap.get(alias); 
 	}
 
-	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
-		IncludeHierarchyCommandDuplicateNameCheck duplicateCheck = new IncludeHierarchyCommandDuplicateNameCheck(petriNet.getName()); 
-		List<String> messages = self(duplicateCheck); 
-		messages = parents(duplicateCheck); 
-		if (messages.size() != 0) {
-	    	throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+messages.get(0));
-		}
-	}
-
-	public IncludeHierarchy getInclude(String includeAlias) {
+	public IncludeHierarchy getChildInclude(String includeAlias) {
 		IncludeHierarchy child = includeMap.get(includeAlias); 
 		if (child == null) {			
 			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
@@ -177,21 +218,57 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return child;
 	}
 
-	public IncludeHierarchy parent() {
-		return parent;
+	public IncludeHierarchy getInclude(String includeAlias) {
+		IncludeHierarchy include = includeMapAll.get(includeAlias); 
+		if (include == null) {			
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + includeAlias);
+		}
+		return include;
+	}
+	//TODO test getFullyQualifiedInclude
+	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {
+		IncludeHierarchy child = includeFullyQualifiedMap.get(fullyQualifiedName); 
+		if (child == null) {			
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND+fullyQualifiedName);
+		}
+		return child;
 	}
 
+	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
+		DuplicatePetriNetNameCheckCommand duplicateCheck = new DuplicatePetriNetNameCheckCommand(petriNet.getName()); 
+		List<String> messages = self(duplicateCheck); 
+		messages = parents(duplicateCheck); 
+		if (messages.size() != 0) {
+			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+messages.get(0));
+		}
+	}
+	
 	public void rename(String newName) {
 		String oldName = name; 
 		String oldFullyQualifiedName = fullyQualifiedName; 
 		name = newName; 
 		buildFullyQualifiedName(); 
+		rebuildMinimallyUniqueName();
 		if (parent != null) { 
 			parent.renameChild(oldName, newName);
 			parent.renameFullyQualifiedName(oldFullyQualifiedName, fullyQualifiedName); 
 		}
 		notifyChildren(newName, oldName);
  	}
+
+	protected void rebuildMinimallyUniqueName() {
+		deleteOldMinimallyUniqueName();
+		buildMinimallyUniqueName();
+	}
+
+	protected void deleteOldMinimallyUniqueName() {
+		getIncludeMapAll().remove(name); 
+		IncludeHierarchy parent = parent(); 
+		while (parent != null) {
+			parent.getIncludeMapAll().remove(uniqueName); 
+			parent = parent.parent(); 
+		}
+	}
 	private void renameFullyQualifiedName(String oldFullyQualifiedName,
 			String fullyQualifiedName) {
 		if (includeFullyQualifiedMap.containsKey(fullyQualifiedName)) { 
@@ -220,37 +297,24 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(NEW_INCLUDE_ALIAS_NAME)) {
 			buildFullyQualifiedName(); 
+			buildMinimallyUniqueName(); 
 			notifyChildren((String) evt.getOldValue(), (String) evt.getNewValue());
 		}
 	}
 
-	public PetriNet getPetriNet() {
-		return petriNet;
+	public List<String> addToInterface(Place place) {
+		IncludeHierarchyCommand command = new AddInterfacePlaceCommand(place, InterfacePlaceStatusEnum.HOME); 
+		List<String> messages = self(command); 
+		messages = interfacePlaceAccessScope.execute(command); 
+		return messages; 
 	}
 
-
-	public String getFullyQualifiedNameAsPrefix() {
-		return fullyQualifiedNameAsPrefix;
-	}
-	public IncludeIterator iterator() {
-		iterator = new IncludeIterator(this);
-		return iterator; 
-	}
-	public void addToInterface(Place place) {
-		InterfacePlace interfacePlace = place.buildInterfacePlace(); 
-//		InterfaceDiscretePlace interfacePlace = new InterfaceDiscretePlace(place); 
-		interfacePlace.setFullyQualifiedName(fullyQualifiedName); 
+	protected boolean addInterfacePlaceToMap(InterfacePlace interfacePlace) {
 		if (!interfacePlaces.containsKey(interfacePlace.getId())) {
-			interfacePlaces.put(interfacePlace.getId(), interfacePlace); 
+			interfacePlaces.put(interfacePlace.getId(), interfacePlace);
+			return true; 
 		}
-	}
-
-	public Collection<InterfacePlace> getInterfacePlaces() {
-		return interfacePlaces.values();
-	}
-
-	public InterfacePlace getInterfacePlace(String id) {
-		return interfacePlaces.get(id);
+		else return false; 
 	}
 
 	public void removeFromInterface(DiscretePlace place) {
@@ -366,27 +430,74 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return messages;
 	}
 
-	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {
-		IncludeHierarchy child = includeFullyQualifiedMap.get(fullyQualifiedName); 
-		if (child == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND+fullyQualifiedName);
-		}
-		return child;
-	}
-
-	public IncludeHierarchy getRoot() {
-		return root; 
-	}
 
 	public void setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum scopeEnum) {
 		interfacePlaceAccessScopeEnum = scopeEnum;
 		interfacePlaceAccessScope = scopeEnum.buildScope(this);
 	}
 
+	public boolean hasParent(IncludeHierarchy include) {
+		IncludeHierarchy parent = parent(); 
+		boolean isParent = false; 
+		while (parent != null) {
+			if (parent.equals(include)) {
+				isParent = true; 
+			}
+			parent = parent.parent(); 
+		}
+		return isParent;
+	}
+	public IncludeIterator iterator() {
+		iterator = new IncludeIterator(this);
+		return iterator; 
+	}
+	public Collection<InterfacePlace> getInterfacePlaces() {
+		return interfacePlaces.values();
+	}
+
+	public InterfacePlace getInterfacePlace(String id) {
+		return interfacePlaces.get(id);
+	}
+
+	public IncludeHierarchy getRoot() {
+		return root; 
+	}
 	public IncludeHierarchyCommandScope getInterfacePlaceAccessScope() {
 		return interfacePlaceAccessScope;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public String getFullyQualifiedName() {
+		return fullyQualifiedName;
+	}
+	public PetriNet getPetriNet() {
+		return petriNet;
+	}
+
+	public String getFullyQualifiedNameAsPrefix() {
+		return fullyQualifiedNameAsPrefix;
+	}
+	public String getUniqueNameAsPrefix() {
+		return uniqueNameAsPrefix;
+	}
+
+	public IncludeHierarchy parent() {
+		return parent;
+	}
+	public Map<String, IncludeHierarchy> includeMap() {
+		return includeMap;
+	}
+	protected int getLevelRelativeToRoot() {
+		return level;
+	}
+	
+	protected Map<String, IncludeHierarchy> getIncludeMapAll() {
+		return includeMapAll;
+	}
+	
 
 
 }

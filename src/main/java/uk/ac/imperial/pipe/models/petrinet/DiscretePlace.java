@@ -424,7 +424,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	@Override
 	public InterfacePlace buildInterfacePlace() {
 		setInInterface(true); 
-		return new InterfaceDiscretePlace(this);
+		return new DiscreteInterfacePlace(this);
 	}
 
 

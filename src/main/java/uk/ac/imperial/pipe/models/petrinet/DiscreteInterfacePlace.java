@@ -1,14 +1,15 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 
-public class InterfaceDiscretePlace extends DiscretePlace implements InterfacePlace {
+public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePlace {
 
 	private Place place;
 	private String fullyQualifiedName;
+	private InterfacePlaceStatus status;
 
-	public InterfaceDiscretePlace(Place place) {
+	public DiscreteInterfacePlace(Place place) {
 		super(addInterfaceSuffix(place.getId()), addInterfaceSuffix(place.getName()));
-		if (place instanceof InterfaceDiscretePlace) throw new IllegalArgumentException("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
+		if (place instanceof DiscreteInterfacePlace) throw new IllegalArgumentException("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
 		this.place = place; 
 		listenForTokenCountChanges(); 
 	}
@@ -41,6 +42,11 @@ public class InterfaceDiscretePlace extends DiscretePlace implements InterfacePl
 	@Override
 	public Place getPlace() {
 		return place;
+	}
+
+	@Override
+	public void setStatus(InterfacePlaceStatus status) {
+		this.status = status; 
 	}
 	
 }

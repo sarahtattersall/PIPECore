@@ -1,12 +1,8 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,13 +10,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import uk.ac.imperial.pipe.includeCommands.DummyCommand;
-import uk.ac.imperial.pipe.includeCommands.IncludeHierarchyCommand;
 
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyCommandScopeTest {
 
-	private PetriNet net1;
 	private IncludeHierarchyCommandScope parentScope;
 	private IncludeHierarchyCommandScope parentsSiblingsScope;
 	private IncludeHierarchyCommandScope allScope;

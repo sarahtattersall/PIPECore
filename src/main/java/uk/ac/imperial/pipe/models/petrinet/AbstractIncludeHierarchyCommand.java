@@ -1,9 +1,8 @@
-package uk.ac.imperial.pipe.includeCommands;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 /**
  *  Abstract class that all classes that implement {@link IncludeHierarchyCommand} should extend.
  *  The constructor creates a list of error messages, which is returned either unmodified, by {@link #getMessages()}

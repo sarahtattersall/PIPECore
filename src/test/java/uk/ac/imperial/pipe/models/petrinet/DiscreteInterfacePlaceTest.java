@@ -21,61 +21,59 @@ import org.stringtemplate.v4.compiler.STParser.expr_return;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
-import uk.ac.imperial.pipe.models.petrinet.InterfaceDiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteInterfacePlace;
 import uk.ac.imperial.pipe.models.petrinet.PlaceVisitor;
 
-public class InterfaceDiscretePlaceTest {
+public class DiscreteInterfacePlaceTest {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     DiscretePlace place;
 
-	private InterfaceDiscretePlace interfaceDiscretePlace;
+	private DiscreteInterfacePlace discreteInterfacePlace;
 
-	private InterfaceDiscretePlace interfaceDiscretePlace2;
+	private DiscreteInterfacePlace discreteInterfacePlace2;
 
     @Before
     public void setUp() {
         place = new DiscretePlace("test", "test");
-        interfaceDiscretePlace = new InterfaceDiscretePlace(place);
+        discreteInterfacePlace = new DiscreteInterfacePlace(place);
     }
     //TODO should look different in GUI
     @Test
     public void placeIdAndNameAreSuffixedToIndicateInterface() {
-    	assertEquals("test-I", interfaceDiscretePlace.getId()); 
-    	assertEquals("test-I", interfaceDiscretePlace.getName()); 
+    	assertEquals("test-I", discreteInterfacePlace.getId()); 
+    	assertEquals("test-I", discreteInterfacePlace.getName()); 
     }
     @Test
 	public void mirrorsTokenCountOfSourcePlace() throws Exception {
     	place.setTokenCount("Default", 3); 
-    	assertEquals(3, interfaceDiscretePlace.getTokenCount("Default")); 
+    	assertEquals(3, discreteInterfacePlace.getTokenCount("Default")); 
 	}
     @Test
     public void sourceMirrorsTokenCountOfInterfacePlace() throws Exception {
-    	interfaceDiscretePlace.setTokenCount("Default", 2); 
+    	discreteInterfacePlace.setTokenCount("Default", 2); 
     	assertEquals(2, place.getTokenCount("Default")); 
     }
     @Test
     public void multipleInterfacePlacesMirrorSource() throws Exception {
-    	interfaceDiscretePlace2 = new InterfaceDiscretePlace(place);
+    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place);
     	place.setTokenCount("Default", 4); 
-    	assertEquals(4, interfaceDiscretePlace.getTokenCount("Default")); 
-    	assertEquals(4, interfaceDiscretePlace2.getTokenCount("Default")); 
+    	assertEquals(4, discreteInterfacePlace.getTokenCount("Default")); 
+    	assertEquals(4, discreteInterfacePlace2.getTokenCount("Default")); 
     }
     @Test
     public void oneInterfacePlaceSendsCountsToSourceAndOtherInterfacePlaces() throws Exception {
-    	interfaceDiscretePlace2 = new InterfaceDiscretePlace(place);
-    	interfaceDiscretePlace2.setTokenCount("Default", 1); 
+    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place);
+    	discreteInterfacePlace2.setTokenCount("Default", 1); 
     	assertEquals(1, place.getTokenCount("Default")); 
-    	assertEquals(1, interfaceDiscretePlace.getTokenCount("Default")); 
+    	assertEquals(1, discreteInterfacePlace.getTokenCount("Default")); 
     }
     @Test
 	public void interfacePlaceCantBeBuiltFromAnotherInterfacePlace() throws Exception {
     	exception.expect(IllegalArgumentException.class);
     	exception.expectMessage("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
-    	interfaceDiscretePlace2 = new InterfaceDiscretePlace(interfaceDiscretePlace);
-    	
+    	discreteInterfacePlace2 = new DiscreteInterfacePlace(discreteInterfacePlace);
 	}
-
 }

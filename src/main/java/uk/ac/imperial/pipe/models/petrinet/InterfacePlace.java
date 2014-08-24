@@ -13,5 +13,11 @@ public interface InterfacePlace extends Place {
 	 * @return the {@link uk.ac.imperial.pipe.models.Place} corresponding to this InterfacePlace
 	 */
 	public Place getPlace();
+	/**
+	 * Set the status of this InterfacePlace 
+	 * @see InterfacePlaceStatusEnum 
+	 * @param status
+	 */
+	public void setStatus(InterfacePlaceStatus status);
 
 }

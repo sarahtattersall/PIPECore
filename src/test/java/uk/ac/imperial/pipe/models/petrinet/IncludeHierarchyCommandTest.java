@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.includeCommands;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.Test;
 
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchyCommand;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 

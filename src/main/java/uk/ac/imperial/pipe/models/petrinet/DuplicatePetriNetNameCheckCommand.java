@@ -1,16 +1,15 @@
-package uk.ac.imperial.pipe.includeCommands;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.List;
 
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 
-public class IncludeHierarchyCommandDuplicateNameCheck extends
+public class DuplicatePetriNetNameCheckCommand extends
 		AbstractIncludeHierarchyCommand {
 
 	private PetriNetName petriNetName;
 
-	public IncludeHierarchyCommandDuplicateNameCheck(PetriNetName petriNetName) {
+	public DuplicatePetriNetNameCheckCommand(PetriNetName petriNetName) {
 		super(); 
 		this.petriNetName = petriNetName; 
 	}
