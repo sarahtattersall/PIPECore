@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.util.List;
 
 
 public class AllCommandScope implements IncludeHierarchyCommandScope {
@@ -12,7 +11,7 @@ public class AllCommandScope implements IncludeHierarchyCommandScope {
 	}
 
 	@Override
-	public List<String> execute(IncludeHierarchyCommand command) {
+	public <T> Result<T> execute(IncludeHierarchyCommand<T> command) {
 		return includes.all(command);
 	}
 

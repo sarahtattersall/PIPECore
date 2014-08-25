@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import uk.ac.imperial.pipe.visitor.ClonePetriNet;
-
 /**
  * A composite Petri net is one that include other Petri nets.  A Petri net that does not 
  * include other Petri nets is a "single Petri net", or just a "Petri net".    
@@ -235,11 +233,11 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	}
 
 	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
-		DuplicatePetriNetNameCheckCommand duplicateCheck = new DuplicatePetriNetNameCheckCommand(petriNet.getName()); 
-		List<String> messages = self(duplicateCheck); 
-		messages = parents(duplicateCheck); 
-		if (messages.size() != 0) {
-			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+messages.get(0));
+		DuplicatePetriNetNameCheckCommand<String> duplicateCheck = new DuplicatePetriNetNameCheckCommand<String>(petriNet.getName()); 
+		Result<String> result = self(duplicateCheck); 
+		result = parents(duplicateCheck); 
+		if (result.hasResult()) {
+			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
 		}
 	}
 	
@@ -303,10 +301,10 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	}
 
 	public List<String> addToInterface(Place place) {
-		IncludeHierarchyCommand command = new AddInterfacePlaceCommand(place, InterfacePlaceStatusEnum.HOME); 
-		List<String> messages = self(command); 
-		messages = interfacePlaceAccessScope.execute(command); 
-		return messages; 
+		IncludeHierarchyCommand<Place> command = new AddInterfacePlaceCommand<Place>(place, InterfacePlaceStatusEnum.HOME); 
+		Result<Place> result = self(command); 
+		result = interfacePlaceAccessScope.execute(command); 
+		return result.getMessages(); 
 	}
 
 	protected boolean addInterfacePlaceToMap(InterfacePlace interfacePlace) {
@@ -331,103 +329,103 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * executed in all of the parents of the target include hierarchy, 
 	 * in order beginning with the lowest (immediate) parent and ending with the root. 
 	 * An error encountered by the command at each level of the hierarchy 
-	 * will be added as a message to the list of messages 
+	 * will be added as a message to the list of messages in the {@link Result} 
 	 * <p>
 	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
 	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * 
 	 * @param command
-	 * @return List<String> messages encountered when the command was executed at each level
+	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
-	public List<String> parents(IncludeHierarchyCommand command) {
-		List<String> messages = command.getMessages();  
+	public <T> Result<T> parents(IncludeHierarchyCommand<T> command) {
+		Result<T> result = command.getResult(); 
 		if (parent != null) {
-			messages = command.execute(parent); 
-			messages = parent.parents(command);  
+			result = command.execute(parent);
+			result = parent.parents(command);
 		}
-		return messages; 
+		return result; 
 	}
 	/**
 	 * Execute an {@link IncludeHierarchyCommand} for the children of this IncludeHierarchy. 
 	 * An error encountered by the command  
-	 * will be added as a message to the list of messages 
+	 * will be added as a message to the list of messages in the {@link Result} 
 	 * <p>
 	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
 	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * @param command
-	 * @return List<String> messages encountered when the command was executed at each level
+	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
-	public List<String> children(IncludeHierarchyCommand command) {
-		List<String> messages = command.getMessages();  
+	public <T> Result<T> children(IncludeHierarchyCommand<T> command) {
+		Result<T> result = command.getResult(); 
 		iterator = iterator();
 		iterator.next(); // skip self
 		while (iterator.hasNext()) {
-			messages = command.execute(iterator.next()); 
-    	}
-		return messages;
+			result = command.execute(iterator.next()); 
+		}
+		return result;
 	}
 	/**
 	 * Execute an {@link IncludeHierarchyCommand} for the siblings of this IncludeHierarchy under the same immediate parent. 
 	 * An error encountered by the command  
-	 * will be added as a message to the list of messages 
+	 * will be added as a message to the list of messages in the {@link Result} 
 	 * <p>
 	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
 	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
 	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * @param command
-	 * @return List<String> messages encountered when the command was executed at each level
+	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
-	public List<String> siblings(IncludeHierarchyCommand command) {
-		List<String> messages = command.getMessages();  
+	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command) {
+		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			iterator = parent.iterator();
 			IncludeHierarchy current = null; 
 			while (iterator.hasNext()) {
 				current = iterator.next(); 
 				if ((!current.equals(this)) && (current.parent.equals(parent))) {
-					messages = command.execute(current); 
+					result = command.execute(current); 
 				}
 			}
 		}
-		return messages;
+		return result;
 	}
 	/**
 	 * Execute an {@link IncludeHierarchyCommand} for this IncludeHierarchy. 
 	 * An error encountered by the command  
-	 * will be added as a message to the list of messages 
+	 * will be added as a message to the list of messages in the {@link Result} 
 	 * <p>
 	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
 	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
 	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * @param command
-	 * @return List<String> messages encountered when the command was executed at each level
+	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
-	public List<String> self(IncludeHierarchyCommand command) {
+	public <T> Result<T> self(IncludeHierarchyCommand<T> command) {
 		return command.execute(this); 
 	}
 	/**
 	 * Execute an {@link IncludeHierarchyCommand} for all levels of this IncludeHierarchy. 
 	 * An error encountered by the command  
-	 * will be added as a message to the list of messages 
+	 * will be added as a message to the list of messages in the {@link Result} 
 	 * <p>
 	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
 	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
 	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * @param command
-	 * @return List<String> messages encountered when the command was executed at each level
+	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
-	public List<String> all(IncludeHierarchyCommand command) {
-		List<String> messages = command.getMessages();  
+	public <T> Result<T> all(IncludeHierarchyCommand<T> command) {
+		Result<T> result = command.getResult(); 
 		iterator = getRoot().iterator();
 		while (iterator.hasNext()) {
-			messages = command.execute(iterator.next()); 
+			result = command.execute(iterator.next()); 
 		}
-		return messages;
+		return result;
 	}
 
 

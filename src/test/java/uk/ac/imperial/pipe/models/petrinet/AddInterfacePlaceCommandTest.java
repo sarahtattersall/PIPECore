@@ -13,12 +13,12 @@ public class AddInterfacePlaceCommandTest {
 
 	@Mock
 	private IncludeHierarchy mockHierarchy;
-	private AddInterfacePlaceCommand command;
+	private AddInterfacePlaceCommand<Place> command;
 
 	@Test
 	public void interfacePlaceAddedToInitialHierarchy() throws Exception {
 		Place p0 = new DiscretePlace("P0"); 
-		command = new AddInterfacePlaceCommand(p0, InterfacePlaceStatusEnum.HOME); 
+		command = new AddInterfacePlaceCommand<Place>(p0, InterfacePlaceStatusEnum.HOME); 
 		command.execute(mockHierarchy);
 		verify(mockHierarchy).addInterfacePlaceToMap(any(InterfacePlace.class)); 
 	}

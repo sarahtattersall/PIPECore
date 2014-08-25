@@ -20,11 +20,11 @@ public class IncludeHierarchyCommandScopeTest {
 
 	@Mock
     private IncludeHierarchy mockHierarchy;
-	private IncludeHierarchyCommand command;
+	private IncludeHierarchyCommand<Integer> command;
 
 	@Before
 	public void setUp() throws Exception {
-		command = new DummyCommand(); 
+		command = new DummyCommand<Integer>(); 
 		parentScope = IncludeHierarchyCommandScopeEnum.PARENTS.buildScope(mockHierarchy);
 		parentsSiblingsScope = IncludeHierarchyCommandScopeEnum.PARENTS_AND_SIBLINGS.buildScope(mockHierarchy);
 		allScope = IncludeHierarchyCommandScopeEnum.ALL.buildScope(mockHierarchy);

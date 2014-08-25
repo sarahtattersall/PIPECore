@@ -15,11 +15,11 @@ public class IncludeHierarchyCommandTest {
 
 	@Test
 	public void commandExecutesPossiblyReturningMessages() {
-		IncludeHierarchyCommand command = new DummyCommand(); 
-		assertEquals(0, command.getMessages().size());
-		List<String> messages = command.execute(new IncludeHierarchy(
+		IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
+		assertEquals(0, command.getResult().getEntries().size());
+		Result<Object> result = command.execute(new IncludeHierarchy(
 				new PetriNet(new NormalPetriNetName("net1")), "fred")); 
-		assertEquals(1, messages.size());
-		assertEquals(1, command.getMessages().size());
+		assertEquals(1, result.getEntries().size());
+		assertEquals(1, command.getResult().getEntries().size());
 	}
 }

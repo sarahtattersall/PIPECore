@@ -1,11 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.util.List;
-
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 
-public class DuplicatePetriNetNameCheckCommand extends
-		AbstractIncludeHierarchyCommand {
+public class DuplicatePetriNetNameCheckCommand<T> extends
+		AbstractIncludeHierarchyCommand<T> {
 
 	private PetriNetName petriNetName;
 
@@ -14,12 +12,13 @@ public class DuplicatePetriNetNameCheckCommand extends
 		this.petriNetName = petriNetName; 
 	}
 
+
 	@Override
-	public List<String> execute(IncludeHierarchy includeHierarchy) {
+	public Result<T> execute(IncludeHierarchy includeHierarchy) {
 		if (includeHierarchy.getPetriNet().getName().equals(petriNetName)) {
-			messages.add("Duplicate name "+petriNetName.getName()+" at alias level "+includeHierarchy.getFullyQualifiedName()); 
+			result.addMessage("Duplicate name "+petriNetName.getName()+" at alias level "+includeHierarchy.getFullyQualifiedName()); 
 		}
-		return messages;
+		return result;
 	}
 
 }

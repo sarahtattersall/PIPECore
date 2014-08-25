@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
@@ -377,47 +376,47 @@ public class IncludeHierarchyTest {
     }	
     @Test
 	public void commandExecutesAtEachParentLevel() throws Exception {
-		IncludeHierarchyCommand command = new DummyCommand(); 
+		IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
 		includes.include(net2, "2nd").include(net3, "3rd"); 
-		List<String> messages = includes.getChildInclude("2nd").getChildInclude("3rd").parents(command); 
-		assertEquals(2, messages.size());
-		assertTrue(messages.get(0).endsWith("2")); 
-		assertTrue(messages.get(1).endsWith("1")); 
+		Result<Object> result = includes.getChildInclude("2nd").getChildInclude("3rd").parents(command); 
+		assertEquals(2, result.getEntries().size());
+		assertTrue(result.getEntries().get(0).message.endsWith("2")); 
+		assertTrue(result.getEntries().get(1).message.endsWith("1")); 
 	}
     @Test
     public void commandExecutesAtEachChildLevel() throws Exception {
-    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
     	includes.include(net2, "2a").include(net3, "3rd"); 
     	includes.include(net4, "2b"); 
-    	List<String> messages = includes.children(command); 
-    	assertEquals(3, messages.size());
-    	assertTrue(messages.get(0).endsWith("2")); 
-    	assertTrue(messages.get(1).endsWith("3")); 
-    	assertTrue(messages.get(2).endsWith("4")); 
+    	Result<Object> result = includes.children(command); 
+    	assertEquals(3, result.getEntries().size());
+    	assertTrue(result.getEntries().get(0).message.endsWith("2")); 
+    	assertTrue(result.getEntries().get(1).message.endsWith("3")); 
+    	assertTrue(result.getEntries().get(2).message.endsWith("4")); 
     }
     @Test
     public void commandExecutesForPeersButNotAuntsOrNieces() throws Exception {
-    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
     	includes.include(net2, "aunt"); 
     	includes.include(net2, "mom").include(net3, "me"); 
     	includes.getChildInclude("mom").include(net4, "sis"); 
     	includes.getChildInclude("mom").getChildInclude("sis").include(net6, "niece"); 
     	includes.getChildInclude("mom").include(net5, "other-sis"); 
-    	List<String> messages = includes.getChildInclude("mom").getChildInclude("me").siblings(command); 
-    	assertEquals(2, messages.size());
-    	assertTrue(messages.get(0).endsWith("4")); 
-    	assertTrue(messages.get(1).endsWith("5")); 
+    	Result<Object> result = includes.getChildInclude("mom").getChildInclude("me").siblings(command); 
+    	assertEquals(2, result.getEntries().size());
+    	assertTrue(result.getEntries().get(0).message.endsWith("4")); 
+    	assertTrue(result.getEntries().get(1).message.endsWith("5")); 
     }
     @Test
     public void commandExecutesForAllLevelsInHierarchy() throws Exception {
-    	IncludeHierarchyCommand command = new DummyCommand(); 
+    	IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
     	includes.include(net2, "aunt"); 
     	includes.include(net2, "mom").include(net3, "me"); 
     	includes.getChildInclude("mom").include(net4, "sis"); 
     	includes.getChildInclude("mom").getChildInclude("sis").include(net6, "niece"); 
     	includes.getChildInclude("mom").include(net5, "other-sis"); 
-    	List<String> messages = includes.getChildInclude("mom").getChildInclude("me").all(command); 
-    	assertEquals(7, messages.size());
+    	Result<Object> result = includes.getChildInclude("mom").getChildInclude("me").all(command); 
+    	assertEquals(7, result.getEntries().size());
     }
     @Test
 	public void hasInterfacePlaceAccessScopeWithParentsCommandScopeAsDefault() throws Exception {
