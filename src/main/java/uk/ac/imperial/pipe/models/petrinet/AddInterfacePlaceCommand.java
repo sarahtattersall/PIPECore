@@ -1,8 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 
-public class AddInterfacePlaceCommand<T> extends
-		AbstractIncludeHierarchyCommand<T> {
+public class AddInterfacePlaceCommand<T> extends AbstractIncludeHierarchyCommand<T> {
 
 	private Place place;
 	private InterfacePlaceStatusEnum status;
@@ -13,7 +12,7 @@ public class AddInterfacePlaceCommand<T> extends
 		this.status = status; 
 	}
 
-
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<T> execute(IncludeHierarchy includeHierarchy) {
 		InterfacePlace interfacePlace = place.buildInterfacePlace(); 
@@ -21,10 +20,9 @@ public class AddInterfacePlaceCommand<T> extends
 		interfacePlace.setFullyQualifiedName(includeHierarchy.getFullyQualifiedName()); 
 		boolean added = includeHierarchy.addInterfacePlaceToMap(interfacePlace); 
 		if (!added) {
-			result.addMessage("Unable to add InterfacePlace "+interfacePlace.getId()+" to Include Hierarchy "+
-					includeHierarchy.getFullyQualifiedName()+" because it already exists."); 
+			result.addEntry("Unable to add InterfacePlace "+interfacePlace.getId()+" to Include Hierarchy "+
+					includeHierarchy.getFullyQualifiedName()+" because it already exists.", (T) place); 
 		}
 		return result;
 	}
-
 }

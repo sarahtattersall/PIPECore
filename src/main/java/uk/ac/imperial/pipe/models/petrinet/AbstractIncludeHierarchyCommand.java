@@ -9,12 +9,12 @@ import java.util.List;
  */
 public abstract class AbstractIncludeHierarchyCommand<T> implements IncludeHierarchyCommand<T> {
 
+	public static final String EXECUTE_REQUIRES_NON_NULL_INCLUDE_HIERARCHY = "AbstractIncludeHierarchyCommand.execute:  requires non-null include hierarchy.";
 	protected List<String> messages;
 	protected Result<T> result;
 	
 	public AbstractIncludeHierarchyCommand() {
 		result = new Result<T>(); 
-		
 	}
 	
 	@Override
@@ -22,6 +22,11 @@ public abstract class AbstractIncludeHierarchyCommand<T> implements IncludeHiera
 	@Override
 	public Result<T> getResult() {
 		return result;
+	}
+	protected void validate(IncludeHierarchy includeHierarchy) {
+		if (includeHierarchy == null) {
+			throw new IllegalArgumentException(EXECUTE_REQUIRES_NON_NULL_INCLUDE_HIERARCHY); 
+		}
 	}
 
 }

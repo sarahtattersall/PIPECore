@@ -37,6 +37,11 @@ public class Result<T> {
 		if (!hasResult()) return null; 
 		else return entries.get(0);
 	}
+	public String getMessage() {
+		if (!hasResult()) return null; 
+		else return getEntry().message;
+	}
+
 	public class Entry<V> {
 		String message;
 		V value; 

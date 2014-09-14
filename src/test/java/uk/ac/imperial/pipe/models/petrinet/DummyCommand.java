@@ -1,9 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.util.List;
-
-import uk.ac.imperial.pipe.models.petrinet.AbstractIncludeHierarchyCommand;
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 
 public class DummyCommand<T> extends AbstractIncludeHierarchyCommand<T>  {
 	
@@ -18,6 +14,7 @@ public class DummyCommand<T> extends AbstractIncludeHierarchyCommand<T>  {
 	@SuppressWarnings("unchecked")
 	@Override
 	public Result<T> execute(IncludeHierarchy includeHierarchy) {
+		super.validate(includeHierarchy); 
 		for (int i = 0; i < numberMsgs; i++) {
 			result.addEntry("dummy message for "+includeHierarchy.getPetriNet().getNameValue(), (T) new Integer(i) );
 		}

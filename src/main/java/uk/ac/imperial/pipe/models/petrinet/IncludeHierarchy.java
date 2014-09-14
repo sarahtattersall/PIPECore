@@ -1,10 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,10 +36,9 @@ import java.util.Map;
  * in the tabs of the corresponding included Petri net. 
  */
 
-public class IncludeHierarchy extends AbstractPetriNetPubSub implements PropertyChangeListener {
+//public class IncludeHierarchy extends AbstractPetriNetPubSub implements PropertyChangeListener {
+public class IncludeHierarchy  {
 
-	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL = "IncludeHierarchy attempted rename at level ";
-	public static final String WOULD_CAUSE_DUPLICATE = " would cause duplicate: ";
 	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE = "IncludeHierarchy attempted rename would cause duplicate: ";
 	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL = "Include alias not found at level ";
 	public static final String INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL = "Include alias name duplicated at level ";
@@ -53,7 +49,6 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	public static final String INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY = "Included Petri net name may not exist as a parent Petri net in this include hierarchy.";
 	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL = "Include alias not found at any level: ";
 	private Map<String, IncludeHierarchy> includeMap;
-	private Map<String, IncludeHierarchy> includeFullyQualifiedMap;
 	private Map<String, IncludeHierarchy> includeMapAll; 
 	private String name;
 	private IncludeHierarchy parent;
@@ -74,20 +69,23 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		this(net, null, name); 
 	}
 	
-	private IncludeHierarchy(PetriNet petriNet, IncludeHierarchy parent, String name) {
+	public IncludeHierarchy(PetriNet petriNet, IncludeHierarchy parent, String name) {
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
 		this.includeMap = new HashMap<>();
-		this.includeFullyQualifiedMap = new HashMap<>(); 
-		this.includeMapAll = new HashMap<>(); 
+		initIncludeMapAll(); 
 		this.interfacePlaces = new HashMap<>(); 
 		this.parent = parent;
 		if (!isValid(name)) name = "";
 		this.name = name; 
 		buildRootAndLevelRelativeToRoot(parent); 
 		buildFullyQualifiedName();
-		buildMinimallyUniqueName(); 
+//		buildMinimallyUniqueName(); 
 		setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS);  
+	}
+
+	protected void initIncludeMapAll() {
+		this.includeMapAll = new HashMap<>();
 	}
 
 	private void buildRootAndLevelRelativeToRoot(IncludeHierarchy parent) {
@@ -95,11 +93,18 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		if (isRoot) {
 			root = this; 
 			level = 0; 
+			buildUniqueNameForRoot(); 
 		}
 		else {
 			root = parent.getRoot(); 
 			level = parent.getLevelRelativeToRoot()+1; 
 		}
+	}
+
+	protected void buildUniqueNameForRoot() {
+		uniqueName = name;
+		buildUniqueNameAsPrefix(); 
+		getIncludeMapAll().put(name, this);
 	}
  
 	private boolean isValid(String name) {
@@ -108,16 +113,20 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return true;
 	}
 
-	protected void buildMinimallyUniqueName() {
-		getIncludeMapAll().put(name, this); 
-		IncludeHierarchy conflict = getRoot().getIncludeMapAll().get(name);  
-		if (conflict == null) {
-			registerMinimallyUniqueNameWithParents(name);
-		} else {
-			buildNewNameToDistinguishFromExistingName(conflict);
-		}
-		uniqueNameAsPrefix = buildNameAsPrefix(uniqueName); 
+	protected void buildUniqueName() {
+    	self(new BuildUniqueNameCommand<Object>()); 
+
+//		getIncludeMapAll().put(name, this); 
+//		IncludeHierarchy conflict = getRoot().getIncludeMapAll().get(name);  
+//		if (conflict == null) {
+//			uniqueName = name;
+//			registerMinimallyUniqueNameWithParents(name);
+//		} else {
+//			buildNewNameToDistinguishFromExistingName(conflict);
+//		}
+		buildUniqueNameAsPrefix(); 
 	}
+
 
 	protected void buildNewNameToDistinguishFromExistingName(IncludeHierarchy conflict) {
 		if (this.equals(conflict)) {
@@ -125,15 +134,16 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 				registerMinimallyUniqueNameWithParents(name);
 			}
 		}
+		//TODO convert to command
 		else if (this.hasParent(conflict)) {
-			IncludeHierarchy parent = parent(); 
+			IncludeHierarchy parent = getParent(); 
 			String tempName = name; 
 			while (parent != null) {
 				tempName = parent.getName()+"."+tempName; 
 				if (parent.equals(conflict)) {
 					uniqueName = tempName; 
 				}
-				parent = parent.parent(); 
+				parent = parent.getParent(); 
 			}
 			registerMinimallyUniqueNameWithParents(uniqueName);
 		}
@@ -145,7 +155,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		}
 		else if (higherLevelInHierarchyThanOther(conflict)) {
 			registerMinimallyUniqueNameWithParents(name);
-			conflict.buildMinimallyUniqueName(); 
+			conflict.buildUniqueName(); 
 		}
 	}
 
@@ -156,28 +166,185 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return getLevelRelativeToRoot() > conflict.getLevelRelativeToRoot();
 	}
 
+	//TODO convert to command
 	protected void registerMinimallyUniqueNameWithParents(String name) {
-		uniqueName = name; 
-		IncludeHierarchy parent = parent(); 
-		while (parent != null) {
-			parent.getIncludeMapAll().put(uniqueName, this); 
-			parent = parent.parent(); 
+//		uniqueName = name; 
+		IncludeHierarchyCommand<Object> addEntryCommand = new AddMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
+		Result<Object> result = parents(addEntryCommand); 
+		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
+//		IncludeHierarchy parent = getParent(); 
+//		while (parent != null) {
+//			parent.getIncludeMapAll().put(uniqueName, this); 
+//			parent = parent.getParent(); 
+//		}
+	}
+	public IncludeHierarchy include(PetriNet petriNet, String alias) throws RecursiveIncludeException {
+		validateInclude(petriNet, alias);
+//		if (includeMap.containsKey(alias)) { 
+//			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
+//		}
+		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
+		IncludeHierarchyCommand<Object> addEntryCommand = new AddMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy); 
+		Result<Object> result = self(addEntryCommand); 
+		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
+		childHierarchy.buildUniqueName(); 
+//		addPropertyChangeListener(childHierarchy); 
+		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+//		includeMap.put(alias, childHierarchy);
+		//  [skip validate]
+		//  create IH
+		//  addItToMap
+		//  buildMinimallyUniqueName
+		return childHierarchy; 
+//		return includeMap.get(alias); 
+	}
+	// RenameMapEntryCommand(MapEnum, key, oldkey IH)
+	// parents(addToMapCommand
+	//  rename creates duplicate
+	//  added not replaced
+	private boolean renameChild(Map<String, IncludeHierarchy> map, String oldName, String newName) {
+		boolean renamed = true; 
+		if (map.containsKey(newName)) {
+			renamed = false; 
 		}
+		else {
+			IncludeHierarchy child = map.get(oldName);
+		    if (child != null) { 
+				map.put(newName, child); 	
+				map.remove(oldName);
+		    }
+		    else {
+//		    	renamed = false;  //TODO account for this condition  
+		    }
+		}
+		return renamed; 
 	}
 
-	private void buildFullyQualifiedName() {
+
+	protected void validateInclude(PetriNet petriNet, String alias) throws RecursiveIncludeException {
+		if (petriNet == null) { 
+			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
+		}
+		if (!isValid(alias)) { 
+			throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
+		}
+		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
+	}
+	/**
+	 * Returns the IncludeHierarchy, if it exists, with the specified name that is the immediate child of this include hierarchy
+	 * @param includeAlias
+	 * @return
+	 */
+	public IncludeHierarchy getChildInclude(String includeAlias) {
+		IncludeHierarchy child = includeMap.get(includeAlias); 
+		if (child == null) {			
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
+		}
+		return child;
+	}
+	/**
+	 * Returns the IncludeHierarchy whose uniqueName matches the parameter, from the set that includes this IncludeHierarchy and all of its children.  
+	 * If executed against the root IncludeHierarchy, this searches all includes in the IncludeHierarchy.  
+	 * <p>Throws RuntimeException if no includes are found with a matching unique name.       
+	 * @param uniqueName
+	 * @return
+	 */
+	public IncludeHierarchy getInclude(String uniqueName) {
+		IncludeHierarchy include = includeMapAll.get(uniqueName); 
+		if (include == null) {			
+			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + uniqueName);
+		}
+		return include;
+	}
+
+	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
+		DuplicatePetriNetNameCheckCommand<String> duplicateCheck = new DuplicatePetriNetNameCheckCommand<String>(petriNet.getName()); 
+		Result<String> result = self(duplicateCheck); 
+		result = parents(duplicateCheck); 
+		if (result.hasResult()) {
+			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
+		}
+	}
+	//TODO convert to command
+	public Result<Object> rename(String newname) {
+		String oldName = name; 
+		Result<Object> renameResult = renameBare(newname);
+		rebuildMinimallyUniqueName();
+//		notifyChildren(newname, oldName);
+		return renameResult; 
+//		String oldName = name; 
+//		name = newName; 
+//		buildFullyQualifiedName(); 
+//		rebuildMinimallyUniqueName();
+//		if (parent != null) { 
+//			parent.renameChildAlias(oldName, newName);
+//		}
+//		notifyChildren(newname, oldName);
+		// self and children; possinly other if result has result? conflict comes from result?
+		//self(minimallyUniqueName)
+		//parents(minimallyUniqueName)
+		//if hasResult, other.buildMinimallyUniqueName
+		//
+		//registerNameWithParent
+		//parent(name)
+		//parents(uniqueName)
+ 	}
+
+	protected Result<Object> renameBare(String newname) {
+		Result<Object> result = parent(new RenameMapEntryCommand<Object>(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
+		if (!result.hasResult()) {
+			setName(newname); 
+		}
+		return result;
+	}
+	
+	//TODO replace
+	protected void rebuildMinimallyUniqueName() {
+		deleteOldMinimallyUniqueName();
+		buildUniqueName();
+	}
+
+	//TODO convert to command
+	protected void deleteOldMinimallyUniqueName() {
+		getIncludeMapAll().remove(name); 
+		IncludeHierarchy parent = getParent(); 
+		while (parent != null) {
+			parent.getIncludeMapAll().remove(uniqueName); 
+			parent = parent.getParent(); 
+		}
+	}
+	
+	public boolean renameChildAlias(String oldName, String newName) {
+		return renameChild(includeMap, oldName, newName); 
+//		if (!renameChild(includeMap, oldName, newName)) {
+//			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL + 
+//				name + WOULD_CAUSE_DUPLICATE + newName);
+//		}
+	}
+
+
+	//TODO convert to command
+	protected void buildFullyQualifiedName() {
 		StringBuffer sb = new StringBuffer(); 
 		sb.insert(0, getName()); 
-		IncludeHierarchy parent = parent(); 
+		IncludeHierarchy parent = getParent(); 
 		while (parent != null) {
 			sb.insert(0,".");
 			sb.insert(0,parent.getName());
-			parent = parent.parent(); 
+			parent = parent.getParent(); 
 		}
 		fullyQualifiedName =  sb.toString();
-		fullyQualifiedNameAsPrefix = buildNameAsPrefix(fullyQualifiedName); 
+		buildFullyQualifiedNameAsPrefix(); 
 	}
 
+	protected void buildFullyQualifiedNameAsPrefix() {
+		fullyQualifiedNameAsPrefix = buildNameAsPrefix(fullyQualifiedName);
+	}
+	protected void buildUniqueNameAsPrefix() {
+		uniqueNameAsPrefix = buildNameAsPrefix(uniqueName);
+	}
+
+	
 	protected String buildNameAsPrefix(String name) {
 		String nameAsPrefix = null; 
 		if (name.isEmpty()) { 
@@ -189,122 +356,10 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return nameAsPrefix; 
 	}
 
-	public IncludeHierarchy include(PetriNet petriNet, String alias) throws RecursiveIncludeException {
-		if (petriNet == null) { 
-			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
-		}
-		if (!isValid(alias)) { 
-			throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
-		}
-		if (includeMap.containsKey(alias)) { 
-			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
-		}
-		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
-		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
-		addPropertyChangeListener(childHierarchy); 
-		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
-		includeMap.put(alias, childHierarchy);
-		includeFullyQualifiedMap.put(childHierarchy.getFullyQualifiedName(), childHierarchy);
-		return includeMap.get(alias); 
-	}
-
-	public IncludeHierarchy getChildInclude(String includeAlias) {
-		IncludeHierarchy child = includeMap.get(includeAlias); 
-		if (child == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
-		}
-		return child;
-	}
-
-	public IncludeHierarchy getInclude(String includeAlias) {
-		IncludeHierarchy include = includeMapAll.get(includeAlias); 
-		if (include == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + includeAlias);
-		}
-		return include;
-	}
-	//TODO test getFullyQualifiedInclude
-	public IncludeHierarchy getFullyQualifiedInclude(String fullyQualifiedName) {
-		IncludeHierarchy child = includeFullyQualifiedMap.get(fullyQualifiedName); 
-		if (child == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND+fullyQualifiedName);
-		}
-		return child;
-	}
-
-	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
-		DuplicatePetriNetNameCheckCommand<String> duplicateCheck = new DuplicatePetriNetNameCheckCommand<String>(petriNet.getName()); 
-		Result<String> result = self(duplicateCheck); 
-		result = parents(duplicateCheck); 
-		if (result.hasResult()) {
-			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
-		}
-	}
-	
-	public void rename(String newName) {
-		String oldName = name; 
-		String oldFullyQualifiedName = fullyQualifiedName; 
-		name = newName; 
-		buildFullyQualifiedName(); 
-		rebuildMinimallyUniqueName();
-		if (parent != null) { 
-			parent.renameChild(oldName, newName);
-			parent.renameFullyQualifiedName(oldFullyQualifiedName, fullyQualifiedName); 
-		}
-		notifyChildren(newName, oldName);
- 	}
-
-	protected void rebuildMinimallyUniqueName() {
-		deleteOldMinimallyUniqueName();
-		buildMinimallyUniqueName();
-	}
-
-	protected void deleteOldMinimallyUniqueName() {
-		getIncludeMapAll().remove(name); 
-		IncludeHierarchy parent = parent(); 
-		while (parent != null) {
-			parent.getIncludeMapAll().remove(uniqueName); 
-			parent = parent.parent(); 
-		}
-	}
-	private void renameFullyQualifiedName(String oldFullyQualifiedName,
-			String fullyQualifiedName) {
-		if (includeFullyQualifiedMap.containsKey(fullyQualifiedName)) { 
-			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE + fullyQualifiedName);
-		}
-		IncludeHierarchy child = includeFullyQualifiedMap.get(oldFullyQualifiedName);
-		includeMap.put(fullyQualifiedName, child); 	
-		includeMap.remove(oldFullyQualifiedName);
-	}
-
-	public void renameChild(String oldName, String newName) {
-		if (includeMap.containsKey(newName)) { 
-			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL + 
-					name + WOULD_CAUSE_DUPLICATE + newName);
-		}
-		IncludeHierarchy child = includeMap.get(oldName);
-		includeMap.put(newName, child); 	
-		includeMap.remove(oldName);
-	}
-
-	private void notifyChildren(String newName, String oldName) {
-		changeSupport.firePropertyChange(NEW_INCLUDE_ALIAS_NAME, oldName, newName);
-	}
-
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(NEW_INCLUDE_ALIAS_NAME)) {
-			buildFullyQualifiedName(); 
-			buildMinimallyUniqueName(); 
-			notifyChildren((String) evt.getOldValue(), (String) evt.getNewValue());
-		}
-	}
-
-	public List<String> addToInterface(Place place) {
-		IncludeHierarchyCommand<Place> command = new AddInterfacePlaceCommand<Place>(place, InterfacePlaceStatusEnum.HOME); 
-		Result<Place> result = self(command); 
-		result = interfacePlaceAccessScope.execute(command); 
-		return result.getMessages(); 
+	public Result<Place> addToInterface(Place place) {
+		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, InterfacePlaceStatusEnum.HOME); 
+		self(addInterfacePlaceCommand); 
+		return interfacePlaceAccessScope.execute(addInterfacePlaceCommand); 
 	}
 
 	protected boolean addInterfacePlaceToMap(InterfacePlace interfacePlace) {
@@ -330,9 +385,13 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * in order beginning with the lowest (immediate) parent and ending with the root. 
 	 * An error encountered by the command at each level of the hierarchy 
 	 * will be added as a message to the list of messages in the {@link Result} 
-	 * <p>
-	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
-	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <ul>
+	 * <li>To execute the command for the immediate parent, use {@link #parent(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * </ul>
 	 * 
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
@@ -346,14 +405,39 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return result; 
 	}
 	/**
+	 * Execute the command for the immediate parent, if any, of this hierarchy.  
+	 * This will result in the command being 
+	 * executed in the immediate parent of the target include hierarchy. 
+	 * An error encountered by the command at each level of the hierarchy 
+	 * will be added as a message to the list of messages in the {@link Result} 
+	 * <ul>
+	 * <li>To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * </ul>
+	 * @param command
+	 * @return Result accumulated results encountered when the command was executed at each level
+	 */
+	public <T> Result<T> parent(IncludeHierarchyCommand<T> command) {
+		Result<T> result = command.getResult(); 
+		if (parent != null) {
+			result = command.execute(parent);
+		}
+		return result; 
+	}
+	/**
 	 * Execute an {@link IncludeHierarchyCommand} for the children of this IncludeHierarchy. 
 	 * An error encountered by the command  
 	 * will be added as a message to the list of messages in the {@link Result} 
-	 * <p>
-	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
-	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
-	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
-	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * <ul>
+	 * <li>To execute the command for the immediate parent, use {@link #parent(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
@@ -370,11 +454,13 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * Execute an {@link IncludeHierarchyCommand} for the siblings of this IncludeHierarchy under the same immediate parent. 
 	 * An error encountered by the command  
 	 * will be added as a message to the list of messages in the {@link Result} 
-	 * <p>
-	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
-	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
-	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
-	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * <ul>
+	 * <li>To execute the command for the immediate parent, use {@link #parent(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
@@ -396,11 +482,13 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * Execute an {@link IncludeHierarchyCommand} for this IncludeHierarchy. 
 	 * An error encountered by the command  
 	 * will be added as a message to the list of messages in the {@link Result} 
-	 * <p>
-	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
-	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
-	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
-	 * To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * <ul>
+	 * <li>To execute the command for the immediate parent, use {@link #parent(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
+	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
@@ -411,11 +499,13 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	 * Execute an {@link IncludeHierarchyCommand} for all levels of this IncludeHierarchy. 
 	 * An error encountered by the command  
 	 * will be added as a message to the list of messages in the {@link Result} 
-	 * <p>
-	 * To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
-	 * To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
-	 * To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
-	 * To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <ul>
+	 * <li>To execute the command for the immediate parent, use {@link #parent(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all parents, use {@link #parents(IncludeHierarchyCommand)}
+	 * <li>To execute the command for all children, use {@link #children(IncludeHierarchyCommand)}
+	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
+	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
+	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 */
@@ -433,15 +523,16 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		interfacePlaceAccessScopeEnum = scopeEnum;
 		interfacePlaceAccessScope = scopeEnum.buildScope(this);
 	}
-
+	//TODO convert to command? 
+	// hasResult = hasParent; parent is result.getEntry.value
 	public boolean hasParent(IncludeHierarchy include) {
-		IncludeHierarchy parent = parent(); 
+		IncludeHierarchy parent = getParent(); 
 		boolean isParent = false; 
 		while (parent != null) {
 			if (parent.equals(include)) {
 				isParent = true; 
 			}
-			parent = parent.parent(); 
+			parent = parent.getParent(); 
 		}
 		return isParent;
 	}
@@ -464,10 +555,6 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return interfacePlaceAccessScope;
 	}
 
-	public String getName() {
-		return name;
-	}
-
 	public String getFullyQualifiedName() {
 		return fullyQualifiedName;
 	}
@@ -482,7 +569,7 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 		return uniqueNameAsPrefix;
 	}
 
-	public IncludeHierarchy parent() {
+	public IncludeHierarchy getParent() {
 		return parent;
 	}
 	public Map<String, IncludeHierarchy> includeMap() {
@@ -495,7 +582,23 @@ public class IncludeHierarchy extends AbstractPetriNetPubSub implements Property
 	protected Map<String, IncludeHierarchy> getIncludeMapAll() {
 		return includeMapAll;
 	}
+	protected Map<String, IncludeHierarchy> getIncludeMap() {
+		return includeMap;
+	}
+
+	public String getName() {
+		return name;
+	}
 	
+	public void setName(String name) {
+		this.name = name; 
+	}
 
+	public String getUniqueName() {
+		return uniqueName;
+	}
 
+	protected void setUniqueName(String uniqueName) {
+		this.uniqueName = uniqueName;
+	}
 }

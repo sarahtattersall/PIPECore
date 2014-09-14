@@ -8,6 +8,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+
 public class ResultTest {
 
 	
@@ -19,7 +21,7 @@ public class ResultTest {
 	@Before
 	public void setUp() throws Exception {
 		command = new DummyCommand<>(); 
-		net = new PetriNet(); 
+		net = new PetriNet(new NormalPetriNetName("net")); 
 		includes = net.getIncludeHierarchy(); 
 	}
 	@Test
@@ -36,12 +38,16 @@ public class ResultTest {
 		assertEquals(3, result.getEntries().size()); 
 	}
 	@Test
-	public void returnsFirstEntryAsSingleEntryIfHasResultsAndNullOtherwise() throws Exception {
+	public void returnsFirstEntryOrMessageAsSingleEntryIfHasResultsAndNullOtherwise() throws Exception {
 		result = (new DummyCommand<Integer>(0)).execute(includes); 
 		assertNull(result.getEntry()); 
+		assertNull(result.getMessage()); 
 		result = (new DummyCommand<Integer>(1)).execute(includes); 
 		assertEquals(0, (int) result.getEntry().value); 
 		result = (new DummyCommand<Integer>(3)).execute(includes); 
 		assertEquals("retrieves first entry",0, (int) result.getEntry().value); 
+		assertEquals("retrieves first entry","dummy message for net", result.getEntry().message); 
+		assertEquals("convenience method","dummy message for net", result.getMessage()); 
 	}
+
 }

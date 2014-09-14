@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -29,9 +30,10 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.AbstractMapEntryTest.ME;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
-public class IncludeHierarchyTest {
+public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -65,7 +67,7 @@ public class IncludeHierarchyTest {
 	}
 	@Test
 	public void includeHierarchyForRootLevelHasNoParentAndNoChildren() {
-		assertNull(includes.parent()); 
+		assertNull(includes.getParent()); 
 		assertThat(includes.includeMap()).hasSize(0);
 	}
 	@Test
@@ -74,7 +76,7 @@ public class IncludeHierarchyTest {
 		includes.include(net2, "second-child");
 		assertThat(includes.includeMap()).hasSize(2); 
 		assertThat(includes.getChildInclude("first-child").includeMap()).hasSize(0); 
-		assertEquals(includes, includes.getChildInclude("first-child").parent()); 
+		assertEquals(includes, includes.getChildInclude("first-child").getParent()); 
 	}
 	@Test
 	public void lowerLevelsKnowTheRootLevel() throws Exception {
@@ -101,26 +103,52 @@ public class IncludeHierarchyTest {
 		assertEquals("top.first-child.grand-child",includes.getChildInclude("first-child").getChildInclude("grand-child").getFullyQualifiedName());
 	}
 	@Test
-	public void verifyRenameOfHigherLevelCascadedIntoAllFullyQualifiedNames() throws Exception {
-		includes.include(net2, "first-child").include(net3, "grand-child");
-		includes.rename("newtop"); 
-		assertEquals("newtop",includes.getName());
-		assertEquals("newtop",includes.getFullyQualifiedName());
-		assertEquals("newtop.first-child",includes.getChildInclude("first-child").getFullyQualifiedName());
-		assertEquals("newtop.first-child.grand-child",includes.getChildInclude("first-child").getChildInclude("grand-child").getFullyQualifiedName());
-		includes.getChildInclude("first-child").rename("fred");
-		assertEquals("fred",includes.getChildInclude("fred").getName());
-		assertEquals("newtop.fred",includes.getChildInclude("fred").getFullyQualifiedName());
-		assertEquals("newtop.fred.grand-child",includes.getChildInclude("fred").getChildInclude("grand-child").getFullyQualifiedName());
+	public void renameChangesOnlyImmediateParentMap() throws Exception {
+	 	IncludeHierarchy aInclude = includes.include(net2, "a"); 
+    	IncludeHierarchy bInclude = aInclude.include(net3, "b"); 
+    	checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));  
+		assertFalse(aInclude.renameBare("c").hasResult()); 
+		checkAllIncludesMapEntries(new ME("top", includes), new ME("c", aInclude), new ME("b", bInclude));  
+		assertFalse(aInclude.renameBare("a").hasResult()); 
+		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));  
+		assertFalse(bInclude.renameBare("d").hasResult()); 
+		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("d", bInclude));  
+		assertFalse(includes.renameBare("root").hasResult()); 
+		checkAllIncludesMapEntries("top has no parent, but renames ok",
+				new ME("root", includes), new ME("a", aInclude), new ME("d", bInclude));  
+//		checkAllIncludesMapEntries(true, new ME("root", includes), new ME("a", aInclude), new ME("d", bInclude));  
 	}
-    @Test
-    public void childHearsThatParentHasRenamed() throws Exception {
-    	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
-    	includes.include(net2, "child");
-        includes.getChildInclude("child").addPropertyChangeListener(mockListener);
-        includes.rename("root");
-        verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
-    }
+	@Test
+	public void renameReturnsErrorOnlyIfNameConflictsWithAnotherIncludeAtSameLevel() throws Exception {
+		IncludeHierarchy aInclude = includes.include(net2, "a"); 
+		IncludeHierarchy aaInclude = includes.include(net2, "aa"); 
+		IncludeHierarchy aaaInclude = includes.include(net2, "aaa"); 
+		IncludeHierarchy bInclude = aaInclude.include(net3, "b"); 
+		IncludeHierarchy cInclude = aaaInclude.include(net4, "c"); 
+		IncludeHierarchy ccInclude = aaaInclude.include(net4, "cc"); 
+		checkAllIncludesMapEntries(false, "", 
+				new ME[] {new ME("top", includes)}, 
+				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
+				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+		Result<Object> result = aInclude.renameBare("aa"); 
+		assertTrue("duplicate, so error",result.hasResult()); 
+		checkAllIncludesMapEntries(false, "conflict, so no changes to map", 
+				new ME[] {new ME("top", includes)}, 
+				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
+				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+		result = cInclude.renameBare("cc"); 
+		assertTrue(result.hasResult()); 
+		checkAllIncludesMapEntries(false, "conflict, so no changes to map", 
+				new ME[] {new ME("top", includes)}, 
+				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
+				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+		result = cInclude.renameBare("ccc"); 
+		assertFalse(result.hasResult()); 
+		checkAllIncludesMapEntries(false, "no conflict, so map changes", 
+				new ME[] {new ME("top", includes)}, 
+				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
+				new ME[] {new ME("b", bInclude), new ME("ccc", cInclude), new ME("cc", ccInclude)});  
+	}
     @Test
 	public void throwsIfNameDoesNotExistAtChildLevel() throws Exception {
         expectedException.expect(RuntimeException.class);
@@ -146,7 +174,8 @@ public class IncludeHierarchyTest {
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
     	expectedException.expect(RuntimeException.class);
-    	expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL+"top: child");
+    	expectedException.expectMessage("AddMapEntryCommand:  map entry for IncludeHierarchy child not added to IncludeMap" +
+    			" in IncludeHierarchy top because another entry already exists with key: child");
     	includes.include(net2, "child");
     	includes.include(net2, "child");
     }
@@ -162,14 +191,6 @@ public class IncludeHierarchyTest {
     	includes.include(net2, "child").include(net3, "child");
     	assertEquals("top.child.child",includes.getChildInclude("child").getChildInclude("child").getFullyQualifiedName()); 
 	}
-    @Test
-    public void throwsIfRenameWouldCauseDuplicateAtParentLevel() throws Exception {
-    	expectedException.expect(RuntimeException.class);
-    	expectedException.expectMessage("IncludeHierarchy attempted rename at level top would cause duplicate: child");
-    	includes.include(net2, "child");
-    	includes.include(net2, "second-child");
-    	includes.getChildInclude("second-child").rename("child"); 
-    }
     @Test
 	public void netMayNotBeNullForConstructor() throws Exception {
     	expectedException.expect(IllegalArgumentException.class);
@@ -269,18 +290,20 @@ public class IncludeHierarchyTest {
     	assertEquals("parent keeps minimal name",includes.getChildInclude("a"), includes.getInclude("a")); 
     	assertEquals("childs name includes path to parent",includes.getChildInclude("a").getChildInclude("b").getChildInclude("a"), includes.getInclude("a.b.a")); 
     }
-    @Test
+//    @Test
+    // delete -- BuildUnique....
 	public void minimallyUniqueNameForLowerLevelIncludeWhereDuplicateIsNotAParentWillBeFullyQualifiedName() throws Exception {
     	includes.include(net2, "b"); 
     	includes.include(net2, "a").include(net3, "b"); 
-    	assertEquals("minimially unique name for lower level include that is not child will just be fully qualified name",
+    	assertEquals("minimally unique name for lower level include that is not child will just be fully qualified name",
     			includes.getChildInclude("a").getChildInclude("b"), includes.getInclude("top.a.b")); 
     	includes.include(net2, "c").include(net3, "d"); 
     	includes.include(net2, "d"); 
     	assertEquals("same result if nets added in the opposite order",
     			includes.getChildInclude("c").getChildInclude("d"), includes.getInclude("top.c.d")); 
 	}
-    @Test
+//    @Test
+	//TODO delete ....buildunique...
     public void renamesAreReflectedInMinimallyUniqueNames() throws Exception {
     	includes.include(net2, "a").include(net3, "b").include(net4, "c").include(net5, "d").include(net6, "a"); 
     	assertEquals(includes.getChildInclude("a").getChildInclude("b").getChildInclude("c")
