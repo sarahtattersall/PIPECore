@@ -48,7 +48,7 @@ public class RenameMapEntryCommandTest {
 		assertNotEquals(childInclude, includes.getIncludeMap().get("b")); 
 	}
 	@Test
-	public void addsEntryIfPreviousNameDoesntExistAndIncludeDoesntExistUnderAnyNameButReturnsResult() throws Exception {
+	public void entryNotAddedIfPreviousNameDoesntExistAndIncludeDoesntExistUnderAnyNameButReturnsResult() throws Exception {
 		includes.getIncludeMap().put("a", childInclude); 
 		IncludeHierarchy fredInclude = new IncludeHierarchy(net, "fred"); 
 		assertFalse("nothing under this key",includes.getIncludeMap().containsKey("b")); 

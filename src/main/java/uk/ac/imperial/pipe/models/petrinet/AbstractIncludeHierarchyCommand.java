@@ -12,7 +12,7 @@ public abstract class AbstractIncludeHierarchyCommand<T> implements IncludeHiera
 	public static final String EXECUTE_REQUIRES_NON_NULL_INCLUDE_HIERARCHY = "AbstractIncludeHierarchyCommand.execute:  requires non-null include hierarchy.";
 	protected List<String> messages;
 	protected Result<T> result;
-	
+	//TODO constructor takes T.class and any result entries are verified to be of the expected class type.  
 	public AbstractIncludeHierarchyCommand() {
 		result = new Result<T>(); 
 	}

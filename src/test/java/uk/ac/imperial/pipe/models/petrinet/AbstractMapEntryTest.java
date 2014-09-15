@@ -30,12 +30,11 @@ public class AbstractMapEntryTest {
 		checkMapEntries(comment, includes, "includeMapAll", includes.getIncludeMapAll(), expectedEntries, false, false);
 	}
 
-	@SuppressWarnings("unused")
-	private void checkIncludeMapEntries(IncludeHierarchy includes, boolean print, boolean matchName,  ME... expectedEntries) {
+	protected void checkIncludeMapEntries(IncludeHierarchy includes, boolean print, boolean matchName,  ME... expectedEntries) {
 		checkIncludeMapEntries("", includes, print, matchName, expectedEntries);
 	}
 
-	private void checkIncludeMapEntries(String comment, IncludeHierarchy includes, boolean print, boolean matchName, ME... expectedEntries) {
+	protected void checkIncludeMapEntries(String comment, IncludeHierarchy includes, boolean print, boolean matchName, ME... expectedEntries) {
 		checkMapEntries(comment,  includes, "includeMap", includes.getIncludeMap(), expectedEntries,  print, matchName);
 	}
 
