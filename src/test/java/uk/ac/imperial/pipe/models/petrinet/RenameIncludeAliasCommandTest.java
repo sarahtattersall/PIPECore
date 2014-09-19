@@ -43,7 +43,7 @@ public class RenameIncludeAliasCommandTest {
 	@SuppressWarnings("unused")
 	private PetriNet net4, net5, net6 ;
 
-
+	//FIXME move fqn test elsewhere and delete
 	@Before
 	public void setUp() throws Exception {
 		net1 = createSimpleNet(1);

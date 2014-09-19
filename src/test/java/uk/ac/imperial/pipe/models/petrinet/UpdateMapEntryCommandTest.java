@@ -125,4 +125,30 @@ public class UpdateMapEntryCommandTest extends AbstractMapEntryTest {
 		assertFalse(includes.getIncludeMap().containsKey("b")); 
 		assertFalse(includes.getIncludeMap().containsKey("c")); 
 	}
+//	  java.lang.RuntimeException: UpdateMapEntryCommand:  no map entry found in IncludeMapAll in IncludeHierarchy a for IncludeHierarchy with key b.
+//	TargetHierarchy exists under different key: c.  Not renamed.  Probable logic error.
+	@Test
+	public void entryAddedIfForceRequestedWhenPreviousNameDoesntExistButIncludeExistsUnderAnotherNameAndReturnsResult() throws Exception {
+		assertFalse(new UpdateMapEntryCommand<UpdateResultEnum>(IncludeHierarchyMapEnum.INCLUDE,"a", childInclude).execute(includes).hasResult()); 
+		assertFalse("nothing under this key",includes.getIncludeMap().containsKey("b")); 
+		assertTrue("but include exists",includes.getIncludeMap().containsValue(childInclude)); 
+		Result<UpdateResultEnum> result = new UpdateMapEntryCommand<UpdateResultEnum>(IncludeHierarchyMapEnum.INCLUDE,"b", "c", childInclude, true).execute(includes); 
+		assertFalse(result.hasResult()); 
+		checkIncludeMapEntries("renamed even though old name was not correct",
+				includes, false, false, new ME("c", childInclude)); 
+		assertFalse(includes.getIncludeMap().containsKey("a")); 
+		assertFalse(includes.getIncludeMap().containsKey("b")); 
+	}
+	@Test
+	public void entryAddedIfForceRequestedWhenPreviousNameIsNullButIncludeExistsUnderAnotherNameAndReturnsResult() throws Exception {
+		assertFalse(new UpdateMapEntryCommand<UpdateResultEnum>(IncludeHierarchyMapEnum.INCLUDE,"a", childInclude).execute(includes).hasResult()); 
+		assertFalse("nothing under this key",includes.getIncludeMap().containsKey("b")); 
+		assertTrue("but include exists",includes.getIncludeMap().containsValue(childInclude)); 
+		Result<UpdateResultEnum> result = new UpdateMapEntryCommand<UpdateResultEnum>(IncludeHierarchyMapEnum.INCLUDE,null, "c", childInclude, true).execute(includes); 
+		assertFalse(result.hasResult()); 
+		checkIncludeMapEntries("renamed even though old name was null",
+				includes, false, false, new ME("c", childInclude)); 
+		assertFalse(includes.getIncludeMap().containsKey("a")); 
+		assertFalse(includes.getIncludeMap().containsKey("b")); 
+	}
 }

@@ -174,8 +174,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
     	expectedException.expect(RuntimeException.class);
-    	expectedException.expectMessage("AddMapEntryCommand:  map entry for IncludeHierarchy child not added to IncludeMap" +
-    			" in IncludeHierarchy top because another entry already exists with key: child");
+    	expectedException.expectMessage("UpdateMapEntryCommand:  map entry for IncludeHierarchy child not added to IncludeMap in IncludeHierarchy top because another entry already exists with key: child");
     	includes.include(net2, "child");
     	includes.include(net2, "child");
     }

@@ -76,9 +76,6 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	IncludeHierarchy bInclude = addBareInclude(aInclude, net3, "b"); 
     	assertFalse(bInclude.self(new BuildUniqueNameCommand<Object>()).hasResult()); 
     	checkAllIncludesAllMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));
-//    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));
-//    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("b", bInclude));
-//    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
 	}
 	@Test
     public void minimallyUniqueNameForSameNamedChildIsPrefixedWithNamesUpThroughSameNamedParent() throws Exception {
@@ -106,9 +103,8 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	assertFalse(cInclude.renameBare("a").hasResult()); 
 		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), 
 				new ME("a", cInclude), new ME("d", dInclude), new ME("a", abcdaInclude));    	
-		
-		uniqueNameCommand = new BuildUniqueNameCommand<Object>();  
-		cInclude.getRoot().all(uniqueNameCommand); 
+		uniqueNameCommand = new BuildUniqueNameCommand<>();  
+		cInclude.self(uniqueNameCommand); 
 		assertFalse(uniqueNameCommand.getResult().hasResult()); 
     	
 		checkAllIncludesAllMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("a.b.a", cInclude), 
@@ -121,7 +117,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	
     	assertFalse(aInclude.renameBare("x").hasResult()); 
 		uniqueNameCommand = new BuildUniqueNameCommand<Object>();  
-		aInclude.getRoot().all(uniqueNameCommand); 
+		aInclude.self(uniqueNameCommand); 
 		assertFalse(uniqueNameCommand.getResult().hasResult()); 
     	checkAllIncludesAllMapEntries(new ME("top", includes), new ME("x", aInclude), new ME("b", bInclude), new ME("a", cInclude), 
     			new ME("d", dInclude), new ME("a.d.a", abcdaInclude));
@@ -144,89 +140,98 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(abInclude, new ME("top.a.b", abInclude) );
     	IncludeHierarchy cInclude = addIncludeAndBuildUniqueName(includes, net2, "c"); 
     	IncludeHierarchy cdInclude = addIncludeAndBuildUniqueName(cInclude, net3, "d"); 
-    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
+     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
     			new ME("c", cInclude), new ME("d", cdInclude));
     	IncludeHierarchy dInclude = addIncludeAndBuildUniqueName(includes, net2, "d"); 
     	assertEquals("same result if nets added in the opposite order",
     			includes.getChildInclude("c").getChildInclude("d"), includes.getInclude("top.c.d")); 
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
     			new ME("c", cInclude), new ME("top.c.d", cdInclude), new ME("d", dInclude) );
+
     	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude), new ME("top.c.d", cdInclude) );
     	checkIncludeMapAllEntries(dInclude, new ME("d", dInclude) );
     }
-//    @Test
-    //FIXME
-    public void renamesOutOfDirectParentHierarchyGenerateFullyQualifiedNames() throws Exception {
+    @Test
+    public void renameToUnclesNameGeneratesFullyQualifiedNameForNephew() throws Exception {
     	IncludeHierarchy bInclude = addIncludeAndBuildUniqueName(includes, net2, "b"); 
     	IncludeHierarchy aInclude = addIncludeAndBuildUniqueName(includes, net2, "a"); 
     	IncludeHierarchy cInclude = addIncludeAndBuildUniqueName(aInclude, net3, "c"); 
-//    	assertEquals("minimially unique name for lower level include that is not child will just be fully qualified name",
-//    			includes.getChildInclude("a").getChildInclude("b"), includes.getInclude("top.a.b")); 
-//    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("c", cInclude) );
-//    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("c", cInclude) );
-//    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
-//    	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude) );
-    	assertFalse(cInclude.renameBare("b").hasResult()); 
-    	cInclude.buildFullyQualifiedName(); 
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>("c"); 
-    	cInclude.self(uniqueNameCommand); // FIXME  
-//    	cInclude.getRoot().all(uniqueNameCommand); 
-//    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", cInclude) );
-//    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", cInclude) );
-//    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
-//    	checkIncludeMapAllEntries(cInclude, new ME("top.a.b", cInclude) );
-
-    	assertFalse(cInclude.renameBare("c").hasResult()); 
-    	cInclude.buildFullyQualifiedName(); 
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>("top.a.b"); 
-    	cInclude.self(uniqueNameCommand); // FIXME  
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("c", cInclude) );
     	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("c", cInclude) );
     	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
     	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude) );
-//    	expecting: 
-//    		top name top unique name top
-//    		a name a unique name a
-//    		b name b unique name b
-//    		c name c unique name c
-//    		actual map: 
-//    		map: b name b unique name b
-//    		map: c name c unique name c
-//    		map: top.a.b name c unique name c
-//    		map: a name a unique name a
-//    		map: top name top unique name top
+    	assertFalse(cInclude.renameBare("b").hasResult()); 
+    	cInclude.buildFullyQualifiedName(); 
+    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	cInclude.self(uniqueNameCommand);   
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", cInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", cInclude) );
+    	checkIncludeMapAllEntries("uncle unaffected",bInclude, new ME("b", bInclude));
+    	checkIncludeMapAllEntries("nephew's unique name is fully qualified name",cInclude, new ME("top.a.b", cInclude));
+    }
+    @Test
+    public void renameBackToUnusedNameFromFullyQualifiedNameReturnsToMinimalUniqueName() throws Exception {
+    	IncludeHierarchy bInclude = addIncludeAndBuildUniqueName(includes, net2, "b"); 
+    	IncludeHierarchy aInclude = addIncludeAndBuildUniqueName(includes, net2, "a"); 
+    	IncludeHierarchy topabInclude = addIncludeAndBuildUniqueName(aInclude, net3, "b"); 
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", topabInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", topabInclude) );
+    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
+    	checkIncludeMapAllEntries(topabInclude, new ME("top.a.b", topabInclude) );
+    	assertFalse(topabInclude.renameBare("c").hasResult()); 
+//    	topabInclude.buildFullyQualifiedName(); // not strictly needed for this case, since we're moving away from it.  
+    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	topabInclude.self(uniqueNameCommand);   
 
-    	
-    	
-    	// cInclude back to c; all back to start
-    	// bInclude to c; cInclude to top.a.c
-//    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude) );
-//    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", abInclude) );
-//    	checkIncludeMapAllEntries(abInclude, new ME("top.a.b", abInclude) );
-//    	IncludeHierarchy cInclude = addIncludeAndBuildUniqueName(includes, net2, "c"); 
-//    	IncludeHierarchy cdInclude = addIncludeAndBuildUniqueName(cInclude, net3, "d"); 
-//    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
-//    			new ME("c", cInclude), new ME("d", cdInclude));
-//    	IncludeHierarchy dInclude = addIncludeAndBuildUniqueName(includes, net2, "d"); 
-//    	assertEquals("same result if nets added in the opposite order",
-//    			includes.getChildInclude("c").getChildInclude("d"), includes.getInclude("top.c.d")); 
-//    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
-//    			new ME("c", cInclude), new ME("top.c.d", cdInclude), new ME("d", dInclude) );
-//    	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude), new ME("top.c.d", cdInclude) );
-//    	checkIncludeMapAllEntries(dInclude, new ME("d", dInclude) );
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("c", topabInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("c", topabInclude) );
+    	checkIncludeMapAllEntries("uncled still unaffected",bInclude, new ME("b", bInclude));
+    	checkIncludeMapAllEntries("nephew drops fully qualified name, back to c",topabInclude, new ME("c", topabInclude));
+    }
+    @Test
+    public void renameToNephewsNameForcesNephewToSwitchToFullyQualifiedNames() throws Exception {
+    	IncludeHierarchy bInclude = addIncludeAndBuildUniqueName(includes, net2, "b"); 
+    	IncludeHierarchy aInclude = addIncludeAndBuildUniqueName(includes, net2, "a"); 
+    	IncludeHierarchy cInclude = addIncludeAndBuildUniqueName(aInclude, net3, "c"); 
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("c", cInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("c", cInclude) );
+    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
+    	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude) );
+    	assertFalse(bInclude.renameBare("c").hasResult()); 
+    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	bInclude.self(uniqueNameCommand);  
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("c", bInclude), new ME("top.a.c", cInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.c", cInclude) );
+    	checkIncludeMapAllEntries(bInclude, new ME("c", bInclude));
+    	checkIncludeMapAllEntries(cInclude, new ME("top.a.c", cInclude) );
+    }
+    @Test
+    public void renameOfRootLevelToConflictingNameCausesLowerLevelToUseFullyQualifiedName() throws Exception {
+    	IncludeHierarchy aInclude = addIncludeAndBuildUniqueName(includes, net2, "a"); 
+    	IncludeHierarchy bInclude = addIncludeAndBuildUniqueName(aInclude, net3, "b"); 
+    	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("b", bInclude) );
+    	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
+
+    	assertFalse(includes.renameBare("b").hasResult()); 
+    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	includes.self(uniqueNameCommand);   
+    	checkIncludeMapAllEntries(includes, new ME("b", includes), new ME("a", aInclude), new ME("b.a.b", bInclude) );
+    	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("b.a.b", bInclude) );
+    	checkIncludeMapAllEntries(bInclude, new ME("b.a.b", bInclude));
     }
     private IncludeHierarchy addBareInclude(IncludeHierarchy parentInclude, PetriNet net,
 			String alias) {
 		IncludeHierarchy newInclude = new IncludeHierarchy(net, parentInclude, alias); 
-		Result<Object> result = parentInclude.self(new AddMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, newInclude)); 
+		Result<Object> result = parentInclude.self(new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, newInclude)); 
 		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
 		return newInclude; 
 	}
     protected IncludeHierarchy addIncludeAndBuildUniqueName(IncludeHierarchy parentInclude, PetriNet net, String name) {
     	IncludeHierarchy include = addBareInclude(parentInclude, net, name); 
+    	include.buildFullyQualifiedName(); 
     	assertFalse(include.self(new BuildUniqueNameCommand<Object>()).hasResult());
     	return include;
     }
-
 }
 

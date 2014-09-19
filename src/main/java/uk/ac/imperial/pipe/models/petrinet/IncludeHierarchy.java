@@ -169,7 +169,7 @@ public class IncludeHierarchy  {
 	//TODO convert to command
 	protected void registerMinimallyUniqueNameWithParents(String name) {
 //		uniqueName = name; 
-		IncludeHierarchyCommand<Object> addEntryCommand = new AddMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
+		IncludeHierarchyCommand<Object> addEntryCommand = new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
 		Result<Object> result = parents(addEntryCommand); 
 		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
 //		IncludeHierarchy parent = getParent(); 
@@ -184,7 +184,7 @@ public class IncludeHierarchy  {
 //			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
 //		}
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
-		IncludeHierarchyCommand<Object> addEntryCommand = new AddMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy); 
+		IncludeHierarchyCommand<Object> addEntryCommand = new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy); 
 		Result<Object> result = self(addEntryCommand); 
 		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
 		childHierarchy.buildUniqueName(); 
@@ -291,7 +291,7 @@ public class IncludeHierarchy  {
  	}
 
 	protected Result<Object> renameBare(String newname) {
-		Result<Object> result = parent(new RenameMapEntryCommand<Object>(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
+		Result<Object> result = parent(new UpdateMapEntryCommand<Object>(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
 		if (!result.hasResult()) {
 			setName(newname); 
 		}
@@ -600,5 +600,9 @@ public class IncludeHierarchy  {
 
 	protected void setUniqueName(String uniqueName) {
 		this.uniqueName = uniqueName;
+	}
+
+	protected boolean isRoot() {
+		return isRoot;
 	}
 }

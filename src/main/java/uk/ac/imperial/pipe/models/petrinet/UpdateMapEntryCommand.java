@@ -70,8 +70,14 @@ public class UpdateMapEntryCommand<T> extends
 		}
 		else if ((includeForNewAlias == null) && (aliasForExistingInclude != null)) {
 			if (!aliasForExistingInclude.equals(oldname)) {
-				result.addEntry(buildNotRenamedDifferentOldNameMessage(includeHierarchy,aliasForExistingInclude),
-						(T) UpdateResultEnum.INCLUDE_EXISTS_UNDER_DIFFERENT_OLDNAME);
+				if (!force) {
+					result.addEntry(buildNotRenamedDifferentOldNameMessage(includeHierarchy,aliasForExistingInclude),
+							(T) UpdateResultEnum.INCLUDE_EXISTS_UNDER_DIFFERENT_OLDNAME);
+				} 
+				else {
+					map.remove(aliasForExistingInclude);
+					map.put(newname, include);
+				}
 			}
 			else {
 				rename(map); 
