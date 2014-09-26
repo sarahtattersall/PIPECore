@@ -35,7 +35,8 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
 	private PetriNet net4, net5, net6 ;
 
 
-	private IncludeHierarchyCommand<Object> uniqueNameCommand;
+//	private IncludeHierarchyCommand<Object> uniqueNameCommand;
+	private BuildUniqueNameCommand uniqueNameCommand;
 
 
 	@Before
@@ -67,14 +68,14 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries("top doesnt know 'a' yet",includes, new ME("top", includes));
     	checkIncludeMapAllEntries("'a' doesnt know itself yet",aInclude);
     	
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>();  
-    	Result<Object> result = aInclude.self(uniqueNameCommand); 
+    	uniqueNameCommand = new BuildUniqueNameCommand();  
+    	Result<IncludeHierarchy> result = aInclude.self(uniqueNameCommand); 
     	assertFalse(result.hasResult()); 
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude));
     	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude));
 
     	IncludeHierarchy bInclude = addBareInclude(aInclude, net3, "b"); 
-    	assertFalse(bInclude.self(new BuildUniqueNameCommand<Object>()).hasResult()); 
+    	assertFalse(bInclude.self(new BuildUniqueNameCommand()).hasResult()); 
     	checkAllIncludesAllMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));
 	}
 	@Test
@@ -103,7 +104,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	assertFalse(cInclude.renameBare("a").hasResult()); 
 		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), 
 				new ME("a", cInclude), new ME("d", dInclude), new ME("a", abcdaInclude));    	
-		uniqueNameCommand = new BuildUniqueNameCommand<>();  
+		uniqueNameCommand = new BuildUniqueNameCommand();  
 		cInclude.self(uniqueNameCommand); 
 		assertFalse(uniqueNameCommand.getResult().hasResult()); 
     	
@@ -116,7 +117,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     			includes.getInclude("a.b.a.d.a"));
     	
     	assertFalse(aInclude.renameBare("x").hasResult()); 
-		uniqueNameCommand = new BuildUniqueNameCommand<Object>();  
+		uniqueNameCommand = new BuildUniqueNameCommand();  
 		aInclude.self(uniqueNameCommand); 
 		assertFalse(uniqueNameCommand.getResult().hasResult()); 
     	checkAllIncludesAllMapEntries(new ME("top", includes), new ME("x", aInclude), new ME("b", bInclude), new ME("a", cInclude), 
@@ -162,7 +163,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude) );
     	assertFalse(cInclude.renameBare("b").hasResult()); 
     	cInclude.buildFullyQualifiedName(); 
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	uniqueNameCommand = new BuildUniqueNameCommand(); 
     	cInclude.self(uniqueNameCommand);   
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", cInclude) );
     	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", cInclude) );
@@ -180,7 +181,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(topabInclude, new ME("top.a.b", topabInclude) );
     	assertFalse(topabInclude.renameBare("c").hasResult()); 
 //    	topabInclude.buildFullyQualifiedName(); // not strictly needed for this case, since we're moving away from it.  
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	uniqueNameCommand = new BuildUniqueNameCommand(); 
     	topabInclude.self(uniqueNameCommand);   
 
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("c", topabInclude) );
@@ -198,7 +199,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
     	checkIncludeMapAllEntries(cInclude, new ME("c", cInclude) );
     	assertFalse(bInclude.renameBare("c").hasResult()); 
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	uniqueNameCommand = new BuildUniqueNameCommand(); 
     	bInclude.self(uniqueNameCommand);  
     	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("c", bInclude), new ME("top.a.c", cInclude) );
     	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.c", cInclude) );
@@ -214,7 +215,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude));
 
     	assertFalse(includes.renameBare("b").hasResult()); 
-    	uniqueNameCommand = new BuildUniqueNameCommand<Object>(); 
+    	uniqueNameCommand = new BuildUniqueNameCommand(); 
     	includes.self(uniqueNameCommand);   
     	checkIncludeMapAllEntries(includes, new ME("b", includes), new ME("a", aInclude), new ME("b.a.b", bInclude) );
     	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("b.a.b", bInclude) );
@@ -230,7 +231,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     protected IncludeHierarchy addIncludeAndBuildUniqueName(IncludeHierarchy parentInclude, PetriNet net, String name) {
     	IncludeHierarchy include = addBareInclude(parentInclude, net, name); 
     	include.buildFullyQualifiedName(); 
-    	assertFalse(include.self(new BuildUniqueNameCommand<Object>()).hasResult());
+    	assertFalse(include.self(new BuildUniqueNameCommand()).hasResult());
     	return include;
     }
 }

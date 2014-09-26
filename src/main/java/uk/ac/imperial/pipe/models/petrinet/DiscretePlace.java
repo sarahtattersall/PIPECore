@@ -403,7 +403,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	public boolean isInInterface() {
     	return inInterface;
     }
-	private void setInInterface(boolean inInterface) {
+	protected void setInInterface(boolean inInterface) {
     	this.inInterface = inInterface;
     }
     
@@ -421,11 +421,6 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		}
 	}
 
-	@Override
-	public InterfacePlace buildInterfacePlace() {
-		setInInterface(true); 
-		return new DiscreteInterfacePlace(this);
-	}
 
 
 }

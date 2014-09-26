@@ -69,8 +69,4 @@ public interface Place extends Connectable, PropertyChangeListener {
      */
 	public  boolean isInInterface();
 
-	/**
-	 * @return an InterfacePlace corresponding to this place
-	 */
-	public InterfacePlace buildInterfacePlace();
 }

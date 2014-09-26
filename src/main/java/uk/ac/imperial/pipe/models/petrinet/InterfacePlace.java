@@ -3,11 +3,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 public interface InterfacePlace extends Place {
 
-	public static final String interfaceSuffix = "-I";
-
-	public String getFullyQualifiedPrefix();
-
-	public void setFullyQualifiedName(String fullyQualifiedName);
 	/**
 	 * 
 	 * @return the {@link uk.ac.imperial.pipe.models.Place} corresponding to this InterfacePlace
@@ -19,5 +14,25 @@ public interface InterfacePlace extends Place {
 	 * @param status
 	 */
 	public void setStatus(InterfacePlaceStatus status);
+	public InterfacePlaceStatus getStatus();
+
+	public void setAwayAlias(String alias);
+
+	public void setHomeAlias(String alias);
+	
+	/**
+	 * When true, this InterfacePlace has been added to the current PetriNet, and has status {@link InterfacePlaceStatusInUse} 
+	 * When false, this InterfacePlace is not part of the current PetriNet, and has status {@link InterfacePlaceStatusAvailable}
+	 * Throws {@link IllegalStateException} if current status is {@link InterfacePlaceStatusHome}; this indicates a logic error. If in doubt,
+	 * test the status using {@link #canUse()}. 
+	 * @see InterfacePlaceStatus 
+	 * @param inUse
+	 */
+	public boolean canUse();
+	public boolean use();
+
+	public boolean canRemove();
+	public boolean remove();
+
 
 }

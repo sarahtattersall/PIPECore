@@ -18,9 +18,20 @@ public class AddInterfacePlaceCommandTest {
 	@Test
 	public void interfacePlaceAddedToInitialHierarchy() throws Exception {
 		Place p0 = new DiscretePlace("P0"); 
-		command = new AddInterfacePlaceCommand<Place>(p0, InterfacePlaceStatusEnum.HOME); 
+		command = new AddInterfacePlaceCommand<Place>(p0, new IncludeHierarchy(new PetriNet(), "top")); 
 		command.execute(mockHierarchy);
 		verify(mockHierarchy).addInterfacePlaceToMap(any(InterfacePlace.class)); 
 	}
+	@Test
+	public void namedWithUniqueNamesOfSourceAndTargetIncludesPlusPlace() throws Exception {
+		
+	}
+	@Test
+	public void hasHomeStatusInSourceIncludeAndAvailableStatusElsewhere() throws Exception {
 
+	}
+	@Test
+	public void addedToOtherIncludesAsDefinedByAccessScope() throws Exception {
+
+	}
 }

@@ -4,10 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,6 +29,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
@@ -171,6 +178,99 @@ public class ExecutablePetriNetTest {
 	  	assertEquals("source PN component ids unaffected",
 	  			"P0", net.getComponent("P0", Place.class).getId()); 
 	  	assertEquals("P1", net2.getComponent("P1", Place.class).getId()); 
+	}
+    protected PetriNet buildNet1() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).
+    					and(AnImmediateTransition.withId("T0")).and(
+    					AnImmediateTransition.withId("T1")).
+    					andFinally(ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+    	return net; 
+    }
+    protected PetriNet buildNet2() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+    					APlace.withId("P1")).and(APlace.withId("P2")).and(APlace.withId("P3")).and(
+    					AnImmediateTransition.withId("T0")).and(
+    					AnImmediateTransition.withId("T1")).and(
+    					AnImmediateTransition.withId("T2")).and(
+    					AnImmediateTransition.withId("T3")).and(
+    					ANormalArc.withSource("P1").andTarget("T2")).and(								
+    					ANormalArc.withSource("T2").andTarget("P2")).andFinally(								
+    					ANormalArc.withSource("T3").andTarget("P3").with("#(P3)", "Default").token());
+    	return net; 
+    }
+    //TODO break this into multiple tests 
+    @Test
+	public void convertsInterfacePlaceArcsToArcsToFromSourcePlace() throws Exception {
+    	net = buildNet1();
+    	net.setName(new NormalPetriNetName("net")); 
+    	net2 = buildNet2();
+    	IncludeHierarchy includes = new IncludeHierarchy(net, "top");
+    	includes.include(net2, "a");  
+    	net.setIncludesForTesting(includes);
+		executablePetriNet = net.getExecutablePetriNet(); 
+		assertEquals(5,executablePetriNet.getPlaces().size()); 
+		assertEquals(6,executablePetriNet.getTransitions().size()); 
+		assertEquals(4,executablePetriNet.getArcs().size()); 
+		assertEquals(1, includes.getPetriNet().getPlaces().size()); 
+		assertEquals(1, includes.getPetriNet().getArcs().size()); 
+		assertEquals(4, includes.getInclude("a").getPetriNet().getPlaces().size()); 
+		assertEquals(3, includes.getInclude("a").getPetriNet().getArcs().size()); 
+		Place originP1 = net2.getComponent("P1", Place.class); 
+		Place originP2 = net2.getComponent("P2", Place.class); 
+		Place originP3 = net2.getComponent("P3", Place.class); 
+		includes.getInclude("a").addToInterface(originP1); 
+		includes.getInclude("a").addToInterface(originP2); 
+		includes.getInclude("a").addToInterface(originP3); 
+		assertTrue(includes.getInterfacePlace("top..a.P1").getStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInterfacePlace("top..a.P2").getStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInterfacePlace("top..a.P3").getStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInclude("a").getInterfacePlace("a.P1").getStatus() instanceof InterfacePlaceStatusHome); 
+		includes.useInterfacePlace("top..a.P1"); 
+		includes.useInterfacePlace("top..a.P2"); 
+		assertTrue(includes.getInterfacePlace("top..a.P1").getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(includes.getInterfacePlace("top..a.P2").getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertFalse("didn't use it, so still available",
+				includes.getInterfacePlace("top..a.P3").getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertEquals(5,executablePetriNet.getPlaces().size()); 
+		InterfacePlace topIP1 = includes.getInterfacePlace("top..a.P1"); 
+		InterfacePlace topIP2 = includes.getInterfacePlace("top..a.P2"); 
+		Transition topT1 = net.getComponent("T1", Transition.class);
+		assertEquals(4,executablePetriNet.getArcs().size()); 
+        InboundArc arcIn = new InboundNormalArc(topIP1, topT1, new HashMap<String, String>());
+        OutboundArc arcOut = new OutboundNormalArc(topT1, topIP2, new HashMap<String, String>());
+        assertEquals(1, includes.getPetriNet().getArcs().size()); 
+        net.add(arcIn); 
+        net.add(arcOut); 
+        assertEquals(3, includes.getPetriNet().getArcs().size()); 
+        assertEquals(6,executablePetriNet.getArcs().size()); 
+        assertEquals(5,executablePetriNet.getPlaces().size()); 
+        checkPlaces("top.P0", "top.a.P0", "top.a.P1", "top.a.P2", "top.a.P3"); 
+        OutboundArc exArcIn = executablePetriNet.getComponent("top.T1 TO top.a.P2", OutboundArc.class);
+        InboundArc exArcOut = executablePetriNet.getComponent("top.a.P1 TO top.T1", InboundArc.class);
+        originP2.setId("top.a.P2"); 
+        originP1.setId("top.a.P1"); 
+        assertEquals(originP2, exArcIn.getTarget());
+        assertEquals(originP1, exArcOut.getSource());
+        expectInterfacePlaceArcNotFound("top.T1 TO top.a..P2", OutboundArc.class);  
+        expectInterfacePlaceArcNotFound("top.a..P1 TO top.T1", InboundArc.class);  
+	}
+	private void checkPlaces(String... places) {
+		for (int i = 0; i < places.length; i++) {
+			try {
+				assertEquals(places[i], executablePetriNet.getComponent(places[i], Place.class).getId());
+			} catch (PetriNetComponentNotFoundException e) {
+				e.printStackTrace();
+			} 
+		}
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	protected void expectInterfacePlaceArcNotFound(String id, Class clazz) {
+		try {
+			executablePetriNet.getComponent(id, clazz);
+			fail("should throw"); 
+		} 
+		catch (PetriNetComponentNotFoundException e) {
+		}
 	}
 	protected PetriNet buildTestNet() {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(

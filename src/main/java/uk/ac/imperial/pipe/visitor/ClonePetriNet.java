@@ -1,17 +1,24 @@
 package uk.ac.imperial.pipe.visitor;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Annotation;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
@@ -19,6 +26,7 @@ import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
+import uk.ac.imperial.pipe.models.petrinet.InterfacePlace;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -81,14 +89,27 @@ public final class ClonePetriNet {
 	 */
 	private IncludeHierarchy currentIncludeHierarchy;
 
+	private List<InterfacePlace> interfacePlaces;
+
+	private Map<String, Place> pendingPlaces = new HashMap<>();
+	
+	protected static ClonePetriNet cloneInstance;
+
+	private List<InboundArc> convertedInboundArcs;
+
+	private List<OutboundArc> convertedOutboundArcs;
+
+	private List<Place> pendingPlacesToDelete = new ArrayList<>(); 
+
 	/**
 	 *
 	 * @param petriNet
 	 * @return  cloned Petri net
 	 */
 	public static PetriNet clone(PetriNet petriNet) {
-		ClonePetriNet clone = new ClonePetriNet(petriNet);
-		return clone.clonePetriNet();
+//		ClonePetriNet clone = new ClonePetriNet(petriNet);
+		cloneInstance = new ClonePetriNet(petriNet);
+		return cloneInstance.clonePetriNet();
 	}
 	/**
 	 * Rebuilds an {@link ExecutablePetriNet} from the set of {@link PetriNet} defined in its {@link IncludeHierarchy}.
@@ -110,8 +131,10 @@ public final class ClonePetriNet {
 	 * @param targetExecutablePetriNet
 	 */
 	public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
-		ClonePetriNet clone = new ClonePetriNet(targetExecutablePetriNet);
-		clone.clonePetriNetToExecutablePetriNet();
+//		ClonePetriNet clone = new ClonePetriNet(targetExecutablePetriNet);
+//		clone.clonePetriNetToExecutablePetriNet();
+		cloneInstance = new ClonePetriNet(targetExecutablePetriNet);
+		cloneInstance.clonePetriNetToExecutablePetriNet();
 	}
     /**
      * private constructor
@@ -138,6 +161,7 @@ public final class ClonePetriNet {
      * and adding each component to the new collection in the ExecutablePetriNet.   
      */
     private void clonePetriNetToExecutablePetriNet() {
+    	buildPendingPlacesForInterfacePlaceConversion(); 
     	IncludeIterator iterator = includeHierarchy.iterator(); 
     	currentIncludeHierarchy = null; 
     	while (iterator.hasNext()) {
@@ -145,6 +169,21 @@ public final class ClonePetriNet {
     		this.petriNet = currentIncludeHierarchy.getPetriNet(); 
     		visitAllComponents();
     	}
+    	replaceInterfacePlacesWithOriginalPlaces();
+	}
+	private void buildPendingPlacesForInterfacePlaceConversion() {
+		IncludeIterator iterator = includeHierarchy.iterator(); 
+		IncludeHierarchy include = null; 
+		AbstractPetriNet net = null; 
+		while (iterator.hasNext()) {
+			include = iterator.next();  
+			net = include.getPetriNet(); 
+			for (Place place : net.getPlaces()) {
+				if (place instanceof InterfacePlace) {
+					pendingPlaces.put(place.getId(), ((InterfacePlace) place).getPlace() ); 
+				}
+			}
+		}
 	}
 	/**
      *
@@ -178,7 +217,6 @@ public final class ClonePetriNet {
         for (Place place : petriNet.getPlaces()) {
             visit(place);
         }
-
         for (Transition transition : petriNet.getTransitions()) {
             visit(transition);
         }
@@ -251,6 +289,8 @@ public final class ClonePetriNet {
 
     /**
      * Clones and adds the new place to the new Petri net
+     * 
+     * Ignores {@link InterfacePlace}s when creating an {@link ExecutablePetriNet} 
      * @param place original place
      */
     public void visit(Place place) {
@@ -261,16 +301,36 @@ public final class ClonePetriNet {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
         Place newPlace = cloner.cloned;
-        if (refreshingExecutablePetriNet) prefixIdWithQualifiedName(newPlace); 
+        if (refreshingExecutablePetriNet) {
+        	if (!(place instanceof InterfacePlace)) {
+        		prefixIdWithQualifiedName(newPlace); 
+        	}
+        }
         for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
             newPlace.setTokenCount(entry.getKey(), entry.getValue());
         }
         newPetriNet.addPlace(newPlace);
-        if (refreshingExecutablePetriNet) newPlace.addPropertyChangeListener(place); 
+        if (refreshingExecutablePetriNet) {
+        	updatePendingPlaces(place, newPlace); 
+        	updatePendingPlacesToDelete(place, newPlace);
+        	newPlace.addPropertyChangeListener(place); 
+        }
         places.put(place.getId(), newPlace);
     }
+	protected void updatePendingPlacesToDelete(Place place, Place newPlace) {
+		if (place instanceof InterfacePlace) {
+			pendingPlacesToDelete.add(newPlace); 
+		}
+	}
 
-    /**
+    private void updatePendingPlaces(Place place, Place newPlace) {
+    	for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
+    		if (entry.getValue().equals(place)) {
+    			pendingPlaces.put(entry.getKey(), newPlace); 
+    		}
+		}
+	}
+	/**
      * Clones and adds the new transition to the new Petri net
      * @param transition original transition
      */
@@ -296,8 +356,19 @@ public final class ClonePetriNet {
      * @param arc original inbound arc
      */
     public void visit(InboundArc arc) {
-        Place source = places.get(arc.getSource().getId());
-        Transition target = transitions.get(arc.getTarget().getId());
+        InboundArc newArc = buildInboundArc(arc, places.get(arc.getSource().getId()), transitions.get(arc.getTarget().getId()));
+        if (refreshingExecutablePetriNet) {
+        	rebuildNameWithQualifiedNames(newArc); 
+        }
+        newPetriNet.addArc(newArc);
+    }
+//	private void printArc(String comment, Arc arc) {
+//		Connectable source = arc.getSource(); 
+//		Connectable target = arc.getTarget(); 
+//		System.out.println(comment+arc.getId()+" source: "+source.getClass().getName()+": "+source.getId()+" target: "+
+//				target.getClass().getName()+": "+target.getId());
+//	}
+	protected InboundArc buildInboundArc(InboundArc arc, Place source, Transition target) {
         InboundArc newArc;
         switch (arc.getType()) {
             case INHIBITOR:
@@ -311,27 +382,29 @@ public final class ClonePetriNet {
             newArc.addIntermediatePoint(arcPoints.get(i));
         }
         newArc.setId(arc.getId());
-        if (refreshingExecutablePetriNet) prefixIdWithQualifiedName(newArc); 
-        newPetriNet.addArc(newArc);
-    }
+        return newArc; 
+	}
 
     /**
      * Clones and adds the new outbound arc to the new Petri net
      * @param arc original outbound arc
      */
     public void visit(OutboundArc arc) {
-        Place target = places.get(arc.getTarget().getId());
-        Transition source = transitions.get(arc.getSource().getId());
-
+        OutboundArc newArc = buildOutboundArc(arc, transitions.get(arc.getSource().getId()), places.get(arc.getTarget().getId()));
+        if (refreshingExecutablePetriNet) {
+        	rebuildNameWithQualifiedNames(newArc); 
+        }
+        newPetriNet.addArc(newArc);
+    }
+	protected OutboundArc buildOutboundArc(OutboundArc arc, Transition source, Place target) {
         OutboundArc newArc = new OutboundNormalArc(source, target, arc.getTokenWeights());
         List<ArcPoint> arcPoints = arc.getArcPoints();
         for (int i = 1; i < arcPoints.size() - 1; i++) {
             newArc.addIntermediatePoint(arcPoints.get(i));
         }
         newArc.setId(arc.getId());
-        if (refreshingExecutablePetriNet) prefixIdWithQualifiedName(newArc); 
-        newPetriNet.addArc(newArc);
-    }
+		return newArc;
+	}
     /**
      * Create a unique name for the {@link PetriNetComponent} by prefixing it with the 
      * fully qualified name from the {@link IncludeHierarchy} being currently processed.  
@@ -343,6 +416,87 @@ public final class ClonePetriNet {
     	component.setId(currentIncludeHierarchy.
     			getFullyQualifiedNameAsPrefix()+component.getId());
     }
+    private void rebuildNameWithQualifiedNames(Arc newArc) {
+    	newArc.setId(newArc.getSource().getId() + " TO " + newArc.getTarget().getId());
+    }
+	private void replaceInterfacePlacesWithOriginalPlaces() {
+		convertInterfacePlaceArcsToOriginalPlaceArcs();
+		Map<String, Place> newPlaceMap = newPetriNet.getMapForClass(Place.class);  
+		for (Place place : pendingPlacesToDelete) {
+			newPlaceMap.remove(place.getId());
+		}
+	}
+
+	private void convertInterfacePlaceArcsToOriginalPlaceArcs() {
+		Map<String, InboundArc> inboundArcMap = newPetriNet.getMapForClass(InboundArc.class);
+		Map<String, OutboundArc> outboundArcMap = newPetriNet.getMapForClass(OutboundArc.class);
+		Map<String, InboundArc> inboundCleanup = new HashMap<>(); 
+		Map<String, OutboundArc> outboundCleanup = new HashMap<>();
+		convertedInboundArcs = new ArrayList<>(); 
+		convertedOutboundArcs = new ArrayList<>(); 
+		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
+			for (InboundArc inboundArc : inboundArcMap.values()) {
+				if (inboundArc.getSource().getId().equals(entry.getKey())) {
+					convertInboundArcSourceToOriginalPlace(inboundCleanup, inboundArc, entry.getValue());
+				}
+			}
+			for (OutboundArc outboundArc : outboundArcMap.values()) {
+				if (outboundArc.getTarget().getId().equals(entry.getKey())) {
+					convertOutboundArcTargetToOriginalPlace(outboundCleanup, outboundArc, entry.getValue());
+				}
+			}
+		}
+		for (OutboundArc arc : outboundCleanup.values()) {
+			newPetriNet.removeArc(arc); 
+		}
+		for (InboundArc arc : inboundCleanup.values()) {
+			newPetriNet.removeArc(arc); 
+		}
+//		for (String arcId : inboundCleanup) {
+//			
+//			inboundArcMap.remove(arcId); 
+//		}
+//		for (String arcId : outboundCleanup) {
+//			outboundArcMap.remove(arcId); 
+//
+//		}
+		for (InboundArc newArc : convertedInboundArcs) {
+			newPetriNet.addArc(newArc);
+		}
+		for (OutboundArc newArc : convertedOutboundArcs) {
+			newPetriNet.addArc(newArc);
+		}
+		
+	}
+	private void convertInboundArcSourceToOriginalPlace(Map<String, InboundArc> inboundCleanup, 
+			InboundArc inboundArc, Place source) {
+		Transition target = null;  
+		try {
+			target = newPetriNet.getComponent(inboundArc.getTarget().getId(), Transition.class);
+		} catch (PetriNetComponentNotFoundException e) {
+			e.printStackTrace();
+		} 
+		InboundArc newArc = buildInboundArc(inboundArc, source, target);
+		rebuildNameWithQualifiedNames(newArc); 
+        convertedInboundArcs.add(newArc);
+        inboundCleanup.put(inboundArc.getId(), inboundArc); 
+	}
+	
+
+	private void convertOutboundArcTargetToOriginalPlace(Map<String, OutboundArc> outboundCleanup, 
+			OutboundArc outboundArc, Place target) {
+		Transition source = null; 
+		try {
+			source = newPetriNet.getComponent(outboundArc.getSource().getId(), Transition.class);
+		} catch (PetriNetComponentNotFoundException e) {
+			e.printStackTrace();
+		}
+		OutboundArc newArc = buildOutboundArc(outboundArc, source, target); 
+		rebuildNameWithQualifiedNames(newArc); 
+		convertedOutboundArcs.add(newArc);
+		outboundCleanup.put(outboundArc.getId(), outboundArc); 
+	}
+
 
     /**
      * Used to clone a name into the new Petri net
@@ -367,4 +521,11 @@ public final class ClonePetriNet {
             newPetriNet.setName(new NormalPetriNetName(name.getName()));
         }
     }
+
+	protected static ClonePetriNet getInstanceForTesting() {
+		return cloneInstance;
+	}
+	protected Map<String, Place> getPendingPlacesForInterfacePlaceConversion() {
+		return pendingPlaces;
+	}
 }

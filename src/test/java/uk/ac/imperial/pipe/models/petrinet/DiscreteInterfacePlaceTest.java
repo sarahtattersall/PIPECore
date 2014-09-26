@@ -31,21 +31,16 @@ public class DiscreteInterfacePlaceTest {
 
     DiscretePlace place;
 
-	private DiscreteInterfacePlace discreteInterfacePlace;
+	private InterfacePlace discreteInterfacePlace;
 
-	private DiscreteInterfacePlace discreteInterfacePlace2;
+	private InterfacePlace discreteInterfacePlace2;
 
     @Before
     public void setUp() {
         place = new DiscretePlace("test", "test");
-        discreteInterfacePlace = new DiscreteInterfacePlace(place);
+        discreteInterfacePlace = new DiscreteInterfacePlace(place,"home", "away");
     }
     //TODO should look different in GUI
-    @Test
-    public void placeIdAndNameAreSuffixedToIndicateInterface() {
-    	assertEquals("test-I", discreteInterfacePlace.getId()); 
-    	assertEquals("test-I", discreteInterfacePlace.getName()); 
-    }
     @Test
 	public void mirrorsTokenCountOfSourcePlace() throws Exception {
     	place.setTokenCount("Default", 3); 
@@ -58,22 +53,68 @@ public class DiscreteInterfacePlaceTest {
     }
     @Test
     public void multipleInterfacePlacesMirrorSource() throws Exception {
-    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place);
+    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place,"","");
     	place.setTokenCount("Default", 4); 
     	assertEquals(4, discreteInterfacePlace.getTokenCount("Default")); 
     	assertEquals(4, discreteInterfacePlace2.getTokenCount("Default")); 
     }
     @Test
     public void oneInterfacePlaceSendsCountsToSourceAndOtherInterfacePlaces() throws Exception {
-    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place);
+    	discreteInterfacePlace2 = new DiscreteInterfacePlace(place, "","");
     	discreteInterfacePlace2.setTokenCount("Default", 1); 
     	assertEquals(1, place.getTokenCount("Default")); 
     	assertEquals(1, discreteInterfacePlace.getTokenCount("Default")); 
     }
+//    @Test
+//	public void interfacePlaceCantBeBuiltFromAnotherInterfacePlace() throws Exception {
+//    	exception.expect(IllegalArgumentException.class);
+//    	exception.expectMessage("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
+//    	discreteInterfacePlace2 = new DiscreteInterfacePlace(discreteInterfacePlace,"","");
+//	}
+    //TODO consider whether use(false) is same as remove()
     @Test
-	public void interfacePlaceCantBeBuiltFromAnotherInterfacePlace() throws Exception {
-    	exception.expect(IllegalArgumentException.class);
-    	exception.expectMessage("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
-    	discreteInterfacePlace2 = new DiscreteInterfacePlace(discreteInterfacePlace);
+	public void useInterfacePlaceTogglesItsStatus() throws Exception {
+    	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.AVAILABLE, "home", "away");
+    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(discreteInterfacePlace.canUse()); 
+    	discreteInterfacePlace.use(); 
+    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertTrue(discreteInterfacePlace.canRemove()); 
+    	discreteInterfacePlace.remove(); 
+    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
 	}
+    @Test
+	public void homeInterfacePlaceCantBeUsed() throws Exception {
+    	//TODO throw or just return false? 
+//    	exception.expect(IllegalStateException.class); 
+//    	exception.expectMessage("InterfacePlaceStatusHome: interface place cannot be used in the petri net that is the home of its underlying place.");
+    	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.HOME, "home");
+    	assertFalse("can't use home IP",discreteInterfacePlace.canUse()); 
+    	assertFalse(discreteInterfacePlace.use()); 
+	}
+//    @Test
+	public void homeStatusImpliesNoAwayAlias() throws Exception {
+    	//TODO homeStatusImpliesNoAwayAlias
+	}
+//    @Test
+    public void awayStatusImpliesNotNullAwayAlias() throws Exception {
+    	//TODO awayStatusImpliesNotNullAwayAlias
+    }
+    @Test
+	public void eitherHomeOrAwayIncludeNameCanBeChanged() throws Exception {
+    	discreteInterfacePlace = new DiscreteInterfacePlace(place, "home", "away");
+    	assertEquals("away..home.test", discreteInterfacePlace.getId()); 
+    	assertEquals("away..home.test", discreteInterfacePlace.getName()); 
+    	discreteInterfacePlace.setHomeAlias("x"); 
+    	assertEquals("away..x.test", discreteInterfacePlace.getId()); 
+    	discreteInterfacePlace.setAwayAlias("y"); 
+    	assertEquals("y..x.test", discreteInterfacePlace.getId()); 
+    	assertEquals("y..x.test", discreteInterfacePlace.getName()); 
+	}
+	// interfaceplacetest:  added to a PN; marking follows other IP; participates in EPN 
+//	@Test
+//	public void listensForChangesToSourceAndTargetIncludesAndRenamesAccordingly() throws Exception {
+//
+//	}
+
 }

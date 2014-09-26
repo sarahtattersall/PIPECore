@@ -19,10 +19,15 @@ import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.InterfacePlace;
+import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
+import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.RecursiveIncludeException;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub {
@@ -53,6 +58,11 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 		TEST_NETS.put("testLooping", buildLoopingTestNet()); 
 		TEST_NETS.put("testHierarchy", buildNetWithHierarchy()); 
 		TEST_NETS.put("testLoopingHierarchy", buildNetWithLoopingHierarchy()); 
+		try {
+			TEST_NETS.put("testInterfacePlaces", buildNetWithInterfacePlace());
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
 	}
     private static PetriNet buildLoopingTestNet() {
     	return buildNet("P0"); 
@@ -88,6 +98,40 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
                         ANormalArc.withSource("T1").andTarget(place).with("1", "Default").token()); 
 		return net;
 	}
+	private static PetriNet buildNetWithInterfacePlace() throws Exception {
+		PetriNet net = buildNet1();
+		net.setName(new NormalPetriNetName("net")); 
+		PetriNet net2 = buildNet2();
+		IncludeHierarchy includes = new IncludeHierarchy(net, "top");
+		includes.include(net2, "a");  
+		net.setIncludesForTesting(includes);
+		Place originP1 = net2.getComponent("P1", Place.class); 
+		includes.getInclude("a").addToInterface(originP1); 
+		includes.useInterfacePlace("top..a.P1"); 
+		InterfacePlace topIP1 = includes.getInterfacePlace("top..a.P1"); 
+		Transition topT0 = net.getComponent("T0", Transition.class);
+		Map<String,String> tokenweights = new HashMap<String, String>(); 
+		tokenweights.put("Default", "1"); 
+		OutboundArc arcOut = new OutboundNormalArc(topT0, topIP1, tokenweights);
+		net.add(arcOut); 
+		
+		return net;
+	}
+    private static PetriNet buildNet1() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    					and(AnImmediateTransition.withId("T0")).
+    					andFinally(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
+    	return net; 
+    }
+    private static PetriNet buildNet2() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).and(
+    					APlace.withId("P1")).and(APlace.withId("P2")).and(
+    					AnImmediateTransition.withId("T0")).and(
+    					ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
+    					ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token()).andFinally(
+    					ANormalArc.withSource("T0").andTarget("P2").with("1", "Default").token()); 								
+    	return net; 
+    }
 
 	
 	public PetriNetRunner(PetriNet petriNet) {

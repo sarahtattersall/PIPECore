@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class BuildUniqueNameCommand<T> extends AbstractIncludeHierarchyCommand<T> {
+public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<IncludeHierarchy> {
 
 	public static final String BUILD_UNIQUE_NAME = "BuildUniqueNameCommand: "; 
 
@@ -22,13 +22,18 @@ public class BuildUniqueNameCommand<T> extends AbstractIncludeHierarchyCommand<T
 	private BuildUniqueNameCommand(boolean controller) {
 		this.controller = controller; 
 	}
+//	Override
+//	public Result<IncludeHierarchy> execute(
+//			uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy includeHierarchy) {
+//		return null;
+//	}
 	@SuppressWarnings("unchecked")
 	@Override
-	public Result<T> execute(IncludeHierarchy includeHierarchy) {
+	public Result<IncludeHierarchy> execute(IncludeHierarchy includeHierarchy) {
 		if (controller) {
-			BuildUniqueNameCommand<IncludeHierarchy> command = null;  
+			BuildUniqueNameCommand command = null;  
 			while (!finished) {
-				command = new BuildUniqueNameCommand<>(false); 
+				command = new BuildUniqueNameCommand(false); 
 				Result<IncludeHierarchy> buildResult = includeHierarchy.getRoot().all(command); 
 				if (!buildResult.hasResult()) {
 					finished = true; 
@@ -40,7 +45,7 @@ public class BuildUniqueNameCommand<T> extends AbstractIncludeHierarchyCommand<T
 			String newUniqueName = buildUniqueName(); 
 			if (newUniqueName != null) {
 				updateUniqueNameInSelfAndParentsMaps(includeHierarchy, newUniqueName);
-				result.addEntry(newUniqueName, (T) includeHierarchy); 
+				result.addEntry(newUniqueName, includeHierarchy); 
 			}
 		}
 		return result;
@@ -138,162 +143,3 @@ public class BuildUniqueNameCommand<T> extends AbstractIncludeHierarchyCommand<T
 		if (updateResult.hasResult()) throw new RuntimeException(updateResult.getMessage());
 	}
 }
-		
-//		includeHierarchy.initIncludeMapAll(); 
-//		if (conflictName == null) {
-//			updateUniqueNameInSelfAndParentsMaps(includeHierarchy, name);
-//		} 
-//		// build unique name.  if conflict with parent, build minimal. if conflict with uncle, build fqn  
-//		else {
-//			if (this.equals(conflictName)) {
-//				if (!name.equals(includeHierarchy.getUniqueName())) {
-//					System.out.println("here !=");
-//					updateUniqueNameInSelfAndParentsMaps(includeHierarchy, name);
-//				}
-//			}
-//			else if (includeHierarchy.hasParent(conflictName)) {
-//				System.out.println("base");
-//				IncludeHierarchy parent = includeHierarchy.getParent(); 
-//				String tempName = name; 
-//				while (parent != null) {
-//					tempName = parent.getName()+"."+tempName; 
-//					if (parent.equals(conflictName)) {
-//						includeHierarchy.setUniqueName(tempName); 
-//					}
-//					parent = parent.getParent(); 
-//				}
-//				updateUniqueNameInSelfAndParentsMaps(includeHierarchy, includeHierarchy.getUniqueName());
-//			}
-//			else if (conflictName.hasParent(includeHierarchy)) {
-//				System.out.println("here");
-//				// no action required; handled by rename. 
-//			}
-//			else if (includeHierarchy.lowerLevelInHierarchyThanOther(conflictName)) {
-//				System.out.println("there");
-//				updateUniqueNameInSelfAndParentsMaps(includeHierarchy, includeHierarchy.getFullyQualifiedName());
-//			}
-//			else if (includeHierarchy.higherLevelInHierarchyThanOther(conflictName)) {
-//				System.out.println("or there");
-//				includeHierarchy.getRoot().all(this); // start over and the other (lower) guy will use fully qualified name
-//			}
-//		}
-//		includeHierarchy.buildUniqueNameAsPrefix(); 
-//		return result;
-//	}
-
-
-//@Override
-//public Result<T> execute(IncludeHierarchy includeHierarchy) {
-//	init(includeHierarchy); 
-//	conflict = includeHierarchy.getRoot().getIncludeMapAll().get(name); 
-//	String msg = (conflict == null) ? "null conflict " : "conflict UN: "+conflict.getUniqueName()+" conflict name: "+conflict.getName(); 
-//	System.out.println(msg);
-//	includeHierarchy.initIncludeMapAll(); 
-//	if (conflict == null) {
-//		updateUniqueNameInSelfAndParentsMaps(includeHierarchy, name);
-//	} 
-//	// build unique name.  if conflict with parent, build minimal. if conflict with uncle, build fqn  
-//	else {
-//		if (this.equals(conflict)) {
-//			if (!name.equals(includeHierarchy.getUniqueName())) {
-//				System.out.println("here !=");
-//				updateUniqueNameInSelfAndParentsMaps(includeHierarchy, name);
-//			}
-//		}
-//		else if (includeHierarchy.hasParent(conflict)) {
-//			System.out.println("base");
-//			IncludeHierarchy parent = includeHierarchy.getParent(); 
-//			String tempName = name; 
-//			while (parent != null) {
-//				tempName = parent.getName()+"."+tempName; 
-//				if (parent.equals(conflict)) {
-//					includeHierarchy.setUniqueName(tempName); 
-//				}
-//				parent = parent.getParent(); 
-//			}
-//			updateUniqueNameInSelfAndParentsMaps(includeHierarchy, includeHierarchy.getUniqueName());
-//		}
-//		else if (conflict.hasParent(includeHierarchy)) {
-//			System.out.println("here");
-//			// no action required; handled by rename. 
-//		}
-//		else if (includeHierarchy.lowerLevelInHierarchyThanOther(conflict)) {
-//			System.out.println("there");
-//			updateUniqueNameInSelfAndParentsMaps(includeHierarchy, includeHierarchy.getFullyQualifiedName());
-//		}
-//		else if (includeHierarchy.higherLevelInHierarchyThanOther(conflict)) {
-//			System.out.println("or there");
-//			includeHierarchy.getRoot().all(this); // start over and the other (lower) guy will use fully qualified name
-//		}
-//	}
-//	includeHierarchy.buildUniqueNameAsPrefix(); 
-//	return result;
-//}
-////	IncludeHierarchy bInclude = addIncludeAndBuildUniqueName(includes, net2, "b"); 
-////	IncludeHierarchy aInclude = addIncludeAndBuildUniqueName(includes, net2, "a"); 
-////	IncludeHierarchy abInclude = addIncludeAndBuildUniqueName(aInclude, net3, "b"); 
-////	assertEquals("minimially unique name for lower level include that is not child will just be fully qualified name",
-////			includes.getChildInclude("a").getChildInclude("b"), includes.getInclude("top.a.b")); 
-////	System.out.println("first");
-////	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude) );
-//////	checkIncludeMapAllEntries(bInclude, new ME("b", bInclude) );
-//////	checkIncludeMapAllEntries(aInclude, new ME("a", aInclude), new ME("top.a.b", abInclude) );
-//////	checkIncludeMapAllEntries(abInclude, new ME("top.a.b", abInclude) );
-////	IncludeHierarchy cInclude = addIncludeAndBuildUniqueName(includes, net2, "c"); 
-////	IncludeHierarchy cdInclude = addIncludeAndBuildUniqueName(cInclude, net3, "d"); 
-////	System.out.println("second");
-////	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
-////			new ME("c", cInclude), new ME("d", cdInclude));
-////	IncludeHierarchy dInclude = addIncludeAndBuildUniqueName(includes, net2, "d"); 
-////	assertEquals("same result if nets added in the opposite order",
-////			includes.getChildInclude("c").getChildInclude("d"), includes.getInclude("top.c.d")); 
-////	System.out.println("third");
-////	checkIncludeMapAllEntries(includes, new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude), new ME("top.a.b", abInclude),
-////			new ME("c", cInclude), new ME("top.c.d", cdInclude), new ME("d", dInclude) );
-////	there
-////	first
-////	expecting: 
-////	top name top unique name top
-////	a name a unique name a
-////	b name b unique name b
-////	top.a.b name b unique name top.a.b
-////	actual map: 
-////	map: b name b unique name b
-////	map: top.a.b name b unique name top.a.b
-////	map: a name a unique name a
-////	map: top name top unique name top
-////	second
-////	expecting: 
-////	top name top unique name top
-////	a name a unique name a
-////	b name b unique name b
-////	top.a.b name b unique name top.a.b
-////	c name c unique name c
-////	d name d unique name d
-////	actual map: 
-////	map: d name d unique name d
-////	map: b name b unique name b
-////	map: c name c unique name c
-////	map: top.a.b name b unique name top.a.b
-////	map: a name a unique name a
-////	map: top name top unique name top
-////	or there
-////  d is higher than c.d, forces all
-////	there
-////	there
-////	third
-////	expecting: 
-////	top name top unique name top
-////	a name a unique name a
-////	b name b unique name b
-////	top.a.b name b unique name top.a.b
-////	c name c unique name c
-////	top.c.d name d unique name top.c.d
-////	d name d unique name d
-////	actual map: 
-////	map: d name d unique name d
-////	map: b name b unique name b
-////	map: c name c unique name c
-////	map: top.a.b name b unique name top.a.b
-////	map: a name a unique name a
-////	map: top.c.d name d unique name top.c.d

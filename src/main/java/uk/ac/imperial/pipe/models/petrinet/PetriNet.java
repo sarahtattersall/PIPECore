@@ -37,11 +37,6 @@ public class PetriNet extends AbstractPetriNet {
     public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
 
     /**
-     * Message fired when an arc is deleted from the Petri net
-     */
-    public static final String DELETE_ARC_CHANGE_MESSAGE = "deleteArc";
-
-    /**
      * Message fired when a transition is deleted from the Petri net
      */
     public static final String DELETE_TRANSITION_CHANGE_MESSAGE = "deleteTransition";
@@ -204,7 +199,17 @@ public class PetriNet extends AbstractPetriNet {
             addAndNotifyListeners(place, places, NEW_PLACE_CHANGE_MESSAGE);
         }
     }
-
+	@Override
+	public void removeArc(InboundArc arc) {
+		super.removeArc(arc);
+	    changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
+	}
+	@Override
+	public void removeArc(OutboundArc arc) {
+		super.removeArc(arc);
+		changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
+	}
+	
 	private void setInitialTokenCountsToZero(Place place) {
 		for (Token token: tokens.values()) {
 			if (!place.getTokenCounts().containsKey(token.getId())) {
@@ -284,17 +289,6 @@ public class PetriNet extends AbstractPetriNet {
     }
 
     /**
-     * Removes the specified arc from the Petri net
-     *
-     * @param arc to remove from the Petri net
-     */
-    public void removeArc(InboundArc arc) {
-        inboundArcs.remove(arc.getId());
-        transitionInboundArcs.remove(arc.getTarget().getId(), arc);
-        changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
-    }
-
-    /**
      * Adds transition to the Petri net
      *
      * @param transition transition to add to the Petri net
@@ -322,17 +316,6 @@ public class PetriNet extends AbstractPetriNet {
         transitionOutboundArcs.removeAll(transition.getId());
         transitionInboundArcs.removeAll(transition.getId());
         changeSupport.firePropertyChange(DELETE_TRANSITION_CHANGE_MESSAGE, transition, null);
-    }
-
-    /**
-     * Removes the specified arc from the Petri net
-     *
-     * @param arc to remove from the Petri net
-     */
-    public void removeArc(OutboundArc arc) {
-        outboundArcs.remove(arc.getId());
-        transitionOutboundArcs.remove(arc.getSource().getId(), arc);
-        changeSupport.firePropertyChange(DELETE_ARC_CHANGE_MESSAGE, arc, null);
     }
 
     /**

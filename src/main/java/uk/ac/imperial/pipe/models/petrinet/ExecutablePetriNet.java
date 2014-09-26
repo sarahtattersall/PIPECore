@@ -4,8 +4,12 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
@@ -41,7 +45,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     /**
      * Functional weight parser
      */
-    private FunctionalWeightParser<Double> functionalWeightParser; 
+    private FunctionalWeightParser<Double> functionalWeightParser;
+	private List<InterfacePlace> interfacePlaces; 
 
     /**
      * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate 
@@ -78,6 +83,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			refreshRequired = false; 
 		}
 	}
+
 	private void refreshIncludeHierarchyComponents() {
 		ClonePetriNet.refreshFromIncludeHierarchy(this);
 	}
@@ -91,6 +97,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		annotations = new HashMap<>();
 		transitionOutboundArcs = HashMultimap.create();
 		transitionInboundArcs = HashMultimap.create();
+		
 		
 		componentMaps = new HashMap<>();
 		initialiseIdMap(); 

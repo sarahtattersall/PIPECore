@@ -114,17 +114,8 @@ public class IncludeHierarchy  {
 	}
 
 	protected void buildUniqueName() {
-    	self(new BuildUniqueNameCommand<Object>()); 
-
-//		getIncludeMapAll().put(name, this); 
-//		IncludeHierarchy conflict = getRoot().getIncludeMapAll().get(name);  
-//		if (conflict == null) {
-//			uniqueName = name;
-//			registerMinimallyUniqueNameWithParents(name);
-//		} else {
-//			buildNewNameToDistinguishFromExistingName(conflict);
-//		}
-		buildUniqueNameAsPrefix(); 
+    	self(new BuildUniqueNameCommand()); 
+//		buildUniqueNameAsPrefix(); 
 	}
 
 
@@ -357,7 +348,7 @@ public class IncludeHierarchy  {
 	}
 
 	public Result<Place> addToInterface(Place place) {
-		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, InterfacePlaceStatusEnum.HOME); 
+		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, this); 
 		self(addInterfacePlaceCommand); 
 		return interfacePlaceAccessScope.execute(addInterfacePlaceCommand); 
 	}
@@ -604,5 +595,13 @@ public class IncludeHierarchy  {
 
 	protected boolean isRoot() {
 		return isRoot;
+	}
+
+	public void useInterfacePlace(String id) {
+		InterfacePlace interfacePlace = getInterfacePlace(id); 
+		boolean inuse = interfacePlace.use(); 
+		if (inuse) {
+			getPetriNet().addPlace(interfacePlace); 
+		}
 	}
 }

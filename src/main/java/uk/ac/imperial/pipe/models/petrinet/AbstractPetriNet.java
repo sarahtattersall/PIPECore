@@ -24,6 +24,10 @@ public abstract class AbstractPetriNet  {
 	 */
 	public static final String PETRI_NET_NAME_CHANGE_MESSAGE = "nameChange";
 	/**
+	 * Message fired when an arc is deleted from the Petri net
+	 */
+	public static final String DELETE_ARC_CHANGE_MESSAGE = "deleteArc";
+	/**
 	 * Maps transition id -> transition
 	 */
 	protected  Map<String, Transition> transitions = new HashMap<>();
@@ -365,6 +369,24 @@ public abstract class AbstractPetriNet  {
 	        }
 	    }
 	    return outbound;
+	}
+	/**
+	 * Removes the specified arc from the Petri net
+	 *
+	 * @param arc to remove from the Petri net
+	 */
+	public void removeArc(InboundArc arc) {
+	    inboundArcs.remove(arc.getId());
+	    transitionInboundArcs.remove(arc.getTarget().getId(), arc);
+	}
+	/**
+	 * Removes the specified arc from the Petri net
+	 *
+	 * @param arc to remove from the Petri net
+	 */
+	public void removeArc(OutboundArc arc) {
+        outboundArcs.remove(arc.getId());
+        transitionOutboundArcs.remove(arc.getSource().getId(), arc);
 	}
 }
 

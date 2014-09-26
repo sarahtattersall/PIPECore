@@ -127,6 +127,26 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		fileReader.close(); 
 		assertEquals(4, lines); 
 	}	
+	@Test
+	public void commandLineRunsForInterfacePlaces() throws IOException {
+		PetriNetRunner.setPrintStreamForTesting(print);
+		String[] args = new String[]{"testInterfacePlaces","firingReport.csv","5","123456"}; 
+		PetriNetRunner.main(args);
+		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
+		assertEquals("PetriNetRunner:  executing testInterfacePlaces, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  complete.", reader.readLine());
+		PetriNetRunner.setPrintStreamForTesting(null);
+		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
+		int lines = 0; 
+		String line = fileReader.readLine();
+		while (line != null) {
+			lines++; 
+//			System.out.println(line);
+			line = fileReader.readLine();
+		}
+		fileReader.close(); 
+		assertEquals(4, lines); 
+	}	
 	@After
 	public void tearDown() {
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file

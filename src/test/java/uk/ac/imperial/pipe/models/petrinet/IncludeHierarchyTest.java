@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -51,6 +52,12 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	private IncludeHierarchyCommandScopeEnum all;
 
 	private Map<String, IncludeHierarchy> includeMap;
+
+	private Place placeTop;
+
+	private Place placeA;
+
+	private Place placeB;
 
 	@Before
 	public void setUp() throws Exception {
@@ -287,38 +294,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     public void minimallyUniqueNameForSameNamedChildIsPrefixedWithNamesUpThroughSameNamedParent() throws Exception {
     	includes.include(net2, "a").include(net3, "b").include(net4, "a"); 
     	assertEquals("parent keeps minimal name",includes.getChildInclude("a"), includes.getInclude("a")); 
-    	assertEquals("childs name includes path to parent",includes.getChildInclude("a").getChildInclude("b").getChildInclude("a"), includes.getInclude("a.b.a")); 
-    }
-//    @Test
-    // delete -- BuildUnique....
-	public void minimallyUniqueNameForLowerLevelIncludeWhereDuplicateIsNotAParentWillBeFullyQualifiedName() throws Exception {
-    	includes.include(net2, "b"); 
-    	includes.include(net2, "a").include(net3, "b"); 
-    	assertEquals("minimally unique name for lower level include that is not child will just be fully qualified name",
-    			includes.getChildInclude("a").getChildInclude("b"), includes.getInclude("top.a.b")); 
-    	includes.include(net2, "c").include(net3, "d"); 
-    	includes.include(net2, "d"); 
-    	assertEquals("same result if nets added in the opposite order",
-    			includes.getChildInclude("c").getChildInclude("d"), includes.getInclude("top.c.d")); 
-	}
-//    @Test
-	//TODO delete ....buildunique...
-    public void renamesAreReflectedInMinimallyUniqueNames() throws Exception {
-    	includes.include(net2, "a").include(net3, "b").include(net4, "c").include(net5, "d").include(net6, "a"); 
-    	assertEquals(includes.getChildInclude("a").getChildInclude("b").getChildInclude("c")
-    			.getChildInclude("d").getChildInclude("a"), includes.getInclude("a.b.c.d.a")); 
-    	includes.getChildInclude("a").getChildInclude("b").getChildInclude("c").rename("a"); 
-    	assertEquals("highest level blissfully unaware",includes.getChildInclude("a"), includes.getInclude("a")); 
-    	assertEquals("was c now a.b.a",includes.getChildInclude("a").getChildInclude("b").getChildInclude("a"), includes.getInclude("a.b.a")); 
-    	assertEquals("still references highest level, but reflects intermediate rename",
-    			includes.getChildInclude("a").getChildInclude("b").getChildInclude("a").getChildInclude("d").getChildInclude("a"), 
-    			includes.getInclude("a.b.a.d.a"));
-    	includes.getChildInclude("a").rename("x"); 
-    	assertEquals(includes.getChildInclude("x"), includes.getInclude("x")); 
-    	assertEquals("mid-level was a.b.a now a because unique",includes.getChildInclude("x").getChildInclude("b").getChildInclude("a"), includes.getInclude("a")); 
-    	assertEquals("unique name shortened to start at mid-level",
-    			includes.getChildInclude("x").getChildInclude("b").getChildInclude("a").getChildInclude("d").getChildInclude("a"), 
-    			includes.getInclude("a.d.a"));
+    	assertEquals("childs name includes path to parent",includes.getChildInclude("a").getChildInclude("b").getChildInclude("a"), includes.getInclude("a.b.a"));
     }
     @Test
 	public void childKnowsIfIncludeIsParent() throws Exception {
@@ -337,17 +313,46 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertThat(includes.getInterfacePlaces()).hasSize(1);
     	includes.addToInterface(place); 
     	assertThat(includes.getInterfacePlaces()).hasSize(1);
-    	assertEquals("P0-I", includes.getInterfacePlace("P0-I").getId()); 
+    	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId()); 
 	}
     @Test
-	public void interfacePlaceHasFullyQualifiedPrefixOfItsHierarchy() throws Exception {
+	public void homeInterfacePlaceMinimalNameOfHomeIncludeAsPrefix() throws Exception {
     	buildHierarchyWithInterfacePlaces(); 
-    	InterfacePlace interfacePlace = includes.getInterfacePlace("P0-I"); 
-    	assertEquals("", interfacePlace.getFullyQualifiedPrefix()); 
-    	InterfacePlace interfacePlace2 = includes.getChildInclude("right-function").getInterfacePlace("P0-I"); 
-    	assertEquals(".right-function", interfacePlace2.getFullyQualifiedPrefix()); 
+    	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId());  
+    	assertEquals("a.P0", includes.getChildInclude("a").getInterfacePlace("a.P0").getId());  
+    	assertEquals("b.P0", includes.getChildInclude("a").getChildInclude("b").getInterfacePlace("b.P0").getId());  
 	}
-//    @Test
+    @Test
+	public void interfacePlacesAreAvailableAsDefinedByAccessScope() throws Exception {
+    	buildHierarchyWithInterfacePlaces(); 
+    	assertEquals("top..b.P0", includes.getInterfacePlace("top..b.P0").getId());
+    	assertEquals(placeB, includes.getInterfacePlace("top..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("a").getInterfacePlace("a..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("b").getInterfacePlace("b.P0").getPlace());
+    	assertEquals("neither self nor parent, so doesn't see the interface place",
+    			0, includes.getInclude("c").getInterfacePlaces().size());
+	}
+    @Test
+	public void interfacePlacesArePartOfPlaceCollectionOnceUsed() throws Exception {
+		includes = new IncludeHierarchy(net1, "top"); 
+		includes.include(net2, "a");  
+		assertEquals(2, includes.getPetriNet().getPlaces().size()); 
+		assertEquals(2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
+		includes.getInclude("a").addToInterface(net2.getComponent("P0", Place.class)); 
+		assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getStatus() instanceof InterfacePlaceStatusHome); 
+		assertEquals("available status interface places not added to places",2, includes.getPetriNet().getPlaces().size()); 
+		assertEquals("home status interface places all not added",2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
+		includes.useInterfacePlace("top..a.P0"); 
+		assertEquals("added to places in the away petri net",
+				3, includes.getPetriNet().getPlaces().size()); 
+		assertEquals("no change to home include",
+				2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
+		assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertEquals("top..a.P0", includes.getPetriNet().getComponent("top..a.P0", Place.class).getId()); 
+	}
+      
+//    @Test  //TODO 
 	public void interfacePlaceNamedFollowingItsPlaceInHierarchy() throws Exception {
     	checkInterfaceNames("c",parents,new ipn[]{new ipn("c","c.P0"), new ipn("b","b..c.P0"), new ipn("a","a..c.P0"), new ipn("top","top..c.P0")}); 
 	}
@@ -361,28 +366,6 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	for (int i = 0; i < names.length; i++) {
 			assertEquals(names[i].interfacePlaceName, includeMap.get(names[i].include).getInterfacePlaces().iterator().next().getId()); 
 		}
-	}
-    private class ipn {
-    	public String include;
-    	public String interfacePlaceName;
-    	public ipn(String include, String interfacePlaceName) { this.include = include; this.interfacePlaceName = interfacePlaceName; }
-    }
-	private Map<String, IncludeHierarchy> buildTestMap() {
-		includeMap = new HashMap<String, IncludeHierarchy>(); 
-		includeMap.put("top", includes); 
-		includeMap.put("a", includes.getChildInclude("a")); 
-		includeMap.put("b", includes.getChildInclude("a").getChildInclude("b")); 
-		includeMap.put("c", includes.getChildInclude("a").getChildInclude("b").getChildInclude("c")); 
-		includeMap.put("d", includes.getChildInclude("a").getChildInclude("b").getChildInclude("c").getChildInclude("d")); 
-		includeMap.put("a2", includes.getChildInclude("a2")); 
-		includeMap.put("b2", includes.getChildInclude("a2").getChildInclude("b2")); 
-		return includeMap;
-	}
-	private IncludeHierarchy buildTestHierarchy() throws RecursiveIncludeException {
-		includes = new IncludeHierarchy(net1, "top"); 
-		includes.include(net2, "a").include(net3, "b").include(net4, "c").include(net5, "d"); 
-		includes.include(net2, "a2").include(net3, "b2");
-		return includes;
 	}
 	@Test
 	public void toAvoidRecursionIncludedPetriNetMustNotHaveSameNameAsItsParent() throws Exception {
@@ -455,22 +438,40 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertTrue(includes.getChildInclude("a").getChildInclude("b")
     			.getInterfacePlaceAccessScope() instanceof ParentsSiblingsCommandScope); 
 	}
+    private class ipn {
+    	public String include;
+    	public String interfacePlaceName;
+    	public ipn(String include, String interfacePlaceName) { this.include = include; this.interfacePlaceName = interfacePlaceName; }
+    }
+	private Map<String, IncludeHierarchy> buildTestMap() {
+		includeMap = new HashMap<String, IncludeHierarchy>(); 
+		includeMap.put("top", includes); 
+		includeMap.put("a", includes.getChildInclude("a")); 
+		includeMap.put("b", includes.getChildInclude("a").getChildInclude("b")); 
+		includeMap.put("c", includes.getChildInclude("a").getChildInclude("b").getChildInclude("c")); 
+		includeMap.put("d", includes.getChildInclude("a").getChildInclude("b").getChildInclude("c").getChildInclude("d")); 
+		includeMap.put("a2", includes.getChildInclude("a2")); 
+		includeMap.put("b2", includes.getChildInclude("a2").getChildInclude("b2")); 
+		return includeMap;
+	}
+	private IncludeHierarchy buildTestHierarchy() throws RecursiveIncludeException {
+		includes = new IncludeHierarchy(net1, "top"); 
+		includes.include(net2, "a").include(net3, "b").include(net4, "c").include(net5, "d"); 
+		includes.include(net2, "a2").include(net3, "b2");
+		return includes;
+	}
+
 	private void buildHierarchyWithInterfacePlaces()
 			throws PetriNetComponentNotFoundException, RecursiveIncludeException {
-		includes = new IncludeHierarchy(net1, null); 
-    	includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
-    	Place place = net1.getComponent("P0", Place.class); 
-    	Place place2 = net2.getComponent("P0", Place.class); 
-    	Place place3 = net3.getComponent("P0", Place.class); 
-    	includes.addToInterface(place); 
-    	includes.getChildInclude("right-function").addToInterface(place2);
-    	includes.getChildInclude("right-function").getChildInclude("lowlevel-function").addToInterface(place3);
+		includes = new IncludeHierarchy(net1, "top"); 
+    	includes.include(net2, "a").include(net3,"b").include(net4, "c"); 
+    	includes.include(net2, "aa").include(net3, "bb"); 
+    	placeTop = net1.getComponent("P0", Place.class); 
+    	placeA = net2.getComponent("P0", Place.class); 
+    	placeB = net3.getComponent("P0", Place.class); 
+    	includes.addToInterface(placeTop); 
+    	includes.getChildInclude("a").addToInterface(placeA);
+    	includes.getChildInclude("a").getChildInclude("b").addToInterface(placeB);
 	}
-    //TODO fullyqualified name renamed when hierarchy is renamed
-    //TODO interfacePlace mirrors to EPN and vice versa
-    //TODO InterfacePlaces from one include are visible under another include appropriately prefixed
   //TODO verifyTopLevelCanBeRenamedToOrFromBlank
-  //TODO verifyDuplicateAliasIsSuffixedToEnsureUniqueness
-  //TODO verifyAliasesAreStackedAsImportsAreAdded
-  //TODO consider whether different access scopes should be permitted at different levels     
 }

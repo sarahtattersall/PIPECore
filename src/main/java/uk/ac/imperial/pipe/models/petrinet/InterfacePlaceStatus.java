@@ -8,6 +8,14 @@ public interface InterfacePlaceStatus {
 	 * @see uk.ac.imperial.pipe.models.petrinet.InterfacePlaceStatusHome
 	 * @see uk.ac.imperial.pipe.models.petrinet.InterfacePlaceStatusAvailable
 	 */
-	public boolean canRemove();	
+	public boolean canRemove();
+
+	public boolean canUse();
+
+	public InterfacePlaceStatus use();
+
+	public InterfacePlaceStatus remove();
+
+
 
 }
