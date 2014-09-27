@@ -4,9 +4,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class UpdateMapEntryCommand<T> extends
-		AbstractIncludeHierarchyCommand<T> implements
-		IncludeHierarchyCommand<T> {
+public class UpdateMapEntryCommand extends
+		AbstractIncludeHierarchyCommand<UpdateResultEnum>  {
 
 	private static final String UPDATE_MAP_ENTRY_COMMAND = "UpdateMapEntryCommand:  ";
 	private IncludeHierarchyMapEnum includeEnum;
@@ -38,7 +37,7 @@ public class UpdateMapEntryCommand<T> extends
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Result<T> execute(IncludeHierarchy includeHierarchy) {
+	public Result<UpdateResultEnum> execute(IncludeHierarchy includeHierarchy) {
 		Map<String, IncludeHierarchy> map = includeEnum.getMap(includeHierarchy);
 		String aliasForExistingInclude = getKeyForValue(map, include); 
 		IncludeHierarchy includeForNewAlias = map.get(newname);
@@ -51,7 +50,7 @@ public class UpdateMapEntryCommand<T> extends
 			}
 			else if (!(includeForNewAlias.equals(include)) && (oldname == null)) {  // (nameForExistingInclude == null)
 				if (!force) {
-					result.addEntry(buildNotAddedMessage(includeHierarchy), (T) UpdateResultEnum.NAME_ALREADY_EXISTS); 
+					result.addEntry(buildNotAddedMessage(includeHierarchy), UpdateResultEnum.NAME_ALREADY_EXISTS); 
 				} 
 				else {
 					map.remove(newname);
@@ -60,7 +59,7 @@ public class UpdateMapEntryCommand<T> extends
 			}
 			else if (!(includeForNewAlias.equals(include)) && (oldname != null)) {
 				if (!force) {
-					result.addEntry(buildNotRenamedMessage(includeHierarchy), (T) UpdateResultEnum.NAME_ALREADY_EXISTS); 
+					result.addEntry(buildNotRenamedMessage(includeHierarchy), UpdateResultEnum.NAME_ALREADY_EXISTS); 
 				}
 				else {
 					map.remove(newname);
@@ -72,7 +71,7 @@ public class UpdateMapEntryCommand<T> extends
 			if (!aliasForExistingInclude.equals(oldname)) {
 				if (!force) {
 					result.addEntry(buildNotRenamedDifferentOldNameMessage(includeHierarchy,aliasForExistingInclude),
-							(T) UpdateResultEnum.INCLUDE_EXISTS_UNDER_DIFFERENT_OLDNAME);
+							UpdateResultEnum.INCLUDE_EXISTS_UNDER_DIFFERENT_OLDNAME);
 				} 
 				else {
 					map.remove(aliasForExistingInclude);

@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.petrinet.Result.Entry;
 
 /**
@@ -15,9 +16,10 @@ public interface IncludeHierarchyCommand<T> {
 	/**
 	 * @param includeHierarchy upon which this command is to be performed
 	 * @return Result including a list of {@link Entry} that resulted from the command 
+	 * @throws IncludeException 
 	 */
 	
-	Result<T> execute(IncludeHierarchy includeHierarchy);
+	Result<T> execute(IncludeHierarchy includeHierarchy) throws IncludeException;
 
 	/**
 	 * @return current Result from this command 

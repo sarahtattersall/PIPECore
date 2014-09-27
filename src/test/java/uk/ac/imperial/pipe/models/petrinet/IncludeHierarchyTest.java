@@ -3,16 +3,10 @@ package uk.ac.imperial.pipe.models.petrinet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
-import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,8 +24,8 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.AbstractMapEntryTest.ME;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyTest extends AbstractMapEntryTest {
@@ -137,7 +131,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 				new ME[] {new ME("top", includes)}, 
 				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
 				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
-		Result<Object> result = aInclude.renameBare("aa"); 
+		Result<UpdateResultEnum> result = aInclude.renameBare("aa"); 
 		assertTrue("duplicate, so error",result.hasResult()); 
 		checkAllIncludesMapEntries(false, "conflict, so no changes to map", 
 				new ME[] {new ME("top", includes)}, 
@@ -158,14 +152,14 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	}
     @Test
 	public void throwsIfNameDoesNotExistAtChildLevel() throws Exception {
-        expectedException.expect(RuntimeException.class);
+        expectedException.expect(IncludeException.class);
         expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL+"top: fred");
         includes.include(net2, "child");
         includes.getChildInclude("fred"); 
 	}
     @Test
     public void throwsIfNameDoesNotExistAtAnyLevel() throws Exception {
-    	expectedException.expect(RuntimeException.class);
+    	expectedException.expect(IncludeException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL+"fred");
     	includes.include(net2, "child");
     	includes.getInclude("child").include(net3, "anotherChild");
@@ -180,7 +174,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     }
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
-    	expectedException.expect(RuntimeException.class);
+    	expectedException.expect(IncludeException.class);
     	expectedException.expectMessage("UpdateMapEntryCommand:  map entry for IncludeHierarchy child not added to IncludeMap in IncludeHierarchy top because another entry already exists with key: child");
     	includes.include(net2, "child");
     	includes.include(net2, "child");
@@ -356,7 +350,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	public void interfacePlaceNamedFollowingItsPlaceInHierarchy() throws Exception {
     	checkInterfaceNames("c",parents,new ipn[]{new ipn("c","c.P0"), new ipn("b","b..c.P0"), new ipn("a","a..c.P0"), new ipn("top","top..c.P0")}); 
 	}
-    private void checkInterfaceNames(String homeInclude, IncludeHierarchyCommandScopeEnum scopeEnum, ipn... names) throws RecursiveIncludeException, PetriNetComponentNotFoundException {
+    private void checkInterfaceNames(String homeInclude, IncludeHierarchyCommandScopeEnum scopeEnum, ipn... names) throws IncludeException, PetriNetComponentNotFoundException {
     	includes = buildTestHierarchy(); 
     	includes.setInterfacePlaceAccessScope(scopeEnum); 
     	includeMap = buildTestMap(); 
@@ -369,13 +363,13 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	}
 	@Test
 	public void toAvoidRecursionIncludedPetriNetMustNotHaveSameNameAsItsParent() throws Exception {
-    	expectedException.expect(RecursiveIncludeException.class);
+    	expectedException.expect(IncludeException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY);
     	includes.include(net1, "fred");         
 	}
     @Test
     public void toAvoidRecursionIncludedPetriNetMustNotHaveSameNameAsAnyParent() throws Exception {
-    	expectedException.expect(RecursiveIncludeException.class);
+    	expectedException.expect(IncludeException.class);
     	expectedException.expectMessage(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY);
     	includes.include(net2, "fred").include(net1, "mary");         
     }	
@@ -443,7 +437,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	public String interfacePlaceName;
     	public ipn(String include, String interfacePlaceName) { this.include = include; this.interfacePlaceName = interfacePlaceName; }
     }
-	private Map<String, IncludeHierarchy> buildTestMap() {
+	private Map<String, IncludeHierarchy> buildTestMap() throws IncludeException {
 		includeMap = new HashMap<String, IncludeHierarchy>(); 
 		includeMap.put("top", includes); 
 		includeMap.put("a", includes.getChildInclude("a")); 
@@ -454,7 +448,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		includeMap.put("b2", includes.getChildInclude("a2").getChildInclude("b2")); 
 		return includeMap;
 	}
-	private IncludeHierarchy buildTestHierarchy() throws RecursiveIncludeException {
+	private IncludeHierarchy buildTestHierarchy() throws IncludeException {
 		includes = new IncludeHierarchy(net1, "top"); 
 		includes.include(net2, "a").include(net3, "b").include(net4, "c").include(net5, "d"); 
 		includes.include(net2, "a2").include(net3, "b2");
@@ -462,7 +456,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	}
 
 	private void buildHierarchyWithInterfacePlaces()
-			throws PetriNetComponentNotFoundException, RecursiveIncludeException {
+			throws PetriNetComponentNotFoundException, IncludeException {
 		includes = new IncludeHierarchy(net1, "top"); 
     	includes.include(net2, "a").include(net3,"b").include(net4, "c"); 
     	includes.include(net2, "aa").include(net3, "bb"); 

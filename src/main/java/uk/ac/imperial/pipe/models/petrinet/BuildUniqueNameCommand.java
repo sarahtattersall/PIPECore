@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
 public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<IncludeHierarchy> {
 
 	public static final String BUILD_UNIQUE_NAME = "BuildUniqueNameCommand: "; 
@@ -22,14 +24,8 @@ public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<Incl
 	private BuildUniqueNameCommand(boolean controller) {
 		this.controller = controller; 
 	}
-//	Override
-//	public Result<IncludeHierarchy> execute(
-//			uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy includeHierarchy) {
-//		return null;
-//	}
-	@SuppressWarnings("unchecked")
 	@Override
-	public Result<IncludeHierarchy> execute(IncludeHierarchy includeHierarchy) {
+	public Result<IncludeHierarchy> execute(IncludeHierarchy includeHierarchy) throws IncludeException {
 		if (controller) {
 			BuildUniqueNameCommand command = null;  
 			while (!finished) {
@@ -133,13 +129,13 @@ public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<Incl
 		this.name = includeHierarchy.getName(); 
 		this.currentUniqueName = includeHierarchy.getUniqueName(); 
 	}
-	private void updateUniqueNameInSelfAndParentsMaps(IncludeHierarchy includeHierarchy, String uniqueName) {
+	private void updateUniqueNameInSelfAndParentsMaps(IncludeHierarchy includeHierarchy, String uniqueName) throws IncludeException {
 		includeHierarchy.setUniqueName(uniqueName); 
 		includeHierarchy.buildUniqueNameAsPrefix();
-		IncludeHierarchyCommand<Object> updateCommand = 
-			new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE_ALL, currentUniqueName, uniqueName, includeHierarchy, true);
-		Result<Object> updateResult = includeHierarchy.parents(updateCommand);
+		UpdateMapEntryCommand updateCommand = 
+			new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE_ALL, currentUniqueName, uniqueName, includeHierarchy, true);
+		Result<UpdateResultEnum> updateResult = includeHierarchy.parents(updateCommand);
 		updateResult = includeHierarchy.self(updateCommand);
-		if (updateResult.hasResult()) throw new RuntimeException(updateResult.getMessage());
+		if (updateResult.hasResult()) throw new IncludeException(updateResult.getMessage());
 	}
 }

@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
 /**
  * A composite Petri net is one that include other Petri nets.  A Petri net that does not 
  * include other Petri nets is a "single Petri net", or just a "Petri net".    
@@ -113,13 +115,13 @@ public class IncludeHierarchy  {
 		return true;
 	}
 
-	protected void buildUniqueName() {
+	protected void buildUniqueName() throws IncludeException {
     	self(new BuildUniqueNameCommand()); 
 //		buildUniqueNameAsPrefix(); 
 	}
 
 
-	protected void buildNewNameToDistinguishFromExistingName(IncludeHierarchy conflict) {
+	protected void buildNewNameToDistinguishFromExistingName(IncludeHierarchy conflict) throws IncludeException {
 		if (this.equals(conflict)) {
 			if (!name.equals(uniqueName)) {
 				registerMinimallyUniqueNameWithParents(name);
@@ -158,36 +160,25 @@ public class IncludeHierarchy  {
 	}
 
 	//TODO convert to command
-	protected void registerMinimallyUniqueNameWithParents(String name) {
-//		uniqueName = name; 
-		IncludeHierarchyCommand<Object> addEntryCommand = new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
-		Result<Object> result = parents(addEntryCommand); 
+	protected void registerMinimallyUniqueNameWithParents(String name) throws IncludeException {
+		UpdateMapEntryCommand addEntryCommand = new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
+		Result<UpdateResultEnum> result = parents(addEntryCommand); 
 		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
-//		IncludeHierarchy parent = getParent(); 
-//		while (parent != null) {
-//			parent.getIncludeMapAll().put(uniqueName, this); 
-//			parent = parent.getParent(); 
-//		}
 	}
-	public IncludeHierarchy include(PetriNet petriNet, String alias) throws RecursiveIncludeException {
+	public IncludeHierarchy include(PetriNet petriNet, String alias) throws  IncludeException {
 		validateInclude(petriNet, alias);
-//		if (includeMap.containsKey(alias)) { 
-//			throw new RuntimeException(INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL +	name + ": " + alias);
-//		}
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
-		IncludeHierarchyCommand<Object> addEntryCommand = new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy); 
-		Result<Object> result = self(addEntryCommand); 
-		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
+		addIncludeToIncludeMap(alias, childHierarchy); 
 		childHierarchy.buildUniqueName(); 
 //		addPropertyChangeListener(childHierarchy); 
 		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
-//		includeMap.put(alias, childHierarchy);
-		//  [skip validate]
-		//  create IH
-		//  addItToMap
-		//  buildMinimallyUniqueName
 		return childHierarchy; 
-//		return includeMap.get(alias); 
+	}
+
+	protected void addIncludeToIncludeMap(String alias,
+			IncludeHierarchy childHierarchy) throws IncludeException {
+		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy)); 
+		if (result.hasResult()) throw new IncludeException(result.getMessage());
 	}
 	// RenameMapEntryCommand(MapEnum, key, oldkey IH)
 	// parents(addToMapCommand
@@ -212,7 +203,7 @@ public class IncludeHierarchy  {
 	}
 
 
-	protected void validateInclude(PetriNet petriNet, String alias) throws RecursiveIncludeException {
+	protected void validateInclude(PetriNet petriNet, String alias) throws IncludeException {
 		if (petriNet == null) { 
 			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		}
@@ -225,11 +216,12 @@ public class IncludeHierarchy  {
 	 * Returns the IncludeHierarchy, if it exists, with the specified name that is the immediate child of this include hierarchy
 	 * @param includeAlias
 	 * @return
+	 * @throws IncludeException 
 	 */
-	public IncludeHierarchy getChildInclude(String includeAlias) {
+	public IncludeHierarchy getChildInclude(String includeAlias) throws IncludeException {
 		IncludeHierarchy child = includeMap.get(includeAlias); 
 		if (child == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
+			throw new IncludeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
 		}
 		return child;
 	}
@@ -239,27 +231,28 @@ public class IncludeHierarchy  {
 	 * <p>Throws RuntimeException if no includes are found with a matching unique name.       
 	 * @param uniqueName
 	 * @return
+	 * @throws IncludeException 
 	 */
-	public IncludeHierarchy getInclude(String uniqueName) {
+	public IncludeHierarchy getInclude(String uniqueName) throws IncludeException {
 		IncludeHierarchy include = includeMapAll.get(uniqueName); 
 		if (include == null) {			
-			throw new RuntimeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + uniqueName);
+			throw new IncludeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + uniqueName);
 		}
 		return include;
 	}
 
-	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws RecursiveIncludeException {
+	protected void checkForDuplicatePetriNetNameInSelfAndParentIncludes(PetriNet petriNet) throws IncludeException {
 		DuplicatePetriNetNameCheckCommand<String> duplicateCheck = new DuplicatePetriNetNameCheckCommand<String>(petriNet.getName()); 
 		Result<String> result = self(duplicateCheck); 
 		result = parents(duplicateCheck); 
 		if (result.hasResult()) {
-			throw new RecursiveIncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
+			throw new IncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
 		}
 	}
 	//TODO convert to command
-	public Result<Object> rename(String newname) {
+	public Result<UpdateResultEnum> rename(String newname) throws IncludeException {
 		String oldName = name; 
-		Result<Object> renameResult = renameBare(newname);
+		Result<UpdateResultEnum> renameResult = renameBare(newname);
 		rebuildMinimallyUniqueName();
 //		notifyChildren(newname, oldName);
 		return renameResult; 
@@ -281,8 +274,8 @@ public class IncludeHierarchy  {
 		//parents(uniqueName)
  	}
 
-	protected Result<Object> renameBare(String newname) {
-		Result<Object> result = parent(new UpdateMapEntryCommand<Object>(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
+	protected Result<UpdateResultEnum> renameBare(String newname) throws IncludeException {
+		Result<UpdateResultEnum> result = parent(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
 		if (!result.hasResult()) {
 			setName(newname); 
 		}
@@ -290,7 +283,7 @@ public class IncludeHierarchy  {
 	}
 	
 	//TODO replace
-	protected void rebuildMinimallyUniqueName() {
+	protected void rebuildMinimallyUniqueName() throws IncludeException {
 		deleteOldMinimallyUniqueName();
 		buildUniqueName();
 	}
@@ -347,7 +340,7 @@ public class IncludeHierarchy  {
 		return nameAsPrefix; 
 	}
 
-	public Result<Place> addToInterface(Place place) {
+	public Result<Place> addToInterface(Place place) throws IncludeException {
 		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, this); 
 		self(addInterfacePlaceCommand); 
 		return interfacePlaceAccessScope.execute(addInterfacePlaceCommand); 
@@ -386,8 +379,9 @@ public class IncludeHierarchy  {
 	 * 
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> parents(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> parents(IncludeHierarchyCommand<T> command) throws IncludeException {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			result = command.execute(parent);
@@ -410,8 +404,9 @@ public class IncludeHierarchy  {
 	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> parent(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> parent(IncludeHierarchyCommand<T> command) throws IncludeException {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			result = command.execute(parent);
@@ -431,8 +426,9 @@ public class IncludeHierarchy  {
 	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> children(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> children(IncludeHierarchyCommand<T> command) throws IncludeException {
 		Result<T> result = command.getResult(); 
 		iterator = iterator();
 		iterator.next(); // skip self
@@ -454,8 +450,9 @@ public class IncludeHierarchy  {
 	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command) throws IncludeException {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			iterator = parent.iterator();
@@ -482,8 +479,9 @@ public class IncludeHierarchy  {
 	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> self(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> self(IncludeHierarchyCommand<T> command) throws IncludeException {
 		return command.execute(this); 
 	}
 	/**
@@ -499,8 +497,9 @@ public class IncludeHierarchy  {
 	 * </ul>
 	 * @param command
 	 * @return Result accumulated results encountered when the command was executed at each level
+	 * @throws IncludeException 
 	 */
-	public <T> Result<T> all(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> all(IncludeHierarchyCommand<T> command) throws IncludeException {
 		Result<T> result = command.getResult(); 
 		iterator = getRoot().iterator();
 		while (iterator.hasNext()) {

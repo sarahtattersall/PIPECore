@@ -25,6 +25,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -109,7 +110,7 @@ public class RenameIncludeAliasCommandTest {
 		
 //		fail("verify each of the maps is as expected; consider building fqn as a command"); 
 	}
-	protected static Result<String> renameInPieces(IncludeHierarchy include, String oldname, String newname) {
+	protected static Result<String> renameInPieces(IncludeHierarchy include, String oldname, String newname) throws IncludeException {
 		IncludeHierarchyCommand<String> command = new RenameIncludeAliasCommand<String>(oldname, newname);  
 		include.setName(newname); 
 		include.parent(command); 

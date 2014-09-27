@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -222,13 +223,13 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
     	checkIncludeMapAllEntries(bInclude, new ME("b.a.b", bInclude));
     }
     private IncludeHierarchy addBareInclude(IncludeHierarchy parentInclude, PetriNet net,
-			String alias) {
+			String alias) throws IncludeException {
 		IncludeHierarchy newInclude = new IncludeHierarchy(net, parentInclude, alias); 
-		Result<Object> result = parentInclude.self(new UpdateMapEntryCommand<>(IncludeHierarchyMapEnum.INCLUDE, alias, newInclude)); 
+		Result<UpdateResultEnum> result = parentInclude.self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, newInclude)); 
 		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
 		return newInclude; 
 	}
-    protected IncludeHierarchy addIncludeAndBuildUniqueName(IncludeHierarchy parentInclude, PetriNet net, String name) {
+    protected IncludeHierarchy addIncludeAndBuildUniqueName(IncludeHierarchy parentInclude, PetriNet net, String name) throws IncludeException {
     	IncludeHierarchy include = addBareInclude(parentInclude, net, name); 
     	include.buildFullyQualifiedName(); 
     	assertFalse(include.self(new BuildUniqueNameCommand()).hasResult());

@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
 
 
 public class ParentsCommandScope implements IncludeHierarchyCommandScope {
@@ -10,9 +12,8 @@ public class ParentsCommandScope implements IncludeHierarchyCommandScope {
 		this.includes = includes; 
 	}
 
-
 	@Override
-	public <T> Result<T> execute(IncludeHierarchyCommand<T> command) {
+	public <T> Result<T> execute(IncludeHierarchyCommand<T> command) throws IncludeException {
 		return includes.parents(command);
 	}
 
