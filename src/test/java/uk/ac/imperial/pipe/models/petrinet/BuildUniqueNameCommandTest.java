@@ -226,9 +226,10 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
 			String alias) throws IncludeException {
 		IncludeHierarchy newInclude = new IncludeHierarchy(net, parentInclude, alias); 
 		Result<UpdateResultEnum> result = parentInclude.self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, newInclude)); 
-		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
+		if (result.hasResult()) throw new IncludeException(result.getMessage()); 
 		return newInclude; 
 	}
+    //TODO reconcile with IncludeHierarchy
     protected IncludeHierarchy addIncludeAndBuildUniqueName(IncludeHierarchy parentInclude, PetriNet net, String name) throws IncludeException {
     	IncludeHierarchy include = addBareInclude(parentInclude, net, name); 
     	include.buildFullyQualifiedName(); 

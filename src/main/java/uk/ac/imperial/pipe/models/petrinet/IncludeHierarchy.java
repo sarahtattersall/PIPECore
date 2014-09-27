@@ -38,7 +38,6 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
  * in the tabs of the corresponding included Petri net. 
  */
 
-//public class IncludeHierarchy extends AbstractPetriNetPubSub implements PropertyChangeListener {
 public class IncludeHierarchy  {
 
 	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE = "IncludeHierarchy attempted rename would cause duplicate: ";
@@ -117,39 +116,6 @@ public class IncludeHierarchy  {
 
 	protected void buildUniqueName() throws IncludeException {
     	self(new BuildUniqueNameCommand()); 
-//		buildUniqueNameAsPrefix(); 
-	}
-
-
-	protected void buildNewNameToDistinguishFromExistingName(IncludeHierarchy conflict) throws IncludeException {
-		if (this.equals(conflict)) {
-			if (!name.equals(uniqueName)) {
-				registerMinimallyUniqueNameWithParents(name);
-			}
-		}
-		//TODO convert to command
-		else if (this.hasParent(conflict)) {
-			IncludeHierarchy parent = getParent(); 
-			String tempName = name; 
-			while (parent != null) {
-				tempName = parent.getName()+"."+tempName; 
-				if (parent.equals(conflict)) {
-					uniqueName = tempName; 
-				}
-				parent = parent.getParent(); 
-			}
-			registerMinimallyUniqueNameWithParents(uniqueName);
-		}
-		else if (conflict.hasParent(this)) {
-			// implies this has been renamed to create a conflict with a lower level; handled by rename.  
-		}
-		else if (lowerLevelInHierarchyThanOther(conflict)) {
-			registerMinimallyUniqueNameWithParents(getFullyQualifiedName());
-		}
-		else if (higherLevelInHierarchyThanOther(conflict)) {
-			registerMinimallyUniqueNameWithParents(name);
-			conflict.buildUniqueName(); 
-		}
 	}
 
 	protected boolean higherLevelInHierarchyThanOther(IncludeHierarchy conflict) {
@@ -159,18 +125,11 @@ public class IncludeHierarchy  {
 		return getLevelRelativeToRoot() > conflict.getLevelRelativeToRoot();
 	}
 
-	//TODO convert to command
-	protected void registerMinimallyUniqueNameWithParents(String name) throws IncludeException {
-		UpdateMapEntryCommand addEntryCommand = new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE_ALL, name, this); 
-		Result<UpdateResultEnum> result = parents(addEntryCommand); 
-		if (result.hasResult()) throw new RuntimeException(result.getMessage()); 
-	}
 	public IncludeHierarchy include(PetriNet petriNet, String alias) throws  IncludeException {
 		validateInclude(petriNet, alias);
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
 		addIncludeToIncludeMap(alias, childHierarchy); 
 		childHierarchy.buildUniqueName(); 
-//		addPropertyChangeListener(childHierarchy); 
 		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
 		return childHierarchy; 
 	}
@@ -180,10 +139,6 @@ public class IncludeHierarchy  {
 		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy)); 
 		if (result.hasResult()) throw new IncludeException(result.getMessage());
 	}
-	// RenameMapEntryCommand(MapEnum, key, oldkey IH)
-	// parents(addToMapCommand
-	//  rename creates duplicate
-	//  added not replaced
 	private boolean renameChild(Map<String, IncludeHierarchy> map, String oldName, String newName) {
 		boolean renamed = true; 
 		if (map.containsKey(newName)) {
@@ -251,27 +206,10 @@ public class IncludeHierarchy  {
 	}
 	//TODO convert to command
 	public Result<UpdateResultEnum> rename(String newname) throws IncludeException {
-		String oldName = name; 
 		Result<UpdateResultEnum> renameResult = renameBare(newname);
-		rebuildMinimallyUniqueName();
-//		notifyChildren(newname, oldName);
+		buildUniqueName();
+//		buildFullyQualifiedName();  //TODO [where] is this being done?  
 		return renameResult; 
-//		String oldName = name; 
-//		name = newName; 
-//		buildFullyQualifiedName(); 
-//		rebuildMinimallyUniqueName();
-//		if (parent != null) { 
-//			parent.renameChildAlias(oldName, newName);
-//		}
-//		notifyChildren(newname, oldName);
-		// self and children; possinly other if result has result? conflict comes from result?
-		//self(minimallyUniqueName)
-		//parents(minimallyUniqueName)
-		//if hasResult, other.buildMinimallyUniqueName
-		//
-		//registerNameWithParent
-		//parent(name)
-		//parents(uniqueName)
  	}
 
 	protected Result<UpdateResultEnum> renameBare(String newname) throws IncludeException {
@@ -279,33 +217,14 @@ public class IncludeHierarchy  {
 		if (!result.hasResult()) {
 			setName(newname); 
 		}
+		//TODO else throw
 		return result;
 	}
 	
-	//TODO replace
-	protected void rebuildMinimallyUniqueName() throws IncludeException {
-		deleteOldMinimallyUniqueName();
-		buildUniqueName();
-	}
-
-	//TODO convert to command
-	protected void deleteOldMinimallyUniqueName() {
-		getIncludeMapAll().remove(name); 
-		IncludeHierarchy parent = getParent(); 
-		while (parent != null) {
-			parent.getIncludeMapAll().remove(uniqueName); 
-			parent = parent.getParent(); 
-		}
-	}
-	
+	//TODO rework/replace
 	public boolean renameChildAlias(String oldName, String newName) {
 		return renameChild(includeMap, oldName, newName); 
-//		if (!renameChild(includeMap, oldName, newName)) {
-//			throw new RuntimeException(INCLUDE_HIERARCHY_ATTEMPTED_RENAME_AT_LEVEL + 
-//				name + WOULD_CAUSE_DUPLICATE + newName);
-//		}
 	}
-
 
 	//TODO convert to command
 	protected void buildFullyQualifiedName() {
@@ -328,7 +247,6 @@ public class IncludeHierarchy  {
 		uniqueNameAsPrefix = buildNameAsPrefix(uniqueName);
 	}
 
-	
 	protected String buildNameAsPrefix(String name) {
 		String nameAsPrefix = null; 
 		if (name.isEmpty()) { 
@@ -339,7 +257,7 @@ public class IncludeHierarchy  {
 		}
 		return nameAsPrefix; 
 	}
-
+	
 	public Result<Place> addToInterface(Place place) throws IncludeException {
 		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, this); 
 		self(addInterfacePlaceCommand); 
@@ -352,6 +270,13 @@ public class IncludeHierarchy  {
 			return true; 
 		}
 		else return false; 
+	}
+	public void useInterfacePlace(String id) {
+		InterfacePlace interfacePlace = getInterfacePlace(id); 
+		boolean inuse = interfacePlace.use(); 
+		if (inuse) {
+			getPetriNet().addPlace(interfacePlace); 
+		}
 	}
 
 	public void removeFromInterface(DiscretePlace place) {
@@ -596,11 +521,4 @@ public class IncludeHierarchy  {
 		return isRoot;
 	}
 
-	public void useInterfacePlace(String id) {
-		InterfacePlace interfacePlace = getInterfacePlace(id); 
-		boolean inuse = interfacePlace.use(); 
-		if (inuse) {
-			getPetriNet().addPlace(interfacePlace); 
-		}
-	}
 }

@@ -36,22 +36,15 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     private PropertyChangeListener mockListener;
 
 	private IncludeHierarchy includes;
-	private PetriNet net1;
-	private PetriNet net2; 
-	private PetriNet net3;
-	@SuppressWarnings("unused")
-	private PetriNet net4, net5, net6 ;
+	private PetriNet net1, net2, net3, net4, net5, net6 ;
 	private IncludeHierarchyCommandScopeEnum parents;
 	private IncludeHierarchyCommandScopeEnum parentsSibs;
 	private IncludeHierarchyCommandScopeEnum all;
+	private Place placeTop;
+	private Place placeA;
+	private Place placeB;
 
 	private Map<String, IncludeHierarchy> includeMap;
-
-	private Place placeTop;
-
-	private Place placeA;
-
-	private Place placeB;
 
 	@Before
 	public void setUp() throws Exception {
@@ -63,9 +56,20 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		net6 = createSimpleNet(6);
 		includes = new IncludeHierarchy(net1, "top"); 
 		parents = IncludeHierarchyCommandScopeEnum.PARENTS; 
+		//TODO test or delete
 		parentsSibs = IncludeHierarchyCommandScopeEnum.PARENTS_AND_SIBLINGS; 
 		all = IncludeHierarchyCommandScopeEnum.ALL; 
 	}
+    @Test
+	public void savesAndReturnsNet() throws Exception {
+    	assertEquals(net1, includes.getPetriNet()); 
+	}
+    @Test
+    public void topLevelPetriNetIsNotNull() throws Exception
+    {
+    	expectedException.expect(IllegalArgumentException.class);
+    	includes = new IncludeHierarchy(null, "top");
+    }
 	@Test
 	public void includeHierarchyForRootLevelHasNoParentAndNoChildren() {
 		assertNull(includes.getParent()); 
@@ -94,6 +98,13 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		assertEquals(2,includes.getChildInclude("b").getChildInclude("c").getLevelRelativeToRoot()); 
 	}
 	@Test
+	public void topNameDefaultsToBlankIfNotProvided() throws Exception {
+		includes = new IncludeHierarchy(net1, null); 
+		assertEquals("", includes.getName()); 
+		includes = new IncludeHierarchy(net1, " "); 
+		assertEquals("", includes.getName()); 
+	}
+	@Test
 	public void nameIsIndependentForEachLevelButFullyQualifiedNameBuildsByLevel() throws Exception {
 		includes.include(net2, "first-child").include(net3, "grand-child");
 		assertEquals("top",includes.getName());
@@ -111,13 +122,19 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		assertFalse(aInclude.renameBare("c").hasResult()); 
 		checkAllIncludesMapEntries(new ME("top", includes), new ME("c", aInclude), new ME("b", bInclude));  
 		assertFalse(aInclude.renameBare("a").hasResult()); 
-		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));  
+		checkAllIncludesMapEntries("rename back to original name",
+				new ME("top", includes), new ME("a", aInclude), new ME("b", bInclude));  
 		assertFalse(bInclude.renameBare("d").hasResult()); 
 		checkAllIncludesMapEntries(new ME("top", includes), new ME("a", aInclude), new ME("d", bInclude));  
+		assertFalse(bInclude.renameBare("a").hasResult()); 
+		checkAllIncludesMapEntries("same name ok if at different levels",
+				new ME("top", includes), new ME("a", aInclude), new ME("a", bInclude));  
 		assertFalse(includes.renameBare("root").hasResult()); 
-		checkAllIncludesMapEntries("top has no parent, but renames ok",
-				new ME("root", includes), new ME("a", aInclude), new ME("d", bInclude));  
-//		checkAllIncludesMapEntries(true, new ME("root", includes), new ME("a", aInclude), new ME("d", bInclude));  
+		checkAllIncludesMapEntries("root level has no parent, but renames ok",
+				new ME("root", includes), new ME("a", aInclude), new ME("a", bInclude));  
+		assertFalse(includes.renameBare("").hasResult()); 
+		checkAllIncludesMapEntries("root level can also be blank",
+				new ME("", includes), new ME("a", aInclude), new ME("a", bInclude));  
 	}
 	@Test
 	public void renameReturnsErrorOnlyIfNameConflictsWithAnotherIncludeAtSameLevel() throws Exception {
@@ -127,22 +144,16 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		IncludeHierarchy bInclude = aaInclude.include(net3, "b"); 
 		IncludeHierarchy cInclude = aaaInclude.include(net4, "c"); 
 		IncludeHierarchy ccInclude = aaaInclude.include(net4, "cc"); 
-		checkAllIncludesMapEntries(false, "", 
-				new ME[] {new ME("top", includes)}, 
+		ME[][] originalMap = new ME[][] {new ME[] {new ME("top", includes)}, 
 				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
-				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)}};
+		checkAllIncludesMapEntries(false, "", originalMap);
 		Result<UpdateResultEnum> result = aInclude.renameBare("aa"); 
 		assertTrue("duplicate, so error",result.hasResult()); 
-		checkAllIncludesMapEntries(false, "conflict, so no changes to map", 
-				new ME[] {new ME("top", includes)}, 
-				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
-				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+		checkAllIncludesMapEntries(false, "conflict, so no changes to map", originalMap);  
 		result = cInclude.renameBare("cc"); 
 		assertTrue(result.hasResult()); 
-		checkAllIncludesMapEntries(false, "conflict, so no changes to map", 
-				new ME[] {new ME("top", includes)}, 
-				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
-				new ME[] {new ME("b", bInclude), new ME("c", cInclude), new ME("cc", ccInclude)});  
+		checkAllIncludesMapEntries(false, "conflict, so no changes to map", originalMap);  
 		result = cInclude.renameBare("ccc"); 
 		assertFalse(result.hasResult()); 
 		checkAllIncludesMapEntries(false, "no conflict, so map changes", 
@@ -157,21 +168,6 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
         includes.include(net2, "child");
         includes.getChildInclude("fred"); 
 	}
-    @Test
-    public void throwsIfNameDoesNotExistAtAnyLevel() throws Exception {
-    	expectedException.expect(IncludeException.class);
-    	expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL+"fred");
-    	includes.include(net2, "child");
-    	includes.getInclude("child").include(net3, "anotherChild");
-    	includes.getInclude("fred"); 
-    }
-    @Test
-    public void topNameDefaultsToBlankIfNotProvided() throws Exception {
-    	includes = new IncludeHierarchy(net1, null); 
-    	assertEquals("", includes.getName()); 
-    	includes = new IncludeHierarchy(net1, " "); 
-    	assertEquals("", includes.getName()); 
-    }
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
     	expectedException.expect(IncludeException.class);
@@ -203,72 +199,15 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	expectedException.expectMessage(IncludeHierarchy.INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
     	includes.include(null, "child"); 
     }
-    @Test
-	public void savesAndReturnsNet() throws Exception {
-    	assertEquals(net1, includes.getPetriNet()); 
-	}
-	public PetriNet createSimpleNet(int i) {
-		PetriNet net = 
-				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
-				AnImmediateTransition.withId("T1")).and(
-				ANormalArc.withSource("T1").andTarget("P1")).andFinally(
-				ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
-		net.setName(new NormalPetriNetName("net"+i));
-		return net; 
-	}
 	@Test
-	public void topLevelPetriNetIsNotNull() throws Exception
-	{
-		expectedException.expect(IllegalArgumentException.class);
-		includes = new IncludeHierarchy(null, "top");
+	public void throwsIfNameDoesNotExistAtAnyLevel() throws Exception {
+		expectedException.expect(IncludeException.class);
+		expectedException.expectMessage(IncludeHierarchy.INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL+"fred");
+		includes.include(net2, "child");
+		includes.getInclude("child").include(net3, "anotherChild");
+		includes.getInclude("fred"); 
 	}
-    @Test
-    public void includedNetsAddedSubordinateToTop() throws Exception {
-      assertEquals("hierarchy is everything below the root",0, includes.includeMap().size()); 
-      includes.include(net2, "some-function"); 
-      includes.include(net3, "another-function"); 
-      assertEquals("size is only for a given level",2, includes.includeMap().size());
-      assertEquals(net2, includes.getChildInclude("some-function").getPetriNet());
-    }
-    @Test
-	public void verifyIncludedNetsHaveFullyQualifiedAliasNameBuiltByLevel() throws Exception {
-		includes.include(net2, "left-function");
-		includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
-		assertEquals("top", includes.getName()); 
-		assertEquals("top", includes.getFullyQualifiedName()); 
-  	    assertEquals("left-function", includes.getChildInclude("left-function").getName()); 
-  	    assertEquals("lowlevel-function", includes.getChildInclude("right-function")
-  			.getChildInclude("lowlevel-function").getName()); 
-		assertEquals("top", includes.getFullyQualifiedName()); 
-  	    assertEquals("top.left-function", includes.getChildInclude("left-function").getFullyQualifiedName()); 
-  	    assertEquals("top.right-function.lowlevel-function", includes.getChildInclude("right-function")
-  			.getChildInclude("lowlevel-function").getFullyQualifiedName()); 
-	}
-    @Test
-    public void idPrefixIsSuffixedWithDot() throws Exception {
-		includes = new IncludeHierarchy(net1, "top"); 
-		includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
-		assertEquals("top.", includes.getFullyQualifiedNameAsPrefix()); 
-		assertEquals("top.right-function.", includes.getChildInclude("right-function").getFullyQualifiedNameAsPrefix()); 
-		assertEquals("top.right-function.lowlevel-function.", includes.getChildInclude("right-function")
-				.getChildInclude("lowlevel-function").getFullyQualifiedNameAsPrefix()); 
-		assertEquals("lowlevel-function.", includes.getInclude("lowlevel-function").getUniqueNameAsPrefix()); 
-    }
-    @Test
-    public void blankTopLevelGivesBlankPrefix() throws Exception {
-    	includes = new IncludeHierarchy(net1, null); 
-    	assertEquals("", includes.getFullyQualifiedNameAsPrefix()); 
-    }
-    @Test
-    public void lowerLevelPrefixIsPrefixedWithDotIfRootLevelIsBlank() throws Exception {
-    	includes = new IncludeHierarchy(net1, null); 
-    	includes.include(net2, "right-function").include(net3,"lowlevel-function"); 
-    	assertEquals(".right-function.", includes.getChildInclude("right-function").getFullyQualifiedNameAsPrefix()); 
-    	assertEquals(".right-function.lowlevel-function.", includes.getChildInclude("right-function")
-    			.getChildInclude("lowlevel-function").getFullyQualifiedNameAsPrefix()); 
-    }
-    
+  
     @Test
 	public void aNetCanBeIncludedMultipleTimesUnderDifferentAliases() throws Exception {
 	  	includes.include(net2, "left-function"); 
@@ -432,7 +371,17 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertTrue(includes.getChildInclude("a").getChildInclude("b")
     			.getInterfacePlaceAccessScope() instanceof ParentsSiblingsCommandScope); 
 	}
-    private class ipn {
+	private PetriNet createSimpleNet(int i) {
+		PetriNet net = 
+				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+				AnImmediateTransition.withId("T1")).and(
+				ANormalArc.withSource("T1").andTarget("P1")).andFinally(
+				ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
+		net.setName(new NormalPetriNetName("net"+i));
+		return net; 
+	}
+   private class ipn {
     	public String include;
     	public String interfacePlaceName;
     	public ipn(String include, String interfacePlaceName) { this.include = include; this.interfacePlaceName = interfacePlaceName; }
@@ -468,4 +417,8 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	includes.getChildInclude("a").getChildInclude("b").addToInterface(placeB);
 	}
   //TODO verifyTopLevelCanBeRenamedToOrFromBlank
+  //TODO testAddingToInterfaceMultipleTimes
+	//TODO changeAccessScopeAffectsExistingInterfacePlaces...how? 
+	//TODO removeInterfacePlaceReturnsResultForEachInUseInterfacePlaces
+	//TODO remove include
 }

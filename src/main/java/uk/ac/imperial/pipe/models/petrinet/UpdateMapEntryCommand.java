@@ -35,7 +35,6 @@ public class UpdateMapEntryCommand extends
 		this(includeEnum, null, newname, include, false); 
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<UpdateResultEnum> execute(IncludeHierarchy includeHierarchy) {
 		Map<String, IncludeHierarchy> map = includeEnum.getMap(includeHierarchy);

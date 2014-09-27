@@ -12,7 +12,6 @@ public class AddInterfacePlaceCommand<T> extends AbstractIncludeHierarchyCommand
 		this.place = place; 
 		this.home = home; ; 
 	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Result<T> execute(IncludeHierarchy includeHierarchy) {
@@ -23,6 +22,7 @@ public class AddInterfacePlaceCommand<T> extends AbstractIncludeHierarchyCommand
 		else {
 			interfacePlace = new DiscreteInterfacePlace((DiscretePlace) place, InterfacePlaceStatusEnum.AVAILABLE, home.getUniqueName(), includeHierarchy.getUniqueName()); 
 		}
+		//TODO replace with updateMapEntryCommand, then delete 
 		boolean added = includeHierarchy.addInterfacePlaceToMap(interfacePlace); 
 		if (!added) {
 			result.addEntry("Unable to add InterfacePlace "+interfacePlace.getId()+" to Include Hierarchy "+

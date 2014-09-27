@@ -22,14 +22,17 @@ public class AddInterfacePlaceCommandTest {
 		command.execute(mockHierarchy);
 		verify(mockHierarchy).addInterfacePlaceToMap(any(InterfacePlace.class)); 
 	}
+	//TODO namedWithUniqueNamesOfSourceAndTargetIncludesPlusPlace
 	@Test
 	public void namedWithUniqueNamesOfSourceAndTargetIncludesPlusPlace() throws Exception {
 		
 	}
+	//TODO hasHomeStatusInSourceIncludeAndAvailableStatusElsewhere
 	@Test
 	public void hasHomeStatusInSourceIncludeAndAvailableStatusElsewhere() throws Exception {
 
 	}
+	//TODO addedToOtherIncludesAsDefinedByAccessScope
 	@Test
 	public void addedToOtherIncludesAsDefinedByAccessScope() throws Exception {
 
