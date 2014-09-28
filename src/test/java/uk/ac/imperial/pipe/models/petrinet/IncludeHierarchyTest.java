@@ -150,16 +150,25 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		checkAllIncludesMapEntries(false, "", originalMap);
 		Result<UpdateResultEnum> result = aInclude.renameBare("aa"); 
 		assertTrue("duplicate, so error",result.hasResult()); 
-		checkAllIncludesMapEntries(false, "conflict, so no changes to map", originalMap);  
+		checkAllIncludesMapEntries(false, "conflict at level 1, so no changes to map", originalMap);  
 		result = cInclude.renameBare("cc"); 
 		assertTrue(result.hasResult()); 
-		checkAllIncludesMapEntries(false, "conflict, so no changes to map", originalMap);  
+		checkAllIncludesMapEntries(false, "conflict at level 2, so no changes to map", originalMap);  
 		result = cInclude.renameBare("ccc"); 
 		assertFalse(result.hasResult()); 
 		checkAllIncludesMapEntries(false, "no conflict, so map changes", 
 				new ME[] {new ME("top", includes)}, 
 				new ME[] {new ME("a", aInclude), new ME("aa", aaInclude), new ME("aaa", aaaInclude)}, 
 				new ME[] {new ME("b", bInclude), new ME("ccc", cInclude), new ME("cc", ccInclude)});  
+	}
+	@Test
+	public void renameCascadesFullyQualifiedNameChangesThroughChildrenButNotPeers() throws Exception {
+		IncludeHierarchy aInclude = includes.include(net2, "a"); 
+		IncludeHierarchy aaInclude = includes.include(net2, "aa"); 
+		IncludeHierarchy bInclude = aaInclude.include(net3, "b"); 
+		IncludeHierarchy cInclude = aInclude.include(net4, "c"); 
+		IncludeHierarchy ccInclude = aInclude.include(net4, "cc"); 
+		
 	}
     @Test
 	public void throwsIfNameDoesNotExistAtChildLevel() throws Exception {

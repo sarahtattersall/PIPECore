@@ -19,7 +19,7 @@ public interface IncludeHierarchyCommand<T> {
 	 * @throws IncludeException 
 	 */
 	
-	Result<T> execute(IncludeHierarchy includeHierarchy) throws IncludeException;
+	Result<T> execute(IncludeHierarchy includeHierarchy) ;
 
 	/**
 	 * @return current Result from this command 

@@ -20,7 +20,7 @@ public abstract class AbstractIncludeHierarchyCommand<T> implements IncludeHiera
 	}
 	
 	@Override
-	public abstract Result<T> execute(IncludeHierarchy includeHierarchy) throws IncludeException;
+	public abstract Result<T> execute(IncludeHierarchy includeHierarchy);
 	@Override
 	public Result<T> getResult() {
 		return result;

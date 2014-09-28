@@ -114,7 +114,7 @@ public class IncludeHierarchy  {
 		return true;
 	}
 
-	protected void buildUniqueName() throws IncludeException {
+	protected void buildUniqueName()  {
     	self(new BuildUniqueNameCommand()); 
 	}
 
@@ -134,8 +134,7 @@ public class IncludeHierarchy  {
 		return childHierarchy; 
 	}
 
-	protected void addIncludeToIncludeMap(String alias,
-			IncludeHierarchy childHierarchy) throws IncludeException {
+	protected void addIncludeToIncludeMap(String alias, IncludeHierarchy childHierarchy) throws IncludeException {
 		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy)); 
 		if (result.hasResult()) throw new IncludeException(result.getMessage());
 	}
@@ -225,6 +224,9 @@ public class IncludeHierarchy  {
 	public boolean renameChildAlias(String oldName, String newName) {
 		return renameChild(includeMap, oldName, newName); 
 	}
+	public boolean hasParent(IncludeHierarchy include) {
+		return parents(new IsParentCommand(include)).hasResult();
+	}
 
 	//TODO convert to command
 	protected void buildFullyQualifiedName() {
@@ -306,7 +308,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> parents(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> parents(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			result = command.execute(parent);
@@ -331,7 +333,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> parent(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> parent(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			result = command.execute(parent);
@@ -353,7 +355,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> children(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> children(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
 		iterator = iterator();
 		iterator.next(); // skip self
@@ -377,7 +379,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
 		if (parent != null) {
 			iterator = parent.iterator();
@@ -406,7 +408,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> self(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> self(IncludeHierarchyCommand<T> command)  {
 		return command.execute(this); 
 	}
 	/**
@@ -424,7 +426,7 @@ public class IncludeHierarchy  {
 	 * @return Result accumulated results encountered when the command was executed at each level
 	 * @throws IncludeException 
 	 */
-	public <T> Result<T> all(IncludeHierarchyCommand<T> command) throws IncludeException {
+	public <T> Result<T> all(IncludeHierarchyCommand<T> command) {
 		Result<T> result = command.getResult(); 
 		iterator = getRoot().iterator();
 		while (iterator.hasNext()) {
@@ -437,19 +439,6 @@ public class IncludeHierarchy  {
 	public void setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum scopeEnum) {
 		interfacePlaceAccessScopeEnum = scopeEnum;
 		interfacePlaceAccessScope = scopeEnum.buildScope(this);
-	}
-	//TODO convert to command? 
-	// hasResult = hasParent; parent is result.getEntry.value
-	public boolean hasParent(IncludeHierarchy include) {
-		IncludeHierarchy parent = getParent(); 
-		boolean isParent = false; 
-		while (parent != null) {
-			if (parent.equals(include)) {
-				isParent = true; 
-			}
-			parent = parent.getParent(); 
-		}
-		return isParent;
 	}
 	public IncludeIterator iterator() {
 		iterator = new IncludeIterator(this);

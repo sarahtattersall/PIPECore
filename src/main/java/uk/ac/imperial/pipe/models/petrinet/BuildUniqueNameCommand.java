@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.exceptions.IncludeException;
 
 public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<IncludeHierarchy> {
 
@@ -25,7 +24,7 @@ public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<Incl
 		this.controller = controller; 
 	}
 	@Override
-	public Result<IncludeHierarchy> execute(IncludeHierarchy includeHierarchy) throws IncludeException {
+	public Result<IncludeHierarchy> execute(IncludeHierarchy includeHierarchy)  {
 		if (controller) {
 			BuildUniqueNameCommand command = null;  
 			while (!finished) {
@@ -129,13 +128,13 @@ public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<Incl
 		this.name = includeHierarchy.getName(); 
 		this.currentUniqueName = includeHierarchy.getUniqueName(); 
 	}
-	private void updateUniqueNameInSelfAndParentsMaps(IncludeHierarchy includeHierarchy, String uniqueName) throws IncludeException {
+	private void updateUniqueNameInSelfAndParentsMaps(IncludeHierarchy includeHierarchy, String uniqueName)  {
 		includeHierarchy.setUniqueName(uniqueName); 
 		includeHierarchy.buildUniqueNameAsPrefix();
 		UpdateMapEntryCommand updateCommand = 
 			new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE_ALL, currentUniqueName, uniqueName, includeHierarchy, true);
 		Result<UpdateResultEnum> updateResult = includeHierarchy.parents(updateCommand);
 		updateResult = includeHierarchy.self(updateCommand);
-		if (updateResult.hasResult()) throw new IncludeException(updateResult.getMessage());
+		if (updateResult.hasResult()) throw new RuntimeException(BUILD_UNIQUE_NAME+"updateUniqueNameInSelfAndParentsMaps probable logic error: \n"+updateResult.getMessage());
 	}
 }
