@@ -162,13 +162,45 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 				new ME[] {new ME("b", bInclude), new ME("ccc", cInclude), new ME("cc", ccInclude)});  
 	}
 	@Test
+	public void throwsIfRenameFails() throws Exception {
+
+	}
+	@Test
 	public void renameCascadesFullyQualifiedNameChangesThroughChildrenButNotPeers() throws Exception {
 		IncludeHierarchy aInclude = includes.include(net2, "a"); 
 		IncludeHierarchy aaInclude = includes.include(net2, "aa"); 
 		IncludeHierarchy bInclude = aaInclude.include(net3, "b"); 
 		IncludeHierarchy cInclude = aInclude.include(net4, "c"); 
 		IncludeHierarchy ccInclude = aInclude.include(net4, "cc"); 
-		
+		checkFullyQualifiedNameEntries(false, "initial names", 
+				new FQNME[] {new FQNME("top", includes, "top")}, 
+				new FQNME[] {new FQNME("a", aInclude, "top.a"), new FQNME("aa", aaInclude, "top.aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, "top.aa.b"), new FQNME("c", cInclude, "top.a.c"), new FQNME("cc", ccInclude, "top.a.cc")});  
+		aInclude.rename("d"); 
+		checkFullyQualifiedNameEntries(false, "rename affects the 'a' hierarchy only", 
+				new FQNME[] {new FQNME("top", includes, "top")}, 
+				new FQNME[] {new FQNME("d", aInclude, "top.d"), new FQNME("aa", aaInclude, "top.aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, "top.aa.b"), new FQNME("c", cInclude, "top.d.c"), new FQNME("cc", ccInclude, "top.d.cc")});  
+		cInclude.rename("ccc"); 
+		checkFullyQualifiedNameEntries(false, "bottom only renames self", 
+				new FQNME[] {new FQNME("top", includes, "top")}, 
+				new FQNME[] {new FQNME("d", aInclude, "top.d"), new FQNME("aa", aaInclude, "top.aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, "top.aa.b"), new FQNME("ccc", cInclude, "top.d.ccc"), new FQNME("cc", ccInclude, "top.d.cc")});  
+		aInclude.rename("a"); 
+		checkFullyQualifiedNameEntries(false, "rename back", 
+				new FQNME[] {new FQNME("top", includes, "top")}, 
+				new FQNME[] {new FQNME("a", aInclude, "top.a"), new FQNME("aa", aaInclude, "top.aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, "top.aa.b"), new FQNME("ccc", cInclude, "top.a.ccc"), new FQNME("cc", ccInclude, "top.a.cc")});  
+		includes.rename("root"); 
+		checkFullyQualifiedNameEntries(false, "rename top level", 
+				new FQNME[] {new FQNME("root", includes, "root")}, 
+				new FQNME[] {new FQNME("a", aInclude, "root.a"), new FQNME("aa", aaInclude, "root.aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, "root.aa.b"), new FQNME("ccc", cInclude, "root.a.ccc"), new FQNME("cc", ccInclude, "root.a.cc")});  
+		includes.rename(""); 
+		checkFullyQualifiedNameEntries(false, "top level is blank", 
+				new FQNME[] {new FQNME("", includes, "")}, 
+				new FQNME[] {new FQNME("a", aInclude, ".a"), new FQNME("aa", aaInclude, ".aa")}, 
+				new FQNME[] {new FQNME("b", bInclude, ".aa.b"), new FQNME("ccc", cInclude, ".a.ccc"), new FQNME("cc", ccInclude, ".a.cc")});  
 	}
     @Test
 	public void throwsIfNameDoesNotExistAtChildLevel() throws Exception {

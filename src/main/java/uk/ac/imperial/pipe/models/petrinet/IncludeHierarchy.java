@@ -203,11 +203,10 @@ public class IncludeHierarchy  {
 			throw new IncludeException(IncludeHierarchy.INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY+"\n"+result.getEntry().message);
 		}
 	}
-	//TODO convert to command
 	public Result<UpdateResultEnum> rename(String newname) throws IncludeException {
 		Result<UpdateResultEnum> renameResult = renameBare(newname);
+		buildFullyQualifiedName();   
 		buildUniqueName();
-//		buildFullyQualifiedName();  //TODO [where] is this being done?  
 		return renameResult; 
  	}
 
@@ -228,18 +227,10 @@ public class IncludeHierarchy  {
 		return parents(new IsParentCommand(include)).hasResult();
 	}
 
-	//TODO convert to command
 	protected void buildFullyQualifiedName() {
-		StringBuffer sb = new StringBuffer(); 
-		sb.insert(0, getName()); 
-		IncludeHierarchy parent = getParent(); 
-		while (parent != null) {
-			sb.insert(0,".");
-			sb.insert(0,parent.getName());
-			parent = parent.getParent(); 
-		}
-		fullyQualifiedName =  sb.toString();
-		buildFullyQualifiedNameAsPrefix(); 
+		BuildFullyQualifiedNameCommand buildFullyQualifiedNameCommand = new BuildFullyQualifiedNameCommand();  
+		self(buildFullyQualifiedNameCommand);
+		children(buildFullyQualifiedNameCommand); 
 	}
 
 	protected void buildFullyQualifiedNameAsPrefix() {
@@ -508,6 +499,10 @@ public class IncludeHierarchy  {
 
 	protected boolean isRoot() {
 		return isRoot;
+	}
+
+	public void setFullyQualifiedName(String fullyQualifiedName) {
+		this.fullyQualifiedName = fullyQualifiedName; 
 	}
 
 }
