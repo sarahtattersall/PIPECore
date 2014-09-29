@@ -40,32 +40,27 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 
 public class IncludeHierarchy  {
 
-	public static final String INCLUDE_HIERARCHY_ATTEMPTED_RENAME_WOULD_CAUSE_DUPLICATE = "IncludeHierarchy attempted rename would cause duplicate: ";
-	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL = "Include alias not found at level ";
-	public static final String INCLUDE_ALIAS_NAME_DUPLICATED_AT_LEVEL = "Include alias name duplicated at level ";
-	public static final String INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL = "Include alias name may not be blank or null";
+	public static final String INCLUDE_NAME_NOT_FOUND_AT_LEVEL = "Include name not found at level ";
+	public static final String INCLUDE_NAME_MAY_NOT_BE_BLANK_OR_NULL = "Include name may not be blank or null";
 	public static final String INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL = "IncludeHierarchy:  PetriNet may not be null";
-	public static final String NEW_INCLUDE_ALIAS_NAME = "new include alias name";
-	public static final String INCLUDE_ALIAS_NOT_FOUND = "Include alias not found: ";
 	public static final String INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY = "Included Petri net name may not exist as a parent Petri net in this include hierarchy.";
-	public static final String INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL = "Include alias not found at any level: ";
-	private Map<String, IncludeHierarchy> includeMap;
-	private Map<String, IncludeHierarchy> includeMapAll; 
+	public static final String INCLUDE_NAME_NOT_FOUND_AT_ANY_LEVEL = "Include name not found at any level: ";
 	private String name;
+	private PetriNet petriNet;
 	private IncludeHierarchy parent;
 	private String fullyQualifiedName;
-	private PetriNet petriNet;
 	private String fullyQualifiedNameAsPrefix;
-	private IncludeIterator iterator;
-	private Map<String, InterfacePlace> interfacePlaces;
-	private boolean isRoot;
-	private IncludeHierarchy root;
-	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
-	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
-	private int level;
 	private String uniqueName;
 	private String uniqueNameAsPrefix;
-	//TODO consider renaming name to alias
+	private IncludeIterator iterator;
+	private boolean isRoot;
+	private int level;
+	private IncludeHierarchy root;
+	private Map<String, IncludeHierarchy> includeMap  = new HashMap<>();
+	private Map<String, IncludeHierarchy> includeMapAll  = new HashMap<>(); 
+	private Map<String, InterfacePlace> interfacePlaces = new HashMap<>();
+	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
+	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
 	}
@@ -73,28 +68,32 @@ public class IncludeHierarchy  {
 	public IncludeHierarchy(PetriNet petriNet, IncludeHierarchy parent, String name) {
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
-		this.includeMap = new HashMap<>();
-		initIncludeMapAll(); 
-		this.interfacePlaces = new HashMap<>(); 
 		this.parent = parent;
-		if (!isValid(name)) name = "";
-		this.name = name; 
 		buildRootAndLevelRelativeToRoot(parent); 
-		buildFullyQualifiedName();
-//		buildMinimallyUniqueName(); 
+		buildNames(name);
 		setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS);  
 	}
 
-	protected void initIncludeMapAll() {
-		this.includeMapAll = new HashMap<>();
+	private void buildNames(String name) {
+		if (!isValid(name, isRoot)) name = "";
+		this.name = name.trim(); 
+		buildUniqueName();
+		buildFullyQualifiedName();
 	}
-
+	public IncludeHierarchy include(PetriNet petriNet, String name) throws  IncludeException {
+		validateInclude(petriNet, name);
+		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, name);
+		addIncludeToIncludeMap(name, childHierarchy); 
+		childHierarchy.buildUniqueName(); 
+		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+		return childHierarchy; 
+	}
+	
 	private void buildRootAndLevelRelativeToRoot(IncludeHierarchy parent) {
 		isRoot = (parent == null) ? true : false;
 		if (isRoot) {
 			root = this; 
 			level = 0; 
-			buildUniqueNameForRoot(); 
 		}
 		else {
 			root = parent.getRoot(); 
@@ -102,15 +101,12 @@ public class IncludeHierarchy  {
 		}
 	}
 
-	protected void buildUniqueNameForRoot() {
-		uniqueName = name;
-		buildUniqueNameAsPrefix(); 
-		getIncludeMapAll().put(name, this);
-	}
- 
-	private boolean isValid(String name) {
+	private boolean isValid(String name, boolean root) {
 		if (name == null) return false;
-		if (name.trim().isEmpty()) return false;
+		if (name.trim().isEmpty()) {
+			if (root) return true; 
+			else return false;
+		}
 		return true;
 	}
 
@@ -125,57 +121,33 @@ public class IncludeHierarchy  {
 		return getLevelRelativeToRoot() > conflict.getLevelRelativeToRoot();
 	}
 
-	public IncludeHierarchy include(PetriNet petriNet, String alias) throws  IncludeException {
-		validateInclude(petriNet, alias);
-		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, alias);
-		addIncludeToIncludeMap(alias, childHierarchy); 
-		childHierarchy.buildUniqueName(); 
-		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
-		return childHierarchy; 
-	}
-
-	protected void addIncludeToIncludeMap(String alias, IncludeHierarchy childHierarchy) throws IncludeException {
-		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, alias, childHierarchy)); 
+	protected void addIncludeToIncludeMap(String name, IncludeHierarchy childHierarchy) throws IncludeException {
+		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, name, childHierarchy)); 
 		if (result.hasResult()) throw new IncludeException(result.getMessage());
 	}
-	private boolean renameChild(Map<String, IncludeHierarchy> map, String oldName, String newName) {
-		boolean renamed = true; 
-		if (map.containsKey(newName)) {
-			renamed = false; 
-		}
-		else {
-			IncludeHierarchy child = map.get(oldName);
-		    if (child != null) { 
-				map.put(newName, child); 	
-				map.remove(oldName);
-		    }
-		    else {
-//		    	renamed = false;  //TODO account for this condition  
-		    }
-		}
-		return renamed; 
-	}
 
-
-	protected void validateInclude(PetriNet petriNet, String alias) throws IncludeException {
+	protected void validateInclude(PetriNet petriNet, String name) throws IncludeException {
 		if (petriNet == null) { 
-			throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
+			throw new IncludeException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		}
-		if (!isValid(alias)) { 
-			throw new IllegalArgumentException(INCLUDE_ALIAS_NAME_MAY_NOT_BE_BLANK_OR_NULL);
-		}
+		validateName(name, false);
 		checkForDuplicatePetriNetNameInSelfAndParentIncludes(petriNet);
+	}
+	protected void validateName(String name, boolean root) throws IncludeException {
+		if (!isValid(name, root)) { 
+			throw new IncludeException(INCLUDE_NAME_MAY_NOT_BE_BLANK_OR_NULL);
+		}
 	}
 	/**
 	 * Returns the IncludeHierarchy, if it exists, with the specified name that is the immediate child of this include hierarchy
-	 * @param includeAlias
+	 * @param includeName
 	 * @return
 	 * @throws IncludeException 
 	 */
-	public IncludeHierarchy getChildInclude(String includeAlias) throws IncludeException {
-		IncludeHierarchy child = includeMap.get(includeAlias); 
+	public IncludeHierarchy getChildInclude(String includeName) throws IncludeException {
+		IncludeHierarchy child = includeMap.get(includeName); 
 		if (child == null) {			
-			throw new IncludeException(INCLUDE_ALIAS_NOT_FOUND_AT_LEVEL + name + ": " + includeAlias);
+			throw new IncludeException(INCLUDE_NAME_NOT_FOUND_AT_LEVEL + name + ": " + includeName);
 		}
 		return child;
 	}
@@ -190,7 +162,7 @@ public class IncludeHierarchy  {
 	public IncludeHierarchy getInclude(String uniqueName) throws IncludeException {
 		IncludeHierarchy include = includeMapAll.get(uniqueName); 
 		if (include == null) {			
-			throw new IncludeException(INCLUDE_ALIAS_NOT_FOUND_AT_ANY_LEVEL + uniqueName);
+			throw new IncludeException(INCLUDE_NAME_NOT_FOUND_AT_ANY_LEVEL + uniqueName);
 		}
 		return include;
 	}
@@ -204,7 +176,11 @@ public class IncludeHierarchy  {
 		}
 	}
 	public Result<UpdateResultEnum> rename(String newname) throws IncludeException {
+		validateName(newname, isRoot);
 		Result<UpdateResultEnum> renameResult = renameBare(newname);
+		if (renameResult.hasResult()) {
+			throw new IncludeException(renameResult.getMessage()); 
+		}
 		buildFullyQualifiedName();   
 		buildUniqueName();
 		return renameResult; 
@@ -215,14 +191,9 @@ public class IncludeHierarchy  {
 		if (!result.hasResult()) {
 			setName(newname); 
 		}
-		//TODO else throw
 		return result;
 	}
 	
-	//TODO rework/replace
-	public boolean renameChildAlias(String oldName, String newName) {
-		return renameChild(includeMap, oldName, newName); 
-	}
 	public boolean hasParent(IncludeHierarchy include) {
 		return parents(new IsParentCommand(include)).hasResult();
 	}
@@ -377,7 +348,7 @@ public class IncludeHierarchy  {
 			IncludeHierarchy current = null; 
 			while (iterator.hasNext()) {
 				current = iterator.next(); 
-				if ((!current.equals(this)) && (current.parent.equals(parent))) {
+				if ((!current.equals(this)) && (!(current.parent == null)) && (current.parent.equals(parent))) {
 					result = command.execute(current); 
 				}
 			}
