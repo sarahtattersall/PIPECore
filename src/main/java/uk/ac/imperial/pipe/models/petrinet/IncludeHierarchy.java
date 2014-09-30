@@ -243,7 +243,7 @@ public class IncludeHierarchy  {
 		}
 	}
 
-	public void removeFromInterface(DiscretePlace place) {
+	public void removeFromInterface(Place place) {
 		for (String id : interfacePlaces.keySet()) {
 			if (interfacePlaces.get(id).getPlace().getId().equals(place.getId())) {
 				interfacePlaces.remove(id); 

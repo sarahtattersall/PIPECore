@@ -16,9 +16,9 @@ public interface InterfacePlace extends Place {
 	public void setStatus(InterfacePlaceStatus status);
 	public InterfacePlaceStatus getStatus();
 
-	public void setAwayAlias(String alias);
+	public void setAwayName(String alias);
 
-	public void setHomeAlias(String alias);
+	public void setHomeName(String alias);
 	
 	/**
 	 * When true, this InterfacePlace has been added to the current PetriNet, and has status {@link InterfacePlaceStatusInUse} 
@@ -29,9 +29,10 @@ public interface InterfacePlace extends Place {
 	 * @param inUse
 	 */
 	public boolean canUse();
-	public boolean use();
+	public boolean isInUse();
+	public boolean isHome();
 
-	public boolean canRemove();
+	public boolean use();
 	public boolean remove();
 
 

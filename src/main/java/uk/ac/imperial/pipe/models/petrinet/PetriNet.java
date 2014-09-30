@@ -118,7 +118,7 @@ public class PetriNet extends AbstractPetriNet {
      */
     public PetriNet(PetriNetName name) {
     	super(); 
-    	includes = new IncludeHierarchy(this, null); 
+    	includeHierarchy = new IncludeHierarchy(this, null); 
         this.petriNetName = name;
     }
     /**
@@ -718,7 +718,7 @@ public class PetriNet extends AbstractPetriNet {
     }
 
 	public void setIncludesForTesting(IncludeHierarchy includeHierarchy) {
-		this.includes = includeHierarchy;
+		this.includeHierarchy = includeHierarchy;
 	}
 
 }

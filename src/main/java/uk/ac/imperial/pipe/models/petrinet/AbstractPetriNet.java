@@ -80,7 +80,7 @@ public abstract class AbstractPetriNet  {
 	 */
 	protected Multimap<String, InboundArc> transitionInboundArcs = HashMultimap.create();
 
-	protected IncludeHierarchy includes;
+	protected IncludeHierarchy includeHierarchy;
 
 
     public AbstractPetriNet() {
@@ -334,7 +334,7 @@ public abstract class AbstractPetriNet  {
 	    * @return the IncludeHierarchy representing any PetriNets included directly by this net, or indirectly by includes done in included in Petri nets. 
 	    */
 	public IncludeHierarchy getIncludeHierarchy() {
-		return includes;
+		return includeHierarchy;
 	}
 
 	/**

@@ -17,10 +17,10 @@ public class AddInterfacePlaceCommand<T> extends AbstractIncludeHierarchyCommand
 	public Result<T> execute(IncludeHierarchy includeHierarchy) {
 		InterfacePlace interfacePlace = null; 
 		if (includeHierarchy.equals(home)) {
-			interfacePlace = new DiscreteInterfacePlace((DiscretePlace) place, InterfacePlaceStatusEnum.HOME, includeHierarchy.getUniqueName()); 
+			interfacePlace = new DiscreteInterfacePlace((DiscretePlace) place, InterfacePlaceStatusEnum.HOME.buildStatus(home), includeHierarchy.getUniqueName()); 
 		}
 		else {
-			interfacePlace = new DiscreteInterfacePlace((DiscretePlace) place, InterfacePlaceStatusEnum.AVAILABLE, home.getUniqueName(), includeHierarchy.getUniqueName()); 
+			interfacePlace = new DiscreteInterfacePlace((DiscretePlace) place, InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includeHierarchy), home.getUniqueName(), includeHierarchy.getUniqueName()); 
 		}
 		//TODO replace with updateMapEntryCommand, then delete 
 		boolean added = includeHierarchy.addInterfacePlaceToMap(interfacePlace); 

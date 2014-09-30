@@ -4,45 +4,30 @@ package uk.ac.imperial.pipe.models.petrinet;
 public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePlace {
 
 	private Place place;
-	private String fullyQualifiedName;
 	private InterfacePlaceStatus status;
-	private String homeAlias;
-	private String awayAlias;
+	private String homeName;
+	private String awayName;
 
-	public DiscreteInterfacePlace(DiscretePlace place, String homeAlias,
-			String awayAlias) {
-		this(place, InterfacePlaceStatusEnum.HOME, homeAlias, awayAlias); 
-//		super(buildId(place.getId(),homeAlias, awayAlias), buildId(place.getId(),homeAlias, awayAlias));
-//		if (place instanceof DiscreteInterfacePlace) throw new IllegalArgumentException("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
-//		this.place = place; 
-//		this.homeAlias = homeAlias;
-//		this.awayAlias = awayAlias; 
-//		place.setInInterface(true);
-//		listenForTokenCountChanges(); 
-	}
-
-	public DiscreteInterfacePlace(DiscretePlace place, String homeAlias) {
-		this(place, homeAlias, null); 
-	}
-
-	public DiscreteInterfacePlace(DiscretePlace place, InterfacePlaceStatusEnum status, String homeAlias) {
-		this(place, status, homeAlias, null); 
-	}
-	public DiscreteInterfacePlace(DiscretePlace place,
-			InterfacePlaceStatusEnum status, String homeAlias, String awayAlias) {
-		super(buildId(place.getId(),homeAlias, awayAlias), buildId(place.getId(),homeAlias, awayAlias));
+	public DiscreteInterfacePlace(DiscretePlace place, InterfacePlaceStatus status, String homeName, String awayName) {
+		super(status.buildId(place.getId(),homeName, awayName), status.buildId(place.getId(),homeName, awayName));
 		if (place instanceof DiscreteInterfacePlace) throw new IllegalArgumentException("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
 		this.place = place; 
-		this.homeAlias = homeAlias;
-		this.awayAlias = awayAlias; 
-		this.status = status.buildStatus();  
-		place.setInInterface(true);
+		this.homeName = homeName;
+		this.awayName = awayName; 
+		this.status = status;  
+		status.setInterfacePlace(this); 
+		setInInterface(true); 
+		setInterfacePlace(this); 
 		listenForTokenCountChanges(); 
 	}
 
-	private static String buildId(String id, String homeAlias, String awayAlias) {
-		return (awayAlias == null) ? homeAlias+"."+id : awayAlias+".."+homeAlias+"."+id;
+	public DiscreteInterfacePlace(DiscretePlace place, InterfacePlaceStatus status, String homeName) {
+		this(place, status, homeName, null); 
 	}
+
+//	private static String buildId(String id, String homeAlias, String awayAlias) {
+//		return (awayAlias == null) ? homeAlias+"."+id : awayAlias+".."+homeAlias+"."+id;
+//	}
 
 	private void listenForTokenCountChanges() {
 		this.addPropertyChangeListener(place); 
@@ -57,17 +42,17 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 
 
 	@Override
-	public void setHomeAlias(String homeAlias) {
-		this.homeAlias = homeAlias; 
-		setId(buildId(place.getId(), homeAlias, awayAlias)); 
-		setName(buildId(place.getId(), homeAlias, awayAlias)); 
+	public void setHomeName(String homeName) {
+		this.homeName = homeName; 
+		setId(status.buildId(place.getId(), homeName, awayName)); 
+		setName(status.buildId(place.getId(), homeName, awayName)); 
 	}
 
 	@Override
-	public void setAwayAlias(String awayAlias) {
-		this.awayAlias = awayAlias; 
-		setId(buildId(place.getId(), homeAlias, awayAlias)); 
-		setName(buildId(place.getId(), homeAlias, awayAlias)); 
+	public void setAwayName(String awayName) {
+		this.awayName = awayName; 
+		setId(status.buildId(place.getId(), homeName, awayName)); 
+		setName(status.buildId(place.getId(), homeName, awayName)); 
 	}
 	//TODO should probably be protected; status should be set at construction and modified by use(boolean)
 	@Override
@@ -93,18 +78,37 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 		return status.canUse();
 	}
 
-	@Override
-	public boolean canRemove() {
-		return status.canRemove();
-	}
+//	@Override
+//	public boolean canRemove() {
+//		return status.isInUse();
+//	}
 
 	@Override
 	public boolean remove() {
-		boolean removeResult = status.canRemove(); 
+		boolean removeResult =    status.isInUse(); 
 		if (removeResult) {
 			status = status.remove(); 
 		}
 		return removeResult; 
 	}
-	
+
+	@Override
+	public boolean isInUse() {
+		return status.isInUse();
+	}
+
+	@Override
+	public boolean isHome() {
+		return status.isHome();
+	}
+	@Override
+	public void setInInterface(boolean inInterface) {
+		super.setInInterface(inInterface);
+		place.setInInterface(inInterface); 
+	}
+	@Override
+	public void setInterfacePlace(InterfacePlace interfacePlace) {
+		super.setInterfacePlace(interfacePlace);
+		place.setInterfacePlace(interfacePlace); 
+	}
 }

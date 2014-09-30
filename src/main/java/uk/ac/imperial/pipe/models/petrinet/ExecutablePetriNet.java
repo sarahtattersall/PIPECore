@@ -57,7 +57,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this.petriNet = petriNet;
-		includes = petriNet.getIncludeHierarchy(); 
+		includeHierarchy = petriNet.getIncludeHierarchy(); 
 		refreshRequired = true; 
 		refresh(); 
 	}
