@@ -1,7 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
-import uk.ac.imperial.pipe.models.petrinet.Result.Entry;
 
 /**
  * Used to implement the same command for multiple levels in an {@link uk.ac.imperial.models.petrinet.IncludeHierarchy}.  Each level is its own IncludeHierarchy

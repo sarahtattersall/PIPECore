@@ -52,11 +52,23 @@ public class InterfacePlaceStatusInUse implements InterfacePlaceStatus {
 			} 
 		}
 		else {
-			// add references to result & test
+			for (String componentId : references) {
+				result.addEntry(buildMessage(componentId), new RemoveInterfacePlaceFunctionalExpressionAction(includeHierarchy, interfacePlace, componentId));
+			}
 		}
 		return result; 
 	}
 
+	private String buildMessage(String componentId) {
+		StringBuffer sb = new StringBuffer(); 
+		sb.append("InterfacePlace ");
+		sb.append(interfacePlace.getId());
+		sb.append(" cannot be removed from IncludeHierarchy ");
+		sb.append(includeHierarchy.getUniqueName());
+		sb.append(" because it is referenced in a functional expression in component ");
+		sb.append(componentId);
+		return sb.toString();
+	}
 	@Override
 	public InterfacePlace getInterfacePlace() {
 		return interfacePlace;

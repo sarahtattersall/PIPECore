@@ -6,6 +6,12 @@ package uk.ac.imperial.pipe.models.petrinet;
  * @see InterfacePlaceStatus
  */
 public interface InterfacePlaceAction {
+
+	public abstract IncludeHierarchy getIncludeHierarchy();
+
+	public abstract InterfacePlace getInterfacePlace();
+
+	public abstract String getComponentId();
 	
 
 }

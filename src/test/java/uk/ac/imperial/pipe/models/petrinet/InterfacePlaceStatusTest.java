@@ -1,15 +1,18 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
@@ -20,10 +23,6 @@ import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.parsers.FunctionalResults;
-import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
-import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InterfacePlaceStatusTest {
@@ -91,7 +90,7 @@ public class InterfacePlaceStatusTest {
 		assertTrue(status instanceof InterfacePlaceStatusAvailable); 
 		assertEquals(2, net.getPlaces().size()); 
 	}
-//	@Test
+	@Test
 	public void canNotRemoveIfDependentComponentsForInuseAndComponentIdsListed() throws Exception {
 		status = placeTopIP.getInterfacePlace().getStatus(); 
 		status.use(); 
@@ -111,22 +110,24 @@ public class InterfacePlaceStatusTest {
         Transition t0 = net.getComponent("T0", Transition.class); 
         OutboundArc newArc = new OutboundNormalArc(t0, placeTopIP, tokenWeights);
         net.addArc(newArc); 
-        System.out.println(newArc.getId());
-//	      PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
-//
-//	        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
-//	        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, executablePetriNet);
-////	        FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
-//	        FunctionalResults<Double> result = parser.evaluateExpression("#(P0, Default)");
-//	        assertTrue(result.getComponents().contains("P0"));
-//	        assertTrue(result.getComponents().contains("Default"));
-
-		
 		Result<InterfacePlaceAction> result = status.remove(); 
 		status = status.nextStatus(); 
 		assertTrue(result.hasResult()); 
 		assertTrue("status unchanged",status instanceof InterfacePlaceStatusInUse); 
 		assertEquals(3, result.getEntries().size()); 
+		Iterator<ResultEntry<InterfacePlaceAction>> iterator = result.getEntries().iterator();
+		ResultEntry<InterfacePlaceAction> entry = iterator.next(); 
+		
+		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
+				" because it is referenced in a functional expression in component T0 TO top..a.P0", entry.message);
+		entry = iterator.next(); 
+		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
+				" because it is referenced in a functional expression in component frp1", entry.message);
+		entry = iterator.next(); 
+		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
+				" because it is referenced in a functional expression in component T2", entry.message);
+		assertEquals("T2",entry.value.getComponentId()); 
+		
 	}
 	@Test
 	public void testEnumReturnsStatus() {
