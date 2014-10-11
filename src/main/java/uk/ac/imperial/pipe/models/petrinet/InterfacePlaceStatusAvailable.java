@@ -4,11 +4,16 @@ public class InterfacePlaceStatusAvailable implements InterfacePlaceStatus {
 
 	private IncludeHierarchy includeHierarchy;
 	private InterfacePlace interfacePlace;
+	private InterfacePlaceStatus nextStatus;
 
 	public InterfacePlaceStatusAvailable(IncludeHierarchy includeHierarchy) {
-		this.includeHierarchy = includeHierarchy;
+		this(null, includeHierarchy); 
 	}
-
+	public InterfacePlaceStatusAvailable(InterfacePlace interfacePlace, IncludeHierarchy includeHierarchy) {
+		this.interfacePlace = interfacePlace; 
+		this.includeHierarchy = includeHierarchy;
+		nextStatus = this; 
+	}
 	
 	@Override
 	public boolean isInUse() {
@@ -23,25 +28,16 @@ public class InterfacePlaceStatusAvailable implements InterfacePlaceStatus {
 	public boolean isHome() {
 		return false;
 	}
-	
+
 	@Override
-	public InterfacePlaceStatus use() {
-		return InterfacePlaceStatusEnum.IN_USE.buildStatus(includeHierarchy); 
+	public Result<InterfacePlaceAction> use() {
+		includeHierarchy.getPetriNet().addPlace(interfacePlace); 
+		nextStatus = new InterfacePlaceStatusInUse(interfacePlace,includeHierarchy);
+		return new Result<InterfacePlaceAction>();
 	}
 
 	@Override
-	public InterfacePlaceStatus remove() {
-		return this;
-	}
-
-
-	@Override
-	public Result<InterfacePlaceAction> use1() {
-		return null;
-	}
-
-	@Override
-	public Result<InterfacePlaceAction> remove1() {
+	public Result<InterfacePlaceAction> remove() {
 		return null;
 	}
 
@@ -64,6 +60,12 @@ public class InterfacePlaceStatusAvailable implements InterfacePlaceStatus {
 	public String buildId(String id, String homeName, String awayName) {
 		if (awayName == null) awayName = ""; 
 		return awayName+".."+homeName+"."+id;
+	}
+
+
+	@Override
+	public InterfacePlaceStatus nextStatus() {
+		return nextStatus;
 	}
 
 }

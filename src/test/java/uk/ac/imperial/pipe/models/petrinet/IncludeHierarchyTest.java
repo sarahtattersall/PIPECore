@@ -328,16 +328,6 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertEquals("b.P0", includes.getChildInclude("a").getChildInclude("b").getInterfacePlace("b.P0").getId());  
 	}
     @Test
-	public void interfacePlacesAreAvailableAsDefinedByAccessScope() throws Exception {
-    	buildHierarchyWithInterfacePlaces(); 
-    	assertEquals("top..b.P0", includes.getInterfacePlace("top..b.P0").getId());
-    	assertEquals(placeB, includes.getInterfacePlace("top..b.P0").getPlace());
-    	assertEquals(placeB, includes.getInclude("a").getInterfacePlace("a..b.P0").getPlace());
-    	assertEquals(placeB, includes.getInclude("b").getInterfacePlace("b.P0").getPlace());
-    	assertEquals("neither self nor parent, so doesn't see the interface place",
-    			0, includes.getInclude("c").getInterfacePlaces().size());
-	}
-    @Test
 	public void interfacePlacesArePartOfPlaceCollectionOnceUsed() throws Exception {
 		includes = new IncludeHierarchy(net1, "top"); 
 		includes.include(net2, "a");  
@@ -356,6 +346,17 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusInUse); 
 		assertEquals("top..a.P0", includes.getPetriNet().getComponent("top..a.P0", Place.class).getId()); 
 	}
+    //TODO redundant with next test? 
+    @Test
+    public void interfacePlacesAreAvailableAsDefinedByAccessScope() throws Exception {
+    	buildHierarchyWithInterfacePlaces(); 
+    	assertEquals("top..b.P0", includes.getInterfacePlace("top..b.P0").getId());
+    	assertEquals(placeB, includes.getInterfacePlace("top..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("a").getInterfacePlace("a..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("b").getInterfacePlace("b.P0").getPlace());
+    	assertEquals("neither self nor parent, so doesn't see the interface place",
+    			0, includes.getInclude("c").getInterfacePlaces().size());
+    }
       
     @Test  
 	public void interfacePlaceCreatedFollowingItsPlaceInHierarchyAndScope() throws Exception {

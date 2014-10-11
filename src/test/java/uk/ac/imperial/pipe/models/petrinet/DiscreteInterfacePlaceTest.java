@@ -31,15 +31,24 @@ public class DiscreteInterfacePlaceTest {
     }
     //TODO should look different in GUI
     @Test
-	public void createHomeAndOtherDiscreteInterfacePlace() throws Exception {
-    	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.HOME.buildStatus(includes), "home");
+	public void placeKnowsItsHomeInterfacePlace() throws Exception {
+    	InterfacePlaceStatus home = InterfacePlaceStatusEnum.HOME.buildStatus(includes);
+    	discreteInterfacePlace = new DiscreteInterfacePlace(place, home, "home");
     	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusHome); 
+    	assertEquals(home, place.getInterfacePlace().getStatus()); 
+    	assertEquals(discreteInterfacePlace, place.getInterfacePlace()); 
     	assertEquals(discreteInterfacePlace, discreteInterfacePlace.getStatus().getInterfacePlace()); 
     	assertEquals(includes, discreteInterfacePlace.getStatus().getIncludeHierarchy()); 
-    	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes), "home", "away");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
-    	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.IN_USE.buildStatus(includes), "home", "away");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusInUse); 
+    	InterfacePlaceStatus available = InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes); 
+    	DiscreteInterfacePlace discreteInterfacePlaceAvailable = new DiscreteInterfacePlace(place, available, "home", "away");
+    	assertEquals("place still points home",home, place.getInterfacePlace().getStatus()); 
+    	assertTrue(discreteInterfacePlaceAvailable.getStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertEquals(discreteInterfacePlaceAvailable, discreteInterfacePlaceAvailable.getStatus().getInterfacePlace()); 
+    	InterfacePlaceStatus inUse = InterfacePlaceStatusEnum.IN_USE.buildStatus(includes); 
+    	DiscreteInterfacePlace discreteInterfacePlaceInUse = new DiscreteInterfacePlace(place, inUse, "home", "away");
+    	assertEquals("place still points home",home, place.getInterfacePlace().getStatus()); 
+    	assertTrue(discreteInterfacePlaceInUse.getStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertEquals(discreteInterfacePlaceInUse, discreteInterfacePlaceInUse.getStatus().getInterfacePlace()); 
     	
 	}
     @Test

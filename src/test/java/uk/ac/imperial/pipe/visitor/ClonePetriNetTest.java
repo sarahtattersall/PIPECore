@@ -161,53 +161,6 @@ public class ClonePetriNetTest {
     	originPlace.setId("top.a.P0");  
     	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
     	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size()); 
-//    	assertEquals(
-    	
-//		for (Place place : oldPetriNet.getPlaces()) {
-//			System.out.println("old "+place.getId());
-//		}
-//		for (Place place : executablePetriNet.getPlaces()) {
-//			System.out.println("exec "+place.getId());
-////		}
-//		old top..a.P0
-//		old P1
-//		old P0
-//		exec top.P0
-//		exec top.a.P1
-//		exec top.P1
-//		exec top.a.P0
-//		InterfacePlace topInterfacePlace = includes.getInterfacePlace("top..a.P0"); 
-//		Transition topT0 = oldPetriNet.getComponent("T0", Transition.class);
-//		Transition topT1 = oldPetriNet.getComponent("T1", Transition.class);
-//        Arc arcIn = new InboundNormalArc(topInterfacePlace, topT0, new HashMap<String, String>());
-//        Arc arcOut = new OutboundNormalArc(topT1, topInterfacePlace, new HashMap<String, String>());
-//        assertEquals(2, includes.getPetriNet().getArcs().size()); 
-//        assertEquals(4,executablePetriNet.getArcs().size()); 
-//        for (Arc arc : executablePetriNet.getArcs()) {
-//			System.out.println(arc.getId());
-    	//top.a.T0 TO P0
-//        T0 TO P0
-//        top.a.P1 TO T1
-//        P1 TO T1
-//		}
-//        oldPetriNet.add(arcIn); 
-//        oldPetriNet.add(arcOut); 
-//        assertEquals(4, includes.getPetriNet().getArcs().size()); 
-//        assertEquals(6,executablePetriNet.getArcs().size()); 
-//        assertNull(executablePetriNet.getComponent("T1 TO top..a.P0", Arc.class)); 
-//        assertNull(executablePetriNet.getComponent("top..a.P0 TO T0", Arc.class)); 
-//        Arc exArcIn = executablePetriNet.getComponent("T1 TO top.a.P0", Arc.class);
-//        Arc exArcOut = executablePetriNet.getComponent("top.a.P0 TO T0", Arc.class);
-//        assertEquals(originPlace, exArcIn.getTarget());
-//        assertEquals(originPlace, exArcOut.getSource());
-//        for (Arc arc : executablePetriNet.getArcs()) {
-//        	System.out.println(arc.getId());
-//          	top.a.T0 TO P0
-//          	T0 TO P0
-//        	T1 TO top..a.P0  s/b:  T1 TO top.a.P0:  top.a.T1 TO P0
-//        	top..a.P0 TO T0  s/b:  top.a.P0 TO T0   
-//          	top.a.P1 TO T1
-//          	P1 TO T1
     }
 	protected PetriNet buildTestNet() {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(

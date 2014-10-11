@@ -244,7 +244,7 @@ public class PetriNet extends AbstractPetriNet {
      * @param componentId component id to find
      * @return all components ids whose functional expression references the componentId
      */
-    private Collection<String> getComponentsReferencingId(String componentId) {
+    protected Collection<String> getComponentsReferencingId(String componentId) {
         Set<String> results = new HashSet<>();
         for (Transition transition : getTransitions()) {
             if (referencesId(transition.getRateExpr(), componentId)) {

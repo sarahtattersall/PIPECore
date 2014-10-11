@@ -1,26 +1,38 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
 public class AddInterfacePlaceCommandTest {
 
-	@Mock
-	private IncludeHierarchy mockHierarchy;
+	private IncludeHierarchy includes;
 	private AddInterfacePlaceCommand<Place> command;
-
+	private PetriNet net;
+	
+	@Before
+	public void setUp() throws Exception {
+		net = new PetriNet(); 
+		includes = new IncludeHierarchy(net, "top"); 
+	}
 	@Test
 	public void interfacePlaceAddedToInitialHierarchy() throws Exception {
-		Place p0 = new DiscretePlace("P0"); 
+		Place p0 = new DiscretePlace("P0");
+		assertEquals(0, net.getPlaces().size());
+		assertEquals(0, includes.getInterfacePlaces().size());
 		command = new AddInterfacePlaceCommand<Place>(p0, new IncludeHierarchy(new PetriNet(), "top")); 
-		command.execute(mockHierarchy);
-		verify(mockHierarchy).addInterfacePlaceToMap(any(InterfacePlace.class)); 
+		command.execute(includes);
+		assertEquals("not added to PN places until InUse",
+				0, net.getPlaces().size());
+		assertEquals(1, includes.getInterfacePlaces().size());
+	}
+	//TODO interfacePlaceAddedToPetriNetPlacesWhenNotHome
+	@Test
+	public void interfacePlaceAddedToPetriNetPlacesWhenNotHome() throws Exception {
+
 	}
 	//TODO namedWithUniqueNamesOfSourceAndTargetIncludesPlusPlace
 	@Test

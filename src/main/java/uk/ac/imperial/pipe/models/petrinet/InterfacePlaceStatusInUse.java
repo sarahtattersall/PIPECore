@@ -1,14 +1,23 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Collection;
+
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+
 public class InterfacePlaceStatusInUse implements InterfacePlaceStatus {
 	
 	private IncludeHierarchy includeHierarchy;
 	private InterfacePlace interfacePlace;
+	private InterfacePlaceStatus nextStatus;
 
 	public InterfacePlaceStatusInUse(IncludeHierarchy includeHierarchy) {
-		this.includeHierarchy = includeHierarchy;
+		this(null, includeHierarchy); 
 	}
-
+	public InterfacePlaceStatusInUse(InterfacePlace interfacePlace, IncludeHierarchy includeHierarchy) {
+		this.interfacePlace = interfacePlace; 
+		this.includeHierarchy = includeHierarchy;
+		nextStatus = this; 
+	}
 
 	@Override
 	public boolean isInUse() {
@@ -24,25 +33,28 @@ public class InterfacePlaceStatusInUse implements InterfacePlaceStatus {
 	public boolean isHome() {
 		return false;
 	}
-	@Override
-	public InterfacePlaceStatus use() {
-		return this; 
-	}
 
 	@Override
-	public InterfacePlaceStatus remove() {
-		return InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includeHierarchy); 
-	}
-
-
-	@Override
-	public Result<InterfacePlaceAction> use1() {
+	public Result<InterfacePlaceAction> use() {
 		return null;
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> remove1() {
-		return null;
+	public Result<InterfacePlaceAction> remove() {
+		Collection<String> references = includeHierarchy.getPetriNet().getComponentsReferencingId(interfacePlace.getId());
+		Result<InterfacePlaceAction> result = new Result<>(); 
+		if (references.size() == 0) {
+			try {
+				includeHierarchy.getPetriNet().removePlace(interfacePlace);
+				nextStatus = new InterfacePlaceStatusAvailable(interfacePlace,includeHierarchy);
+			} catch (PetriNetComponentException e) {
+				e.printStackTrace(); // tested above, so logic error if we throw
+			} 
+		}
+		else {
+			// add references to result & test
+		}
+		return result; 
 	}
 
 	@Override
@@ -64,6 +76,12 @@ public class InterfacePlaceStatusInUse implements InterfacePlaceStatus {
 	public String buildId(String id, String homeName, String awayName) {
 		if (awayName == null) awayName = ""; 
 		return awayName+".."+homeName+"."+id;
+	}
+
+
+	@Override
+	public InterfacePlaceStatus nextStatus() {
+		return nextStatus;
 	}
 
 }

@@ -44,13 +44,9 @@ public interface InterfacePlaceStatus {
 	 */
 	public boolean isHome();
 
-	public InterfacePlaceStatus use();
-
-	public InterfacePlaceStatus remove();
-
-	public Result<InterfacePlaceAction> use1();
+	public Result<InterfacePlaceAction> use();
 	
-	public Result<InterfacePlaceAction> remove1();
+	public Result<InterfacePlaceAction> remove();
 
 	public InterfacePlace getInterfacePlace();
 	
@@ -58,6 +54,8 @@ public interface InterfacePlaceStatus {
 	
 	public IncludeHierarchy getIncludeHierarchy();
 
-	public String buildId(String id, String homeName, String awayName); 
+	public String buildId(String id, String homeName, String awayName);
+
+	public InterfacePlaceStatus nextStatus(); 
 
 }

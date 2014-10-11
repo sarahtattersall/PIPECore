@@ -69,7 +69,14 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 	public boolean use() {
 		boolean useResult = status.canUse(); 
 		if (useResult) {
-			status = status.use(); 
+			Result<InterfacePlaceAction> result = status.use(); 
+			if (result.hasResult()) {
+				useResult = false;
+			}
+			else {
+				useResult = true;
+				status = status.nextStatus(); 
+			}
 		}
 		return useResult; 
 	}
@@ -78,16 +85,18 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 		return status.canUse();
 	}
 
-//	@Override
-//	public boolean canRemove() {
-//		return status.isInUse();
-//	}
-
 	@Override
 	public boolean remove() {
-		boolean removeResult =    status.isInUse(); 
+		boolean removeResult = status.isInUse(); 
 		if (removeResult) {
-			status = status.remove(); 
+			Result<InterfacePlaceAction> result = status.remove(); 
+			if (result.hasResult()) {
+				removeResult = false;
+			}
+			else {
+				removeResult = true;
+				status = status.nextStatus(); 
+			}
 		}
 		return removeResult; 
 	}
@@ -108,7 +117,8 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 	}
 	@Override
 	public void setInterfacePlace(InterfacePlace interfacePlace) {
+		status.setInterfacePlace(interfacePlace); 
 		super.setInterfacePlace(interfacePlace);
-		place.setInterfacePlace(interfacePlace); 
+//		place.setInterfacePlace(interfacePlace); 
 	}
 }
