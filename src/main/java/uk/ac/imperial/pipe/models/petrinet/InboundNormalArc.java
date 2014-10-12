@@ -1,9 +1,8 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.parsers.*;
-import uk.ac.imperial.state.State;
-
 import java.util.Map;
+
+import uk.ac.imperial.state.State;
 
 /**
  * Represents a normal arc from places to transitions.

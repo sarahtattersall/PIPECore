@@ -95,9 +95,9 @@ public final class ClonePetriNet {
 	
 	protected static ClonePetriNet cloneInstance;
 
-	private List<InboundArc> convertedInboundArcs;
-
-	private List<OutboundArc> convertedOutboundArcs;
+//	private List<InboundArc> convertedInboundArcs;
+//
+//	private List<OutboundArc> convertedOutboundArcs;
 
 	private List<Place> pendingPlacesToDelete = new ArrayList<>(); 
 
@@ -420,81 +420,23 @@ public final class ClonePetriNet {
     	newArc.setId(newArc.getSource().getId() + " TO " + newArc.getTarget().getId());
     }
 	private void replaceInterfacePlacesWithOriginalPlaces() {
-		convertInterfacePlaceArcsToOriginalPlaceArcs();
+		convertInterfacePlaceArcsToUseOriginalPlaces();
 		Map<String, Place> newPlaceMap = newPetriNet.getMapForClass(Place.class);  
 		for (Place place : pendingPlacesToDelete) {
 			newPlaceMap.remove(place.getId());
 		}
 	}
 
-	private void convertInterfacePlaceArcsToOriginalPlaceArcs() {
-		Map<String, InboundArc> inboundArcMap = newPetriNet.getMapForClass(InboundArc.class);
-		Map<String, OutboundArc> outboundArcMap = newPetriNet.getMapForClass(OutboundArc.class);
-		Map<String, InboundArc> inboundCleanup = new HashMap<>(); 
-		Map<String, OutboundArc> outboundCleanup = new HashMap<>();
-		convertedInboundArcs = new ArrayList<>(); 
-		convertedOutboundArcs = new ArrayList<>(); 
+	private void convertInterfacePlaceArcsToUseOriginalPlaces() {
+		Place oldPlace = null;
 		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
-			for (InboundArc inboundArc : inboundArcMap.values()) {
-				if (inboundArc.getSource().getId().equals(entry.getKey())) {
-					convertInboundArcSourceToOriginalPlace(inboundCleanup, inboundArc, entry.getValue());
-				}
-			}
-			for (OutboundArc outboundArc : outboundArcMap.values()) {
-				if (outboundArc.getTarget().getId().equals(entry.getKey())) {
-					convertOutboundArcTargetToOriginalPlace(outboundCleanup, outboundArc, entry.getValue());
-				}
-			}
+			try {
+				oldPlace = newPetriNet.getComponent(entry.getKey(), Place.class);
+			} catch (PetriNetComponentNotFoundException e) {
+				e.printStackTrace();
+			} 
+			newPetriNet.convertArcsToUseNewPlace(oldPlace, entry.getValue());
 		}
-		for (OutboundArc arc : outboundCleanup.values()) {
-			newPetriNet.removeArc(arc); 
-		}
-		for (InboundArc arc : inboundCleanup.values()) {
-			newPetriNet.removeArc(arc); 
-		}
-//		for (String arcId : inboundCleanup) {
-//			
-//			inboundArcMap.remove(arcId); 
-//		}
-//		for (String arcId : outboundCleanup) {
-//			outboundArcMap.remove(arcId); 
-//
-//		}
-		for (InboundArc newArc : convertedInboundArcs) {
-			newPetriNet.addArc(newArc);
-		}
-		for (OutboundArc newArc : convertedOutboundArcs) {
-			newPetriNet.addArc(newArc);
-		}
-		
-	}
-	private void convertInboundArcSourceToOriginalPlace(Map<String, InboundArc> inboundCleanup, 
-			InboundArc inboundArc, Place source) {
-		Transition target = null;  
-		try {
-			target = newPetriNet.getComponent(inboundArc.getTarget().getId(), Transition.class);
-		} catch (PetriNetComponentNotFoundException e) {
-			e.printStackTrace();
-		} 
-		InboundArc newArc = buildInboundArc(inboundArc, source, target);
-		rebuildNameWithQualifiedNames(newArc); 
-        convertedInboundArcs.add(newArc);
-        inboundCleanup.put(inboundArc.getId(), inboundArc); 
-	}
-	
-
-	private void convertOutboundArcTargetToOriginalPlace(Map<String, OutboundArc> outboundCleanup, 
-			OutboundArc outboundArc, Place target) {
-		Transition source = null; 
-		try {
-			source = newPetriNet.getComponent(outboundArc.getSource().getId(), Transition.class);
-		} catch (PetriNetComponentNotFoundException e) {
-			e.printStackTrace();
-		}
-		OutboundArc newArc = buildOutboundArc(outboundArc, source, target); 
-		rebuildNameWithQualifiedNames(newArc); 
-		convertedOutboundArcs.add(newArc);
-		outboundCleanup.put(outboundArc.getId(), outboundArc); 
 	}
 
 

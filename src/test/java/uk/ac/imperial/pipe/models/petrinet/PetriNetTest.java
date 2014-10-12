@@ -37,6 +37,10 @@ public class PetriNetTest {
     @Mock
     private PropertyChangeListener mockListener;
 
+	private Place oldPlace;
+
+	private Place newPlace;
+
     @Before
     public void setUp() {
         net = new PetriNet();
@@ -652,12 +656,11 @@ public class PetriNetTest {
         Place place = petriNet.getComponent("P0", Place.class);
         try {
             petriNet.removePlace(place);
+            fail("Did not throw Petri net exception!");
         } catch (PetriNetComponentException e) {
             String expected = "Cannot delete " + place.getId() + " it is referenced in a functional expression!";
             assertEquals(expected, e.getMessage());
-            return;
         }
-        fail("Did not throw Petri net exception!");
     }
 
     @Test
@@ -671,12 +674,11 @@ public class PetriNetTest {
         Place place = petriNet.getComponent("P0", Place.class);
         try {
             petriNet.removePlace(place);
+            fail("Did not throw Petri net exception!");
         } catch (PetriNetComponentException e) {
             String expected = "Cannot delete " + place.getId() + " it is referenced in a functional expression!";
             assertEquals(expected, e.getMessage());
-            return;
         }
-        fail("Did not throw Petri net exception!");
     }
 
     @Test
@@ -758,5 +760,31 @@ public class PetriNetTest {
     	net.removeToken(token);
     	assertThat(place.getTokenCounts()).doesNotContainKey("Default");
     }
-
+    //TODO testIfNewPlaceHasSameIdAsPlaceItReplaces
+    //TODO testFunctionalExpressionIsUpdatedWithNewPlaceId
+    @Test
+    public void outboundArcsRebuiltWhenPlaceReplacedWithNewPlace() throws Exception {
+    	buildNetWithOldAndNewPlaces("T0", "P0"); 
+        net.convertOutboundArcsToUseNewPlace(oldPlace, newPlace); 
+        assertEquals(1, net.outboundArcs.size()); 
+        OutboundArc arc = net.getOutboundArcs().iterator().next();
+        assertEquals(newPlace, arc.getTarget()); 
+        assertEquals("T0 TO P1", arc.getId()); 
+	}
+    @Test
+    public void inboundArcsRebuiltWhenPlaceReplacedWithNewPlace() throws Exception {
+    	buildNetWithOldAndNewPlaces("P0", "T0"); 
+    	net.convertInboundArcsToUseNewPlace(oldPlace, newPlace); 
+    	assertEquals(1, net.inboundArcs.size()); 
+    	InboundArc arc = net.getInboundArcs().iterator().next();
+    	assertEquals(newPlace, arc.getSource()); 
+    	assertEquals("P1 TO T0", arc.getId()); 
+    }
+	protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentNotFoundException {
+		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
+    			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(
+    			ANormalArc.withSource(source).andTarget(target));
+    	oldPlace = net.getComponent("P0", Place.class); 
+    	newPlace = net.getComponent("P1", Place.class);
+	}
 }

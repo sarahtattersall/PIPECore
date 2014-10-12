@@ -7,13 +7,10 @@ import static org.junit.Assert.assertTrue;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -21,10 +18,10 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
-@RunWith(MockitoJUnitRunner.class)
 public class InterfacePlaceStatusTest {
 
 	private InterfacePlaceStatus home;
@@ -40,12 +37,16 @@ public class InterfacePlaceStatusTest {
 	private Place placeA;
 	private Place placeTopIP;
 	private IncludeHierarchy includeA;
-	private InterfacePlaceStatus status; 
+	private InterfacePlaceStatus status;
+	private PetriNet net3;
+	private Place placeB;
+	private IncludeHierarchy includeB; 
 
 	@Before
 	public void setUp() throws Exception {
 		net = createSimpleNet(1);  
 		net2 = createSimpleNet(2);  
+		net3 = createSimpleNet(3);  
 		buildHierarchyWithInterfacePlaces(); 
 		home = InterfacePlaceStatusEnum.HOME.buildStatus(includes);
 		available = InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes);
@@ -55,8 +56,10 @@ public class InterfacePlaceStatusTest {
 			throws PetriNetComponentNotFoundException, IncludeException {
 		includes = new IncludeHierarchy(net, "top"); 
     	includeA = includes.include(net2, "a");  
+    	includeB = includeA.include(net3, "b");  
     	placeTop = net.getComponent("P0", Place.class); 
     	placeA = net2.getComponent("P0", Place.class); 
+    	placeB = net2.getComponent("P0", Place.class); 
     	includes.getChildInclude("a").addToInterface(placeA);
     	placeTopIP = includes.getInterfacePlace("top..a.P0"); 
 	}
@@ -91,7 +94,7 @@ public class InterfacePlaceStatusTest {
 		assertEquals(2, net.getPlaces().size()); 
 	}
 	@Test
-	public void canNotRemoveIfDependentComponentsForInuseAndComponentIdsListed() throws Exception {
+	public void canNotRemoveIfDependentComponentsForInuseAndAffectedComponentIdsListed() throws Exception {
 		status = placeTopIP.getInterfacePlace().getStatus(); 
 		status.use(); 
 		status = status.nextStatus(); 
@@ -99,6 +102,15 @@ public class InterfacePlaceStatusTest {
 		assertEquals(3, net.getPlaces().size()); 
 		
 		assertEquals(placeTopIP.getInterfacePlace(), includes.getPetriNet().getComponent("top..a.P0",  Place.class)); 
+		addRateParameterAndTransitionAndArcReferencingInterfacePlace(); 
+		Result<InterfacePlaceAction> result = status.remove(); 
+		status = status.nextStatus(); 
+		assertTrue(result.hasResult()); 
+		assertTrue("status unchanged, because remove wasn't successful",status instanceof InterfacePlaceStatusInUse); 
+		assertEquals(3, result.getEntries().size()); 
+	}
+	private void addRateParameterAndTransitionAndArcReferencingInterfacePlace()
+			throws InvalidRateException, PetriNetComponentNotFoundException {
 		FunctionalRateParameter rateParameter = new FunctionalRateParameter("#(top..a.P0)", "frp1", "frp1");
         net.addRateParameter(rateParameter);
         Transition t2 = new DiscreteTransition("T2", "T2");
@@ -109,25 +121,31 @@ public class InterfacePlaceStatusTest {
         tokenWeights.put("Default", "#(top..a.P0)");
         Transition t0 = net.getComponent("T0", Transition.class); 
         OutboundArc newArc = new OutboundNormalArc(t0, placeTopIP, tokenWeights);
-        net.addArc(newArc); 
-		Result<InterfacePlaceAction> result = status.remove(); 
-		status = status.nextStatus(); 
-		assertTrue(result.hasResult()); 
-		assertTrue("status unchanged",status instanceof InterfacePlaceStatusInUse); 
-		assertEquals(3, result.getEntries().size()); 
-		Iterator<ResultEntry<InterfacePlaceAction>> iterator = result.getEntries().iterator();
-		ResultEntry<InterfacePlaceAction> entry = iterator.next(); 
-		
-		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
-				" because it is referenced in a functional expression in component T0 TO top..a.P0", entry.message);
-		entry = iterator.next(); 
-		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
-				" because it is referenced in a functional expression in component frp1", entry.message);
-		entry = iterator.next(); 
-		assertEquals("InterfacePlace top..a.P0 cannot be removed from IncludeHierarchy top" +
-				" because it is referenced in a functional expression in component T2", entry.message);
-		assertEquals("T2",entry.value.getComponentId()); 
-		
+        net.addArc(newArc);
+	}
+//	@Test
+	public void removeForHomeInterfacePropagatesUsingAccessScope() throws Exception {
+
+	}
+//	@Test
+	public void removeOkForSomeNetsButNotOthersGivesResultForFailingNets() throws Exception {
+    	includes.getInclude("b").addToInterface(placeB);
+    	InterfacePlace placeTopIPb = includes.getInterfacePlace("top..b.P0");
+    	InterfacePlaceStatus statusTop = placeTopIPb.getInterfacePlace().getStatus(); 
+    	statusTop.use();
+    	statusTop = statusTop.nextStatus(); 
+    	assertTrue(statusTop instanceof InterfacePlaceStatusInUse); 
+    	
+    	InterfacePlace placeAIPb = includes.getInterfacePlace("a..b.P0"); 
+    	InterfacePlaceStatus statusA = placeAIPb.getInterfacePlace().getStatus(); 
+    	statusA.use(); 
+    	statusA = statusA.nextStatus(); 
+    	assertTrue(statusA instanceof InterfacePlaceStatusInUse); 
+    	
+		FunctionalRateParameter rateParameter = new FunctionalRateParameter("#(top..a.P0)", "frp1", "frp1");
+        net.addRateParameter(rateParameter);
+        
+    	
 	}
 	@Test
 	public void testEnumReturnsStatus() {
@@ -142,19 +160,19 @@ public class InterfacePlaceStatusTest {
 	public void isInUseOnlyTrueForInUseStatus() throws Exception {
 		assertFalse(home.isInUse()); 
 		assertFalse(available.isInUse()); 
-		assertTrue(inUse.isInUse());  // was False 
+		assertTrue(inUse.isInUse());   
 	}
 	@Test
 	public void isHomeOnlyTrueForHomeStatus() throws Exception {
 		assertTrue(home.isHome()); 
 		assertFalse(available.isHome()); 
-		assertFalse(inUse.isHome());  // was False 
+		assertFalse(inUse.isHome());   
 	}
 	@Test
 	public void canUseOnlyTrueForAvailableStatus() throws Exception {
 		assertFalse(home.canUse()); 
 		assertTrue(available.canUse()); 
-		assertFalse(inUse.canUse());  // was False 
+		assertFalse(inUse.canUse());   
 	}
 	private PetriNet createSimpleNet(int i) {
 		PetriNet net = 
@@ -166,5 +184,9 @@ public class InterfacePlaceStatusTest {
 		net.setName(new NormalPetriNetName("net"+i));
 		return net; 
 	}
-
+	//TODO consider having HomeIP replace the original Place, and 
+	//TODO any impact from renames? 
+	//TODO one net ok, but the other not for remove 
+	//TODO call use and remove on the wrong Status
+	//TODO remove for home calls all; but for others, only affects local hierarchy
 }

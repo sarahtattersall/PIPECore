@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +25,10 @@ public abstract class AbstractPetriNet  {
 	 * Message fired when Petri net name changes
 	 */
 	public static final String PETRI_NET_NAME_CHANGE_MESSAGE = "nameChange";
+    /**
+     * Message fired when an arc is added to the Petri net
+     */
+    public static final String NEW_ARC_CHANGE_MESSAGE = "newArc";
 	/**
 	 * Message fired when an arc is deleted from the Petri net
 	 */
@@ -288,13 +294,27 @@ public abstract class AbstractPetriNet  {
 	 *
 	 * @param inboundArc inbound arc to include in the Petri net
 	 */
-	public abstract void addArc(InboundArc inboundArc);
-
-	/**
-	 * Adds this arc to the petri net
-	 * @param outboundArc outbound arc to include in the Petri net
-	 */
-	public abstract void addArc(OutboundArc outboundArc);
+    public void addArc(InboundArc inboundArc) {
+        if (addComponentToMap(inboundArc, inboundArcs)) {
+            transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
+            addAndNotifyListeners(inboundArc, inboundArcs, NEW_ARC_CHANGE_MESSAGE);
+        }
+    }
+    
+    /**
+     * Adds this arc to the petri net
+     * @param outboundArc outbound arc to include in the Petri net
+     */
+    public void addArc(OutboundArc outboundArc) {
+        if (addComponentToMap(outboundArc, outboundArcs)) {
+            transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
+            addAndNotifyListeners(outboundArc, outboundArcs, NEW_ARC_CHANGE_MESSAGE);
+        }
+    }
+    protected <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
+		component.addPropertyChangeListener(new NameChangeListener<>(component, components));
+		changeSupport.firePropertyChange(newMessage, null, component);
+	}
 	
 	/**
 	 * Adds the token to the Petri net
@@ -371,6 +391,19 @@ public abstract class AbstractPetriNet  {
 	    return outbound;
 	}
 	/**
+	 * @param place
+	 * @return arcs that are inbound to place
+	 */
+	public Collection<OutboundArc> inboundArcs(Place place) {
+		Collection<OutboundArc> inbound = new LinkedList<>();
+		for (OutboundArc arc : outboundArcs.values()) {
+			if (arc.getTarget().equals(place)) {
+				inbound.add(arc);
+			}
+		}
+		return inbound;
+	}
+	/**
 	 * Removes the specified arc from the Petri net
 	 *
 	 * @param arc to remove from the Petri net
@@ -388,5 +421,61 @@ public abstract class AbstractPetriNet  {
         outboundArcs.remove(arc.getId());
         transitionOutboundArcs.remove(arc.getSource().getId(), arc);
 	}
+	public void convertArcsToUseNewPlace(Place oldPlace, Place newPlace) {
+		convertInboundArcsToUseNewPlace(oldPlace, newPlace);
+		convertOutboundArcsToUseNewPlace(oldPlace, newPlace); 
+	}
+	public void convertInboundArcsToUseNewPlace(Place oldPlace, Place newPlace) {
+		for (InboundArc arc : outboundArcs(oldPlace)) {
+			arc.setSource(newPlace); 
+		}
+	}
+	public void convertOutboundArcsToUseNewPlace(Place oldPlace, Place newPlace) {
+		for (OutboundArc arc : inboundArcs(oldPlace)) {
+			arc.setTarget(newPlace); 
+		}
+	}
+	  /**
+     * Listener for changing a components name in the set it is referenced by
+     * @param <T>
+     */
+    protected static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
+        /**
+         * Comoponent whose name will change
+         */
+        private final T component;
+
+        /**
+         * Component map that houses the component, needs to be updated on name change
+         */
+        private final Map<String, T> componentMap;
+
+        /**
+         * Constructor
+         * @param component
+         * @param componentMap
+         */
+        public NameChangeListener(T component, Map<String, T> componentMap) {
+            this.component = component;
+            this.componentMap = componentMap;
+        }
+
+        /**
+         * If the name/id of the component changes then it is updated in the component map.
+         * That is the old key is removed and the component is re-added with the new name.
+         * @param evt
+         */
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
+                String oldId = (String) evt.getOldValue();
+                String newId = (String) evt.getNewValue();
+                componentMap.remove(oldId);
+                componentMap.put(newId, component);
+            }
+
+        }
+    }
+
 }
 

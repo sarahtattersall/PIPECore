@@ -56,10 +56,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     public static final String NEW_TRANSITION_CHANGE_MESSAGE = "newTransition";
 
-    /**
-     * Message fired when an arc is added to the Petri net
-     */
-    public static final String NEW_ARC_CHANGE_MESSAGE = "newArc";
 
     /**
      * Message fired when a token is added to the Petri net
@@ -318,31 +314,6 @@ public class PetriNet extends AbstractPetriNet {
         changeSupport.firePropertyChange(DELETE_TRANSITION_CHANGE_MESSAGE, transition, null);
     }
 
-    /**
-     *
-     * Adds this arc to the petri net
-     *
-     * @param inboundArc inbound arc to include in the Petri net
-     */
-    @Override
-    public void addArc(InboundArc inboundArc) {
-        if (addComponentToMap(inboundArc, inboundArcs)) {
-            transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
-            addAndNotifyListeners(inboundArc, inboundArcs, NEW_ARC_CHANGE_MESSAGE);
-        }
-    }
-    
-    /**
-     * Adds this arc to the petri net
-     * @param outboundArc outbound arc to include in the Petri net
-     */
-    @Override
-    public void addArc(OutboundArc outboundArc) {
-        if (addComponentToMap(outboundArc, outboundArcs)) {
-            transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
-            addAndNotifyListeners(outboundArc, outboundArcs, NEW_ARC_CHANGE_MESSAGE);
-        }
-    }
 
     /**
      * Adds the token to the Petri net
@@ -591,53 +562,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     public FunctionalResults<Double> parseExpression(String expr) {
         return functionalWeightParser.evaluateExpression(expr);
-    }
-
-    private <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
-		component.addPropertyChangeListener(new NameChangeListener<>(component, components));
-		changeSupport.firePropertyChange(newMessage, null, component);
-	}
-
-    /**
-     * Listener for changing a components name in the set it is referenced by
-     * @param <T>
-     */
-    private static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
-        /**
-         * Comoponent whose name will change
-         */
-        private final T component;
-
-        /**
-         * Component map that houses the component, needs to be updated on name change
-         */
-        private final Map<String, T> componentMap;
-
-        /**
-         * Constructor
-         * @param component
-         * @param componentMap
-         */
-        public NameChangeListener(T component, Map<String, T> componentMap) {
-            this.component = component;
-            this.componentMap = componentMap;
-        }
-
-        /**
-         * If the name/id of the component changes then it is updated in the component map.
-         * That is the old key is removed and the compoennt is readded with the new name.
-         * @param evt
-         */
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
-                String oldId = (String) evt.getOldValue();
-                String newId = (String) evt.getNewValue();
-                componentMap.remove(oldId);
-                componentMap.put(newId, component);
-            }
-
-        }
     }
 
     /**

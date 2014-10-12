@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -299,20 +300,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	@Override
-	public void addArc(InboundArc inboundArc) {
-		if (addComponentToMap(inboundArc, inboundArcs)) {
-			transitionInboundArcs.put(inboundArc.getTarget().getId(), inboundArc);
-		}
-	}
-
-	@Override
-	public void addArc(OutboundArc outboundArc) {
-		if (addComponentToMap(outboundArc, outboundArcs)) {
-			transitionOutboundArcs.put(outboundArc.getSource().getId(), outboundArc);
-		}
-	}
-
-	@Override
 	public void addToken(Token token) {
 		addComponentToMap(token, tokens);
 	}
@@ -326,9 +313,5 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
-
-
-
-
 
 }

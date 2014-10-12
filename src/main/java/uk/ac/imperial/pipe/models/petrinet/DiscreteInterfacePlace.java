@@ -7,7 +7,7 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 	private InterfacePlaceStatus status;
 	private String homeName;
 	private String awayName;
-
+	//TODO consider whether homeName is really needed in the ID
 	public DiscreteInterfacePlace(DiscretePlace place, InterfacePlaceStatus status, String homeName, String awayName) {
 		super(status.buildId(place.getId(),homeName, awayName), status.buildId(place.getId(),homeName, awayName));
 		if (place instanceof DiscreteInterfacePlace) throw new IllegalArgumentException("InterfaceDiscretePlace:  an InterfacePlace cannot be constructed from another InterfacePlace, only from a DiscretePlace.");
@@ -24,10 +24,6 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 	public DiscreteInterfacePlace(DiscretePlace place, InterfacePlaceStatus status, String homeName) {
 		this(place, status, homeName, null); 
 	}
-
-//	private static String buildId(String id, String homeAlias, String awayAlias) {
-//		return (awayAlias == null) ? homeAlias+"."+id : awayAlias+".."+homeAlias+"."+id;
-//	}
 
 	private void listenForTokenCountChanges() {
 		this.addPropertyChangeListener(place); 
