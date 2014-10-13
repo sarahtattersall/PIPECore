@@ -5,16 +5,23 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.apache.commons.collections.CollectionUtils;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
+import uk.ac.imperial.pipe.parsers.EvalVisitor;
+import uk.ac.imperial.pipe.parsers.FunctionalResults;
+import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
+import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -33,6 +40,11 @@ public abstract class AbstractPetriNet  {
 	 * Message fired when an arc is deleted from the Petri net
 	 */
 	public static final String DELETE_ARC_CHANGE_MESSAGE = "deleteArc";
+    /**
+     * Message fired when a place is deleted from the Petri net
+     */
+    public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
+
 	/**
 	 * Maps transition id -> transition
 	 */
@@ -85,6 +97,12 @@ public abstract class AbstractPetriNet  {
 	 * Maps transition id -> inbound arcs into the transition
 	 */
 	protected Multimap<String, InboundArc> transitionInboundArcs = HashMultimap.create();
+	
+    /**
+     * Functional weight parser
+     */
+    protected FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(new EvalVisitor(this), this);
+
 
 	protected IncludeHierarchy includeHierarchy;
 
@@ -435,6 +453,90 @@ public abstract class AbstractPetriNet  {
 			arc.setTarget(newPlace); 
 		}
 	}
+	public void replacePlace(Place oldPlace, Place newPlace) throws PetriNetComponentException {
+		convertArcsToUseNewPlace(oldPlace, newPlace); 
+		removePlace(oldPlace);
+		if (!places.containsKey(newPlace.getId())) {
+			addPlace(newPlace); 
+		}
+	}
+    /**
+     * Removes the place and all arcs connected to the place from the
+     * Petri net
+     *
+     * @param place to remove from Petri net
+     */
+    public void removePlace(Place place) throws PetriNetComponentException {
+        Collection<String> components = getComponentsReferencingId(place.getId());
+        if (!components.isEmpty()) {
+            throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
+        }
+        this.places.remove(place.getId());
+        for (InboundArc arc : outboundArcs(place)) {
+            removeArc(arc);
+        }
+        changeSupport.firePropertyChange(DELETE_PLACE_CHANGE_MESSAGE, place, null);
+    }
+
+	/**
+    *
+    * @param componentId component id to find
+    * @return all components ids whose functional expression references the componentId
+    */
+   protected Collection<String> getComponentsReferencingId(String componentId) {
+       Set<String> results = new HashSet<>();
+       for (Transition transition : getTransitions()) {
+           if (referencesId(transition.getRateExpr(), componentId)) {
+               results.add(transition.getId());
+           }
+       }
+       for (Arc<?, ?> arc : getArcs()) {
+           for (String expr : arc.getTokenWeights().values()) {
+               if (referencesId(expr, componentId)) {
+                   results.add(arc.getId());
+                   break;
+               }
+           }
+       }
+       for (RateParameter rateParameter : getRateParameters()) {
+           if (referencesId(rateParameter.getExpression(), componentId)) {
+               results.add(rateParameter.getId());
+           }
+       }
+       return results;
+   }
+
+	/**
+    *
+    * @param expr
+    * @param id
+    * @return true if the component id is referenced in the functional expression
+    */
+   protected boolean referencesId(String expr, String id) {
+       Collection<String> components = getComponents(expr);
+       return components.contains(id);
+   }
+
+   /**
+    *
+    * @param expression
+    * @return a list of components that the expression references
+    */
+   protected Collection<String> getComponents(String expression) {
+       FunctionalResults<Double> results = parseExpression(expression);
+       return results.getComponents();
+   }
+
+	/**
+     * Parse the functional expression via the under lying Petri net state
+     *
+     * @param expr functional expression which conforms to the rate grammar
+     * @return parsed expression
+     */
+    public FunctionalResults<Double> parseExpression(String expr) {
+        return functionalWeightParser.evaluateExpression(expr);
+    }
+
 	  /**
      * Listener for changing a components name in the set it is referenced by
      * @param <T>

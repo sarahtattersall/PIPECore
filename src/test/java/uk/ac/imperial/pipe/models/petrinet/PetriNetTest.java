@@ -780,6 +780,26 @@ public class PetriNetTest {
     	assertEquals(newPlace, arc.getSource()); 
     	assertEquals("P1 TO T0", arc.getId()); 
     }
+    @Test
+	public void onePlaceReplacesAnother() throws Exception {
+    	buildNetWithOldAndNewPlaces("P0", "T0");
+    	assertEquals(0, net.inboundArcs(newPlace).size());
+    	assertEquals(0, net.outboundArcs(newPlace).size());
+    	assertEquals(1, net.outboundArcs(oldPlace).size());
+    	assertEquals(2, net.getPlaces().size());
+    	net.replacePlace(oldPlace, newPlace); 
+    	assertEquals(1, net.outboundArcs(newPlace).size());
+    	assertEquals(1, net.getPlaces().size());
+    	assertEquals(newPlace, net.getInboundArcs().iterator().next().getSource()); 
+    	assertEquals(newPlace, net.getPlaces().iterator().next()); 
+    	net.replacePlace(newPlace, new DiscretePlace("P2", "P2")); 
+    	Place p2 = net.getComponent("P2", Place.class); 
+    	assertEquals(1, net.outboundArcs(p2).size());
+    	assertEquals(1, net.getPlaces().size());
+    	assertEquals(p2, net.getInboundArcs().iterator().next().getSource()); 
+    	assertEquals("wasnt previously in the net, but now added",
+    			p2, net.getPlaces().iterator().next()); 
+	}
 	protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentNotFoundException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(

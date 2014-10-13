@@ -31,10 +31,10 @@ public class PetriNet extends AbstractPetriNet {
      */
     public static final String NEW_ANNOTATION_CHANGE_MESSAGE = "newAnnotation";
 
-    /**
-     * Message fired when a place is deleted from the Petri net
-     */
-    public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
+//    /**
+//     * Message fired when a place is deleted from the Petri net
+//     */
+//    public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
 
     /**
      * Message fired when a transition is deleted from the Petri net
@@ -77,10 +77,10 @@ public class PetriNet extends AbstractPetriNet {
      */
     public static final String DELETE_RATE_PARAMETER_CHANGE_MESSAGE = "deleteRateParameter";
 
-    /**
-     * Functional weight parser
-     */
-    private final FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(new EvalVisitor(this), this);
+//    /**
+//     * Functional weight parser
+//     */
+//    protected FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(new EvalVisitor(this), this);
 
     /**
      * Visitor used to remove petri net components when the type is not directly known
@@ -217,72 +217,72 @@ public class PetriNet extends AbstractPetriNet {
 
 
 
-    /**
-     * Removes the place and all arcs connected to the place from the
-     * Petri net
-     *
-     * @param place to remove from Petri net
-     */
-    public void removePlace(Place place) throws PetriNetComponentException {
-        Collection<String> components = getComponentsReferencingId(place.getId());
-        if (!components.isEmpty()) {
-            throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
-        }
-        this.places.remove(place.getId());
-        for (InboundArc arc : outboundArcs(place)) {
-            removeArc(arc);
-        }
-        changeSupport.firePropertyChange(DELETE_PLACE_CHANGE_MESSAGE, place, null);
-    }
+//    /**
+//     * Removes the place and all arcs connected to the place from the
+//     * Petri net
+//     *
+//     * @param place to remove from Petri net
+//     */
+//    public void removePlace(Place place) throws PetriNetComponentException {
+//        Collection<String> components = getComponentsReferencingId(place.getId());
+//        if (!components.isEmpty()) {
+//            throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
+//        }
+//        this.places.remove(place.getId());
+//        for (InboundArc arc : outboundArcs(place)) {
+//            removeArc(arc);
+//        }
+//        changeSupport.firePropertyChange(DELETE_PLACE_CHANGE_MESSAGE, place, null);
+//    }
 
-    /**
-     *
-     * @param componentId component id to find
-     * @return all components ids whose functional expression references the componentId
-     */
-    protected Collection<String> getComponentsReferencingId(String componentId) {
-        Set<String> results = new HashSet<>();
-        for (Transition transition : getTransitions()) {
-            if (referencesId(transition.getRateExpr(), componentId)) {
-                results.add(transition.getId());
-            }
-        }
-        for (Arc<?, ?> arc : getArcs()) {
-            for (String expr : arc.getTokenWeights().values()) {
-                if (referencesId(expr, componentId)) {
-                    results.add(arc.getId());
-                    break;
-                }
-            }
-        }
-        for (RateParameter rateParameter : getRateParameters()) {
-            if (referencesId(rateParameter.getExpression(), componentId)) {
-                results.add(rateParameter.getId());
-            }
-        }
-        return results;
-    }
+//    /**
+//     *
+//     * @param componentId component id to find
+//     * @return all components ids whose functional expression references the componentId
+//     */
+//    protected Collection<String> getComponentsReferencingId(String componentId) {
+//        Set<String> results = new HashSet<>();
+//        for (Transition transition : getTransitions()) {
+//            if (referencesId(transition.getRateExpr(), componentId)) {
+//                results.add(transition.getId());
+//            }
+//        }
+//        for (Arc<?, ?> arc : getArcs()) {
+//            for (String expr : arc.getTokenWeights().values()) {
+//                if (referencesId(expr, componentId)) {
+//                    results.add(arc.getId());
+//                    break;
+//                }
+//            }
+//        }
+//        for (RateParameter rateParameter : getRateParameters()) {
+//            if (referencesId(rateParameter.getExpression(), componentId)) {
+//                results.add(rateParameter.getId());
+//            }
+//        }
+//        return results;
+//    }
 
-    /**
-     *
-     * @param expr
-     * @param id
-     * @return true if the component id is referenced in the functional expression
-     */
-    private boolean referencesId(String expr, String id) {
-        Collection<String> components = getComponents(expr);
-        return components.contains(id);
-    }
-
-    /**
-     *
-     * @param expression
-     * @return a list of components that the expression references
-     */
-    private Collection<String> getComponents(String expression) {
-        FunctionalResults<Double> results = parseExpression(expression);
-        return results.getComponents();
-    }
+//    /**
+//     *
+//     * @param expr
+//     * @param id
+//     * @return true if the component id is referenced in the functional expression
+//     */
+//    protected boolean referencesId(String expr, String id) {
+//        Collection<String> components = getComponents(expr);
+//        return components.contains(id);
+//    }
+//
+//    /**
+//     *
+//     * @param expression
+//     * @return a list of components that the expression references
+//     */
+//    protected Collection<String> getComponents(String expression) {
+//        FunctionalResults<Double> results = parseExpression(expression);
+//        return results.getComponents();
+//    }
 
     /**
      * Adds transition to the Petri net
@@ -554,15 +554,15 @@ public class PetriNet extends AbstractPetriNet {
         return petriNetName.getName();
     }
 
-    /**
-     * Parse the functional expression via the under lying Petri net state
-     *
-     * @param expr functional expression which conforms to the rate grammar
-     * @return parsed expression
-     */
-    public FunctionalResults<Double> parseExpression(String expr) {
-        return functionalWeightParser.evaluateExpression(expr);
-    }
+//    /**
+//     * Parse the functional expression via the under lying Petri net state
+//     *
+//     * @param expr functional expression which conforms to the rate grammar
+//     * @return parsed expression
+//     */
+//    public FunctionalResults<Double> parseExpression(String expr) {
+//        return functionalWeightParser.evaluateExpression(expr);
+//    }
 
     /**
      * This class is responsible for changing inbound and outbound arc references from
