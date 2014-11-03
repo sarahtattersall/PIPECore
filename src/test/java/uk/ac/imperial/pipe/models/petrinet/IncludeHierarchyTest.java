@@ -314,9 +314,9 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Test
 	public void interfacePlaceCanBeAddedButOnceOnly() throws Exception {
     	Place place = net1.getComponent("P0", Place.class); 
-    	includes.addToInterface(place); 
+    	includes.addToInterfaceOld(place); 
     	assertThat(includes.getInterfacePlaces()).hasSize(1);
-    	includes.addToInterface(place); 
+    	includes.addToInterfaceOld(place); 
     	assertThat(includes.getInterfacePlaces()).hasSize(1);
     	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId()); 
 	}
@@ -333,9 +333,9 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		includes.include(net2, "a");  
 		assertEquals(2, includes.getPetriNet().getPlaces().size()); 
 		assertEquals(2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
-		includes.getInclude("a").addToInterface(net2.getComponent("P0", Place.class)); 
-		assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getStatus() instanceof InterfacePlaceStatusHome); 
+		includes.getInclude("a").addToInterfaceOld(net2.getComponent("P0", Place.class)); 
+		assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
 		assertEquals("available status interface places not added to places",2, includes.getPetriNet().getPlaces().size()); 
 		assertEquals("home status interface places all not added",2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
 		includes.useInterfacePlace("top..a.P0"); 
@@ -343,7 +343,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 				3, includes.getPetriNet().getPlaces().size()); 
 		assertEquals("no change to home include",
 				2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
-		assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
 		assertEquals("top..a.P0", includes.getPetriNet().getComponent("top..a.P0", Place.class).getId()); 
 	}
     //TODO redundant with next test? 
@@ -381,7 +381,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	includeMapAll = includes.getIncludeMapAll();  
     	IncludeHierarchy targetInclude = includeMapAll.get(homeInclude);  
     	Place p0 = targetInclude.getPetriNet().getComponent("P0", Place.class); 
-    	targetInclude.addToInterface(p0); 
+    	targetInclude.addToInterfaceOld(p0); 
     	IncludeHierarchy include = null; 
     	for (int i = 0; i < names.length; i++) {
     		include = includeMapAll.get(names[i].include); 
@@ -495,9 +495,9 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	placeTop = net1.getComponent("P0", Place.class); 
     	placeA = net2.getComponent("P0", Place.class); 
     	placeB = net3.getComponent("P0", Place.class); 
-    	includes.addToInterface(placeTop); 
-    	includes.getChildInclude("a").addToInterface(placeA);
-    	includes.getChildInclude("a").getChildInclude("b").addToInterface(placeB);
+    	includes.addToInterfaceOld(placeTop); 
+    	includes.getChildInclude("a").addToInterfaceOld(placeA);
+    	includes.getChildInclude("a").getChildInclude("b").addToInterfaceOld(placeB);
 	}
     //TODO testAddingToInterfaceMultipleTimes
 	//TODO changeAccessScopeAffectsExistingInterfacePlaces...how? 

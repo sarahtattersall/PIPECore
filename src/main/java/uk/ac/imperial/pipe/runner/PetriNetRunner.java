@@ -106,7 +106,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 		includes.include(net2, "a");  
 		net.setIncludesForTesting(includes);
 		Place originP1 = net2.getComponent("P1", Place.class); 
-		includes.getInclude("a").addToInterface(originP1); 
+		includes.getInclude("a").addToInterfaceOld(originP1); 
 		includes.useInterfacePlace("top..a.P1"); 
 		InterfacePlace topIP1 = includes.getInterfacePlace("top..a.P1"); 
 		Transition topT0 = net.getComponent("T0", Transition.class);

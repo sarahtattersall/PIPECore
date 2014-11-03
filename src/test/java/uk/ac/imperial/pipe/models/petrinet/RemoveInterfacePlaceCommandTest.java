@@ -44,9 +44,9 @@ public class RemoveInterfacePlaceCommandTest {
 		includes = new IncludeHierarchy(net, "top"); 
 		includes.include(net2, "a"); 
     	placeA = net2.getComponent("P0", Place.class); 
-    	includes.getChildInclude("a").addToInterface(placeA);
+    	includes.getChildInclude("a").addToInterfaceOld(placeA);
     	placeTopIP = includes.getInterfacePlace("top..a.P0"); 
-    	placeTopIP.getInterfacePlace().getStatus().use(); 
+    	placeTopIP.getInterfacePlace().getInterfacePlaceStatus().use(); 
 	}
 
 	@Test

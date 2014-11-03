@@ -57,7 +57,7 @@ public class DiscreteInterfacePlace extends DiscretePlace implements InterfacePl
 	}
 
 	@Override
-	public InterfacePlaceStatus getStatus() {
+	public InterfacePlaceStatus getInterfacePlaceStatus() {
 		return status;
 	}
 

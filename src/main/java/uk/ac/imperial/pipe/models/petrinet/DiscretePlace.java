@@ -37,6 +37,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
 	private InterfacePlace interfacePlace;
 
+	private PlaceStatus placeStatus;
+
     /**
      * Constructor
      * @param id
@@ -44,6 +46,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     public DiscretePlace(String id, String name) {
         super(id, name);
+        placeStatus = new PlaceStatusNormal(this);
     }
 
     /**
@@ -51,7 +54,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      * @param id
      */
     public DiscretePlace(String id) {
-        super(id, id);
+        this(id, id);
     }
 
     /**
@@ -63,6 +66,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         this.capacity = place.capacity;
         this.markingXOffset = place.markingXOffset;
         this.markingYOffset = place.markingYOffset;
+        placeStatus = place.getStatus().copy(this); 
+        inInterface = place.isInInterface();
     }
 
     /**
@@ -408,6 +413,12 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	@Override
 	public void setInInterface(boolean inInterface) {
     	this.inInterface = inInterface;
+    	if (inInterface) {
+    		placeStatus = new PlaceStatusInterface(this, null); //FIXME
+    	}
+    	else {
+    		placeStatus = new PlaceStatusNormal(this); 
+    	}
     }
 	/**
 	 * 
@@ -435,6 +446,10 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	@Override
 	public void setInterfacePlace(InterfacePlace interfacePlace) {
 		this.interfacePlace = interfacePlace; 
+	}
+
+	public PlaceStatus getStatus() {
+		return placeStatus; 
 	}
 
 

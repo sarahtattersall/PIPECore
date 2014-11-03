@@ -34,21 +34,21 @@ public class DiscreteInterfacePlaceTest {
 	public void placeKnowsItsHomeInterfacePlace() throws Exception {
     	InterfacePlaceStatus home = InterfacePlaceStatusEnum.HOME.buildStatus(includes);
     	discreteInterfacePlace = new DiscreteInterfacePlace(place, home, "home");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusHome); 
-    	assertEquals(home, place.getInterfacePlace().getStatus()); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
+    	assertEquals(home, place.getInterfacePlace().getInterfacePlaceStatus()); 
     	assertEquals(discreteInterfacePlace, place.getInterfacePlace()); 
-    	assertEquals(discreteInterfacePlace, discreteInterfacePlace.getStatus().getInterfacePlace()); 
-    	assertEquals(includes, discreteInterfacePlace.getStatus().getIncludeHierarchy()); 
+    	assertEquals(discreteInterfacePlace, discreteInterfacePlace.getInterfacePlaceStatus().getInterfacePlace()); 
+    	assertEquals(includes, discreteInterfacePlace.getInterfacePlaceStatus().getIncludeHierarchy()); 
     	InterfacePlaceStatus available = InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes); 
     	DiscreteInterfacePlace discreteInterfacePlaceAvailable = new DiscreteInterfacePlace(place, available, "home", "away");
-    	assertEquals("place still points home",home, place.getInterfacePlace().getStatus()); 
-    	assertTrue(discreteInterfacePlaceAvailable.getStatus() instanceof InterfacePlaceStatusAvailable); 
-    	assertEquals(discreteInterfacePlaceAvailable, discreteInterfacePlaceAvailable.getStatus().getInterfacePlace()); 
+    	assertEquals("place still points home",home, place.getInterfacePlace().getInterfacePlaceStatus()); 
+    	assertTrue(discreteInterfacePlaceAvailable.getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertEquals(discreteInterfacePlaceAvailable, discreteInterfacePlaceAvailable.getInterfacePlaceStatus().getInterfacePlace()); 
     	InterfacePlaceStatus inUse = InterfacePlaceStatusEnum.IN_USE.buildStatus(includes); 
     	DiscreteInterfacePlace discreteInterfacePlaceInUse = new DiscreteInterfacePlace(place, inUse, "home", "away");
-    	assertEquals("place still points home",home, place.getInterfacePlace().getStatus()); 
-    	assertTrue(discreteInterfacePlaceInUse.getStatus() instanceof InterfacePlaceStatusInUse); 
-    	assertEquals(discreteInterfacePlaceInUse, discreteInterfacePlaceInUse.getStatus().getInterfacePlace()); 
+    	assertEquals("place still points home",home, place.getInterfacePlace().getInterfacePlaceStatus()); 
+    	assertTrue(discreteInterfacePlaceInUse.getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertEquals(discreteInterfacePlaceInUse, discreteInterfacePlaceInUse.getInterfacePlaceStatus().getInterfacePlace()); 
     	
 	}
     @Test
@@ -102,17 +102,17 @@ public class DiscreteInterfacePlaceTest {
     	//TODO enum builds status:  build(IH), and passes the status, not the enum, to the constructor.  
     	// use mock IH to force return of empty collection for getComponents during remove
     	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes), "home", "away");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
     	assertTrue(discreteInterfacePlace.canUse()); 
     	assertFalse(discreteInterfacePlace.isInUse()); 
     	assertFalse(discreteInterfacePlace.isHome()); 
 //    	assertFalse(discreteInterfacePlace.use().hasResult()); 
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
     	assertTrue(discreteInterfacePlace.isInUse()); 
     	assertFalse(discreteInterfacePlace.canUse()); 
     	assertFalse(discreteInterfacePlace.isHome()); 
     	discreteInterfacePlace.remove(); 
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
     	assertTrue(discreteInterfacePlace.canUse()); 
     	assertFalse(discreteInterfacePlace.isInUse()); 
     	assertFalse(discreteInterfacePlace.isHome()); 
@@ -129,14 +129,14 @@ public class DiscreteInterfacePlaceTest {
     @Test
 	public void homeStatusImpliesNoAwayAlias() throws Exception {
     	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.HOME.buildStatus(includes), "home", "away");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusHome); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
     	assertEquals("home.test", discreteInterfacePlace.getId()); 
     	//TODO homeStatusImpliesNoAwayAlias
 	}
     @Test
     public void awayStatusImpliesNotNullAwayAlias() throws Exception {
     	discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.AVAILABLE.buildStatus(includes), "home");
-    	assertTrue(discreteInterfacePlace.getStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(discreteInterfacePlace.getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
     	assertEquals("..home.test", discreteInterfacePlace.getId()); 
     }
     @Test

@@ -222,7 +222,7 @@ public class IncludeHierarchy  {
 		return nameAsPrefix; 
 	}
 	
-	public Result<Place> addToInterface(Place place) throws IncludeException {
+	public Result<Place> addToInterfaceOld(Place place) throws IncludeException {
 		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, this); 
 		self(addInterfacePlaceCommand); 
 		return interfacePlaceAccessScope.execute(addInterfacePlaceCommand); 

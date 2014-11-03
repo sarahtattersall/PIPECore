@@ -103,7 +103,7 @@ public class ClonePetriNetTest {
     	assertEquals(2, oldPetriNet.getPlaces().size()); 
 		assertEquals(4,executablePetriNet.getPlaces().size()); 
 		Place originPlace = net2.getComponent("P0", Place.class); 
-		includes.getInclude("a").addToInterface(originPlace); 
+		includes.getInclude("a").addToInterfaceOld(originPlace); 
 		includes.useInterfacePlace("top..a.P0"); 
 		assertEquals("now has an interface place",3, oldPetriNet.getPlaces().size()); 
 		ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
@@ -119,7 +119,7 @@ public class ClonePetriNetTest {
     	includes.include(net2, "a");  
     	oldPetriNet.setIncludesForTesting(includes);
     	Place originPlace = net2.getComponent("P0", Place.class); 
-    	includes.getInclude("a").addToInterface(originPlace); 
+    	includes.getInclude("a").addToInterfaceOld(originPlace); 
     	includes.useInterfacePlace("top..a.P0"); 
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
@@ -148,11 +148,11 @@ public class ClonePetriNetTest {
     	assertEquals(2, oldPetriNet.getPlaces().size()); 
     	assertEquals(4, oldPetriNet.getArcs().size()); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
-    	includes.getInclude("a").addToInterface(originPlace); 
-    	assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusAvailable); 
-    	assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getStatus() instanceof InterfacePlaceStatusHome); 
+    	includes.getInclude("a").addToInterfaceOld(originPlace); 
+    	assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
     	includes.useInterfacePlace("top..a.P0"); 
-    	assertTrue(includes.getInterfacePlace("top..a.P0").getStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
     	assertEquals("now has an interface place",3, oldPetriNet.getPlaces().size()); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("...but interface places not copied to executable PN",

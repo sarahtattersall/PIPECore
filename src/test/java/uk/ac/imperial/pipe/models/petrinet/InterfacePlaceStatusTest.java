@@ -60,25 +60,25 @@ public class InterfacePlaceStatusTest {
     	placeTop = net.getComponent("P0", Place.class); 
     	placeA = net2.getComponent("P0", Place.class); 
     	placeB = net2.getComponent("P0", Place.class); 
-    	includes.getChildInclude("a").addToInterface(placeA);
+    	includes.getChildInclude("a").addToInterfaceOld(placeA);
     	placeTopIP = includes.getInterfacePlace("top..a.P0"); 
 	}
 	@Test
 	public void addedToPlacesOnlyWhenInUse() throws Exception {
-		available = placeTopIP.getInterfacePlace().getStatus(); 
+		available = placeTopIP.getInterfacePlace().getInterfacePlaceStatus(); 
 		assertTrue(available instanceof InterfacePlaceStatusAvailable); 
 		assertEquals(2, net.getPlaces().size()); 
 		assertEquals("IP's place is in the home include",
 				placeTopIP.getInterfacePlace().getPlace(), includeA.getPetriNet().getComponent("P0", Place.class)); 
 		
 		placeTopIP.getInterfacePlace().use(); 
-		assertTrue(placeTopIP.getInterfacePlace().getStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(placeTopIP.getInterfacePlace().getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
 		assertEquals(3, net.getPlaces().size()); 
 		assertEquals(placeTopIP.getInterfacePlace(), includes.getPetriNet().getComponent("top..a.P0",  Place.class)); 
 	}
 	@Test
 	public void canRemoveIfNoDependentComponentsForInuse() throws Exception {
-		status = placeTopIP.getInterfacePlace().getStatus(); 
+		status = placeTopIP.getInterfacePlace().getInterfacePlaceStatus(); 
 		assertTrue(status instanceof InterfacePlaceStatusAvailable); 
 		assertEquals(2, net.getPlaces().size()); 
 		status.use(); 
@@ -95,7 +95,7 @@ public class InterfacePlaceStatusTest {
 	}
 	@Test
 	public void canNotRemoveIfDependentComponentsForInuseAndAffectedComponentIdsListed() throws Exception {
-		status = placeTopIP.getInterfacePlace().getStatus(); 
+		status = placeTopIP.getInterfacePlace().getInterfacePlaceStatus(); 
 		status.use(); 
 		status = status.nextStatus(); 
 		assertTrue(status instanceof InterfacePlaceStatusInUse); 
@@ -129,15 +129,15 @@ public class InterfacePlaceStatusTest {
 	}
 //	@Test
 	public void removeOkForSomeNetsButNotOthersGivesResultForFailingNets() throws Exception {
-    	includes.getInclude("b").addToInterface(placeB);
+    	includes.getInclude("b").addToInterfaceOld(placeB);
     	InterfacePlace placeTopIPb = includes.getInterfacePlace("top..b.P0");
-    	InterfacePlaceStatus statusTop = placeTopIPb.getInterfacePlace().getStatus(); 
+    	InterfacePlaceStatus statusTop = placeTopIPb.getInterfacePlace().getInterfacePlaceStatus(); 
     	statusTop.use();
     	statusTop = statusTop.nextStatus(); 
     	assertTrue(statusTop instanceof InterfacePlaceStatusInUse); 
     	
     	InterfacePlace placeAIPb = includes.getInterfacePlace("a..b.P0"); 
-    	InterfacePlaceStatus statusA = placeAIPb.getInterfacePlace().getStatus(); 
+    	InterfacePlaceStatus statusA = placeAIPb.getInterfacePlace().getInterfacePlaceStatus(); 
     	statusA.use(); 
     	statusA = statusA.nextStatus(); 
     	assertTrue(statusA instanceof InterfacePlaceStatusInUse); 

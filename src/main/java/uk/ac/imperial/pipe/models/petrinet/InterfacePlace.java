@@ -14,7 +14,7 @@ public interface InterfacePlace extends Place {
 	 * @param status
 	 */
 	public void setStatus(InterfacePlaceStatus status);
-	public InterfacePlaceStatus getStatus();
+	public InterfacePlaceStatus getInterfacePlaceStatus();
 
 	public void setAwayName(String alias);
 
