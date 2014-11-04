@@ -1,10 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+
 public interface PlaceStatus {
 
-    public Place getPlace();
-
-	public InterfaceStatus getMergeInterfaceStatus();
+	public MergeInterfaceStatus getMergeInterfaceStatus();
 
 	public InterfaceStatus getExternalInterfaceStatus();
 
@@ -12,15 +11,13 @@ public interface PlaceStatus {
 
 	public InterfaceStatus getOutputOnlyInterfaceStatus();
 
-	public IncludeHierarchy getIncludeHierarchy();
+	public Result<InterfacePlaceAction> setMergeStatus(boolean merge);
 
-	public void setMergeStatus(boolean merge);
+	public Result<InterfacePlaceAction> setExternalStatus(boolean external);
 
-	public void setExternalStatus(boolean external);
+	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly);
 
-	public void setInputOnlyStatus(boolean inputOnly);
-
-	public void setOutputOnlyStatus(boolean outputOnly);
+	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly);
 
 	public boolean isMergeStatus();
 
@@ -30,7 +27,7 @@ public interface PlaceStatus {
 
 	public boolean isOutputOnlyStatus();
 
-	public PlaceStatus copy(Place Place);
+	public abstract PlaceStatus copyStatus(Place place);
 
 
 	//TODO implement paintComponent from PlaceView, or equivalent 

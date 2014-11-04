@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 
 /**
  * A composite Petri net is one that include other Petri nets.  A Petri net that does not 
@@ -59,6 +60,8 @@ public class IncludeHierarchy  {
 	private Map<String, IncludeHierarchy> includeMap  = new HashMap<>();
 	private Map<String, IncludeHierarchy> includeMapAll  = new HashMap<>(); 
 	private Map<String, InterfacePlace> interfacePlaces = new HashMap<>();
+	private Map<String, Place> placesInInterface = new HashMap<>();
+	private Map<IncludeHierarchyMapEnum, Map<String, ?>> maps = new HashMap<>();  
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
 	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
 	public IncludeHierarchy(PetriNet net, String name) {
@@ -69,9 +72,16 @@ public class IncludeHierarchy  {
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
 		this.parent = parent;
+		initializeMapOfMaps(); 
 		buildRootAndLevelRelativeToRoot(parent); 
 		buildNames(name);
 		setInterfacePlaceAccessScope(IncludeHierarchyCommandScopeEnum.PARENTS);  
+	}
+
+	private void initializeMapOfMaps() {
+		maps.put(IncludeHierarchyMapEnum.INCLUDE, includeMap); 
+		maps.put(IncludeHierarchyMapEnum.INCLUDE_ALL, includeMapAll); 
+		maps.put(IncludeHierarchyMapEnum.PLACES_IN_INTERFACE, placesInInterface); 
 	}
 
 	private void buildNames(String name) {
@@ -474,6 +484,51 @@ public class IncludeHierarchy  {
 
 	public void setFullyQualifiedName(String fullyQualifiedName) {
 		this.fullyQualifiedName = fullyQualifiedName; 
+	}
+
+	public void addToInterface(Place place, boolean merge, boolean external, boolean inputOnly,
+			boolean outputOnly) throws IncludeException {
+		verifyPlace(place); 
+		place.addToInterface(this);
+		PlaceStatus status = place.getStatus(); 
+		status.setMergeStatus(merge); 
+		status.setExternalStatus(external);
+		status.setInputOnlyStatus(inputOnly);
+		status.setOutputOnlyStatus(outputOnly); 
+	}
+
+	private void verifyPlace(Place place) throws IncludeException {
+		verifyPlaceExistsInPetriNet(place);
+		verifyPlaceUniqueInInterface(place); 
+	}
+
+	private void verifyPlaceExistsInPetriNet(Place place)
+			throws IncludeException {
+		try {
+			getPetriNet().getComponent(place.getId(), Place.class);
+		} 
+		catch (PetriNetComponentNotFoundException e) {
+			throw new IncludeException("IncludeHierarchy.addToInterface: place "+place.getId()+
+					" does not exist in the PetriNet of IncludeHierarchy "+getName()); 
+		}
+	}
+
+	private void verifyPlaceUniqueInInterface(Place place) throws IncludeException {
+		if (!placesInInterface.containsKey(place.getId())) {
+			placesInInterface.put(place.getId(), place);
+		}
+		else throw new IncludeException("IncludeHierarchy.addToInterface: place "+
+				place.getId()+" may not be added more than once to IncludeHierarchy "+
+				getName()); 
+	}
+
+	public Map<String, Place> getPlacesInInterface() {
+		return placesInInterface;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> Map<String, T> getMap(IncludeHierarchyMapEnum includeEnum) {
+		return (Map<String, T>) maps.get(includeEnum);
 	}
 
 }

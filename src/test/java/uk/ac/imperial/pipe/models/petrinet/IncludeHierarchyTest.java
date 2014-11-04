@@ -235,7 +235,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Test
     public void throwsIfChildNameIsDuplicate() throws Exception {
     	expectedException.expect(IncludeException.class);
-    	expectedException.expectMessage("UpdateMapEntryCommand:  map entry for IncludeHierarchy child not added to IncludeMap in IncludeHierarchy top because another entry already exists with key: child");
+    	expectedException.expectMessage("UpdateMapEntryCommand:  map entry not added to IncludeMap in IncludeHierarchy top because another entry already exists with key: child");
     	includes.include(net2, "child");
     	includes.include(net2, "child");
     }
@@ -319,6 +319,41 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	includes.addToInterfaceOld(place); 
     	assertThat(includes.getInterfacePlaces()).hasSize(1);
     	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId()); 
+	}
+    @Test
+	public void throwsIfPlaceIsNotPartOfNetOfIncludeHierarchyWhenAddedToInterface() throws Exception {
+    	expectedException.expect(IncludeException.class);
+    	expectedException.expectMessage("IncludeHierarchy.addToInterface: place P99 does not exist in the PetriNet of IncludeHierarchy top"); 
+    	Place place = new DiscretePlace("P99"); 
+    	includes.addToInterface(place, false, false, false, false); 
+	}
+    @Test
+	public void placeAddedToInterfaceChangesStatusFromNormalToInterface() throws Exception {
+    	Place place = net1.getComponent("P0", Place.class); 
+    	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
+    	includes.addToInterface(place, false, false, false, false); 
+    	assertTrue(place.getStatus() instanceof PlaceStatusInterface); 
+	}
+    @Test
+	public void placeAddedToInterfaceHasMergeInterfaceStatusHomeWithOriginalPlace() throws Exception {
+    	Place place = net1.getComponent("P0", Place.class); 
+    	includes.addToInterface(place, true, false, false, false); 
+    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome); 
+    	assertEquals(place, place.getStatus().getMergeInterfaceStatus().getHomePlace()); 
+	}
+    @Test
+	public void placeAddedToInterfacePlaceCollection() throws Exception {
+    	Place place = net1.getComponent("P0", Place.class); 
+    	includes.addToInterface(place, false, false, false, false); 
+    	assertEquals(1, includes.getPlacesInInterface().size()); 
+	}
+    @Test
+	public void throwsIfAddedToInterfaceMoreThanOnce() throws Exception {
+    	expectedException.expect(IncludeException.class);
+    	expectedException.expectMessage("IncludeHierarchy.addToInterface: place P0 may not be added more than once to IncludeHierarchy top"); 
+    	Place place = net1.getComponent("P0", Place.class); 
+    	includes.addToInterface(place, false, false, false, false); 
+    	includes.addToInterface(place, false, false, false, false); 
 	}
     @Test
 	public void homeInterfacePlaceMinimalNameOfHomeIncludeAsPrefix() throws Exception {

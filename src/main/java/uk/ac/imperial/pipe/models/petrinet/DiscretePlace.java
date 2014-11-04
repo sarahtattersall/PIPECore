@@ -5,6 +5,7 @@ import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
@@ -37,7 +38,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
 	private InterfacePlace interfacePlace;
 
-	private PlaceStatus placeStatus;
+	private PlaceStatus status;
 
     /**
      * Constructor
@@ -46,7 +47,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     public DiscretePlace(String id, String name) {
         super(id, name);
-        placeStatus = new PlaceStatusNormal(this);
+        status = new PlaceStatusNormal(this);
     }
 
     /**
@@ -66,7 +67,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         this.capacity = place.capacity;
         this.markingXOffset = place.markingXOffset;
         this.markingYOffset = place.markingYOffset;
-        placeStatus = place.getStatus().copy(this); 
+        status = place.getStatus().copyStatus(this); 
         inInterface = place.isInInterface();
     }
 
@@ -414,10 +415,10 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	public void setInInterface(boolean inInterface) {
     	this.inInterface = inInterface;
     	if (inInterface) {
-    		placeStatus = new PlaceStatusInterface(this, null); //FIXME
+    		status = new PlaceStatusInterface(this); //FIXME
     	}
     	else {
-    		placeStatus = new PlaceStatusNormal(this); 
+    		status = new PlaceStatusNormal(this); 
     	}
     }
 	/**
@@ -448,8 +449,16 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		this.interfacePlace = interfacePlace; 
 	}
 
+	@Override
 	public PlaceStatus getStatus() {
-		return placeStatus; 
+		return status; 
+	}
+
+	//TODO perhaps these methods should be moved to a different interface...
+
+	@Override
+	public void addToInterface(IncludeHierarchy includeHierarchy)  {
+		status = new PlaceStatusInterface(this, includeHierarchy) ;  
 	}
 
 

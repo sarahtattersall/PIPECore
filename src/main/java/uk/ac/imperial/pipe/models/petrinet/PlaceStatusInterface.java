@@ -1,43 +1,51 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+
 public class PlaceStatusInterface implements PlaceStatus {
 
+	private static final String STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY = "status may not be both input only and output only.";
+	private static final String SET_INPUT_ONLY_STATUS = "setInputOnlyStatus: ";
+	private static final String SET_OUTPUT_ONLY_STATUS = "setOutputOnlyStatus: ";
+	private static final String PLACE_STATUS = "PlaceStatus.";
 	private Place place;
-	private IncludeHierarchy includes;
 	private boolean merge;
 	private boolean external;
 	private boolean inputOnly;
 	private boolean outputOnly;
-	private InterfaceStatus mergeStatus;
+	private MergeInterfaceStatus mergeStatus;
 	private InterfaceStatus externalStatus;
 	private InterfaceStatus inputOnlyStatus;
 	private InterfaceStatus outputOnlyStatus;
+	private IncludeHierarchy includeHierarchy;
 
-	public PlaceStatusInterface(Place place, IncludeHierarchy includes) {
-		this.place = place; 
-		this.includes = includes; 
-		setMergeStatus(false); 
-		setExternalStatus(false); 
-		setInputOnlyStatus(false); 
-		setOutputOnlyStatus(false); 
+	public PlaceStatusInterface(Place place) {
+		this(place, null); //TODO delete 
 	}
 
 	public PlaceStatusInterface(PlaceStatus placeStatus, Place newPlace) {
 		this.place = newPlace; 
-		this.includes = placeStatus.getIncludeHierarchy(); 
 		setMergeStatus(placeStatus.isMergeStatus());
 		setExternalStatus(placeStatus.isExternalStatus());
 		setInputOnlyStatus(placeStatus.isInputOnlyStatus());
 		setOutputOnlyStatus(placeStatus.isOutputOnlyStatus());
 	}
 
-	@Override
+	public PlaceStatusInterface(Place place, IncludeHierarchy includeHierarchy) {
+		this.place = place; 
+		this.includeHierarchy = includeHierarchy; 
+		setMergeStatus(false); 
+		setExternalStatus(false); 
+		setInputOnlyStatus(false); 
+		setOutputOnlyStatus(false); 
+		
+	}
+
 	public Place getPlace() {
 		return place;
 	}
 
 	@Override
-	public InterfaceStatus getMergeInterfaceStatus() {
+	public MergeInterfaceStatus getMergeInterfaceStatus() {
 		return mergeStatus;  
 	}
 
@@ -56,53 +64,69 @@ public class PlaceStatusInterface implements PlaceStatus {
 		return outputOnlyStatus;
 	}
 
-	@Override
-	public IncludeHierarchy getIncludeHierarchy() {
-		return includes;
-	}
 
 	@Override
-	public void setMergeStatus(boolean merge) {
+	public Result<InterfacePlaceAction> setMergeStatus(boolean merge) {
 		this.merge = merge; 
+		Result<InterfacePlaceAction> result = new Result<>(); 
 		if (merge) {
-			mergeStatus = new MergeInterfaceStatus(includes); 
+			mergeStatus = new MergeInterfaceStatusHome(place); 
+			result = mergeStatus.addTo(includeHierarchy); 
 		}
 		else {
 			mergeStatus = new NoOpInterfaceStatus();
 		}
+		return result;
 	}
 
 	@Override
-	public void setExternalStatus(boolean external) {
+	public Result<InterfacePlaceAction> setExternalStatus(boolean external) {
 		this.external = external;
 		if (external) {
-			externalStatus = new ExternalInterfaceStatus(includes); 
+			externalStatus = new ExternalInterfaceStatus(); 
 		}
 		else {
 			externalStatus = new NoOpInterfaceStatus(); 
 		}
+		return new Result<InterfacePlaceAction>();
 	}
 
 	@Override
-	public void setInputOnlyStatus(boolean inputOnly) {
-		this.inputOnly = inputOnly;
+	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly) {
+		Result<InterfacePlaceAction> result = new Result<InterfacePlaceAction>();
 		if (inputOnly) {
-			inputOnlyStatus = new InputOnlyInterfaceStatus(includes); 
+			if (outputOnly) {
+				result.addMessage(PLACE_STATUS+SET_INPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+			}
+			else {
+				this.inputOnly = inputOnly;
+				inputOnlyStatus = new InputOnlyInterfaceStatus(); 
+			}
 		}
 		else {
+			this.inputOnly = inputOnly;
 			inputOnlyStatus = new NoOpInterfaceStatus();
 		}
+		return result;
 	}
 
 	@Override
-	public void setOutputOnlyStatus(boolean outputOnly) {
-		this.outputOnly = outputOnly; 
+	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly) {
+		Result<InterfacePlaceAction> result = new Result<InterfacePlaceAction>();
 		if (outputOnly) {
-			outputOnlyStatus = new OutputOnlyInterfaceStatus(includes);
+			if (inputOnly) {
+				result.addMessage(PLACE_STATUS+SET_OUTPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+			} 
+			else {
+				this.outputOnly = outputOnly; 
+				outputOnlyStatus = new OutputOnlyInterfaceStatus();
+			}
 		}
 		else {
+			this.outputOnly = outputOnly; 
 			outputOnlyStatus = new NoOpInterfaceStatus();
 		}
+		return result;
 	}
 
 	@Override
@@ -126,8 +150,13 @@ public class PlaceStatusInterface implements PlaceStatus {
 	}
 
 	@Override
-	public PlaceStatus copy(Place place) {
+	public PlaceStatus copyStatus(Place place) {
 		return new PlaceStatusInterface(this, place);
 	}
+
+	protected void setStatusForTesting(InterfaceStatus interfaceStatus) {
+		if (interfaceStatus instanceof MergeInterfaceStatus) mergeStatus = (MergeInterfaceStatus) interfaceStatus;  
+	}
+
 
 }

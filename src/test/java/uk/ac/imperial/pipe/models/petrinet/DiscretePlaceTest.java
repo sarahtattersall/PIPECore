@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -293,18 +294,47 @@ public class DiscretePlaceTest {
     	
 	}
     @Test
-	public void placeStartsWithNormalStatus() throws Exception {
-    	assertTrue(place.getStatus() instanceof PlaceStatus); 
-	}
-    @Test
 	public void copyConstructorIncludesStatus() throws Exception {
     	place.setInInterface(true); 
     	place.getStatus().setMergeStatus(true); 
+    	place.getStatus().setExternalStatus(true); 
     	place.getStatus().setOutputOnlyStatus(true); 
+    	place.getStatus().setInputOnlyStatus(false); 
     	DiscretePlace newPlace = new DiscretePlace(place); 
     	assertTrue(newPlace.getStatus().isMergeStatus());
+    	assertTrue(newPlace.getStatus().isExternalStatus());
     	assertTrue(newPlace.getStatus().isOutputOnlyStatus());
-    	assertFalse(newPlace.getStatus().isExternalStatus());
+    	assertFalse(newPlace.getStatus().isInputOnlyStatus());
+	}
+    @Test
+	public void interfaceRequestsThrowUnsupportedOperationExceptionIfNotInInterface() throws Exception {
+    	try {
+    		place.getStatus().setMergeStatus(true); 
+    		fail("should throw because PlaceStatusNormal means not in the interface"); 
+    	} catch (UnsupportedOperationException e) {
+    		assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.setInInterface(true) has been requested", e.getMessage());
+    	}
+    	try {
+    		place.getStatus().setExternalStatus(true); 
+    		fail("should throw because PlaceStatusNormal means not in the interface"); 
+    	} catch (UnsupportedOperationException e) {}
+    	try {
+    		place.getStatus().setInputOnlyStatus(true); 
+    		fail("should throw because PlaceStatusNormal means not in the interface"); 
+    	} catch (UnsupportedOperationException e) {}
+    	try {
+    		place.getStatus().setOutputOnlyStatus(true); 
+    		fail("should throw because PlaceStatusNormal means not in the interface"); 
+    	} catch (UnsupportedOperationException e) {}
+	}
+    @Test
+	public void addToInterfaceCreatesPlaceStatusInterface() throws Exception {
+    	PetriNet net = new PetriNet(); 
+    	net.addPlace(place);
+    	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
+    	place.addToInterface(new IncludeHierarchy(net, "top")); 
+    	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
+//    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
 	}
 }
 

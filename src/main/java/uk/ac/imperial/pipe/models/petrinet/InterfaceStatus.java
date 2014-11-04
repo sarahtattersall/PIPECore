@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 public interface InterfaceStatus {
 
-	public Result<InterfacePlaceAction> add();
+	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy);
 
-	public Result<InterfacePlaceAction> remove();
+	public Result<InterfacePlaceAction> removeFrom(IncludeHierarchy includeHierarchy);
 }

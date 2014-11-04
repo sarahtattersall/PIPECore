@@ -2,19 +2,17 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 public class InputOnlyInterfaceStatus implements InterfaceStatus {
 
-	private IncludeHierarchy includes;
-
-	public InputOnlyInterfaceStatus(IncludeHierarchy includes) {
-		this.includes = includes; 
+	public InputOnlyInterfaceStatus() {
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> add() {
+	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy) {
 		return null;
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> remove() {
+	public Result<InterfacePlaceAction> removeFrom(
+			IncludeHierarchy includeHierarchy) {
 		return null;
 	}
 

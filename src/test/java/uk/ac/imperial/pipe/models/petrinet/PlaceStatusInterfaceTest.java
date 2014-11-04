@@ -25,12 +25,7 @@ public class PlaceStatusInterfaceTest {
 		place = new DiscretePlace("P0"); 
 		buildNet(); 
 		includes = new IncludeHierarchy(net, "top");
-		status = new PlaceStatusInterface(place, includes);  
-	}
-	@Test
-	public void statusKnowsItsPlace() {
-		assertEquals(place, status.getPlace());  
-		assertEquals(includes, status.getIncludeHierarchy());  
+		status = new PlaceStatusInterface(place);  
 	}
 	@Test
 	public void defaultsToNoOpInterfaceStatusForMergeAndExternalAndInputAndOutput() throws Exception {
@@ -42,8 +37,8 @@ public class PlaceStatusInterfaceTest {
 	@Test
 	public void NoOpStatusReturnsEmptyResult() throws Exception {
 		InterfaceStatus interfaceStatus = new NoOpInterfaceStatus(); 
-		assertFalse(interfaceStatus.add().hasResult()); 
-		assertFalse(interfaceStatus.remove().hasResult()); 
+		assertFalse(interfaceStatus.addTo(null).hasResult()); 
+		assertFalse(interfaceStatus.removeFrom(null).hasResult()); 
 	}
 	@Test
 	public void mergeStatus() throws Exception {
@@ -73,9 +68,23 @@ public class PlaceStatusInterfaceTest {
 		status.setExternalStatus(false); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
 	}
-//	@Test
+	@Test
 	public void inputAndOutputCantCoexist() throws Exception {
-		//TODO
+		Result<InterfacePlaceAction> result = status.setInputOnlyStatus(true); 
+		assertFalse(result.hasResult());
+		result = status.setOutputOnlyStatus(true); 
+		assertTrue(result.hasResult());
+		assertEquals("PlaceStatus.setOutputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
+		
+		assertTrue(status.isInputOnlyStatus()); 
+		assertFalse(status.isOutputOnlyStatus()); 
+		result = status.setInputOnlyStatus(false); 
+		assertFalse(result.hasResult());
+		result = status.setOutputOnlyStatus(true); 
+		assertFalse(result.hasResult());
+		result = status.setInputOnlyStatus(true); 
+		assertTrue(result.hasResult());
+		assertEquals("PlaceStatus.setInputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
 	}
 	@Test
 	public void copyConstructorForPlaceStatus() throws Exception {
@@ -83,16 +92,12 @@ public class PlaceStatusInterfaceTest {
 		status.setExternalStatus(true); 
 		status.setInputOnlyStatus(true); 
 		PlaceStatus newstatus = new PlaceStatusInterface(status, place);  
-		assertEquals(place, newstatus.getPlace()); 
-		assertEquals(includes, newstatus.getIncludeHierarchy()); 
 		assertTrue(newstatus.isMergeStatus());
 		assertTrue(newstatus.isExternalStatus());
 		assertTrue(newstatus.isInputOnlyStatus());
 		assertFalse(newstatus.isOutputOnlyStatus());
 		
 	}
-	//TODO MergeInterfaceStatus is interface...add with defualt Home  
-//	protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentNotFoundException {
 	protected void buildNet() throws PetriNetComponentNotFoundException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(

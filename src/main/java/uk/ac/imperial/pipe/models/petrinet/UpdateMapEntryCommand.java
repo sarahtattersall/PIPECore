@@ -4,59 +4,60 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-public class UpdateMapEntryCommand extends
+public class UpdateMapEntryCommand<T> extends
 		AbstractIncludeHierarchyCommand<UpdateResultEnum>  {
 
 	private static final String UPDATE_MAP_ENTRY_COMMAND = "UpdateMapEntryCommand:  ";
 	private IncludeHierarchyMapEnum includeEnum;
 	private String oldname;
 	private String newname;
-	private IncludeHierarchy include;
+	private T value;
 	private boolean force;
 
 	public UpdateMapEntryCommand(IncludeHierarchyMapEnum includeEnum,
-			String oldname, String newname, IncludeHierarchy include, boolean force) {
+			String oldname, String newname, T value, boolean force) {
 		this.includeEnum = includeEnum; 
 		this.oldname = oldname;
 		this.newname = newname; 
-		this.include = include; 
+		this.value = value; 
 		this.force = force; 
 	}
 	public UpdateMapEntryCommand(IncludeHierarchyMapEnum includeEnum,
-			String oldname, String newname, IncludeHierarchy include) {
-		this(includeEnum, oldname, newname, include, false); 
+			String oldname, String newname, T value) {
+		this(includeEnum, oldname, newname, value, false); 
 	}
 	public UpdateMapEntryCommand(IncludeHierarchyMapEnum includeEnum,
-			String newname, IncludeHierarchy include, boolean force) {
-		this(includeEnum, null, newname, include, force); 
+			String newname, T value, boolean force) {
+		this(includeEnum, null, newname, value, force); 
 	}
 	public UpdateMapEntryCommand(IncludeHierarchyMapEnum includeEnum,
-			String newname, IncludeHierarchy include) {
-		this(includeEnum, null, newname, include, false); 
+			String newname, T value) {
+		this(includeEnum, null, newname, value, false); 
 	}
 	
 	@Override
 	public Result<UpdateResultEnum> execute(IncludeHierarchy includeHierarchy) {
-		Map<String, IncludeHierarchy> map = includeEnum.getMap(includeHierarchy);
-		String aliasForExistingInclude = getKeyForValue(map, include); 
-		IncludeHierarchy includeForNewAlias = map.get(newname);
+		Map<String, T> map = includeHierarchy.getMap(includeEnum); 
+//		Map<String, T> map = (Map<String, T>) includeEnum.getMap(includeHierarchy);
+		String aliasForExistingInclude = getKeyForValue(map, value); 
+		T includeForNewAlias = map.get(newname);
 		if ((includeForNewAlias == null) && (aliasForExistingInclude == null)) {
-			map.put(newname, include);
+			map.put(newname, (T) value);
 		}
 		else if (includeForNewAlias != null) {
-			if (includeForNewAlias.equals(include)) {
+			if (includeForNewAlias.equals(value)) {
 				// no action; entry already exists 
 			}
-			else if (!(includeForNewAlias.equals(include)) && (oldname == null)) {  // (nameForExistingInclude == null)
+			else if (!(includeForNewAlias.equals(value)) && (oldname == null)) {  // (nameForExistingInclude == null)
 				if (!force) {
 					result.addEntry(buildNotAddedMessage(includeHierarchy), UpdateResultEnum.NAME_ALREADY_EXISTS); 
 				} 
 				else {
 					map.remove(newname);
-					map.put(newname, include);
+					map.put(newname, (T) value);
 				}
 			}
-			else if (!(includeForNewAlias.equals(include)) && (oldname != null)) {
+			else if (!(includeForNewAlias.equals(value)) && (oldname != null)) {
 				if (!force) {
 					result.addEntry(buildNotRenamedMessage(includeHierarchy), UpdateResultEnum.NAME_ALREADY_EXISTS); 
 				}
@@ -74,7 +75,7 @@ public class UpdateMapEntryCommand extends
 				} 
 				else {
 					map.remove(aliasForExistingInclude);
-					map.put(newname, include);
+					map.put(newname, (T) value);
 				}
 			}
 			else {
@@ -84,9 +85,9 @@ public class UpdateMapEntryCommand extends
 
 		return result;
 	}
-	protected void rename(Map<String, IncludeHierarchy> map) {
+	protected void rename(Map<String, T> map) {
 		map.remove(oldname); 
-		map.put(newname, include);
+		map.put(newname, (T) value);
 	}
 	private String buildNotRenamedDifferentOldNameMessage(
 			IncludeHierarchy includeHierarchy, String aliasForExistingInclude) {
@@ -99,15 +100,15 @@ public class UpdateMapEntryCommand extends
 				" for IncludeHierarchy with key "+oldname+" not renamed to "+newname+"; another entry by that name already exists.";
 	}
 	private String buildNotAddedMessage(IncludeHierarchy includeHierarchy) {
-		return UPDATE_MAP_ENTRY_COMMAND+"map entry for IncludeHierarchy "+include.getName()+" not added to "+
+		return UPDATE_MAP_ENTRY_COMMAND+"map entry not added to "+
 				includeEnum.getName()+" in IncludeHierarchy "+includeHierarchy.getName()+" because another entry already exists with key: "+newname;
 	}
-	private String getKeyForValue(Map<String, IncludeHierarchy> map,
-			IncludeHierarchy include) {
+	private String getKeyForValue(Map<String, T> map,
+			T value) {
 		String key = null; 
-		Set<Entry<String, IncludeHierarchy>> entries = map.entrySet(); 
-		for (Entry<String, IncludeHierarchy> entry : entries) {
-			if (entry.getValue().equals(include)) key = entry.getKey(); 
+		Set<Entry<String, T>> entries = map.entrySet(); 
+		for (Entry<String, T> entry : entries) {
+			if (entry.getValue().equals(value)) key = entry.getKey(); 
 		}
 		return key;
 	}

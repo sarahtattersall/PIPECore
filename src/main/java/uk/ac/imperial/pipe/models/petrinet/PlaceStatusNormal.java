@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+
+
 public class PlaceStatusNormal implements PlaceStatus {
 
 	private Place place;
@@ -9,13 +11,12 @@ public class PlaceStatusNormal implements PlaceStatus {
 		
 	}
 
-	@Override
 	public Place getPlace() {
 		return place;
 	}
 
 	@Override
-	public InterfaceStatus getMergeInterfaceStatus() {
+	public MergeInterfaceStatus getMergeInterfaceStatus() {
 		return new NoOpInterfaceStatus();
 	}
 
@@ -34,26 +35,31 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return new NoOpInterfaceStatus();
 	}
 
-	@Override
 	public IncludeHierarchy getIncludeHierarchy() {
 		return null;
 	}
-	//TODO set...status should throw unsupported operation exception
 	@Override
-	public void setMergeStatus(boolean merge) {
+	public Result<InterfacePlaceAction> setMergeStatus(boolean merge) {
+		throw new UnsupportedOperationException(buildUnsupportedMessage("setMergeStatus")); 
+	}
+	@Override
+	public Result<InterfacePlaceAction> setExternalStatus(boolean external) {
+		throw new UnsupportedOperationException(buildUnsupportedMessage("setExternalStatus")); 
 	}
 
 	@Override
-	public void setExternalStatus(boolean external) {
+	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly) {
+		throw new UnsupportedOperationException(buildUnsupportedMessage("setInputOnlyStatus")); 
 	}
 
 	@Override
-	public void setInputOnlyStatus(boolean inputOnly) {
+	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly) {
+		throw new UnsupportedOperationException(buildUnsupportedMessage("setOutputOnlyStatus")); 
 	}
-
-	@Override
-	public void setOutputOnlyStatus(boolean outputOnly) {
-		
+	private String buildUnsupportedMessage(String method) {
+		return "PlaceStatusNormal:  "+method+
+				" not a valid request for place "+place.getId()+
+				" until Place.setInInterface(true) has been requested";
 	}
 
 	public boolean isOutputOnlyStatus() {
@@ -72,9 +78,9 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return false;
 	}
 
-	@Override
-	public PlaceStatus copy(Place place) {
+	public PlaceStatus copyStatus(Place place) {
 		return new PlaceStatusNormal(place);
 	}
+
 
 }

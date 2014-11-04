@@ -3,6 +3,8 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
 
 public interface Place extends Connectable, PropertyChangeListener {
     /**
@@ -74,5 +76,10 @@ public interface Place extends Connectable, PropertyChangeListener {
 	public abstract void setInterfacePlace(InterfacePlace interfacePlace);
 
 	public abstract void setInInterface(boolean inInterface);
+
+	public PlaceStatus getStatus();
+	
+	public void addToInterface(IncludeHierarchy includeHierarchy); 
+
 
 }

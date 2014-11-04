@@ -1,14 +1,15 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<InterfacePlaceAction>  implements InterfaceStatus {
+public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<InterfacePlaceAction>  
+  	implements InterfaceStatus, MergeInterfaceStatus {
 
 	@Override
-	public Result<InterfacePlaceAction> add() {
+	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy) {
 		return result;
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> remove() {
+	public Result<InterfacePlaceAction> removeFrom(IncludeHierarchy includeHierarchy) {
 		return result;
 	}
 
@@ -16,6 +17,11 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	public Result<InterfacePlaceAction> execute(
 			IncludeHierarchy includeHierarchy) {
 		return result;
+	}
+
+	@Override
+	public Place getHomePlace() {
+		return null;
 	}
 
 }
