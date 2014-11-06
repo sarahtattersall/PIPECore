@@ -315,10 +315,10 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	public void interfacePlaceCanBeAddedButOnceOnly() throws Exception {
     	Place place = net1.getComponent("P0", Place.class); 
     	includes.addToInterfaceOld(place); 
-    	assertThat(includes.getInterfacePlaces()).hasSize(1);
+    	assertThat(includes.getInterfacePlacesOld()).hasSize(1);
     	includes.addToInterfaceOld(place); 
-    	assertThat(includes.getInterfacePlaces()).hasSize(1);
-    	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId()); 
+    	assertThat(includes.getInterfacePlacesOld()).hasSize(1);
+    	assertEquals("top.P0", includes.getInterfacePlaceOld("top.P0").getId()); 
 	}
     @Test
 	public void throwsIfPlaceIsNotPartOfNetOfIncludeHierarchyWhenAddedToInterface() throws Exception {
@@ -345,7 +345,40 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	public void placeAddedToInterfacePlaceCollection() throws Exception {
     	Place place = net1.getComponent("P0", Place.class); 
     	includes.addToInterface(place, false, false, false, false); 
-    	assertEquals(1, includes.getPlacesInInterface().size()); 
+    	assertEquals(1, includes.getInterfacePlaceMap().size()); 
+	}
+    @Test
+	public void availableInterfacePlaceAddedToPetriNet() throws Exception {
+    	includes.include(net2, "a"); 
+    	IncludeHierarchy include2 = includes.getInclude("a"); 
+    	Place place = net2.getComponent("P0", Place.class); 
+    	include2.addToInterface(place, true, false, false, false); 
+    	Place topPlace = includes.getInterfacePlace("a.P0"); 
+    	assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
+    	includes.addAvailablePlaceToPetriNet(topPlace);
+    	assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+	}
+    @Test
+	public void throwsIfInterfacePlaceBeingAddedToPetriNetIsNotAvailable() throws Exception {
+    	includes.include(net2, "a"); 
+    	IncludeHierarchy include2 = includes.getInclude("a"); 
+    	Place place = net2.getComponent("P0", Place.class); 
+    	include2.addToInterface(place, true, false, false, false); 
+    	Place topPlace = includes.getInterfacePlace("a.P0"); 
+    	checkExceptionCantAddBecauseAlreadyPresent("Home place already in net",include2, place);
+    	includes.addAvailablePlaceToPetriNet(topPlace);
+    	checkExceptionCantAddBecauseAlreadyPresent("First add works but second doesn't; Away place previously added",
+    			includes, topPlace);
+	}
+	protected void checkExceptionCantAddBecauseAlreadyPresent(String comment, IncludeHierarchy include, Place place) {
+		try {
+    		include.addAvailablePlaceToPetriNet(place);
+    		fail("should throw"); 
+    	}
+    	catch (IncludeException e) {
+    		assertEquals(comment, "IncludeHierarchy.addAvailablePlaceToPetriNet: place "+place.getId()+" cannot be added to Petri net "+
+    				include.getPetriNet().getNameValue()+" because it is already present.", e.getMessage()); 
+    	}
 	}
     @Test
 	public void throwsIfAddedToInterfaceMoreThanOnce() throws Exception {
@@ -358,9 +391,9 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Test
 	public void homeInterfacePlaceMinimalNameOfHomeIncludeAsPrefix() throws Exception {
     	buildHierarchyWithInterfacePlaces(); 
-    	assertEquals("top.P0", includes.getInterfacePlace("top.P0").getId());  
-    	assertEquals("a.P0", includes.getChildInclude("a").getInterfacePlace("a.P0").getId());  
-    	assertEquals("b.P0", includes.getChildInclude("a").getChildInclude("b").getInterfacePlace("b.P0").getId());  
+    	assertEquals("top.P0", includes.getInterfacePlaceOld("top.P0").getId());  
+    	assertEquals("a.P0", includes.getChildInclude("a").getInterfacePlaceOld("a.P0").getId());  
+    	assertEquals("b.P0", includes.getChildInclude("a").getChildInclude("b").getInterfacePlaceOld("b.P0").getId());  
 	}
     @Test
 	public void interfacePlacesArePartOfPlaceCollectionOnceUsed() throws Exception {
@@ -369,8 +402,8 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		assertEquals(2, includes.getPetriNet().getPlaces().size()); 
 		assertEquals(2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
 		includes.getInclude("a").addToInterfaceOld(net2.getComponent("P0", Place.class)); 
-		assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInclude("a").getInterfacePlaceOld("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
 		assertEquals("available status interface places not added to places",2, includes.getPetriNet().getPlaces().size()); 
 		assertEquals("home status interface places all not added",2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
 		includes.useInterfacePlace("top..a.P0"); 
@@ -378,19 +411,19 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 				3, includes.getPetriNet().getPlaces().size()); 
 		assertEquals("no change to home include",
 				2, includes.getInclude("a").getPetriNet().getPlaces().size()); 
-		assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
 		assertEquals("top..a.P0", includes.getPetriNet().getComponent("top..a.P0", Place.class).getId()); 
 	}
     //TODO redundant with next test? 
     @Test
     public void interfacePlacesAreAvailableAsDefinedByAccessScope() throws Exception {
     	buildHierarchyWithInterfacePlaces(); 
-    	assertEquals("top..b.P0", includes.getInterfacePlace("top..b.P0").getId());
-    	assertEquals(placeB, includes.getInterfacePlace("top..b.P0").getPlace());
-    	assertEquals(placeB, includes.getInclude("a").getInterfacePlace("a..b.P0").getPlace());
-    	assertEquals(placeB, includes.getInclude("b").getInterfacePlace("b.P0").getPlace());
+    	assertEquals("top..b.P0", includes.getInterfacePlaceOld("top..b.P0").getId());
+    	assertEquals(placeB, includes.getInterfacePlaceOld("top..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("a").getInterfacePlaceOld("a..b.P0").getPlace());
+    	assertEquals(placeB, includes.getInclude("b").getInterfacePlaceOld("b.P0").getPlace());
     	assertEquals("neither self nor parent, so doesn't see the interface place",
-    			0, includes.getInclude("c").getInterfacePlaces().size());
+    			0, includes.getInclude("c").getInterfacePlacesOld().size());
     }
       
     @Test  
@@ -420,13 +453,13 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	IncludeHierarchy include = null; 
     	for (int i = 0; i < names.length; i++) {
     		include = includeMapAll.get(names[i].include); 
-    		Iterator<InterfacePlace> it = include.getInterfacePlaces().iterator(); 
+    		Iterator<InterfacePlace> it = include.getInterfacePlacesOld().iterator(); 
     		InterfacePlace interfacePlace = (it.hasNext()) ? it.next() : null;
     		if (interfacePlace == null) fail("No interface places for include "+names[i].include); 
 			assertEquals(comment, names[i].interfacePlaceName, interfacePlace.getId()); 
 		}
     	for (int i = 0; i < noInterfacePlaces.length; i++) {
-    		assertEquals(comment, 0, includeMapAll.get(noInterfacePlaces[i]).getInterfacePlaces().size()); 
+    		assertEquals(comment, 0, includeMapAll.get(noInterfacePlaces[i]).getInterfacePlacesOld().size()); 
 		}
 	}
 	private IncludeHierarchy buildTestHierarchy() throws IncludeException {

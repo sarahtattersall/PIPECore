@@ -8,13 +8,18 @@ public class OutputOnlyInterfaceStatus implements InterfaceStatus {
 
 
 	@Override
-	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy) {
+	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
 		return null;
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> removeFrom(
+	public Result<InterfacePlaceAction> remove(
 			IncludeHierarchy includeHierarchy) {
+		return null;
+	}
+
+
+	public InterfaceStatus copy() {
 		return null;
 	}
 

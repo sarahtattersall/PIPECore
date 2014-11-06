@@ -221,19 +221,19 @@ public class ExecutablePetriNetTest {
 		includes.getInclude("a").addToInterfaceOld(originP1); 
 		includes.getInclude("a").addToInterfaceOld(originP2); 
 		includes.getInclude("a").addToInterfaceOld(originP3); 
-		assertTrue(includes.getInterfacePlace("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInterfacePlace("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInterfacePlace("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInclude("a").getInterfacePlace("a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+		assertTrue(includes.getInclude("a").getInterfacePlaceOld("a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
 		includes.useInterfacePlace("top..a.P1"); 
 		includes.useInterfacePlace("top..a.P2"); 
-		assertTrue(includes.getInterfacePlace("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
-		assertTrue(includes.getInterfacePlace("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+		assertTrue(includes.getInterfacePlaceOld("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
 		assertFalse("didn't use it, so still available",
-				includes.getInterfacePlace("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+				includes.getInterfacePlaceOld("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
 		assertEquals(5,executablePetriNet.getPlaces().size()); 
-		InterfacePlace topIP1 = includes.getInterfacePlace("top..a.P1"); 
-		InterfacePlace topIP2 = includes.getInterfacePlace("top..a.P2"); 
+		InterfacePlace topIP1 = includes.getInterfacePlaceOld("top..a.P1"); 
+		InterfacePlace topIP2 = includes.getInterfacePlaceOld("top..a.P2"); 
 		Transition topT1 = net.getComponent("T1", Transition.class);
 		assertEquals(4,executablePetriNet.getArcs().size()); 
         InboundArc arcIn = new InboundNormalArc(topIP1, topT1, new HashMap<String, String>());

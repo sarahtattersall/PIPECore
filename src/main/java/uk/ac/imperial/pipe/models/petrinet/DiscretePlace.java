@@ -461,6 +461,11 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		status = new PlaceStatusInterface(this, includeHierarchy) ;  
 	}
 
+	@Override
+	public void setStatus(PlaceStatus status) {
+		this.status = status; 
+	}
+
 
 
 

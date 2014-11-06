@@ -30,9 +30,17 @@ public class DiscretePlaceTest {
 
     DiscretePlace place;
 
+	private PetriNet net;
+
+	private IncludeHierarchy includes;
+
     @Before
     public void setUp() {
         place = new DiscretePlace("test", "test");
+    	net = new PetriNet(); 
+    	net.addPlace(place);
+    	includes = new IncludeHierarchy(net, "top"); 
+
     }
 
     @Test
@@ -295,7 +303,8 @@ public class DiscretePlaceTest {
 	}
     @Test
 	public void copyConstructorIncludesStatus() throws Exception {
-    	place.setInInterface(true); 
+    	//FIXME set in interface implies an include hierarchy, but we're not giving one. 
+    	place.addToInterface(includes); 
     	place.getStatus().setMergeStatus(true); 
     	place.getStatus().setExternalStatus(true); 
     	place.getStatus().setOutputOnlyStatus(true); 
@@ -312,7 +321,7 @@ public class DiscretePlaceTest {
     		place.getStatus().setMergeStatus(true); 
     		fail("should throw because PlaceStatusNormal means not in the interface"); 
     	} catch (UnsupportedOperationException e) {
-    		assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.setInInterface(true) has been requested", e.getMessage());
+    		assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.addToInterface(IncludeHierarchy) has been requested", e.getMessage());
     	}
     	try {
     		place.getStatus().setExternalStatus(true); 
@@ -329,10 +338,8 @@ public class DiscretePlaceTest {
 	}
     @Test
 	public void addToInterfaceCreatesPlaceStatusInterface() throws Exception {
-    	PetriNet net = new PetriNet(); 
-    	net.addPlace(place);
     	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
-    	place.addToInterface(new IncludeHierarchy(net, "top")); 
+    	place.addToInterface(includes); 
     	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
 //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
 	}

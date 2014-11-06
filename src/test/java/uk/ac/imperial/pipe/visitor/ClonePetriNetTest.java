@@ -149,10 +149,10 @@ public class ClonePetriNetTest {
     	assertEquals(4, oldPetriNet.getArcs().size()); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
     	includes.getInclude("a").addToInterfaceOld(originPlace); 
-    	assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-    	assertTrue(includes.getInclude("a").getInterfacePlace("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
+    	assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
+    	assertTrue(includes.getInclude("a").getInterfacePlaceOld("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
     	includes.useInterfacePlace("top..a.P0"); 
-    	assertTrue(includes.getInterfacePlace("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
+    	assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
     	assertEquals("now has an interface place",3, oldPetriNet.getPlaces().size()); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("...but interface places not copied to executable PN",

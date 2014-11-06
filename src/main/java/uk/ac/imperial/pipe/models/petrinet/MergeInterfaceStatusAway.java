@@ -1,11 +1,10 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class ExternalInterfaceStatus implements InterfaceStatus {
+public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
-
-	public ExternalInterfaceStatus() {
+	public MergeInterfaceStatusAway(Place homePlace, PlaceStatus placeStatus, String awayId) {
+		super(homePlace, placeStatus, awayId);
 	}
-
 
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {

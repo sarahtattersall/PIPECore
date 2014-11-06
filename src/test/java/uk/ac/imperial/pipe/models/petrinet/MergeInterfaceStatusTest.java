@@ -60,7 +60,7 @@ public class MergeInterfaceStatusTest {
     	placeA = net2.getComponent("P0", Place.class); 
     	placeB = net2.getComponent("P0", Place.class); 
     	includes.getChildInclude("a").addToInterfaceOld(placeA);
-    	placeTopIP = includes.getInterfacePlace("top..a.P0"); 
+    	placeTopIP = includes.getInterfacePlaceOld("top..a.P0"); 
 	}
 //	@Test
 	public void addedToPlacesOnlyWhenInUse() throws Exception {
@@ -129,13 +129,13 @@ public class MergeInterfaceStatusTest {
 //	@Test
 	public void removeOkForSomeNetsButNotOthersGivesResultForFailingNets() throws Exception {
     	includes.getInclude("b").addToInterfaceOld(placeB);
-    	InterfacePlace placeTopIPb = includes.getInterfacePlace("top..b.P0");
+    	InterfacePlace placeTopIPb = includes.getInterfacePlaceOld("top..b.P0");
     	InterfacePlaceStatus statusTop = placeTopIPb.getInterfacePlace().getInterfacePlaceStatus(); 
     	statusTop.use();
     	statusTop = statusTop.nextStatus(); 
     	assertTrue(statusTop instanceof InterfacePlaceStatusInUse); 
     	
-    	InterfacePlace placeAIPb = includes.getInterfacePlace("a..b.P0"); 
+    	InterfacePlace placeAIPb = includes.getInterfacePlaceOld("a..b.P0"); 
     	InterfacePlaceStatus statusA = placeAIPb.getInterfacePlace().getInterfacePlaceStatus(); 
     	statusA.use(); 
     	statusA = statusA.nextStatus(); 

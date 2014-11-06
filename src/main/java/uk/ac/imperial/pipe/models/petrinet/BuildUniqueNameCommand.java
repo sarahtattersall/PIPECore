@@ -131,8 +131,8 @@ public class BuildUniqueNameCommand extends AbstractIncludeHierarchyCommand<Incl
 	private void updateUniqueNameInSelfAndParentsMaps(IncludeHierarchy includeHierarchy, String uniqueName)  {
 		includeHierarchy.setUniqueName(uniqueName); 
 		includeHierarchy.buildUniqueNameAsPrefix();
-		UpdateMapEntryCommand updateCommand = 
-			new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE_ALL, currentUniqueName, uniqueName, includeHierarchy, true);
+		UpdateMapEntryCommand<IncludeHierarchy> updateCommand = 
+			new UpdateMapEntryCommand<IncludeHierarchy>(IncludeHierarchyMapEnum.INCLUDE_ALL, currentUniqueName, uniqueName, includeHierarchy, true);
 		Result<UpdateResultEnum> updateResult = includeHierarchy.parents(updateCommand);
 		updateResult = includeHierarchy.self(updateCommand);
 		if (updateResult.hasResult()) throw new RuntimeException(BUILD_UNIQUE_NAME+"updateUniqueNameInSelfAndParentsMaps probable logic error: \n"+updateResult.getMessage());

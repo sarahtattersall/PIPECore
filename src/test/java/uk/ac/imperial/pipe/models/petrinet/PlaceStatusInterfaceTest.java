@@ -20,12 +20,13 @@ public class PlaceStatusInterfaceTest {
 	private PlaceStatus status;
 	private PetriNet net;
 	private IncludeHierarchy includes;
+	private Result<InterfacePlaceAction> result;
 	@Before
 	public void setUp() throws Exception {
 		place = new DiscretePlace("P0"); 
 		buildNet(); 
 		includes = new IncludeHierarchy(net, "top");
-		status = new PlaceStatusInterface(place);  
+		status = new PlaceStatusInterface(place, includes);  
 	}
 	@Test
 	public void defaultsToNoOpInterfaceStatusForMergeAndExternalAndInputAndOutput() throws Exception {
@@ -37,52 +38,66 @@ public class PlaceStatusInterfaceTest {
 	@Test
 	public void NoOpStatusReturnsEmptyResult() throws Exception {
 		InterfaceStatus interfaceStatus = new NoOpInterfaceStatus(); 
-		assertFalse(interfaceStatus.addTo(null).hasResult()); 
-		assertFalse(interfaceStatus.removeFrom(null).hasResult()); 
+		assertFalse(interfaceStatus.add(null).hasResult()); 
+		assertFalse(interfaceStatus.remove(null).hasResult()); 
 	}
 	@Test
 	public void mergeStatus() throws Exception {
 		status.setMergeStatus(true); 
-		assertTrue(status.getMergeInterfaceStatus() instanceof MergeInterfaceStatus); // s/b ...Home
+		result = status.update();
+		assertFalse(result.hasResult()); 
+		assertTrue(status.getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
 		status.setMergeStatus(false); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
 	}
 	@Test
 	public void externalStatus() throws Exception {
 		status.setExternalStatus(true); 
-		assertTrue(status.getExternalInterfaceStatus() instanceof ExternalInterfaceStatus); //s/b Home
+		assertFalse(status.update().hasResult()); 
+		assertTrue(status.getExternalInterfaceStatus() instanceof ExternalInterfaceStatus); 
 		status.setExternalStatus(false); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
 	}
 	@Test
 	public void inputOnlyStatus() throws Exception {
 		status.setInputOnlyStatus(true); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getInputOnlyInterfaceStatus() instanceof InputOnlyInterfaceStatus); 
 		status.setExternalStatus(false); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
 	}
 	@Test
 	public void outputOnlyStatus() throws Exception {
 		status.setOutputOnlyStatus(true); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getOutputOnlyInterfaceStatus() instanceof OutputOnlyInterfaceStatus); 
 		status.setExternalStatus(false); 
+		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
 	}
 	@Test
 	public void inputAndOutputCantCoexist() throws Exception {
-		Result<InterfacePlaceAction> result = status.setInputOnlyStatus(true); 
+		status.setInputOnlyStatus(true); 
+		result = status.update(); 
 		assertFalse(result.hasResult());
-		result = status.setOutputOnlyStatus(true); 
+		status.setOutputOnlyStatus(true); 
+		result = status.update(); 
 		assertTrue(result.hasResult());
 		assertEquals("PlaceStatus.setOutputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
 		
 		assertTrue(status.isInputOnlyStatus()); 
 		assertFalse(status.isOutputOnlyStatus()); 
-		result = status.setInputOnlyStatus(false); 
+		status.setInputOnlyStatus(false); 
+		result = status.update(); 
 		assertFalse(result.hasResult());
-		result = status.setOutputOnlyStatus(true); 
+		status.setOutputOnlyStatus(true); 
+		result = status.update(); 
 		assertFalse(result.hasResult());
-		result = status.setInputOnlyStatus(true); 
+		status.setInputOnlyStatus(true); 
+		result = status.update(); 
 		assertTrue(result.hasResult());
 		assertEquals("PlaceStatus.setInputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
 	}

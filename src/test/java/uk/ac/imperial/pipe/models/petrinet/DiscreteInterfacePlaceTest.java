@@ -29,7 +29,6 @@ public class DiscreteInterfacePlaceTest {
         includes = new IncludeHierarchy(new PetriNet(), "top"); 
         discreteInterfacePlace = new DiscreteInterfacePlace(place, InterfacePlaceStatusEnum.HOME.buildStatus(includes), "home", "away");
     }
-    //TODO should look different in GUI
     @Test
 	public void placeKnowsItsHomeInterfacePlace() throws Exception {
     	InterfacePlaceStatus home = InterfacePlaceStatusEnum.HOME.buildStatus(includes);

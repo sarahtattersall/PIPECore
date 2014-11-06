@@ -77,9 +77,11 @@ public interface Place extends Connectable, PropertyChangeListener {
 
 	public abstract void setInInterface(boolean inInterface);
 
-	public PlaceStatus getStatus();
+	public void addToInterface(IncludeHierarchy includeHierarchy);
 	
-	public void addToInterface(IncludeHierarchy includeHierarchy); 
+	public PlaceStatus getStatus();
+
+	public void setStatus(PlaceStatus status); 
 
 
 }

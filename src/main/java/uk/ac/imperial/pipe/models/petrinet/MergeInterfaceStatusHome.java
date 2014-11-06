@@ -1,30 +1,32 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class MergeInterfaceStatusHome implements MergeInterfaceStatus {
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
+public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
 
-	private Place homePlace;
-
-	public MergeInterfaceStatusHome(Place place) {
-		homePlace = place; 
+	public MergeInterfaceStatusHome(Place place, PlaceStatus placeStatus) {
+		super(place, placeStatus); 
 	}
 
 
+
 	@Override
-	public Place getHomePlace() {
-		return homePlace;
+	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy)  {
+		buildAwayId(includeHierarchy.getUniqueNameAsPrefix()); 
+		IncludeHierarchyCommand<InterfacePlaceAction> command = new AddPlaceStatusCommand(homePlace, placeStatus, includeHierarchy);
+		Result<InterfacePlaceAction> result = includeHierarchy.self(command);  
+		try {
+			result = includeHierarchy.getInterfacePlaceAccessScope().execute(command);
+		} catch (IncludeException e) {
+			result.addMessage(e.getMessage()); 
+			e.printStackTrace();
+		}  
+		return result;
 	}
 
-
 	@Override
-	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy) {
-		//TODO AddPlaceStatusCommand (w merge), return results
-		return null;
-	}
-
-
-	@Override
-	public Result<InterfacePlaceAction> removeFrom(
+	public Result<InterfacePlaceAction> remove(
 			IncludeHierarchy includeHierarchy) {
 		return null;
 	}

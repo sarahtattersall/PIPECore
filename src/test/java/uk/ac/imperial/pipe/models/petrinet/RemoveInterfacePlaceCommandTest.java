@@ -45,7 +45,7 @@ public class RemoveInterfacePlaceCommandTest {
 		includes.include(net2, "a"); 
     	placeA = net2.getComponent("P0", Place.class); 
     	includes.getChildInclude("a").addToInterfaceOld(placeA);
-    	placeTopIP = includes.getInterfacePlace("top..a.P0"); 
+    	placeTopIP = includes.getInterfacePlaceOld("top..a.P0"); 
     	placeTopIP.getInterfacePlace().getInterfacePlaceStatus().use(); 
 	}
 

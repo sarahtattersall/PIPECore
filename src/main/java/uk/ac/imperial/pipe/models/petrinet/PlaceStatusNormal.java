@@ -11,6 +11,7 @@ public class PlaceStatusNormal implements PlaceStatus {
 		
 	}
 
+	@Override
 	public Place getPlace() {
 		return place;
 	}
@@ -39,27 +40,27 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return null;
 	}
 	@Override
-	public Result<InterfacePlaceAction> setMergeStatus(boolean merge) {
+	public void setMergeStatus(boolean merge) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setMergeStatus")); 
 	}
 	@Override
-	public Result<InterfacePlaceAction> setExternalStatus(boolean external) {
+	public void setExternalStatus(boolean external) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setExternalStatus")); 
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly) {
+	public void setInputOnlyStatus(boolean inputOnly) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setInputOnlyStatus")); 
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly) {
+	public void setOutputOnlyStatus(boolean outputOnly) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setOutputOnlyStatus")); 
 	}
 	private String buildUnsupportedMessage(String method) {
 		return "PlaceStatusNormal:  "+method+
 				" not a valid request for place "+place.getId()+
-				" until Place.setInInterface(true) has been requested";
+				" until Place.addToInterface(IncludeHierarchy) has been requested";
 	}
 
 	public boolean isOutputOnlyStatus() {
@@ -80,6 +81,23 @@ public class PlaceStatusNormal implements PlaceStatus {
 
 	public PlaceStatus copyStatus(Place place) {
 		return new PlaceStatusNormal(place);
+	}
+
+	public void setMergeInterfaceStatus(MergeInterfaceStatus interfaceStatus) {
+	}
+
+	@Override
+	public Result<InterfacePlaceAction> update() {
+		return null;
+	}
+
+	public void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus) {
+	}
+
+	public void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus) {
+	}
+
+	public void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus) {
 	}
 
 

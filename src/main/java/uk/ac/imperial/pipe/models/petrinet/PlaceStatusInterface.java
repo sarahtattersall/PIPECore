@@ -17,17 +17,28 @@ public class PlaceStatusInterface implements PlaceStatus {
 	private InterfaceStatus inputOnlyStatus;
 	private InterfaceStatus outputOnlyStatus;
 	private IncludeHierarchy includeHierarchy;
+	private boolean mergeChanged;
+	private boolean externalChanged;
+	private boolean inputOnlyChanged;
+	private boolean outputOnlyChanged;
+	private Result<InterfacePlaceAction> result;
 
 	public PlaceStatusInterface(Place place) {
 		this(place, null); //TODO delete 
 	}
 
-	public PlaceStatusInterface(PlaceStatus placeStatus, Place newPlace) {
-		this.place = newPlace; 
+	public PlaceStatusInterface(PlaceStatus placeStatus, Place place) {
+		this.place = place; 
+		this.includeHierarchy = placeStatus.getIncludeHierarchy(); 
 		setMergeStatus(placeStatus.isMergeStatus());
 		setExternalStatus(placeStatus.isExternalStatus());
 		setInputOnlyStatus(placeStatus.isInputOnlyStatus());
 		setOutputOnlyStatus(placeStatus.isOutputOnlyStatus());
+		setMergeInterfaceStatus(placeStatus.getMergeInterfaceStatus()); 
+		setExternalInterfaceStatus(placeStatus.getExternalInterfaceStatus()); 
+		setInputOnlyInterfaceStatus(placeStatus.getInputOnlyInterfaceStatus()); 
+		setOutputOnlyInterfaceStatus(placeStatus.getOutputOnlyInterfaceStatus()); 
+		resetUpdate(); 
 	}
 
 	public PlaceStatusInterface(Place place, IncludeHierarchy includeHierarchy) {
@@ -37,9 +48,17 @@ public class PlaceStatusInterface implements PlaceStatus {
 		setExternalStatus(false); 
 		setInputOnlyStatus(false); 
 		setOutputOnlyStatus(false); 
-		
+		update(); 
+	}
+	private void resetUpdate() {
+		mergeChanged = false; 
+		externalChanged = false; 
+		inputOnlyChanged = false; 
+		outputOnlyChanged = false; 
+		result = new Result<>(); 
 	}
 
+	@Override
 	public Place getPlace() {
 		return place;
 	}
@@ -64,14 +83,42 @@ public class PlaceStatusInterface implements PlaceStatus {
 		return outputOnlyStatus;
 	}
 
+	@Override
+	public Result<InterfacePlaceAction> update() {
+		if (mergeChanged) buildMergeStatus(); 
+		if (externalChanged) buildExternalStatus(); 
+		if (inputOnlyChanged) buildInputOnlyStatus(); 
+		if (outputOnlyChanged) buildOutputOnlyStatus(); 
+		Result<InterfacePlaceAction> tempResult = result; 
+		resetUpdate(); 
+		return tempResult;
+	}
 
 	@Override
-	public Result<InterfacePlaceAction> setMergeStatus(boolean merge) {
+	public void setMergeStatus(boolean merge) {
 		this.merge = merge; 
-		Result<InterfacePlaceAction> result = new Result<>(); 
+		this.mergeChanged = true; 
+	}
+	@Override
+	public void setExternalStatus(boolean external) {
+		this.external = external;
+		this.externalChanged = true; 
+	}
+	@Override
+	public void setInputOnlyStatus(boolean inputOnly) {
+		this.inputOnly = inputOnly;
+		this.inputOnlyChanged = true; 
+	}
+	@Override
+	public void setOutputOnlyStatus(boolean outputOnly) {
+		this.outputOnly = outputOnly; 
+		this.outputOnlyChanged = true; 
+	}
+
+	protected Result<InterfacePlaceAction> buildMergeStatus() {
 		if (merge) {
-			mergeStatus = new MergeInterfaceStatusHome(place); 
-			result = mergeStatus.addTo(includeHierarchy); 
+			mergeStatus = new MergeInterfaceStatusHome(place, this); 
+			result = mergeStatus.add(includeHierarchy); 
 		}
 		else {
 			mergeStatus = new NoOpInterfaceStatus();
@@ -79,51 +126,50 @@ public class PlaceStatusInterface implements PlaceStatus {
 		return result;
 	}
 
-	@Override
-	public Result<InterfacePlaceAction> setExternalStatus(boolean external) {
-		this.external = external;
+
+	protected Result<InterfacePlaceAction> buildExternalStatus() {
 		if (external) {
 			externalStatus = new ExternalInterfaceStatus(); 
 		}
 		else {
 			externalStatus = new NoOpInterfaceStatus(); 
 		}
-		return new Result<InterfacePlaceAction>();
+		return result;
 	}
 
-	@Override
-	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly) {
-		Result<InterfacePlaceAction> result = new Result<InterfacePlaceAction>();
+
+	protected Result<InterfacePlaceAction> buildInputOnlyStatus() {
 		if (inputOnly) {
 			if (outputOnly) {
 				result.addMessage(PLACE_STATUS+SET_INPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+				this.inputOnly = false; 
 			}
 			else {
-				this.inputOnly = inputOnly;
+//				this.inputOnly = inputOnly;
 				inputOnlyStatus = new InputOnlyInterfaceStatus(); 
 			}
 		}
 		else {
-			this.inputOnly = inputOnly;
+//			this.inputOnly = inputOnly;
 			inputOnlyStatus = new NoOpInterfaceStatus();
 		}
 		return result;
 	}
 
-	@Override
-	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly) {
-		Result<InterfacePlaceAction> result = new Result<InterfacePlaceAction>();
+
+	protected Result<InterfacePlaceAction> buildOutputOnlyStatus() {
 		if (outputOnly) {
 			if (inputOnly) {
 				result.addMessage(PLACE_STATUS+SET_OUTPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+				this.outputOnly = false; 
 			} 
 			else {
-				this.outputOnly = outputOnly; 
+//				this.outputOnly = outputOnly; 
 				outputOnlyStatus = new OutputOnlyInterfaceStatus();
 			}
 		}
 		else {
-			this.outputOnly = outputOnly; 
+//			this.outputOnly = outputOnly; 
 			outputOnlyStatus = new NoOpInterfaceStatus();
 		}
 		return result;
@@ -154,9 +200,30 @@ public class PlaceStatusInterface implements PlaceStatus {
 		return new PlaceStatusInterface(this, place);
 	}
 
-	protected void setStatusForTesting(InterfaceStatus interfaceStatus) {
-		if (interfaceStatus instanceof MergeInterfaceStatus) mergeStatus = (MergeInterfaceStatus) interfaceStatus;  
+	@Override
+	public void setMergeInterfaceStatus(MergeInterfaceStatus interfaceStatus) {
+		this.mergeStatus = interfaceStatus; 
 	}
+	@Override
+	public void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus) {
+		this.outputOnlyStatus = outputOnlyInterfaceStatus; 
+	}
+
+	@Override
+	public void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus) {
+		this.inputOnlyStatus = inputOnlyInterfaceStatus; 
+	}
+
+	@Override
+	public void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus) {
+		this.externalStatus = externalInterfaceStatus; 
+	}
+
+	@Override
+	public IncludeHierarchy getIncludeHierarchy() {
+		return includeHierarchy;
+	}
+
 
 
 }

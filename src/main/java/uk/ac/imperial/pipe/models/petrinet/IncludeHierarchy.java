@@ -59,8 +59,8 @@ public class IncludeHierarchy  {
 	private IncludeHierarchy root;
 	private Map<String, IncludeHierarchy> includeMap  = new HashMap<>();
 	private Map<String, IncludeHierarchy> includeMapAll  = new HashMap<>(); 
-	private Map<String, InterfacePlace> interfacePlaces = new HashMap<>();
-	private Map<String, Place> placesInInterface = new HashMap<>();
+	private Map<String, InterfacePlace> interfacePlacesOld = new HashMap<>();
+	private Map<String, Place> interfacePlaces = new HashMap<>();
 	private Map<IncludeHierarchyMapEnum, Map<String, ?>> maps = new HashMap<>();  
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
 	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
@@ -81,7 +81,7 @@ public class IncludeHierarchy  {
 	private void initializeMapOfMaps() {
 		maps.put(IncludeHierarchyMapEnum.INCLUDE, includeMap); 
 		maps.put(IncludeHierarchyMapEnum.INCLUDE_ALL, includeMapAll); 
-		maps.put(IncludeHierarchyMapEnum.PLACES_IN_INTERFACE, placesInInterface); 
+		maps.put(IncludeHierarchyMapEnum.INTERFACE_PLACES, interfacePlaces); 
 	}
 
 	private void buildNames(String name) {
@@ -132,7 +132,7 @@ public class IncludeHierarchy  {
 	}
 
 	protected void addIncludeToIncludeMap(String name, IncludeHierarchy childHierarchy) throws IncludeException {
-		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE, name, childHierarchy)); 
+		Result<UpdateResultEnum> result = self(new UpdateMapEntryCommand<IncludeHierarchy>(IncludeHierarchyMapEnum.INCLUDE, name, childHierarchy)); 
 		if (result.hasResult()) throw new IncludeException(result.getMessage());
 	}
 
@@ -197,7 +197,7 @@ public class IncludeHierarchy  {
  	}
 
 	protected Result<UpdateResultEnum> renameBare(String newname) throws IncludeException {
-		Result<UpdateResultEnum> result = parent(new UpdateMapEntryCommand(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
+		Result<UpdateResultEnum> result = parent(new UpdateMapEntryCommand<IncludeHierarchy>(IncludeHierarchyMapEnum.INCLUDE,getName(), newname, this));  
 		if (!result.hasResult()) {
 			setName(newname); 
 		}
@@ -239,14 +239,14 @@ public class IncludeHierarchy  {
 	}
 
 	protected boolean addInterfacePlaceToMap(InterfacePlace interfacePlace) {
-		if (!interfacePlaces.containsKey(interfacePlace.getId())) {
-			interfacePlaces.put(interfacePlace.getId(), interfacePlace);
+		if (!interfacePlacesOld.containsKey(interfacePlace.getId())) {
+			interfacePlacesOld.put(interfacePlace.getId(), interfacePlace);
 			return true; 
 		}
 		else return false; 
 	}
 	public void useInterfacePlace(String id) {
-		InterfacePlace interfacePlace = getInterfacePlace(id); 
+		InterfacePlace interfacePlace = getInterfacePlaceOld(id); 
 		boolean inuse = interfacePlace.use(); 
 		if (inuse) {
 			getPetriNet().addPlace(interfacePlace); 
@@ -254,9 +254,9 @@ public class IncludeHierarchy  {
 	}
 
 	public void removeFromInterface(Place place) {
-		for (String id : interfacePlaces.keySet()) {
-			if (interfacePlaces.get(id).getPlace().getId().equals(place.getId())) {
-				interfacePlaces.remove(id); 
+		for (String id : interfacePlacesOld.keySet()) {
+			if (interfacePlacesOld.get(id).getPlace().getId().equals(place.getId())) {
+				interfacePlacesOld.remove(id); 
 			}
 		}
 		//TODO do same for the rest of the hierarchy
@@ -416,12 +416,12 @@ public class IncludeHierarchy  {
 		iterator = new IncludeIterator(this);
 		return iterator; 
 	}
-	public Collection<InterfacePlace> getInterfacePlaces() {
-		return interfacePlaces.values();
+	public Collection<InterfacePlace> getInterfacePlacesOld() {
+		return interfacePlacesOld.values();
 	}
 
-	public InterfacePlace getInterfacePlace(String id) {
-		return interfacePlaces.get(id);
+	public InterfacePlace getInterfacePlaceOld(String id) {
+		return interfacePlacesOld.get(id);
 	}
 
 	public IncludeHierarchy getRoot() {
@@ -495,6 +495,15 @@ public class IncludeHierarchy  {
 		status.setExternalStatus(external);
 		status.setInputOnlyStatus(inputOnly);
 		status.setOutputOnlyStatus(outputOnly); 
+		Result<InterfacePlaceAction> result = status.update(); 
+		if (result.hasResult()) {  //TODO test 
+			StringBuffer sb = new StringBuffer(); 
+			for (String message : result.getMessages()) {
+				sb.append(message); 
+				sb.append("\n"); 
+			}
+			throw new IncludeException(sb.toString()); 
+		}
 	}
 
 	private void verifyPlace(Place place) throws IncludeException {
@@ -514,21 +523,34 @@ public class IncludeHierarchy  {
 	}
 
 	private void verifyPlaceUniqueInInterface(Place place) throws IncludeException {
-		if (!placesInInterface.containsKey(place.getId())) {
-			placesInInterface.put(place.getId(), place);
+		if (!interfacePlaces.containsKey(place.getId())) {
+			interfacePlaces.put(place.getId(), place);
 		}
 		else throw new IncludeException("IncludeHierarchy.addToInterface: place "+
 				place.getId()+" may not be added more than once to IncludeHierarchy "+
 				getName()); 
 	}
 
-	public Map<String, Place> getPlacesInInterface() {
-		return placesInInterface;
+	public Map<String, Place> getInterfacePlaceMap() {
+		return interfacePlaces;
 	}
 
 	@SuppressWarnings("unchecked")
 	public <T> Map<String, T> getMap(IncludeHierarchyMapEnum includeEnum) {
 		return (Map<String, T>) maps.get(includeEnum);
+	}
+
+	public Place getInterfacePlace(String id) {
+		return interfacePlaces.get(id);
+	}
+
+	public void addAvailablePlaceToPetriNet(Place place) throws IncludeException {
+		Result<InterfacePlaceAction> result = place.getStatus().getMergeInterfaceStatus().add(getPetriNet());
+		if (result.hasResult()) {
+			throw new IncludeException("IncludeHierarchy.addAvailablePlaceToPetriNet: "+
+					result.getMessage());
+		}
+		
 	}
 
 }

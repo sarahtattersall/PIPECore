@@ -11,13 +11,13 @@ public interface PlaceStatus {
 
 	public InterfaceStatus getOutputOnlyInterfaceStatus();
 
-	public Result<InterfacePlaceAction> setMergeStatus(boolean merge);
+	public void setMergeStatus(boolean merge);
 
-	public Result<InterfacePlaceAction> setExternalStatus(boolean external);
+	public void setExternalStatus(boolean external);
 
-	public Result<InterfacePlaceAction> setInputOnlyStatus(boolean inputOnly);
+	public void setInputOnlyStatus(boolean inputOnly);
 
-	public Result<InterfacePlaceAction> setOutputOnlyStatus(boolean outputOnly);
+	public void setOutputOnlyStatus(boolean outputOnly);
 
 	public boolean isMergeStatus();
 
@@ -27,7 +27,22 @@ public interface PlaceStatus {
 
 	public boolean isOutputOnlyStatus();
 
-	public abstract PlaceStatus copyStatus(Place place);
+	public  PlaceStatus copyStatus(Place place);
+
+	//TODO consider dropping this and changing to protected
+	public void setMergeInterfaceStatus(MergeInterfaceStatus interfaceStatus);
+
+	public IncludeHierarchy getIncludeHierarchy();
+
+	public Result<InterfacePlaceAction> update();
+
+	public abstract void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus);
+
+	public abstract void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus);
+
+	public abstract void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus);
+
+	public Place getPlace();
 
 
 	//TODO implement paintComponent from PlaceView, or equivalent 

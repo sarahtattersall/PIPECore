@@ -24,13 +24,13 @@ public class AddInterfacePlaceCommandTest {
 		Place p0 = new DiscretePlace("P0");
 		net.addPlace(p0); 
 		assertEquals(1, net.getPlaces().size());
-		assertEquals(0, includes.getInterfacePlaces().size());
+		assertEquals(0, includes.getInterfacePlacesOld().size());
 		command = new AddInterfacePlaceCommand<Place>(p0, new IncludeHierarchy(new PetriNet(), "top")); 
 		command.execute(includes);
 		assertEquals(1, net.getPlaces().size());
 		Place newp0 = net.getComponent("top.P0", Place.class); 
-		assertEquals(1, includes.getInterfacePlaces().size());
-		InterfacePlace ip0 = includes.getInterfacePlaces().iterator().next(); 
+		assertEquals(1, includes.getInterfacePlacesOld().size());
+		InterfacePlace ip0 = includes.getInterfacePlacesOld().iterator().next(); 
 		assertEquals(ip0, newp0);
 		assertTrue(ip0.getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
 	}
@@ -38,12 +38,12 @@ public class AddInterfacePlaceCommandTest {
 	public void interfacePlaceAddedToInitialHierarchy() throws Exception {
 		Place p0 = new DiscretePlace("P0");
 		assertEquals(0, net.getPlaces().size());
-		assertEquals(0, includes.getInterfacePlaces().size());
+		assertEquals(0, includes.getInterfacePlacesOld().size());
 		command = new AddInterfacePlaceCommand<Place>(p0, new IncludeHierarchy(new PetriNet(), "top")); 
 		command.execute(includes);
 		assertEquals("not added to PN places until InUse",
 				0, net.getPlaces().size());
-		assertEquals(1, includes.getInterfacePlaces().size());
+		assertEquals(1, includes.getInterfacePlacesOld().size());
 	}
 	//TODO interfacePlaceAddedToPetriNetPlacesWhenNotHome
 	@Test

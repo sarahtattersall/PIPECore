@@ -4,12 +4,12 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
   	implements InterfaceStatus, MergeInterfaceStatus {
 
 	@Override
-	public Result<InterfacePlaceAction> addTo(IncludeHierarchy includeHierarchy) {
+	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
 		return result;
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> removeFrom(IncludeHierarchy includeHierarchy) {
+	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
 		return result;
 	}
 
@@ -23,5 +23,16 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	public Place getHomePlace() {
 		return null;
 	}
+
+	@Override
+	public String getAwayId() {
+		return null;
+	}
+
+	@Override
+	public Result<InterfacePlaceAction> add(PetriNet petriNet) {
+		return null;
+	}
+
 
 }

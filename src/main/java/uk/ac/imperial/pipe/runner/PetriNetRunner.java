@@ -108,7 +108,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 		Place originP1 = net2.getComponent("P1", Place.class); 
 		includes.getInclude("a").addToInterfaceOld(originP1); 
 		includes.useInterfacePlace("top..a.P1"); 
-		InterfacePlace topIP1 = includes.getInterfacePlace("top..a.P1"); 
+		InterfacePlace topIP1 = includes.getInterfacePlaceOld("top..a.P1"); 
 		Transition topT0 = net.getComponent("T0", Transition.class);
 		Map<String,String> tokenweights = new HashMap<String, String>(); 
 		tokenweights.put("Default", "1"); 
