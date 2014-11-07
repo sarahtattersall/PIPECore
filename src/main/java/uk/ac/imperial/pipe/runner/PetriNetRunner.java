@@ -104,7 +104,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub {
 		PetriNet net2 = buildNet2();
 		IncludeHierarchy includes = new IncludeHierarchy(net, "top");
 		includes.include(net2, "a");  
-		net.setIncludesForTesting(includes);
+		net.setIncludeHierarchy(includes);
 		Place originP1 = net2.getComponent("P1", Place.class); 
 		includes.getInclude("a").addToInterfaceOld(originP1); 
 		includes.useInterfacePlace("top..a.P1"); 

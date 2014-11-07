@@ -9,7 +9,7 @@ public interface InterfacePlaceAction {
 
 	public abstract IncludeHierarchy getIncludeHierarchy();
 
-	public abstract InterfacePlace getInterfacePlace();
+	public abstract Place getInterfacePlace();
 
 	public abstract String getComponentId();
 	

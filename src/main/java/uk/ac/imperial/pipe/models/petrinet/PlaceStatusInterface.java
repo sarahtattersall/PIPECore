@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-
 public class PlaceStatusInterface implements PlaceStatus {
 
 	private static final String STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY = "status may not be both input only and output only.";
@@ -222,6 +221,11 @@ public class PlaceStatusInterface implements PlaceStatus {
 	@Override
 	public IncludeHierarchy getIncludeHierarchy() {
 		return includeHierarchy;
+	}
+
+	@Override
+	public void setIncludeHierarchy(IncludeHierarchy includeHierarchy) {
+		this.includeHierarchy = includeHierarchy; 
 	}
 
 

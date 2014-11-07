@@ -83,7 +83,7 @@ public class ClonePetriNetTest {
     @Test
 	public void clonePetriNetToExecutablePetriNetReplacingExistingState() throws Exception {
     	buildSimpleNet(); 
-    	oldPetriNet.setIncludesForTesting(new IncludeHierarchy(oldPetriNet, "root"));
+    	oldPetriNet.setIncludeHierarchy(new IncludeHierarchy(oldPetriNet, "root"));
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("root.P0", executablePetriNet.getComponent("root.P0", Place.class).getId()); 
@@ -97,7 +97,7 @@ public class ClonePetriNetTest {
     	PetriNet net2 = buildTestNet(); 
     	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
     	includes.include(net2, "a");  
-    	oldPetriNet.setIncludesForTesting(includes);
+    	oldPetriNet.setIncludeHierarchy(includes);
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals(2, oldPetriNet.getPlaces().size()); 
@@ -117,7 +117,7 @@ public class ClonePetriNetTest {
     	PetriNet net2 = buildTestNet(); 
     	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
     	includes.include(net2, "a");  
-    	oldPetriNet.setIncludesForTesting(includes);
+    	oldPetriNet.setIncludeHierarchy(includes);
     	Place originPlace = net2.getComponent("P0", Place.class); 
     	includes.getInclude("a").addToInterfaceOld(originPlace); 
     	includes.useInterfacePlace("top..a.P0"); 
@@ -137,7 +137,7 @@ public class ClonePetriNetTest {
     	PetriNet net2 = buildTestNet(); 
     	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
     	includes.include(net2, "a");  
-    	oldPetriNet.setIncludesForTesting(includes);
+    	oldPetriNet.setIncludeHierarchy(includes);
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	//new IncludeHierarchy(net, "top"); 

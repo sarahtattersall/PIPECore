@@ -467,7 +467,12 @@ public abstract class AbstractPetriNet  {
      * @param place to remove from Petri net
      */
     public void removePlace(Place place) throws PetriNetComponentException {
-        Collection<String> components = getComponentsReferencingId(place.getId());
+    	verifyPlaceNotInUseInInterface(place);
+        removePlaceBare(place);
+    }
+	protected void removePlaceBare(Place place)
+			throws PetriNetComponentException {
+		Collection<String> components = getComponentsReferencingId(place.getId());
         if (!components.isEmpty()) {
             throw new PetriNetComponentException("Cannot delete " + place.getId() + " it is referenced in a functional expression!");
         }
@@ -476,7 +481,19 @@ public abstract class AbstractPetriNet  {
             removeArc(arc);
         }
         changeSupport.firePropertyChange(DELETE_PLACE_CHANGE_MESSAGE, place, null);
-    }
+	}
+	protected void verifyPlaceNotInUseInInterface(Place place)
+			throws PetriNetComponentException {
+		Result<InterfacePlaceAction> result = place.getStatus().getMergeInterfaceStatus().remove(getIncludeHierarchy());
+    	if (result.hasResult()) {
+    		StringBuffer sb = new StringBuffer(); 
+    		for (String message : result.getMessages()) {
+				sb.append(message); 
+				sb.append("\n");
+			}
+    		throw new PetriNetComponentException("Cannot delete "+place.getId()+":\n"+sb.toString()); 
+    	}
+	}
 
 	/**
     *

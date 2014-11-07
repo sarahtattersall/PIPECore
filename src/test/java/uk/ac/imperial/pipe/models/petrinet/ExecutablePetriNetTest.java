@@ -206,7 +206,7 @@ public class ExecutablePetriNetTest {
     	net2 = buildNet2();
     	IncludeHierarchy includes = new IncludeHierarchy(net, "top");
     	includes.include(net2, "a");  
-    	net.setIncludesForTesting(includes);
+    	net.setIncludeHierarchy(includes);
 		executablePetriNet = net.getExecutablePetriNet(); 
 		assertEquals(5,executablePetriNet.getPlaces().size()); 
 		assertEquals(6,executablePetriNet.getTransitions().size()); 

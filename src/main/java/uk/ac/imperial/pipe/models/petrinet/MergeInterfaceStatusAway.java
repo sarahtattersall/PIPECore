@@ -12,9 +12,13 @@ public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus imple
 	}
 
 	@Override
-	public Result<InterfacePlaceAction> remove(
-			IncludeHierarchy includeHierarchy) {
-		return null;
+	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
+		return buildNotSupportedResult("remove", "Away");
+	}
+
+	@Override
+	public boolean canRemove() {
+		return false;
 	}
 
 

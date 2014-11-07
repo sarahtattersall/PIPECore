@@ -111,7 +111,9 @@ public class PlaceStatusInterfaceTest {
 		assertTrue(newstatus.isExternalStatus());
 		assertTrue(newstatus.isInputOnlyStatus());
 		assertFalse(newstatus.isOutputOnlyStatus());
-		
+		//TODO incorporate adjusting the include hierarchy into ClonePetriNet?  see MergeInterfaceStatusHome
+		assertEquals("but this is probably not right -- usually we're copying to another include",
+				status.getIncludeHierarchy(), newstatus.getIncludeHierarchy()); 
 	}
 	protected void buildNet() throws PetriNetComponentNotFoundException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(

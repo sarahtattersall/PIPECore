@@ -3,15 +3,13 @@ package uk.ac.imperial.pipe.models.petrinet;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.PlaceCloner;
 
-public class AddPlaceStatusCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
+public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
 
-	private PlaceStatus placeStatus;
 	private IncludeHierarchy home;
 	private Place homePlace;
 
-	public AddPlaceStatusCommand(Place homePlace, PlaceStatus placeStatus, IncludeHierarchy home) {
+	public AddPlaceToInterfaceCommand(Place homePlace, IncludeHierarchy home) {
 		this.homePlace = homePlace; 
-		this.placeStatus = placeStatus; 
 		this.home = home; 
 	}
 
@@ -36,6 +34,7 @@ public class AddPlaceStatusCommand extends AbstractIncludeHierarchyCommand<Inter
         	e.printStackTrace(); 
         }
         Place newPlace = cloner.cloned;
+        newPlace.getStatus().setIncludeHierarchy(includeHierarchy); 
         MergeInterfaceStatus mergeStatus = 
         		new MergeInterfaceStatusAvailable(homePlace, newPlace.getStatus(),  newPlace.getStatus().getMergeInterfaceStatus().getAwayId());  
         newPlace.getStatus().setMergeInterfaceStatus(mergeStatus); 

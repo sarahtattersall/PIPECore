@@ -36,7 +36,10 @@ public class PetriNetTest {
 
     @Mock
     private PropertyChangeListener mockListener;
-
+    @Mock
+    private MergeInterfaceStatus mockMergeStatus;
+    
+    
 	private Place oldPlace;
 
 	private Place newPlace;
@@ -97,7 +100,19 @@ public class PetriNetTest {
 
         verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
     }
-
+    @Test
+	public void throwsIfRemovingPlaceGetsResultFromMergeStatusRemove() throws Exception {
+    	expectedException.expect(PetriNetComponentException.class); 
+    	expectedException.expectMessage("Cannot delete P0:\nresult message"); 
+    	Result<InterfacePlaceAction> result = new Result<>(); 
+    	result.addMessage("result message"); 
+    	when(mockMergeStatus.remove(any(IncludeHierarchy.class))).thenReturn(result); 
+    	Place place = new DiscretePlace("P0", "P0");
+    	place.getStatus().setMergeInterfaceStatus(mockMergeStatus);
+    	net.addPlace(place);
+    	net.removePlace(place);
+	}
+    
     @Test
     public void addingArcNotifiesObservers() {
         Place place = new DiscretePlace("P0", "P0");

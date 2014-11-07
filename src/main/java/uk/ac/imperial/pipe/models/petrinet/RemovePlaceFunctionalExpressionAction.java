@@ -1,17 +1,17 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class RemoveInterfacePlaceFunctionalExpressionAction implements
+public class RemovePlaceFunctionalExpressionAction implements
 		InterfacePlaceAction {
 
 	private String componentId;
-	private InterfacePlace interfacePlace;
+	private Place place;
 	private IncludeHierarchy includeHierarchy;
 
-	public RemoveInterfacePlaceFunctionalExpressionAction(
-			IncludeHierarchy includeHierarchy, InterfacePlace interfacePlace,
+	public RemovePlaceFunctionalExpressionAction(
+			IncludeHierarchy includeHierarchy, Place place,
 			String componentId) {
 		this.includeHierarchy = includeHierarchy; 
-		this.interfacePlace = interfacePlace; 
+		this.place = place; 
 		this.componentId = componentId; 
 	}
 
@@ -22,7 +22,7 @@ public class RemoveInterfacePlaceFunctionalExpressionAction implements
 
 	@Override
 	public Place getInterfacePlace() {
-		return interfacePlace;
+		return place;
 	}
 
 	@Override

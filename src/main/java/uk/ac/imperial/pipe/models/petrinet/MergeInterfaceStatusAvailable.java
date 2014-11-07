@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 
+
 public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
 
@@ -13,10 +14,9 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
 		return null;
 	}
-
 	@Override
 	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
-		return null;
+		return buildNotSupportedResult("remove", "Available");
 	}
 
 	@Override
@@ -27,6 +27,11 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
         placeStatus.setMergeInterfaceStatus(mergeStatus); 
 	 
 		return result;
+	}
+
+	@Override
+	public boolean canRemove() {
+		return false;
 	}
 
 

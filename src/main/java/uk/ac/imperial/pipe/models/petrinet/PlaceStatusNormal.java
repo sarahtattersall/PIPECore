@@ -1,14 +1,19 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-
-
 public class PlaceStatusNormal implements PlaceStatus {
 
 	private Place place;
+	private MergeInterfaceStatus mergeInterfaceStatus;
+	private InterfaceStatus externalInterfaceStatus;
+	private InterfaceStatus inputOnlyInterfaceStatus;
+	private InterfaceStatus outputOnlyInterfaceStatus;
 
 	public PlaceStatusNormal(Place place) {
 		this.place = place;
-		
+		this.mergeInterfaceStatus = new NoOpInterfaceStatus(); 
+		this.externalInterfaceStatus = new NoOpInterfaceStatus(); 
+		this.inputOnlyInterfaceStatus = new NoOpInterfaceStatus(); 
+		this.outputOnlyInterfaceStatus = new NoOpInterfaceStatus(); 
 	}
 
 	@Override
@@ -18,22 +23,22 @@ public class PlaceStatusNormal implements PlaceStatus {
 
 	@Override
 	public MergeInterfaceStatus getMergeInterfaceStatus() {
-		return new NoOpInterfaceStatus();
+		return mergeInterfaceStatus; 
 	}
 
 	@Override
 	public InterfaceStatus getExternalInterfaceStatus() {
-		return new NoOpInterfaceStatus();
+		return externalInterfaceStatus;
 	}
 
 	@Override
 	public InterfaceStatus getInputOnlyInterfaceStatus() {
-		return new NoOpInterfaceStatus();
+		return inputOnlyInterfaceStatus;
 	}
 
 	@Override
 	public InterfaceStatus getOutputOnlyInterfaceStatus() {
-		return new NoOpInterfaceStatus();
+		return outputOnlyInterfaceStatus;
 	}
 
 	public IncludeHierarchy getIncludeHierarchy() {
@@ -84,6 +89,7 @@ public class PlaceStatusNormal implements PlaceStatus {
 	}
 
 	public void setMergeInterfaceStatus(MergeInterfaceStatus interfaceStatus) {
+		this.mergeInterfaceStatus = interfaceStatus; 
 	}
 
 	@Override
@@ -92,12 +98,19 @@ public class PlaceStatusNormal implements PlaceStatus {
 	}
 
 	public void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus) {
+		this.externalInterfaceStatus = externalInterfaceStatus; 
 	}
 
 	public void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus) {
+		this.inputOnlyInterfaceStatus = inputOnlyInterfaceStatus; 
 	}
 
 	public void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus) {
+		this.outputOnlyInterfaceStatus = outputOnlyInterfaceStatus; 
+	}
+
+	@Override
+	public void setIncludeHierarchy(IncludeHierarchy includeHierarchy) {
 	}
 
 

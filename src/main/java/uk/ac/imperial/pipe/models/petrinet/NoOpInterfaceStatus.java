@@ -34,5 +34,10 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 		return null;
 	}
 
+	@Override
+	public boolean canRemove() {
+		return false;
+	}
+
 
 }

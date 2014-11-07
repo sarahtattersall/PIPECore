@@ -289,7 +289,7 @@ public class DiscretePlaceTest {
     	IncludeHierarchy hierarchy = new IncludeHierarchy(new PetriNet(), null);
     	hierarchy.addToInterfaceOld(place); 
     	assertTrue(place.isInInterface()); 
-    	hierarchy.removeFromInterface(place); 
+    	hierarchy.removeFromInterfaceOld(place); 
     }
     @Test
 	public void placeStatusChangesOnceInInterface() throws Exception {

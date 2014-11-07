@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public class AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
+public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
 	protected Place homePlace;
 	protected PlaceStatus placeStatus;
@@ -17,7 +17,9 @@ public class AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 		this.awayId = awayId; 
 	}
 
-
+	@Override
+	public abstract boolean canRemove();
+	
 	@Override
 	public Place getHomePlace() {
 		return homePlace;
@@ -41,14 +43,16 @@ public class AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
 
 	@Override
-	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
-		return null;
-	}
-
+	public abstract Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy); 
 
 	@Override
-	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
-		return null;
+	public abstract Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy);
+
+	protected Result<InterfacePlaceAction> buildNotSupportedResult(String method, String status) {
+		Result<InterfacePlaceAction> result = new Result<>();  
+		result.addMessage("MergeInterfaceStatus"+status+"."+method+": not supported for "+
+				status+" status.  Must be issued by MergeInterfaceStatusHome against the home include hierarchy.");
+		return result; 
 	}
 
 }

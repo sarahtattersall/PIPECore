@@ -71,6 +71,7 @@ public class IncludeHierarchy  {
 	public IncludeHierarchy(PetriNet petriNet, IncludeHierarchy parent, String name) {
 		if (petriNet == null) throw new IllegalArgumentException(INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL);
 		this.petriNet = petriNet; 
+		this.petriNet.setIncludeHierarchy(this); 
 		this.parent = parent;
 		initializeMapOfMaps(); 
 		buildRootAndLevelRelativeToRoot(parent); 
@@ -253,13 +254,12 @@ public class IncludeHierarchy  {
 		}
 	}
 
-	public void removeFromInterface(Place place) {
+	public void removeFromInterfaceOld(Place place) {
 		for (String id : interfacePlacesOld.keySet()) {
 			if (interfacePlacesOld.get(id).getPlace().getId().equals(place.getId())) {
 				interfacePlacesOld.remove(id); 
 			}
 		}
-		//TODO do same for the rest of the hierarchy
 	}
 	/**
 	 * Execute the command for the parents, if any, of this hierarchy.  
@@ -544,6 +544,10 @@ public class IncludeHierarchy  {
 		return interfacePlaces.get(id);
 	}
 
+	public void removeFromInterface(String placeId) {
+		interfacePlaces.remove(placeId); 
+	}
+
 	public void addAvailablePlaceToPetriNet(Place place) throws IncludeException {
 		Result<InterfacePlaceAction> result = place.getStatus().getMergeInterfaceStatus().add(getPetriNet());
 		if (result.hasResult()) {
@@ -552,5 +556,10 @@ public class IncludeHierarchy  {
 		}
 		
 	}
+
+	public Collection<Place> getInterfacePlaces() {
+		return interfacePlaces.values();
+	}
+
 
 }

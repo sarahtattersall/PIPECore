@@ -8,5 +8,7 @@ public interface MergeInterfaceStatus extends InterfaceStatus {
 
 	public Result<InterfacePlaceAction> add(PetriNet petriNet);
 
+	public boolean canRemove();
+
 
 }
