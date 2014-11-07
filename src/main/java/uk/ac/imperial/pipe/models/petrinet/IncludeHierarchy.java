@@ -531,7 +531,7 @@ public class IncludeHierarchy  {
 				getName()); 
 	}
 
-	public Map<String, Place> getInterfacePlaceMap() {
+	protected Map<String, Place> getInterfacePlaceMap() {
 		return interfacePlaces;
 	}
 

@@ -2,7 +2,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
@@ -92,11 +91,42 @@ public class MergeInterfaceStatusHomeTest {
 	}
 	@Test
 	public void deletingAwayPlaceReturnsItToAvailableStatus() throws Exception {
-		
+		setup(false); 
+		Transition t0 = new DiscreteTransition("T0"); 
+		net.addTransition(t0); 
+		buildAvailableAndAwayPlaces(); 
+		InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
+		net.add(arcIn); 
+		assertEquals(1, net.getArcs().size()); 
+		assertEquals(1, net.getPlaces().size());
+		topPlace = includes.getInterfacePlace("b.P0"); 
+		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+		net.removePlace(topPlace); 
+		assertEquals(0, net.getArcs().size()); 
+		assertEquals(0, net.getPlaces().size());
+		assertEquals(1, includes.getInterfacePlaceMap().size());
+		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
 	}
 	@Test
 	public void cantDeleteHomePlaceIfAwayPlaceIsInUse() throws Exception {
-
+		setup(false); 
+		Transition t0 = new DiscreteTransition("T0"); 
+		net.addTransition(t0); 
+		buildAvailableAndAwayPlaces(); 
+		InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
+		net.add(arcIn); 
+		assertEquals(1, net.getArcs().size()); 
+		expectedException.expect(PetriNetComponentException.class); 
+		expectedException.expectMessage("Cannot delete P0:\n" +
+				"Place b.P0 cannot be removed from IncludeHierarchy top because it is referenced in arc b.P0 TO T0"); 
+		net3.removePlace(homePlace); 
+		assertEquals(1, includes.getInterfacePlaceMap().size());
+		assertEquals(1, include2.getInterfacePlaceMap().size());
+		assertEquals(1, include3.getInterfacePlaceMap().size());
+		assertEquals(1, net.getPlaces().size());
+		assertEquals(3, net2.getPlaces().size());
+		assertEquals(2, net3.getPlaces().size());
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface); 
 	}
 	@Test
 	public void homePlaceInUseCanStillBeDeletedIfNoAwayPlacesAreInUse() throws Exception {
@@ -112,8 +142,6 @@ public class MergeInterfaceStatusHomeTest {
 		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); 
 		expectedException.expect(PetriNetComponentNotFoundException.class); 
 		net3.getComponent("P0", Place.class); 
-//    	expectedException.expectMessage("Cannot delete P0:\nresult message"); 
-
 	}
 	@Test
 	public void availableAndAwayInterfacePlacesRemovedIfNotInUse() throws Exception {
