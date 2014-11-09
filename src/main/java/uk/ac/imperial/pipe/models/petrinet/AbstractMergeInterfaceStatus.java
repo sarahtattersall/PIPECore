@@ -24,6 +24,10 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 	public Place getHomePlace() {
 		return homePlace;
 	}
+	@Override
+	public void setHomePlace(Place homePlace) {
+		this.homePlace = homePlace;
+	}
 
 	protected void buildAwayId(String uniqueNameAsPrefix) {
 		this.awayId = uniqueNameAsPrefix+homePlace.getId(); 

@@ -39,5 +39,9 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 		return false;
 	}
 
+	@Override
+	public void setHomePlace(Place homePlace) {
+	}
+
 
 }

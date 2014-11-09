@@ -198,8 +198,85 @@ public class ExecutablePetriNetTest {
     					ANormalArc.withSource("T3").andTarget("P3").with("#(P3)", "Default").token());
     	return net; 
     }
-    //TODO break this into multiple tests 
     @Test
+	public void convertArcsForPlacesWithMergeStatusToArcsFromSourcePlace() throws Exception {
+    	net = buildNet1();
+    	net.setName(new NormalPetriNetName("net")); 
+    	net2 = buildNet2();
+    	IncludeHierarchy includes = new IncludeHierarchy(net, "top");
+    	includes.include(net2, "a");  
+    	net.setIncludeHierarchy(includes);
+    	executablePetriNet = net.getExecutablePetriNet(); 
+    	assertEquals(5,executablePetriNet.getPlaces().size()); 
+    	assertEquals(6,executablePetriNet.getTransitions().size()); 
+    	assertEquals(4,executablePetriNet.getArcs().size()); 
+    	assertEquals(1, includes.getPetriNet().getPlaces().size()); 
+    	assertEquals(1, includes.getPetriNet().getArcs().size()); 
+    	assertEquals(4, includes.getInclude("a").getPetriNet().getPlaces().size()); 
+    	assertEquals(3, includes.getInclude("a").getPetriNet().getArcs().size()); 
+    	Place originP1 = net2.getComponent("P1", Place.class); 
+    	Place originP2 = net2.getComponent("P2", Place.class); 
+    	Place originP3 = net2.getComponent("P3", Place.class); 
+    	includes.getInclude("a").addToInterface(originP1, true, false, false, false ); 
+    	includes.getInclude("a").addToInterface(originP2, true, false, false, false ); 
+    	includes.getInclude("a").addToInterface(originP3, true, false, false, false ); 
+    	assertEquals("haven't added them to the net yet",1, includes.getPetriNet().getPlaces().size()); 
+    	assertTrue(includes.getInterfacePlace("a.P1").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
+    	assertTrue(includes.getInterfacePlace("a.P2").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
+    	assertTrue(includes.getInterfacePlace("a.P3").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
+    	assertTrue(includes.getInclude("a").getInterfacePlace("P1").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome); 
+    	includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("a.P1")); 
+    	includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("a.P2")); 
+    	assertTrue(includes.getInterfacePlace("a.P1").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+    	assertTrue(includes.getInterfacePlace("a.P2").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+    	assertTrue("didn't use it, so still available",
+    			includes.getInterfacePlace("a.P3").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable);
+    	assertEquals("2 have been added",3, includes.getPetriNet().getPlaces().size()); 
+    	assertEquals(5,executablePetriNet.getPlaces().size()); 
+    	
+    	checkNewHomePlace("a.P1");
+    	checkNewHomePlace("a.P2");
+
+    	Place topIP1 = includes.getInterfacePlace("a.P1"); 
+    	Place topIP2 = includes.getInterfacePlace("a.P2"); 
+    	Transition topT1 = net.getComponent("T1", Transition.class);
+    	assertEquals(4,executablePetriNet.getArcs().size()); 
+    	InboundArc arcIn = new InboundNormalArc(topIP1, topT1, new HashMap<String, String>());
+    	OutboundArc arcOut = new OutboundNormalArc(topT1, topIP2, new HashMap<String, String>());
+    	assertEquals(1, includes.getPetriNet().getArcs().size()); 
+    	net.add(arcIn); 
+    	net.add(arcOut); 
+    	assertEquals(3, includes.getPetriNet().getArcs().size()); 
+    	assertEquals(6,executablePetriNet.getArcs().size()); 
+    	assertEquals(5,executablePetriNet.getPlaces().size()); 
+    	checkPlaces("top.P0", "top.a.P0", "top.a.P1", "top.a.P2", "top.a.P3"); 
+    	OutboundArc exArcIn = executablePetriNet.getComponent("top.T1 TO top.a.P2", OutboundArc.class);
+    	InboundArc exArcOut = executablePetriNet.getComponent("top.a.P1 TO top.T1", InboundArc.class);
+    	originP2.setId("top.a.P2"); 
+    	originP1.setId("top.a.P1"); 
+    	assertEquals(originP2, exArcIn.getTarget());
+    	assertEquals(originP1, exArcOut.getSource());
+    	expectInterfacePlaceArcNotFound("top.T1 TO a.P2", OutboundArc.class);  
+    	expectInterfacePlaceArcNotFound("a.P1 TO top.T1", InboundArc.class);  
+	}
+	protected void checkNewHomePlace(String awayPlace)
+			throws PetriNetComponentNotFoundException {
+		String newId = "top."+awayPlace; 
+		Place exPlace = executablePetriNet.getComponent(newId, Place.class); 
+		assertTrue(exPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);
+		assertEquals(exPlace, exPlace.getStatus().getMergeInterfaceStatus().getHomePlace());
+		assertEquals(awayPlace, exPlace.getStatus().getMergeInterfaceStatus().getAwayId());
+		int count = 0; 
+		for (Place place : executablePetriNet.getPlaces()) {
+			if ((place.getStatus() instanceof PlaceStatusInterface) && (place.getStatus().getMergeInterfaceStatus().getAwayId().equals(awayPlace))) {
+				count++; 
+			}
+		}
+		assertEquals(1, count); 	
+	}
+    //TODO functionalExpressionsOnAwayInterfacePlacesAreConvertedToReferenceHomePlace
+    //TODO break this into multiple tests 
+//    @Test
 	public void convertsInterfacePlaceArcsToArcsToFromSourcePlace() throws Exception {
     	net = buildNet1();
     	net.setName(new NormalPetriNetName("net")); 

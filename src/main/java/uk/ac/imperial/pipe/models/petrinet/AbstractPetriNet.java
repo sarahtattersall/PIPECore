@@ -453,6 +453,7 @@ public abstract class AbstractPetriNet  {
 			arc.setTarget(newPlace); 
 		}
 	}
+	//TODO may not be needed once PlaceStatus replaces InterfacePlace
 	public void replacePlace(Place oldPlace, Place newPlace) throws PetriNetComponentException {
 		convertArcsToUseNewPlace(oldPlace, newPlace); 
 		removePlace(oldPlace);
