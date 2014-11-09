@@ -14,8 +14,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -137,15 +139,18 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
-		int lines = 0; 
+		List<String> lines = new ArrayList<String>();
 		String line = fileReader.readLine();
 		while (line != null) {
-			lines++; 
-//			System.out.println(line);
+			lines.add(line); 
 			line = fileReader.readLine();
 		}
 		fileReader.close(); 
-		assertEquals(4, lines); 
+		assertEquals(4, lines.size()); 
+		assertEquals("\"Round\",\"Transition\",\"top.P0\",\"top.a.P0\",\"top.a.P1\",\"top.a.P2\"", lines.get(0)); 
+		assertEquals("0,\"\",1,1,0,0", lines.get(1)); 
+		assertEquals("1,\"top.T0\",0,1,1,0", lines.get(2)); 
+		assertEquals("2,\"top.a.T0\",0,0,0,1", lines.get(3)); 
 	}	
 	@After
 	public void tearDown() {

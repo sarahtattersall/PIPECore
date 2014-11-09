@@ -36,7 +36,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
 	private boolean inInterface;
 
-	private InterfacePlace interfacePlace;
+//	private InterfacePlace interfacePlace;
 
 	private PlaceStatus status;
 
@@ -421,15 +421,6 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     		status = new PlaceStatusNormal(this); 
     	}
     }
-	/**
-	 * 
-	 * @return the {@link InterfacePlace} associated with this place, or null, if {@link #isInInterface()} is false
-	 */
-	@Override
-	public InterfacePlace getInterfacePlace() {
-		if (isInInterface()) return interfacePlace; 
-		else return null;
-	}
     
     /**
      * Token count change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net
@@ -444,10 +435,6 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		}
 	}
 
-	@Override
-	public void setInterfacePlace(InterfacePlace interfacePlace) {
-		this.interfacePlace = interfacePlace; 
-	}
 
 	@Override
 	public PlaceStatus getStatus() {

@@ -59,7 +59,6 @@ public class IncludeHierarchy  {
 	private IncludeHierarchy root;
 	private Map<String, IncludeHierarchy> includeMap  = new HashMap<>();
 	private Map<String, IncludeHierarchy> includeMapAll  = new HashMap<>(); 
-	private Map<String, InterfacePlace> interfacePlacesOld = new HashMap<>();
 	private Map<String, Place> interfacePlaces = new HashMap<>();
 	private Map<IncludeHierarchyMapEnum, Map<String, ?>> maps = new HashMap<>();  
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
@@ -233,34 +232,7 @@ public class IncludeHierarchy  {
 		return nameAsPrefix; 
 	}
 	
-	public Result<Place> addToInterfaceOld(Place place) throws IncludeException {
-		IncludeHierarchyCommand<Place> addInterfacePlaceCommand = new AddInterfacePlaceCommand<Place>(place, this); 
-		self(addInterfacePlaceCommand); 
-		return interfacePlaceAccessScope.execute(addInterfacePlaceCommand); 
-	}
 
-	protected boolean addInterfacePlaceToMap(InterfacePlace interfacePlace) {
-		if (!interfacePlacesOld.containsKey(interfacePlace.getId())) {
-			interfacePlacesOld.put(interfacePlace.getId(), interfacePlace);
-			return true; 
-		}
-		else return false; 
-	}
-	public void useInterfacePlace(String id) {
-		InterfacePlace interfacePlace = getInterfacePlaceOld(id); 
-		boolean inuse = interfacePlace.use(); 
-		if (inuse) {
-			getPetriNet().addPlace(interfacePlace); 
-		}
-	}
-
-	public void removeFromInterfaceOld(Place place) {
-		for (String id : interfacePlacesOld.keySet()) {
-			if (interfacePlacesOld.get(id).getPlace().getId().equals(place.getId())) {
-				interfacePlacesOld.remove(id); 
-			}
-		}
-	}
 	/**
 	 * Execute the command for the parents, if any, of this hierarchy.  
 	 * This will result in the command being 
@@ -416,13 +388,7 @@ public class IncludeHierarchy  {
 		iterator = new IncludeIterator(this);
 		return iterator; 
 	}
-	public Collection<InterfacePlace> getInterfacePlacesOld() {
-		return interfacePlacesOld.values();
-	}
 
-	public InterfacePlace getInterfacePlaceOld(String id) {
-		return interfacePlacesOld.get(id);
-	}
 
 	public IncludeHierarchy getRoot() {
 		return root; 

@@ -1,24 +1,20 @@
 package uk.ac.imperial.pipe.visitor;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Annotation;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
-import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
@@ -26,7 +22,6 @@ import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlace;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NoOpInterfaceStatus;
@@ -35,7 +30,6 @@ import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 import uk.ac.imperial.pipe.models.petrinet.RateParameter;
 import uk.ac.imperial.pipe.models.petrinet.RateType;
 import uk.ac.imperial.pipe.models.petrinet.Token;
@@ -93,7 +87,7 @@ public final class ClonePetriNet {
 	 */
 	private IncludeHierarchy currentIncludeHierarchy;
 
-	private List<InterfacePlace> interfacePlaces;
+//	private List<InterfacePlace> interfacePlaces;
 
 	private Map<String, Place> pendingPlaces = new HashMap<>();
 	
@@ -183,9 +177,9 @@ public final class ClonePetriNet {
 			include = iterator.next();  
 			net = include.getPetriNet(); 
 			for (Place place : net.getPlaces()) {
-				if (place instanceof InterfacePlace) {
-					pendingPlaces.put(place.getId(), ((InterfacePlace) place).getPlace() ); 
-				}
+//				if (place instanceof InterfacePlace) {
+//					pendingPlaces.put(place.getId(), ((InterfacePlace) place).getPlace() ); 
+//				}
 				if (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway) {
 //					pendingPlaces.put(place.getId(), place ); // a.P1 / homePlace P1
 					pendingPlaces.put(place.getStatus().getMergeInterfaceStatus().getAwayId(), place ); // a.P1 / homePlace P1
@@ -298,7 +292,6 @@ public final class ClonePetriNet {
     /**
      * Clones and adds the new place to the new Petri net
      * 
-     * Ignores {@link InterfacePlace}s when creating an {@link ExecutablePetriNet} 
      * @param place original place
      */
     public void visit(Place place) {
@@ -310,7 +303,8 @@ public final class ClonePetriNet {
         }
         Place newPlace = cloner.cloned;
         if (refreshingExecutablePetriNet) {
-        if ((!(place instanceof InterfacePlace)) && (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway))) {
+        if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
+//        	if ((!(place instanceof InterfacePlace)) && (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway))) {
 
 //        	if (!(place instanceof InterfacePlace)) {
         		prefixIdWithQualifiedName(newPlace); 
@@ -334,7 +328,8 @@ public final class ClonePetriNet {
     }
 	protected void updatePendingPlacesToDelete(Place place, Place newPlace) {
 //		if (place instanceof InterfacePlace) {
-		if ((place instanceof InterfacePlace) || (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
+//		if ((place instanceof InterfacePlace) || (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
+		if (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway) {
 			pendingPlacesToDelete.add(newPlace); 
 		}
 	}
@@ -436,7 +431,7 @@ public final class ClonePetriNet {
     	newArc.setId(newArc.getSource().getId() + " TO " + newArc.getTarget().getId());
     }
 	private void replaceInterfacePlacesWithOriginalPlaces() {
-		convertInterfacePlaceArcsToUseOriginalPlaces();
+//		convertInterfacePlaceArcsToUseOriginalPlaces();
 		convertAwayPlaceArcsToUseOriginalPlaces();
 		Map<String, Place> newPlaceMap = newPetriNet.getMapForClass(Place.class);  
 		for (Place place : pendingPlacesToDelete) {
@@ -454,19 +449,19 @@ public final class ClonePetriNet {
 		}
 		
 	}
-	private void convertInterfacePlaceArcsToUseOriginalPlaces() {
-		Place oldPlace = null;
-		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
-			if (entry.getValue() instanceof InterfacePlace) {
-				try {
-					oldPlace = newPetriNet.getComponent(entry.getKey(), Place.class);
-				} catch (PetriNetComponentNotFoundException e) {
-					e.printStackTrace();
-				} 
-				newPetriNet.convertArcsToUseNewPlace(oldPlace, entry.getValue());
-			}
-		}
-	}
+//	private void convertInterfacePlaceArcsToUseOriginalPlaces() {
+//		Place oldPlace = null;
+//		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
+//			if (entry.getValue() instanceof InterfacePlace) {
+//				try {
+//					oldPlace = newPetriNet.getComponent(entry.getKey(), Place.class);
+//				} catch (PetriNetComponentNotFoundException e) {
+//					e.printStackTrace();
+//				} 
+//				newPetriNet.convertArcsToUseNewPlace(oldPlace, entry.getValue());
+//			}
+//		}
+//	}
 
 
     /**

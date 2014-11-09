@@ -71,10 +71,6 @@ public interface Place extends Connectable, PropertyChangeListener {
      */
 	public  boolean isInInterface();
 
-	public abstract InterfacePlace getInterfacePlace();
-
-	public abstract void setInterfacePlace(InterfacePlace interfacePlace);
-
 	public abstract void setInInterface(boolean inInterface);
 
 	public void addToInterface(IncludeHierarchy includeHierarchy);

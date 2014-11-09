@@ -276,61 +276,6 @@ public class ExecutablePetriNetTest {
 	}
     //TODO functionalExpressionsOnAwayInterfacePlacesAreConvertedToReferenceHomePlace
     //TODO break this into multiple tests 
-//    @Test
-	public void convertsInterfacePlaceArcsToArcsToFromSourcePlace() throws Exception {
-    	net = buildNet1();
-    	net.setName(new NormalPetriNetName("net")); 
-    	net2 = buildNet2();
-    	IncludeHierarchy includes = new IncludeHierarchy(net, "top");
-    	includes.include(net2, "a");  
-    	net.setIncludeHierarchy(includes);
-		executablePetriNet = net.getExecutablePetriNet(); 
-		assertEquals(5,executablePetriNet.getPlaces().size()); 
-		assertEquals(6,executablePetriNet.getTransitions().size()); 
-		assertEquals(4,executablePetriNet.getArcs().size()); 
-		assertEquals(1, includes.getPetriNet().getPlaces().size()); 
-		assertEquals(1, includes.getPetriNet().getArcs().size()); 
-		assertEquals(4, includes.getInclude("a").getPetriNet().getPlaces().size()); 
-		assertEquals(3, includes.getInclude("a").getPetriNet().getArcs().size()); 
-		Place originP1 = net2.getComponent("P1", Place.class); 
-		Place originP2 = net2.getComponent("P2", Place.class); 
-		Place originP3 = net2.getComponent("P3", Place.class); 
-		includes.getInclude("a").addToInterfaceOld(originP1); 
-		includes.getInclude("a").addToInterfaceOld(originP2); 
-		includes.getInclude("a").addToInterfaceOld(originP3); 
-		assertTrue(includes.getInterfacePlaceOld("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInterfacePlaceOld("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInterfacePlaceOld("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-		assertTrue(includes.getInclude("a").getInterfacePlaceOld("a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
-		includes.useInterfacePlace("top..a.P1"); 
-		includes.useInterfacePlace("top..a.P2"); 
-		assertTrue(includes.getInterfacePlaceOld("top..a.P1").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
-		assertTrue(includes.getInterfacePlaceOld("top..a.P2").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
-		assertFalse("didn't use it, so still available",
-				includes.getInterfacePlaceOld("top..a.P3").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
-		assertEquals(5,executablePetriNet.getPlaces().size()); 
-		InterfacePlace topIP1 = includes.getInterfacePlaceOld("top..a.P1"); 
-		InterfacePlace topIP2 = includes.getInterfacePlaceOld("top..a.P2"); 
-		Transition topT1 = net.getComponent("T1", Transition.class);
-		assertEquals(4,executablePetriNet.getArcs().size()); 
-        InboundArc arcIn = new InboundNormalArc(topIP1, topT1, new HashMap<String, String>());
-        OutboundArc arcOut = new OutboundNormalArc(topT1, topIP2, new HashMap<String, String>());
-        assertEquals(1, includes.getPetriNet().getArcs().size()); 
-        net.add(arcIn); 
-        net.add(arcOut); 
-        assertEquals(3, includes.getPetriNet().getArcs().size()); 
-        assertEquals(6,executablePetriNet.getArcs().size()); 
-        assertEquals(5,executablePetriNet.getPlaces().size()); 
-        checkPlaces("top.P0", "top.a.P0", "top.a.P1", "top.a.P2", "top.a.P3"); 
-        OutboundArc exArcIn = executablePetriNet.getComponent("top.T1 TO top.a.P2", OutboundArc.class);
-        InboundArc exArcOut = executablePetriNet.getComponent("top.a.P1 TO top.T1", InboundArc.class);
-        originP2.setId("top.a.P2"); 
-        originP1.setId("top.a.P1"); 
-        assertEquals(originP2, exArcIn.getTarget());
-        assertEquals(originP1, exArcOut.getSource());
-        expectInterfacePlaceArcNotFound("top.T1 TO top..a.P2", OutboundArc.class);  
-        expectInterfacePlaceArcNotFound("top..a.P1 TO top.T1", InboundArc.class);  
-	}
 	private void checkPlaces(String... places) {
 		for (int i = 0; i < places.length; i++) {
 			try {

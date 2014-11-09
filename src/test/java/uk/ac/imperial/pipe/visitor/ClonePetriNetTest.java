@@ -1,34 +1,32 @@
 package uk.ac.imperial.pipe.visitor;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
-import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlace;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceStatusAvailable;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceStatusHome;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceStatusInUse;
-import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 
 public class ClonePetriNetTest {
     PetriNet oldPetriNet;
@@ -90,47 +88,8 @@ public class ClonePetriNetTest {
     	assertEquals("root.T0", executablePetriNet.getComponent("root.T0", Transition.class).getId()); 
     	assertEquals("root.P0 TO root.T0", executablePetriNet.getComponent("root.P0 TO root.T0", InboundArc.class).getId()); 
 	}
-    @Test
-	public void clonedExecutablePetriNetDoesNotHaveInterfacePlaces() throws Exception {
-    	buildSimpleNet(); 
-    	oldPetriNet.setName(new NormalPetriNetName("net")); 
-    	PetriNet net2 = buildTestNet(); 
-    	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
-    	includes.include(net2, "a");  
-    	oldPetriNet.setIncludeHierarchy(includes);
-    	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
-    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
-    	assertEquals(2, oldPetriNet.getPlaces().size()); 
-		assertEquals(4,executablePetriNet.getPlaces().size()); 
-		Place originPlace = net2.getComponent("P0", Place.class); 
-		includes.getInclude("a").addToInterfaceOld(originPlace); 
-		includes.useInterfacePlace("top..a.P0"); 
-		assertEquals("now has an interface place",3, oldPetriNet.getPlaces().size()); 
-		ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
-		assertEquals("...but interface places not copied to executable PN",
-				4,executablePetriNet.getPlaces().size()); 
-    }
-    @Test
-    public void clonedExecutablePetriNetTracksNewPlacesForInterfacePlaceReplacement() throws Exception {
-    	buildSimpleNet(); 
-    	oldPetriNet.setName(new NormalPetriNetName("net")); 
-    	PetriNet net2 = buildTestNet(); 
-    	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
-    	includes.include(net2, "a");  
-    	oldPetriNet.setIncludeHierarchy(includes);
-    	Place originPlace = net2.getComponent("P0", Place.class); 
-    	includes.getInclude("a").addToInterfaceOld(originPlace); 
-    	includes.useInterfacePlace("top..a.P0"); 
-    	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
-    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
-    	Place newPlace = ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().get("top..a.P0"); 
-    	originPlace.setId("top.a.P0");  
-    	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
-    	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size()); 
-    }
     //TODO test for transitionOut/InboundArcs
     //TODO test for arcweights 
-//    @Test
     public void convertsArcsFromInterfacePlaceToNewOriginPlace() throws Exception {
     	buildSimpleNet(); 
     	oldPetriNet.setName(new NormalPetriNetName("net")); 
@@ -140,25 +99,24 @@ public class ClonePetriNetTest {
     	oldPetriNet.setIncludeHierarchy(includes);
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
-    	//new IncludeHierarchy(net, "top"); 
-//		executablePetriNet = oldPetriNet.getExecutablePetriNet(); 
     	assertEquals(4,executablePetriNet.getPlaces().size()); 
     	assertEquals(4,executablePetriNet.getTransitions().size()); 
     	assertEquals(6,executablePetriNet.getArcs().size()); 
     	assertEquals(2, oldPetriNet.getPlaces().size()); 
     	assertEquals(4, oldPetriNet.getArcs().size()); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
-    	includes.getInclude("a").addToInterfaceOld(originPlace); 
-    	assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusAvailable); 
-    	assertTrue(includes.getInclude("a").getInterfacePlaceOld("a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusHome); 
-    	includes.useInterfacePlace("top..a.P0"); 
-    	assertTrue(includes.getInterfacePlaceOld("top..a.P0").getInterfacePlaceStatus() instanceof InterfacePlaceStatusInUse); 
-    	assertEquals("now has an interface place",3, oldPetriNet.getPlaces().size()); 
+    	includes.getInclude("a").addToInterface(originPlace, true, false, false, false); 
+    	Place topPlace = oldPetriNet.getComponent("a.P0", Place.class);
+    	assertTrue(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
+    	assertTrue(includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome); 
+    	includes.addAvailablePlaceToPetriNet(topPlace); 
+    	assertTrue(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+    	assertEquals("now has another place",3, oldPetriNet.getPlaces().size()); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("...but interface places not copied to executable PN",
     			4,executablePetriNet.getPlaces().size()); 
-    	Place newPlace = ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().get("top..a.P0"); 
-    	originPlace.setId("top.a.P0");  
+    	Place newPlace = ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().get("a.P0"); 
+    	originPlace.setId("a.P0");  
     	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
     	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size()); 
     }

@@ -282,15 +282,6 @@ public class DiscretePlaceTest {
     
     // Hier.addToInterface(place)
     //   place.setIsInInterface
-    //FIXME ...once PlaceStatus replaces InterfacePlace
-    @Test
-    public void knowsThatItsInInterface() throws Exception {
-    	assertFalse(place.isInInterface()); 
-    	IncludeHierarchy hierarchy = new IncludeHierarchy(new PetriNet(), null);
-    	hierarchy.addToInterfaceOld(place); 
-    	assertTrue(place.isInInterface()); 
-    	hierarchy.removeFromInterfaceOld(place); 
-    }
     @Test
 	public void placeStatusChangesOnceInInterface() throws Exception {
     	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
