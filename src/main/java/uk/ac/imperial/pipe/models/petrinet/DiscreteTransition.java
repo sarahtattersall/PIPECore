@@ -17,7 +17,7 @@ import uk.ac.imperial.state.State;
 /**
  * Discrete implementation of a transition
  */
-public final class DiscreteTransition extends AbstractConnectable implements Transition {
+public final class DiscreteTransition extends AbstractTransition implements Transition {
 
     /**
      * 135 degrees
@@ -543,5 +543,10 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     public boolean isEnabled() {
         return enabled;
     }
+
+	@Override
+	public  void fire() {
+		// timing delays should be implemented here. 
+	}
 
 }

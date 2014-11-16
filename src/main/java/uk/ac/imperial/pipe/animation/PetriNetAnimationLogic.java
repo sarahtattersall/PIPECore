@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import uk.ac.imperial.pipe.models.petrinet.AbstractTransition;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
@@ -111,33 +112,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
         Set<Transition> enabled = getEnabledTransitions(state);
         if (enabled.contains(transition)) {
-            //Decrement previous places
-            for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
-                String placeId = arc.getSource().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, Integer> entry : state.getTokens(placeId).entrySet()) {
-                    String tokenId = entry.getKey();
-                    if (arcWeights.containsKey(tokenId)) {
-                        int currentCount = entry.getValue();
-                        int arcWeight = (int) getArcWeight(state, arcWeights.get(tokenId));
-                        builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
-                    }
-                }
-            }
-
-
-            State temporaryState = builder.build();
-
-            for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
-                String placeId = arc.getTarget().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-                    String tokenId = entry.getKey();
-                    int currentCount = temporaryState.getTokens(placeId).get(tokenId);
-                    int arcWeight = (int) getArcWeight(state, entry.getValue());
-                    builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
-                }
-            }
+        	//TODO keep refactoring....
+        	builder = ((AbstractTransition) transition).fire(executablePetriNet, state, builder);
+//            fireTransition(state, transition, builder);
         }
 
         return builder.build();
@@ -166,35 +143,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         cachedEnabledTransitions.clear();
     }
 
-    /**
-     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
-     * from it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return subtracted weight
-     */
-    private int subtractWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight - arcWeight;
-    }
-
-    /**
-     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
-     * to it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return added weight
-     */
-    private int addWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight + arcWeight;
-    }
 
     /**
      * @return all the currently enabled transitions in the petri net

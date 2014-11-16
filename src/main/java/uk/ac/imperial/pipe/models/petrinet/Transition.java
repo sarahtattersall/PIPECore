@@ -136,4 +136,11 @@ public interface Transition extends Connectable {
      */
     boolean isEnabled();
 
+    /**
+    * Execute actions specific to this transition.  Invoked by {@link AbstractTransition#fire(ExecutablePetriNet, uk.ac.imperial.state.State, uk.ac.imperial.state.HashedStateBuilder)}
+    * @see AbstractTransition  
+    */
+
+	public void fire();
+
 }
