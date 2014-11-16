@@ -7,8 +7,12 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
@@ -178,6 +182,15 @@ public class ExecutablePetriNetTest {
 	  	assertEquals("source PN component ids unaffected",
 	  			"P0", net.getComponent("P0", Place.class).getId()); 
 	  	assertEquals("P1", net2.getComponent("P1", Place.class).getId()); 
+	}
+    @Test
+	public void notifiesListenersWhenRefreshed() throws Exception {
+    	executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, mockListener); 
+    	executablePetriNet.getState(); 
+        verify(mockListener, never()).propertyChange(any(PropertyChangeEvent.class));
+        executablePetriNet.refreshRequired();
+        executablePetriNet.refresh();
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
 	}
     protected PetriNet buildNet1() {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).

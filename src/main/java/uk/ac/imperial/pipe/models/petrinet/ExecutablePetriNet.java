@@ -35,6 +35,7 @@ import com.google.common.collect.HashMultimap;
 // * Expanded Petri nets are not visible in the gui; their updated markings are visible in the tabs of the corresponding imported Petri net. 
 public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChangeListener {
 
+	public static final String PETRI_NET_REFRESHED_MESSAGE = "executable Petri net refreshed";
 	private PetriNet petriNet;
 	private boolean refreshRequired;
 	private State state;
@@ -75,7 +76,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			refreshIncludeHierarchyComponents(); 
 			addSelfAsListenerForPlaceTokenCountChanges(); 
 			buildState(); 
-			refreshRequired = false; 
+			refreshRequired = false;
+		    changeSupport.firePropertyChange(PETRI_NET_REFRESHED_MESSAGE, null, null);
 		}
 	}
 

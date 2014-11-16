@@ -26,7 +26,7 @@ import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-public abstract class AbstractPetriNet  {
+public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 
     /**
 	 * Message fired when Petri net name changes
@@ -81,10 +81,10 @@ public abstract class AbstractPetriNet  {
 	 * by id.
 	 */
 	protected Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps = new HashMap<>();
-	/**
-	 * Property change support used to fire messages and register listeners to
-	 */
-	protected final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+//	/**
+//	 * Property change support used to fire messages and register listeners to
+//	 */
+//	protected final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 	/**
 	 * Petri net name
 	 */

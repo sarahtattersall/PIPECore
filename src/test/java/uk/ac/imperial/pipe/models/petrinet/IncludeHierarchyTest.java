@@ -33,8 +33,6 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    @Mock
-    private PropertyChangeListener mockListener;
 
 	private IncludeHierarchy includes;
 	private PetriNet net1, net2, net3, net4, net5, net6 ;

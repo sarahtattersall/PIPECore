@@ -15,7 +15,7 @@ public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Message fired when the places tokens change in any way
      */
-    String TOKEN_CHANGE_MESSAGE = "tokens";
+    public String TOKEN_CHANGE_MESSAGE = "tokens";
 
     double getMarkingXOffset();
 

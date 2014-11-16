@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.runner;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -18,6 +19,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -25,6 +29,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
@@ -33,14 +38,20 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetRunnerTest implements PropertyChangeListener {
+	
+    @Mock
+    private PropertyChangeListener mockListener;
+    private PropertyChangeListener mockListener2;
+	
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
     private PetriNet net;
-	private PetriNetRunner runner;
+	private Runner runner;
 	private int events;
 	private StateReport report;
 	private int checkCase;
@@ -53,6 +64,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
 	private File file;
 
+	private int tokenFired;
+
+	private boolean tokenEvent;
+
+	private String targetPlaceId;
+
     @Before
     public void setUp() {
         events = 0; 
@@ -61,6 +78,8 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         print = new PrintStream(out); 
         file = new File("firingReport.csv"); 
         if (file.exists()) file.delete(); 
+        tokenEvent = false; 
+        tokenFired = 0; 
     }
     @Test
     public void simpleNetNotifiesOfStartAndFinishAndEachStateChange() throws InterruptedException {
@@ -73,6 +92,73 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	runner.run();
     	assertEquals(4, events); 
     }
+    @Test
+	public void mapTracksListenersForPlaces() throws Exception {
+    	net = buildTestNet();
+    	PetriNetRunner runner = new PetriNetRunner(net); 
+    	assertEquals(0, runner.getListenerMap().size()); 
+    	runner.listenForTokenChanges(mockListener, "P1"); 
+    	assertEquals(1, runner.getListenerMap().size()); 
+    	assertEquals(1, runner.getListenerMap().get("P1").size()); 
+    	runner.listenForTokenChanges(mockListener2, "P1"); 
+    	assertEquals(1, runner.getListenerMap().size()); 
+    	assertEquals(2, runner.getListenerMap().get("P1").size()); 
+	}
+    //TODO test listening for invalid place:  non-existent, not in interface, etc.
+	@Test
+	public void notifiesListenerOfTokenChanges() throws Exception {
+    	checkCase = 1; 
+    	net = buildTestNet();
+    	runner = new PetriNetRunner(net); 
+    	runner.setSeed(456327998101l);
+    	runner.listenForTokenChanges(this, "P1"); 
+    	targetPlaceId = "P1"; 
+    	runner.addPropertyChangeListener(this); 
+    	runner.setFiringLimit(10); 
+    	runner.run();
+    	assertTrue(tokenEvent); 
+    	assertEquals(4, events); 
+    	assertEquals(2, tokenFired);
+	}
+	//TODO test marking for invalid place:  non-existent, not in interface, etc.
+	@Test
+	public void clientRequestsPlaceBeMarked() throws Exception {
+		checkCase = 3; 
+		net = buildTestNet();
+		runner = new PetriNetRunner(net); 
+		runner.setSeed(456327998101l);
+		runner.markPlace("P2","Default",2); 
+		runner.addPropertyChangeListener(this); 
+		runner.setFiringLimit(10); 
+		runner.run();
+		assertEquals(4, events); 
+	}
+	@Test
+	public void clientMarksInputPlaceInResponseToOutputMarking() throws Exception {
+			checkCase = 4; 
+			net = buildHaltingNet(); 
+			runner = new PetriNetRunner(net); 
+			runner.setSeed(456327998101l);
+			runner.listenForTokenChanges(this, "P1"); 
+			targetPlaceId = "P1"; 
+			runner.addPropertyChangeListener(this); 
+//			runner.markPlace("P2","Default",1); //  done in listener.
+			runner.setFiringLimit(5); 
+			//check P1 gets set to 0 on second firing. 
+			runner.run();
+			assertEquals(5, events); 
+	}
+	@Test
+	public void appliesPendingMarkingsBeforeEachTransitionFiring() throws Exception {
+		net = buildTestNet();
+		PetriNetRunner runner = new PetriNetRunner(net); 
+		assertEquals(0, runner.getPendingPlaceMarkings().size()); 
+		runner.markPlace("P2","Default",2); 
+		assertEquals(1, runner.getPendingPlaceMarkings().size()); 
+		runner.fireOneTransition();
+		assertEquals(0, runner.getPendingPlaceMarkings().size()); 
+	}
+
     @Test
     public  void stopsAtRunLimit() throws InterruptedException {
     	checkCase = 2; 
@@ -178,16 +264,27 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
                         ANormalArc.withSource("T1").andTarget(place).with("1", "Default").token()); 
 		return net;
 	}
+	private PetriNet buildHaltingNet() {
+		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+				and(APlace.withId("P1")).and(APlace.withId("P2")).and(AnImmediateTransition.withId("T0")).and(
+				AnImmediateTransition.withId("T1")).and(
+				ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
+				ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
+				ANormalArc.withSource("P2").andTarget("T1").with("1", "Default").token()).and(
+				ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).andFinally(
+				ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token()); 
+		return net;
+	}
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		events++; 
+		if (!(evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE))) events++; 
 		switch (checkCase) {
 		case 1: checkNormalEvents(evt); break; 
 		case 2: checkNormalEventsLooping(evt); break; 
+		case 3: checkNormalEventsWithMarking(evt); break; 
+		case 4: checkNormalEventsWithMarkingAndHalt(evt); break; 
 		default: assertTrue(true); break; 
 		}
-		
-		
 	}
 	private void checkNormalEvents(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
@@ -206,6 +303,41 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
 			assertEquals(4, events); 
 		}
+		else if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
+			tokenEvent = true; 
+			Place place = (Place) evt.getSource(); 
+			assertEquals(targetPlaceId, place.getId()); 
+			Map<String, Integer> token = (Map<String, Integer>) evt.getNewValue(); 
+			assertEquals(1, token.size());
+			Entry<String, Integer> entry = token.entrySet().iterator().next(); 
+			if (tokenFired == 0) { checkToken("Default", entry.getKey(), 1, entry.getValue()); }
+			if (tokenFired == 1) { checkToken("Default", entry.getKey(), 0, entry.getValue()); }
+			tokenFired++;
+		}
+	}
+	private void checkNormalEventsWithMarking(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+			Firing round0firing = (Firing) evt.getOldValue(); 
+			checkFiring(round0firing, 0,  "", 1,0,0);
+			checkHasListOfPlaceIds(evt); 
+		}
+		else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+			Firing firing = (Firing) evt.getNewValue(); 
+			Firing prevfiring = (Firing) evt.getOldValue(); 
+			if (events == 2) checkFiring(prevfiring, 0,  "", 1,0,0); 
+			if (events == 2) checkFiring(firing, 1,  "T0", 0,1,2); 
+			if (events == 3) checkFiring(prevfiring, 1, "T0", 0,1,2); 
+			if (events == 3) checkFiring(firing, 2, "T1", 0,0,3); 
+		}
+		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+			assertEquals(4, events); 
+		}
+		
+	}
+	protected void checkToken(String expectedToken, String token, int expectedCount, int count ) {
+//		System.out.println(tokenFired+" "+token+" count: "+count);
+		assertEquals(expectedToken, token); 
+		assertEquals(expectedCount, count);
 	}
 	private void checkNormalEventsLooping(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
@@ -220,7 +352,38 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			assertEquals(7, events); 
 		}
 	}
+	private void checkNormalEventsWithMarkingAndHalt(PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+			Firing firing = (Firing) evt.getNewValue(); 
+			if (events == 2) checkFiring(firing, 1,  "T0", 0,1,0); 
+			if (events == 3) checkFiring(firing, 2, "T1", 1,0,0); 
+			if (events == 4) checkFiring(firing, 3,  "T0", 0,1,0); 
+		}
+		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+			assertEquals(5, events); 
+		}
+		else if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
+			tokenEvent = true; 
+			Place place = (Place) evt.getSource(); 
+			assertEquals(targetPlaceId, place.getId()); 
+			Map<String, Integer> token = (Map<String, Integer>) evt.getNewValue(); 
+			assertEquals(1, token.size());
+			Entry<String, Integer> entry = token.entrySet().iterator().next(); 
+			if (tokenFired == 0) { 
+				checkToken("Default", entry.getKey(), 1, entry.getValue()); 
+				runner.markPlace("P2","Default",1); 
+			}
+			if (tokenFired == 1) { checkToken("Default", entry.getKey(), 0, entry.getValue()); }
+			tokenFired++;
+		}
+	}
 	private void checkFiring(Firing firing, int round, String transition, int... placeCols) {
+//		StringBuffer sb = new StringBuffer(); 
+//		for (int i = 0; i < placeCols.length; i++) {
+//			sb.append(placeCols[i]);
+//			sb.append(" "); 
+//		}
+//		System.out.println("round: "+firing.round+" transition: "+transition+" "+sb.toString());
 		assertEquals(round, firing.round); 
 		assertEquals(transition, firing.transition); 
 		report = new StateReport(firing.state); 
@@ -243,5 +406,4 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("P1", it.next());
 		assertEquals("P2", it.next());
 	}
-
 }
