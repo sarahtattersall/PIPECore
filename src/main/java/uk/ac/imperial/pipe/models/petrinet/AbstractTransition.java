@@ -2,6 +2,8 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import static java.lang.Math.floor;
 
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +15,16 @@ import uk.ac.imperial.state.State;
 
 public abstract class AbstractTransition extends AbstractConnectable implements Transition {
 
+	/**
+	 * 135 degrees
+	 */
+	public static final int DEGREES_135 = 135;
+	/**
+	 * 45 degrees
+	 */
+	public static final int DEGREES_45 = 45;
+	public static final int DEGREES_225 = 225;
+	public static final int DEGREES_315 = 315;
 	protected ExecutablePetriNet executablePetriNet;
 	private State state;
 	private HashedStateBuilder builder;
@@ -38,6 +50,10 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 * Enabled
 	 */
 	boolean enabled = false;
+	/**
+	 * Angle at which this transition should be displayed
+	 */
+	protected int angle = 0;
 	public AbstractTransition(String id, String name) {
 		super(id, name);
 	}
@@ -368,6 +384,182 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	@Override
 	public boolean isEnabled() {
 	    return enabled;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+	    if (this == o) {
+	        return true;
+	    }
+	    if (!(o instanceof AbstractTransition)) {
+	        return false;
+	    }
+	    if (!super.equals(o)) {
+	        return false;
+	    }
+	
+	    AbstractTransition that = (AbstractTransition) o;
+	
+	    if (infiniteServer != that.infiniteServer) {
+	        return false;
+	    }
+	    if (priority != that.priority) {
+	        return false;
+	    }
+	    if (timed != that.timed) {
+	        return false;
+	    }
+	    if (!rate.equals(that.rate)) {
+	        return false;
+	    }
+	
+	    return true;
+	}
+
+	@Override
+	public int hashCode() {
+	    int result = super.hashCode();
+	    result = 31 * result + priority;
+	    result = 31 * result + rate.hashCode();
+	    result = 31 * result + (timed ? 1 : 0);
+	    result = 31 * result + (infiniteServer ? 1 : 0);
+	    //TODO do we need override this in DiscreteExternalTransition to include className? 
+	    return result;
+	}
+
+	/**
+	 *
+	 * @return true since a transition appears on the canvas so is always selectable
+	 */
+	@Override
+	public boolean isSelectable() {
+	    return true;
+	}
+
+	/**
+	 *
+	 * @return true since a transition appears on the canvas so is always draggable
+	 */
+	@Override
+	public boolean isDraggable() {
+	    return true;
+	}
+
+	@Override
+	public Point2D.Double getCentre() {
+	    return new Point2D.Double(getX() + getWidth() / 2, getY() + getHeight() / 2);
+	}
+
+	/**
+	 * @param angle angle at which the arc meets this component
+	 * @return the location where the arc should meet this component
+	 */
+	@Override
+	public Point2D.Double getArcEdgePoint(double angle) {
+	    int halfHeight = getHeight() / 2;
+	    int halfWidth = getWidth() / 2;
+	    double centreX = x + halfWidth;
+	    double centreY = y + halfHeight;
+	
+	    Point2D.Double connectionPoint = new Point2D.Double(centreX, centreY);
+	
+	    double rotatedAngle = angle - Math.toRadians(this.angle);
+	    if (rotatedAngle < 0) {
+	        rotatedAngle = 2* Math.PI + rotatedAngle;
+	    }
+	    if (connectToTop(rotatedAngle)) {
+	        connectionPoint.y -= halfHeight;
+	    } else if (connectToBottom(rotatedAngle)) {
+	        connectionPoint.y += halfHeight;
+	    } else if (connectToRight(rotatedAngle)) {
+	        connectionPoint.x += halfWidth;
+	    } else {
+	        //connect to left
+	        connectionPoint.x -= halfWidth;
+	    }
+	
+	    return rotateAroundCenter(Math.toRadians(this.angle), connectionPoint);
+	}
+
+	/**
+	 *
+	 * @return the height of the component
+	 */
+	@Override
+	public int getHeight() {
+	    return TRANSITION_HEIGHT;
+	}
+
+	/**
+	 *
+	 * @return the width of the component
+	 */
+	@Override
+	public int getWidth() {
+	    return TRANSITION_WIDTH;
+	}
+
+	/**
+	 *
+	 * @param angle in radians between 0 and 2pi
+	 * @return true if an arc connecting to this should connect to the bottom edge
+	 * of the transition
+	 */
+	protected boolean connectToTop(double angle) {
+	    return angle >= Math.toRadians(DEGREES_45) && angle < Math.toRadians(DEGREES_135);
+	}
+
+	/**
+	 * @param angle in radians
+	 * @return true if an arc connecting to this should
+	 * connect to the top edge of the transition
+	 */
+	protected boolean connectToBottom(double angle) {
+	    return angle < Math.toRadians(DEGREES_315) && angle >= Math.toRadians(DEGREES_225);
+	}
+
+	/**
+	 * @param angle in radians
+	 * @return true if an arc connecting to this should
+	 * connect to the left edge of the transition
+	 */
+	protected boolean connectToRight(double angle) {
+	    return angle < Math.toRadians(DEGREES_225) && angle >= Math.toRadians(DEGREES_135);
+	}
+
+	/**
+	 * Rotates point on transition around transition center
+	 *
+	 * @param angle rotation angle in degrees
+	 * @param point point to rotate
+	 * @return rotated point
+	 */
+	protected Point2D.Double rotateAroundCenter(double angle, Point2D.Double point) {
+	    AffineTransform tx = AffineTransform.getRotateInstance(angle, getCentre().getX(), getCentre().getY());
+	    Point2D center = getCentre();
+	    Point2D.Double rotatedPoint = new Point2D.Double();
+	    tx.transform(point, rotatedPoint);
+	    return rotatedPoint;
+	}
+
+	/**
+	 *
+	 * @return angle at which the transition should be displayed
+	 */
+	@Override
+	public int getAngle() {
+	    return angle;
+	}
+
+	/**
+	 *
+	 * @param angle new angle starting from pointing NORTH at which the transition should be displayed
+	 */
+	@Override
+	public void setAngle(int angle) {
+	    int old = this.angle;
+	    this.angle = angle;
+	    changeSupport.firePropertyChange(ANGLE_CHANGE_MESSAGE, old, angle);
 	}
 
 }

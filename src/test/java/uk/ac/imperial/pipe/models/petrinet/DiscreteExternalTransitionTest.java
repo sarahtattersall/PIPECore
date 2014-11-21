@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.*;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -14,7 +15,14 @@ public class DiscreteExternalTransitionTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 	private ExecutablePetriNet executablePetriNet;
+	private Transition transition;
 	
+	@Before
+	public void setUp() throws Exception {
+		PetriNet net = new PetriNet(new NormalPetriNetName("net"));
+		executablePetriNet = net.getExecutablePetriNet();  
+		transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
+	}
 	
 	@Test
 	public void throwsIfClassDoesntExist() throws Exception {
@@ -63,9 +71,6 @@ public class DiscreteExternalTransitionTest {
 	}
 	@Test
 	public void externalTransitionFiresWithContextAndExecutablePetriNet() throws Exception {
-        PetriNet net = new PetriNet(new NormalPetriNetName("net"));
-        executablePetriNet = net.getExecutablePetriNet();  
-		Transition transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
 		((DiscreteExternalTransition) transition).executablePetriNet = executablePetriNet;   
 		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
 		assertTrue(externalTransition instanceof TestingExternalTransition); 
@@ -77,9 +82,6 @@ public class DiscreteExternalTransitionTest {
 	}
 	@Test
 	public void externalTransitionInvokedByDiscreteExternalTransition() throws Exception {
-		PetriNet net = new PetriNet(new NormalPetriNetName("net"));
-		executablePetriNet = net.getExecutablePetriNet();  
-		Transition transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
 		((DiscreteExternalTransition) transition).executablePetriNet = executablePetriNet;   
 		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
 		assertTrue(externalTransition instanceof TestingExternalTransition); 
@@ -93,14 +95,20 @@ public class DiscreteExternalTransitionTest {
 	}
 	@Test
 	public void transitionClonerCreatesNewInstance() throws Exception {
-		PetriNet net = new PetriNet(new NormalPetriNetName("net"));
-		executablePetriNet = net.getExecutablePetriNet();  
-		Transition transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
 		TransitionCloner cloner = new TransitionCloner(); 
 		transition.accept(cloner); 
 		Transition newTransition = cloner.cloned;
 		assertEquals("T1", newTransition.getId()); 
 		assertTrue(((DiscreteExternalTransition) newTransition).getClient() instanceof TestingExternalTransition); 
 		assertEquals(transition, newTransition); 
+	}
+	@Test
+	public void testEquals() throws Exception {
+		Transition transition2 = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
+		assertEquals(transition, transition2); 	
+		transition2 = new DiscreteTransition("T1"); 
+		assertNotEquals("different transition types",transition, transition2); 	
+		transition2 = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition2"); 
+		assertNotEquals("different client class",transition, transition2); 	
 	}
 }

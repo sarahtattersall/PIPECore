@@ -29,7 +29,7 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
@@ -361,9 +361,14 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	public void setTransitionContext(String transitionId, Object object) {
 		try {
 			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
-			((ExternalTransition) transition).setContext(object); 
+			if ((transition instanceof DiscreteExternalTransition)) { 
+				((DiscreteExternalTransition) transition).getClient().setContext(object); 
+			}
+			else {
+				throw new IllegalArgumentException("PetriNetRunner:  set transition context may only be invoked for uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition.  Requested component: "+transition.getClass().getName()); 
+			}
 		} catch (PetriNetComponentNotFoundException e) {
-			e.printStackTrace();
+			throw new IllegalArgumentException("PetriNetRunner:  set transition context requested for a transition that does not exist in the executable petri net: "+transitionId); 
 		} 
 	}
 }

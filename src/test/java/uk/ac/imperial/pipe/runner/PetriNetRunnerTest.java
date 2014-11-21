@@ -165,18 +165,33 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.fireOneTransition();
 		assertEquals(0, runner.getPendingPlaceMarkings().size()); 
 	}
-//	@Test
+	@Test
 	public void buildsNetWithExternalTransitionAndInvokesWithContext() throws Exception {
 		net = buildExternalTransitionTestNet();
 		Runner runner = new PetriNetRunner(net); 
 		TestingContext test = new TestingContext(2);
-		runner.setTransitionContext("T1", test); 
+		runner.setTransitionContext("T0", test); 
+    	runner.setFiringLimit(10); 
 		runner.run(); 
 		assertEquals("net2", test.getUpdatedContext()); 
 	} 
-//	@Test
+	@Test
 	public void throwsIfSetContextInvokedForNonExternalTransitionComponent() throws Exception {
-		//TODO throwsIfSetContextInvokedForNonExternalTransitionComponent
+    	expectedException.expect(IllegalArgumentException.class);
+    	expectedException.expectMessage("PetriNetRunner:  set transition context may only be invoked for uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition.  Requested component: uk.ac.imperial.pipe.models.petrinet.DiscreteTransition");
+		net = buildTestNet();
+		Runner runner = new PetriNetRunner(net); 
+		TestingContext test = new TestingContext(2);
+		runner.setTransitionContext("T0", test); 
+	}
+	@Test
+	public void throwsIfSetContextInvokedForNonExistentTransition() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("PetriNetRunner:  set transition context requested for a transition that does not exist in the executable petri net: T99");
+		net = buildTestNet();
+		Runner runner = new PetriNetRunner(net); 
+		TestingContext test = new TestingContext(2);
+		runner.setTransitionContext("T99", test); 
 	}
 	@Test
     public  void stopsAtRunLimit() throws InterruptedException {
