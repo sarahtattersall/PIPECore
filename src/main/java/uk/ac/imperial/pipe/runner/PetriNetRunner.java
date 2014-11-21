@@ -29,6 +29,7 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
@@ -355,5 +356,14 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		else {
 			throw new RuntimeException("PetriNetRunner received unexpected event: "+evt.getPropertyName());
 		}
+	}
+	@Override
+	public void setTransitionContext(String transitionId, Object object) {
+		try {
+			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
+			((ExternalTransition) transition).setContext(object); 
+		} catch (PetriNetComponentNotFoundException e) {
+			e.printStackTrace();
+		} 
 	}
 }

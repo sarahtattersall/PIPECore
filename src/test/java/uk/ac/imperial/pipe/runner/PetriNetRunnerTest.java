@@ -36,9 +36,16 @@ import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.TestingContext;
+import uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetRunnerTest implements PropertyChangeListener {
@@ -158,8 +165,20 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.fireOneTransition();
 		assertEquals(0, runner.getPendingPlaceMarkings().size()); 
 	}
-
-    @Test
+//	@Test
+	public void buildsNetWithExternalTransitionAndInvokesWithContext() throws Exception {
+		net = buildExternalTransitionTestNet();
+		Runner runner = new PetriNetRunner(net); 
+		TestingContext test = new TestingContext(2);
+		runner.setTransitionContext("T1", test); 
+		runner.run(); 
+		assertEquals("net2", test.getUpdatedContext()); 
+	} 
+//	@Test
+	public void throwsIfSetContextInvokedForNonExternalTransitionComponent() throws Exception {
+		//TODO throwsIfSetContextInvokedForNonExternalTransitionComponent
+	}
+	@Test
     public  void stopsAtRunLimit() throws InterruptedException {
     	checkCase = 2; 
     	net = buildLoopingTestNet(); 
@@ -275,6 +294,16 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 				ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token()); 
 		return net;
 	}
+    private PetriNet buildExternalTransitionTestNet() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    			and(APlace.withId("P1")).and(
+    			AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).and(
+    			ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+    			ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
+    			net.setName(new NormalPetriNetName("net"));
+    	return net;
+	}
+
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (!(evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE))) events++; 

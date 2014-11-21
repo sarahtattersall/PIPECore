@@ -16,4 +16,6 @@ public interface Runner {
 
 	public void markPlace(String placeId, String token, int count);
 
+	public void setTransitionContext(String transitionId, Object object);
+
 }
