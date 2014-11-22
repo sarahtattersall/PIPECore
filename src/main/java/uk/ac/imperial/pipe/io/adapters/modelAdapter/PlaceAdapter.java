@@ -20,8 +20,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     private final Map<String, Place> places;
 
     /**
-     * Empty constructor needed formarshallingg. Since the method to marshall does not actually
-     * use these fields it's ok to initialise them as empty/null.
+     * Empty constructor needed for marshalling. Since the method to marshal does not actually
+     * use these fields it's ok to initialize them as empty/null.
      */
     public PlaceAdapter() {
         places = new HashMap<>();

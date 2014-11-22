@@ -81,10 +81,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	 * by id.
 	 */
 	protected Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps = new HashMap<>();
-//	/**
-//	 * Property change support used to fire messages and register listeners to
-//	 */
-//	protected final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+
 	/**
 	 * Petri net name
 	 */

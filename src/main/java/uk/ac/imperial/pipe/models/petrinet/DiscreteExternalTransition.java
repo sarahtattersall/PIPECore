@@ -84,4 +84,8 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 	    }
 	    return true;
 	}
+
+	public String getClassName() {
+		return className;
+	}
 }

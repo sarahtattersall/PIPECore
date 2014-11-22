@@ -126,7 +126,25 @@ public class PetriNetReaderTest {
                 tuple(-5.0, 35.0));
         assertThat(petriNet.getTransitions()).extracting("priority").containsExactly(1);
     }
+    @Test
+    public void createsExternalTransition() throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
+    	
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getExternalTransitionFile()));
+    	
+    	assertThat(petriNet.getTransitions()).extracting("x", "y").containsExactly(tuple(375, 225));
+    	assertThat(petriNet.getTransitions()).extracting("id", "name").containsExactly(tuple("T0", "T0"));
+    	assertThat(petriNet.getTransitions()).extracting("rate.expression").containsExactly("1.0");
+    	assertThat(petriNet.getTransitions()).extractingResultOf("isTimed").containsExactly(false);
+    	assertThat(petriNet.getTransitions()).extractingResultOf("isInfiniteServer").containsExactly(false);
+    	assertThat(petriNet.getTransitions()).extracting("nameXOffset", "nameYOffset").containsExactly(
+    			tuple(-5.0, 35.0));
+    	assertThat(petriNet.getTransitions()).extracting("priority").containsExactly(1);
+    	Transition transition = petriNet.getComponent("T0", Transition.class);
+    	assertTrue(transition instanceof DiscreteExternalTransition); 
+    	assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition); 
+    }
 
+    
     @Test
     public void createsArc() throws JAXBException, FileNotFoundException {
 
@@ -196,6 +214,31 @@ public class PetriNetReaderTest {
         Transition transition = petriNet.getComponent("T0", Transition.class);
         assertEquals(rateParameter, transition.getRate());
     }
+    
+    @Test
+    public void externalTransitionReferencesRateParameter()
+    		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()));
+    	RateParameter rateParameter = petriNet.getComponent("foo", RateParameter.class);
+    	Transition transition = petriNet.getComponent("T0", Transition.class);
+    	assertEquals(rateParameter, transition.getRate());
+    	assertTrue(transition instanceof DiscreteExternalTransition); 
+    	assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition); 
+    }
+//	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()), petriNet);
+//}
+    
+//PetriNet net = new PetriNet(new NormalPetriNetName("net"));
+//executablePetriNet = net.getExecutablePetriNet();  
+//transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
+//TransitionCloner cloner = new TransitionCloner(); 
+//transition.accept(cloner); 
+//Transition newTransition = cloner.cloned;
+//assertEquals("T1", newTransition.getId()); 
+//assertEquals(transition, newTransition); 
+    
+    
+    
 
 
     @Test

@@ -1,5 +1,8 @@
 package uk.ac.imperial.pipe.io;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.xml.sax.SAXException;
@@ -7,6 +10,8 @@ import uk.ac.imperial.pipe.dsl.*;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.*;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.visitor.TransitionCloner;
 import utils.FileUtils;
 
 import javax.xml.bind.JAXBException;
@@ -84,6 +89,26 @@ public class PetriNetWriterTest extends XMLTestCase {
         petriNet.addRateParameter(rateParameter);
 
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionRateParameterFile()), petriNet);
+    }
+    public void testMarshalsExternalTransitionWithRateParameter()
+    		throws IOException, SAXException, InvalidRateException, JAXBException {
+    	PetriNet petriNet = new PetriNet();
+    	FunctionalRateParameter rateParameter = new FunctionalRateParameter("6.0", "foo", "foo");
+    	
+    	Transition transition = new DiscreteExternalTransition("T0", "T0","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition");
+    	transition.setX(435);
+    	transition.setY(180);
+    	transition.setNameXOffset(-5.0);
+    	transition.setNameYOffset(35.0);
+    	transition.setRate(rateParameter);
+    	transition.setTimed(true);
+    	transition.setInfiniteServer(false);
+    	transition.setPriority(1);
+    	
+    	petriNet.addTransition(transition);
+    	petriNet.addRateParameter(rateParameter);
+    	
+    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()), petriNet);
     }
 
     public void testMarshalsArc() throws IOException, SAXException, JAXBException {

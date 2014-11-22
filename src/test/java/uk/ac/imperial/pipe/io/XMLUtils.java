@@ -44,6 +44,10 @@ public class XMLUtils {
         return "/xml/transition/singleTransition.xml";
     }
 
+    public static String getExternalTransitionRateParameterFile() {
+    	return "/xml/transition/externalTransitionRateParameter.xml";
+    }
+
     public static String getRateParameterFile() {
         return "/xml/rateParameter/rateParameter.xml";
     }
@@ -62,4 +66,9 @@ public class XMLUtils {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
+
+	public static String getExternalTransitionFile() {
+		return "/xml/transition/singleExternalTransition.xml";
+	}
+
 }
