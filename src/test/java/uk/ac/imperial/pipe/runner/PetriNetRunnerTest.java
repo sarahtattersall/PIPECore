@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,9 @@ import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
+import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TestingContext;
@@ -224,14 +228,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	assertEquals("seed = 0:  system creates new seed on each invocation ", reader.readLine());
     	PetriNetRunner.setPrintStreamForTesting(null);
 	}
-//    runner = new PetriNetRunner(net); 
-//    runner.setSeed(456327998101l);
-//    runner.setFiringLimit(10);
-//    filename = "firing.csv"; 
-//    file = new File(filename); 
-//    if (file.exists()) file.delete(); 
-//    out = new ByteArrayOutputStream(); 
-//}
 	@Test
 	public void commandLineRuns() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
@@ -272,6 +268,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("1,\"top.T0\",0,1,1,0", lines.get(2)); 
 		assertEquals("2,\"top.a.T0\",0,0,0,1", lines.get(3)); 
 	}	
+	
 	@After
 	public void tearDown() {
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file
@@ -327,6 +324,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		case 2: checkNormalEventsLooping(evt); break; 
 		case 3: checkNormalEventsWithMarking(evt); break; 
 		case 4: checkNormalEventsWithMarkingAndHalt(evt); break; 
+		case 5: checkNormalEventsWithMarkingAndExernalTransition(evt); break; 
 		default: assertTrue(true); break; 
 		}
 	}
@@ -386,11 +384,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	private void checkNormalEventsLooping(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
 			Firing firing = (Firing) evt.getNewValue(); 
-			if (events == 2) checkFiring(firing, 1,  "T0", 0,1); 
-			if (events == 3) checkFiring(firing, 2, "T1", 1,0); 
-			if (events == 4) checkFiring(firing, 3,  "T0", 0,1); 
-			if (events == 5) checkFiring(firing, 4, "T1", 1,0); 
-			if (events == 6) checkFiring(firing, 5,  "T0", 0,1); 
+			if (events == 2) checkFiring(firing, 1,  "T0", 0,1,0); 
+			if (events == 3) checkFiring(firing, 2, "T1", 1,0,0); 
+			if (events == 4) checkFiring(firing, 3,  "T0", 0,1,0); 
+			if (events == 5) checkFiring(firing, 4, "T1", 1,0,0); 
+			if (events == 6) checkFiring(firing, 5,  "T0", 0,1,0); 
 		}
 		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
 			assertEquals(7, events); 
@@ -421,6 +419,37 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			tokenFired++;
 		}
 	}
+	private void checkNormalEventsWithMarkingAndExernalTransition(
+			PropertyChangeEvent evt) {
+		if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+			Firing round0firing = (Firing) evt.getOldValue(); 
+			checkFiring(round0firing, 0,  "", 1,0,0,0,0);
+			checkHasListOfPlaceIdsExternal(evt); 
+		}
+
+		else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+			Firing firing = (Firing) evt.getNewValue(); 
+			if (events == 2) checkFiring(firing, 1,  "a.T0", 0,1,1,0,0); 
+			if (events == 3) checkFiring(firing, 2, "a.b.T0", 0,1,0,0,1); 
+		}
+		else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+			assertEquals(4, events); 
+		}
+		else if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
+			tokenEvent = true; 
+			Place place = (Place) evt.getSource(); 
+			assertEquals(targetPlaceId, place.getId()); 
+			Map<String, Integer> token = (Map<String, Integer>) evt.getNewValue(); 
+			assertEquals(1, token.size());
+			Entry<String, Integer> entry = token.entrySet().iterator().next(); 
+			if (tokenFired == 0) { 
+				checkToken("Default", entry.getKey(), 1, entry.getValue()); 
+				runner.markPlace("a.b.P1","Default",1); 
+			}
+			if (tokenFired == 1) { checkToken("Default", entry.getKey(), 0, entry.getValue()); }
+			tokenFired++;
+		}
+	}
 	private void checkFiring(Firing firing, int round, String transition, int... placeCols) {
 //		StringBuffer sb = new StringBuffer(); 
 //		for (int i = 0; i < placeCols.length; i++) {
@@ -431,14 +460,23 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals(round, firing.round); 
 		assertEquals(transition, firing.transition); 
 		report = new StateReport(firing.state); 
+//		StringBuffer sb = new StringBuffer(); 
+//		sb = new StringBuffer(); 
+//		for (String place : report.getPlaces()) {
+//			sb.append(place);
+//			sb.append(" ");
+//		}
+//		System.out.println(sb.toString());
 		checkRecord(placeCols); 
     }
 	private void checkRecord(int... placeCols ) {
 		assertEquals(1, report.getTokenFiringRecords().size()); 
-		assertEquals(3, report.getTokenFiringRecords().get(0).getCounts().size()); 
+		assertEquals(placeCols.length, report.getTokenFiringRecords().get(0).getCounts().size()); 
 		assertEquals("Default", report.getTokenFiringRecords().get(0).token); 
+//		System.out.println("report: ");
 		for (int i = 0; i < placeCols.length; i++) {
-			assertEquals(placeCols[i], (int) report.getTokenFiringRecords().get(0).getCounts().get(i)); 
+//			System.out.println((int) report.getTokenFiringRecords().get(0).getCounts().get(i)+" ");
+			assertEquals("column: "+placeCols[i],placeCols[i], (int) report.getTokenFiringRecords().get(0).getCounts().get(i)); 
 		}
 	}
 	@SuppressWarnings("unchecked")
@@ -450,4 +488,69 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("P1", it.next());
 		assertEquals("P2", it.next());
 	}
+	private void checkHasListOfPlaceIdsExternal(PropertyChangeEvent evt) {
+		Collection<String> ids = (Collection<String>)evt.getNewValue(); 
+		assertEquals(5, ids.size());
+		Iterator<String> it = ids.iterator();
+		assertEquals("a.P0", it.next());
+		assertEquals("a.P1", it.next());
+		assertEquals("a.b.P0", it.next());
+		assertEquals("a.b.P1", it.next());
+		assertEquals("a.b.P2", it.next());
+	}
+
+	@Test
+	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
+		checkCase = 5; 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.setSeed(456327998101l);
+		runner.addPropertyChangeListener(this); 
+		runner.listenForTokenChanges(this, "a.P1");
+		targetPlaceId = "a.P1"; 
+		TestingContext test = new TestingContext(7);
+		runner.setTransitionContext("a.b.T0", test); 
+    	runner.setFiringLimit(10); 
+		runner.run(); 
+		assertEquals("testnet7", test.getUpdatedContext()); 
+	}	
+
+	private PetriNet buildNetWithInterfacePlacesAndExternalTransition() throws Exception{
+		PetriNet net3 = buildNet3();
+		net3.setName(new NormalPetriNetName("testnet")); 
+		PetriNet net4 = buildNet4();
+		IncludeHierarchy includes = new IncludeHierarchy(net3, "a");
+		IncludeHierarchy includeb = includes.include(net4, "b");  
+		net3.setIncludeHierarchy(includes);
+		Place originP0 = net4.getComponent("P0", Place.class); 
+		includeb.addToInterface(originP0, true, false, false, false ); 
+		includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("b.P0")); 
+		Place aIP0 = includes.getInterfacePlace("b.P0"); 
+		Transition aT0 = net3.getComponent("T0", Transition.class);
+		Map<String,String> tokenweights = new HashMap<String, String>(); 
+		tokenweights.put("Default", "1"); 
+		OutboundArc arcOut = new OutboundNormalArc(aT0, aIP0, tokenweights);
+		net3.add(arcOut); 
+		
+		
+		return net3;
+	}
+
+    private PetriNet buildNet4() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    					and(APlace.withId("P1")).and(APlace.withId("P2")).
+    					and(AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).
+    					and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
+    					and(ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token()).
+    					andFinally(ANormalArc.withSource("T0").andTarget("P2").with("1", "Default").token());
+    	return net; 
+    }
+    private PetriNet buildNet3() {
+    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    			and(APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).
+    			and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
+    			andFinally(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
+    	return net; 
+    }
+
 }

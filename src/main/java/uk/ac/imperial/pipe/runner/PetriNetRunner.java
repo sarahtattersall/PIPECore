@@ -24,6 +24,7 @@ import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
@@ -59,6 +60,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private Firing firing;
 	private Map<String, List<PropertyChangeListener>> listenerMap;
 	private List<TokenCount> pendingPlaceMarkings;
+	private Map<String, Object> transitionContextMap;
 
 	/**
 	 * temporary map to store some sample Petri nets for testing, until support added for marshalling hierarchical Petri nets from XML
@@ -130,8 +132,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	}
     private static PetriNet buildNet1() {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-    					and(AnImmediateTransition.withId("T0")).
-    					andFinally(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
+    			and(AnImmediateTransition.withId("T0")).
+    			andFinally(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
     	return net; 
     }
     private static PetriNet buildNet2() {
@@ -155,7 +157,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		previousFiring = new Firing(round, "", previousState);; 
 		animator = new PetriNetAnimator(executablePetriNet);
 		listenerMap = new HashMap<>();
-		pendingPlaceMarkings = new ArrayList<>(); 
+		pendingPlaceMarkings = new ArrayList<>();
+		transitionContextMap = new HashMap<>(); 
 	}
 
 	@Override
@@ -189,6 +192,30 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		}
 		listenerMap.get(placeId).add(listener); 
 		rebuildListeners();			
+	}
+	@Override
+	public void setTransitionContext(String transitionId, Object object) {
+		addContextToTransition(transitionId, object); 
+		transitionContextMap.put(transitionId, object); 
+	}
+	protected void addContextToTransition(String transitionId, Object object) {
+		try {
+			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
+			if ((transition instanceof DiscreteExternalTransition)) { 
+				((DiscreteExternalTransition) transition).getClient().setContext(object); 
+			}
+			else {
+				throw new IllegalArgumentException("PetriNetRunner:  set transition context may only be invoked for uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition.  Requested component: "+transition.getClass().getName()); 
+			}
+		} catch (PetriNetComponentNotFoundException e) {
+			throw new IllegalArgumentException("PetriNetRunner:  set transition context requested for a transition that does not exist in the executable petri net: "+transitionId); 
+		}
+	}
+	private void updateExternalTransitions() {
+		Set<Entry<String, Object>> entries = transitionContextMap.entrySet(); 
+		for (Entry<String, Object> entry : entries) {
+			addContextToTransition(entry.getKey(), entry.getValue()); 
+		}
 	}
 
 	private void rebuildListeners() {
@@ -233,7 +260,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing); 
 			previousFiring = firing; 
 		} catch (RuntimeException e) {
-			if (e.getMessage().equals(Animator.ERROR_NO_TRANSITIONS_TO_FIRE)) transitionsToFire = false;  
+			if ((e.getMessage() != null) && (e.getMessage().equals(Animator.ERROR_NO_TRANSITIONS_TO_FIRE))) transitionsToFire = false;  
 			else throw e; 
 		}
 	}
@@ -351,24 +378,11 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE)) {
-			rebuildListeners();			
+			rebuildListeners();	
+			updateExternalTransitions(); 
 		}
 		else {
 			throw new RuntimeException("PetriNetRunner received unexpected event: "+evt.getPropertyName());
 		}
-	}
-	@Override
-	public void setTransitionContext(String transitionId, Object object) {
-		try {
-			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
-			if ((transition instanceof DiscreteExternalTransition)) { 
-				((DiscreteExternalTransition) transition).getClient().setContext(object); 
-			}
-			else {
-				throw new IllegalArgumentException("PetriNetRunner:  set transition context may only be invoked for uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition.  Requested component: "+transition.getClass().getName()); 
-			}
-		} catch (PetriNetComponentNotFoundException e) {
-			throw new IllegalArgumentException("PetriNetRunner:  set transition context requested for a transition that does not exist in the executable petri net: "+transitionId); 
-		} 
 	}
 }
