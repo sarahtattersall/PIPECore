@@ -1,24 +1,37 @@
 package uk.ac.imperial.pipe.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.xml.sax.SAXException;
-import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.InvalidRateException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.models.petrinet.*;
-import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.visitor.TransitionCloner;
-import utils.FileUtils;
-
-import javax.xml.bind.JAXBException;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+
+import javax.xml.bind.JAXBException;
+
+import org.custommonkey.xmlunit.XMLTestCase;
+import org.custommonkey.xmlunit.XMLUnit;
+import org.xml.sax.SAXException;
+
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.AnnotationImpl;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.NormalRate;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import utils.FileUtils;
 
 public class PetriNetWriterTest extends XMLTestCase {
     PetriNetWriter writer;
@@ -42,6 +55,27 @@ public class PetriNetWriterTest extends XMLTestCase {
         petriNet.addPlace(place);
 
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlacePath()), petriNet);
+    }
+    public void testMarshalsPlaceWithInterfaceStatus() throws IOException, SAXException, JAXBException {
+    	PetriNet petriNet = new PetriNet();
+    	Token token = new ColoredToken("Red", new Color(255, 0, 0));
+    	Place place = new DiscretePlace("P0", "P0");
+    	place.setX(255);
+    	place.setY(240);
+    	place.setNameXOffset(5);
+    	place.setNameYOffset(26);
+    	place.setTokenCount(token.getId(), 1);
+    	
+    	PlaceStatus status = new PlaceStatusInterface(place); 
+    	status.setMergeStatus(true);
+    	status.setExternalStatus(true); 
+    	status.setInputOnlyStatus(true); 
+    	place.setStatus(status); 
+    	
+    	petriNet.addToken(token);
+    	petriNet.addPlace(place);
+    	
+    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithInterfaceStatusPath()), petriNet);
     }
 
     private void assertResultsEqual(String expectedPath, PetriNet petriNet)

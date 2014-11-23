@@ -49,6 +49,12 @@ public class PlaceStatusInterface implements PlaceStatus {
 		setOutputOnlyStatus(false); 
 		update(); 
 	}
+	/**
+	 * Null constructor used by XML marshalling
+	 */
+	public PlaceStatusInterface() {
+	}
+
 	private void resetUpdate() {
 		mergeChanged = false; 
 		externalChanged = false; 
@@ -144,12 +150,10 @@ public class PlaceStatusInterface implements PlaceStatus {
 				this.inputOnly = false; 
 			}
 			else {
-//				this.inputOnly = inputOnly;
 				inputOnlyStatus = new InputOnlyInterfaceStatus(); 
 			}
 		}
 		else {
-//			this.inputOnly = inputOnly;
 			inputOnlyStatus = new NoOpInterfaceStatus();
 		}
 		return result;
@@ -163,12 +167,10 @@ public class PlaceStatusInterface implements PlaceStatus {
 				this.outputOnly = false; 
 			} 
 			else {
-//				this.outputOnly = outputOnly; 
 				outputOnlyStatus = new OutputOnlyInterfaceStatus();
 			}
 		}
 		else {
-//			this.outputOnly = outputOnly; 
 			outputOnlyStatus = new NoOpInterfaceStatus();
 		}
 		return result;
@@ -228,6 +230,9 @@ public class PlaceStatusInterface implements PlaceStatus {
 		this.includeHierarchy = includeHierarchy; 
 	}
 
-
+	@Override
+	public void setPlace(Place place) {
+		this.place = place; 
+	}
 
 }

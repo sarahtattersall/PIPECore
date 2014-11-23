@@ -36,8 +36,6 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
 	private boolean inInterface;
 
-//	private InterfacePlace interfacePlace;
-
 	private PlaceStatus status;
 
     /**

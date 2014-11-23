@@ -113,5 +113,10 @@ public class PlaceStatusNormal implements PlaceStatus {
 	public void setIncludeHierarchy(IncludeHierarchy includeHierarchy) {
 	}
 
+	@Override
+	public void setPlace(Place place) {
+		this.place = place; 
+	}
+
 
 }

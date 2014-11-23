@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class PetriNetReaderTest {
@@ -84,6 +85,28 @@ public class PetriNetReaderTest {
         assertThat(extractProperty("capacity").from(petriNet.getPlaces())).containsExactly(0);
         assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
         assertThat(extractProperty("tokenCounts").from(petriNet.getPlaces())).hasSize(1);
+    }
+    @Test
+    public void createsPlaceWithInterfaceStatus() throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithInterfaceStatusPath()));
+    	
+    	assertThat(petriNet.getPlaces()).hasSize(1);
+    	assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
+    	assertThat(petriNet.getPlaces()).extracting("x", "y").containsExactly(tuple(255, 240));
+    	assertThat(petriNet.getPlaces()).extracting("markingXOffset", "markingYOffset").containsExactly(
+    			tuple(0.0, 0.0));
+    	assertThat(petriNet.getPlaces()).extracting("nameXOffset", "nameYOffset").containsExactly(tuple(5.0, 26.0));
+    	assertThat(extractProperty("capacity").from(petriNet.getPlaces())).containsExactly(0);
+    	assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
+    	assertThat(extractProperty("tokenCounts").from(petriNet.getPlaces())).hasSize(1);
+    	Place place = petriNet.getComponent("P0", Place.class); 
+    	PlaceStatus status = place.getStatus(); 
+    	assertTrue(status instanceof PlaceStatusInterface); 
+    	assertTrue(status.isMergeStatus());
+    	assertTrue(status.isExternalStatus());
+    	assertTrue(status.isInputOnlyStatus());
+    	assertFalse(status.isOutputOnlyStatus());
+    	assertEquals(place, status.getPlace()); 
     }
 
     @Test

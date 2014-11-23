@@ -19,7 +19,17 @@ public class Result<T> {
 		}
 		return messages;
 	}
-
+	public String getAllMessages() {
+		if (!hasResult()) return null; 
+		else {
+			StringBuffer sb = new StringBuffer(); 
+			for (String message : getMessages()) {
+				sb.append(message); 
+				sb.append("\n"); 
+			}
+			return sb.toString(); 
+		}
+	}
 	public void addMessage(String message) {
 		entries.add(new ResultEntry<T>(message, null)); 
 	}

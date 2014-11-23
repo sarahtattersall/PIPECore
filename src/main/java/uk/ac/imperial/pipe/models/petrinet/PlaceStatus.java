@@ -36,6 +36,11 @@ public interface PlaceStatus {
 	public Result<InterfacePlaceAction> update();
 
 	public Place getPlace();
+	/**
+	 * Used in XML marshalling
+	 * @param place
+	 */
+	public void setPlace(Place place);
 
 	//TODO implement paintComponent from PlaceView, or equivalent 
 	

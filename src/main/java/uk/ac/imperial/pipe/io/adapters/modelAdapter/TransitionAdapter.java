@@ -1,19 +1,19 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedTransition;
 import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
-import uk.ac.imperial.pipe.io.adapters.model.AdaptedTransition.ToolSpecific;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.NormalRate;
 import uk.ac.imperial.pipe.models.petrinet.Rate;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Used to marshal transitions to and from their PNML representation
@@ -58,9 +58,9 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
     		rate = new NormalRate(adaptedTransition.getRate());
         }
 	    else {
-	    	if (toolSpecific.getExternalClass() == null) {
+	    	if (toolSpecific.getExternalClass() == null) {  
 	    		transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
-	    		rate = rateParameters.get(toolSpecific.getRateDefinition());
+	    		rate = rateParameters.get(toolSpecific.getRateDefinition()); // implies only two parameters: externalClass & rateDefinition
 	    	}
 	    	else {
 	    		transition = new DiscreteExternalTransition(adaptedTransition.getId(), nameDetails.getName(),toolSpecific.getExternalClass());

@@ -60,6 +60,10 @@ public class XMLUtils {
         return "/xml/place/singlePlace.xml";
     }
 
+    public static String getSinglePlaceWithInterfaceStatusPath() {
+    	return "/xml/place/singlePlaceInterfaceStatus.xml";
+    }
+
     public static String readFile(String path, Charset encoding)
             throws IOException
     {
@@ -70,5 +74,6 @@ public class XMLUtils {
 	public static String getExternalTransitionFile() {
 		return "/xml/transition/singleExternalTransition.xml";
 	}
+
 
 }
