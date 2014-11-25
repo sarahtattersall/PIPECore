@@ -64,16 +64,30 @@ public class XMLUtils {
     	return "/xml/place/singlePlaceInterfaceStatus.xml";
     }
 
-    public static String readFile(String path, Charset encoding)
-            throws IOException
-    {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return encoding.decode(ByteBuffer.wrap(encoded)).toString();
-    }
 
 	public static String getExternalTransitionFile() {
 		return "/xml/transition/singleExternalTransition.xml";
 	}
 
+	public static String getSingleIncludeHierarchyFile() {
+		return "/xml/include/singleInclude.xml";
+	}
+	public static String getSingleIncludeHierarchyFileReadyToFire() {
+		return "/xml/include/singleIncludeReadyToFire.xml";
+	}
+	public static String getSingleMIncludeHierarchyFile() {
+		return "/xml/include/singleTestInclude.xml";
+	}
+
+	public static String getMultipleIncludeHierarchyFile() {
+		return "/xml/include/multipleIncludes.xml";
+	}
+	
+	public static String readFile(String path, Charset encoding)
+			throws IOException
+			{
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+			}
 
 }

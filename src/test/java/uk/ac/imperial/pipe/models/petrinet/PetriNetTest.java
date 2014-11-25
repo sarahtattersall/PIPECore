@@ -48,7 +48,6 @@ public class PetriNetTest {
     public void setUp() {
         net = new PetriNet();
     }
-    //TODO PN can show view all InterfacePlaces that might be added, and then add each one, once only.  
     @Test
     public void emptyPetriNetsEqual() {
         PetriNet petriNet1 = new PetriNet();

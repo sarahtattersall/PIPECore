@@ -28,7 +28,7 @@ public class PetriNetReaderTest {
     public void setUp() throws JAXBException {
         reader = new PetriNetIOImpl();
     }
-
+    //TODO test PN name / id 
     @Test
     public void createGSPN() throws  JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/gspn1.xml"));
@@ -36,6 +36,7 @@ public class PetriNetReaderTest {
         assertEquals(5, petriNet.getTransitions().size());
         assertEquals(12, petriNet.getArcs().size());
         assertEquals(1, petriNet.getTokens().size());
+        assertEquals("Net-One", petriNet.getNameValue()); 
     }
 
     @Test

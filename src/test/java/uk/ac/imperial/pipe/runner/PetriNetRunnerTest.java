@@ -39,6 +39,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.io.XMLUtils;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
@@ -50,6 +51,7 @@ import uk.ac.imperial.pipe.models.petrinet.TestingContext;
 import uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import utils.FileUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetRunnerTest implements PropertyChangeListener {
@@ -245,6 +247,47 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		fileReader.close(); 
 		assertEquals(4, lines); 
 	}	
+	@Test
+	public void runsFromIncludeXmlFile() throws Exception {
+		PetriNetRunner.setPrintStreamForTesting(print);
+//		String[] args = new String[]{"xml/include/singleInclude.xml","firingReport.csv","5","123456"}; 
+		String[] args = new String[]{FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFileReadyToFire()),"firingReport.csv","5","123456"}; 
+		PetriNetRunner.main(args);
+		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
+		assertEquals("PetriNetRunner:  executing /Users/stevedoubleday/git/PIPECore/target/test-classes/xml/include/singleIncludeReadyToFire.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  complete.", reader.readLine());
+		PetriNetRunner.setPrintStreamForTesting(null);
+		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
+		List<String> lines = new ArrayList<String>();
+		String line = fileReader.readLine();
+		while (line != null) {
+//			System.out.println(line);
+			lines.add(line); 
+			line = fileReader.readLine();
+		}
+		fileReader.close(); 
+		assertEquals(6, lines.size()); 
+		assertEquals("\"Round\",\"Transition\",\"a.P0\",\"a.P1\"", lines.get(0)); 
+		assertEquals("4,\"a.T0\",0,4", lines.get(5)); 
+		fileReader.close(); 
+	}
+	@Test
+	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
+		checkCase = 5; 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.setSeed(456327998101l);
+		runner.addPropertyChangeListener(this); 
+		runner.listenForTokenChanges(this, "a.P1");
+		targetPlaceId = "a.P1"; 
+		TestingContext test = new TestingContext(7);
+		runner.setTransitionContext("a.b.T0", test); 
+    	runner.setFiringLimit(10); 
+		runner.run(); 
+		assertEquals("testnet7", test.getUpdatedContext()); 
+	}	
+
+
 	@Test
 	public void commandLineRunsForInterfacePlaces() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
@@ -498,22 +541,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("a.b.P1", it.next());
 		assertEquals("a.b.P2", it.next());
 	}
-
-	@Test
-	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
-		checkCase = 5; 
-		net = buildNetWithInterfacePlacesAndExternalTransition(); 
-		runner = new PetriNetRunner(net); 
-		runner.setSeed(456327998101l);
-		runner.addPropertyChangeListener(this); 
-		runner.listenForTokenChanges(this, "a.P1");
-		targetPlaceId = "a.P1"; 
-		TestingContext test = new TestingContext(7);
-		runner.setTransitionContext("a.b.T0", test); 
-    	runner.setFiringLimit(10); 
-		runner.run(); 
-		assertEquals("testnet7", test.getUpdatedContext()); 
-	}	
 
 	private PetriNet buildNetWithInterfacePlacesAndExternalTransition() throws Exception{
 		PetriNet net3 = buildNet3();

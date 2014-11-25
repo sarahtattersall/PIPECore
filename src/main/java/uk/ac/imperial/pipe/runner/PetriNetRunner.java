@@ -3,7 +3,6 @@ package uk.ac.imperial.pipe.runner;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -18,19 +17,22 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.xml.bind.JAXBException;
+
 import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.animation.PetriNetAnimator;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
-import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
@@ -345,8 +347,24 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
 	private static PetriNet getPetriNet(String petriNetName) {
 		PetriNet net = TEST_NETS.get(petriNetName); 
-		if (net == null) throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
-		else return net;
+		if (net == null) { 
+			try {
+				IncludeHierarchyIO reader = new IncludeHierarchyIOImpl();
+				IncludeHierarchy include = reader.read(petriNetName);
+				net = include.getPetriNet(); 
+				
+			} catch (JAXBException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
+			} catch (IncludeException e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
+			}
+		}
+		return net;
 	}
 
 	private static void printUsage() {

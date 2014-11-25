@@ -63,6 +63,7 @@ public class IncludeHierarchy  {
 	private Map<IncludeHierarchyMapEnum, Map<String, ?>> maps = new HashMap<>();  
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
 	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
+	private String petriNetLocation; //TODO consider converting to an interface. 
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
 	}
@@ -525,6 +526,14 @@ public class IncludeHierarchy  {
 
 	public Collection<Place> getInterfacePlaces() {
 		return interfacePlaces.values();
+	}
+
+	public String getPetriNetLocation() {
+		return petriNetLocation;
+	}
+
+	public void setPetriNetLocation(String petriNetLocation) {
+		this.petriNetLocation = petriNetLocation;
 	}
 
 
