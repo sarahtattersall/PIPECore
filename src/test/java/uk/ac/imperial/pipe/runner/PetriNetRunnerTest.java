@@ -254,7 +254,8 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		String[] args = new String[]{FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFileReadyToFire()),"firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-		assertEquals("PetriNetRunner:  executing /Users/stevedoubleday/git/PIPECore/target/test-classes/xml/include/singleIncludeReadyToFire.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+//		assertEquals("PetriNetRunner:  executing /Users/stevedoubleday/git/PIPECore/target/test-classes/xml/include/singleIncludeReadyToFire.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		reader.readLine();  // skip first line as it is local to the machine on which test is run.
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
