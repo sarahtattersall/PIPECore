@@ -11,13 +11,8 @@ public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus imple
 
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
-		return null;
+		return new Result<InterfacePlaceAction>();
 	}
-
-//	@Override
-//	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
-//		return buildNotSupportedResult("remove", "Away");
-//	}
 
 	@Override
 	public boolean canRemove() {
@@ -42,5 +37,10 @@ public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus imple
             place.getStatus().setMergeInterfaceStatus(mergeStatus); 
         }
 		return result;
+	}
+
+	@Override
+	public String getXmlType() {
+		return AWAY;
 	}	
 }

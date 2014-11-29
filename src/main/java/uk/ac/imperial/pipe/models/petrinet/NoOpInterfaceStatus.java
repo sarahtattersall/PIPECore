@@ -43,5 +43,13 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	public void setHomePlace(Place homePlace) {
 	}
 
+	@Override
+	public String getXmlType() {
+		return null;
+	}
+
+	public final void setAwayId(String awayId) {
+	}
+
 
 }

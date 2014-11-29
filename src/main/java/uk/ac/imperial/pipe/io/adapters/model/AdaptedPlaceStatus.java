@@ -2,6 +2,8 @@ package uk.ac.imperial.pipe.io.adapters.model;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import uk.ac.imperial.pipe.io.adapters.valueAdapter.BooleanValueAdapter;
@@ -16,8 +18,8 @@ public class AdaptedPlaceStatus {
     /**
      * merge interface status
      */
-    @XmlJavaTypeAdapter(BooleanValueAdapter.class)
-    private Boolean merge = false;
+	@XmlElement(name = "merge")
+    private MergeStatus mergeStatus; 
 
     /**
      * external interface status
@@ -37,21 +39,6 @@ public class AdaptedPlaceStatus {
     @XmlJavaTypeAdapter(BooleanValueAdapter.class)
     private Boolean outputOnly = false;
     
-	/**
-	 *
-	 * @return true if place has merge interface status 
-	 */
-	public final Boolean getMerge() {
-		return merge;
-	}
-
-    /**
-    *
-    * @param merge true if this place has merge interface status
-    */
-	public final void setMerge(Boolean merge) {
-		this.merge = merge;
-	}
 
 	/**
 	 *
@@ -100,4 +87,31 @@ public class AdaptedPlaceStatus {
 	public final void setOutputOnly(Boolean outputOnly) {
 		this.outputOnly = outputOnly;
 	}
+	
+	public final MergeStatus getMergeStatus() {
+		return mergeStatus;
+	}
+	
+	public final void setMergeStatus(MergeStatus mergeStatus) {
+		this.mergeStatus = mergeStatus;
+	}
+	
+    @XmlAccessorType(XmlAccessType.FIELD)
+	public static class MergeStatus {
+        /**
+         * merge type attribute
+         */
+        @XmlAttribute
+        private String type;
+
+		public final String getType() {
+			return type;
+		}
+
+		public final void setType(String type) {
+			this.type = type;
+		}
+
+	}
 }
+

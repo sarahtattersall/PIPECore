@@ -52,4 +52,8 @@ public class Result<T> {
 		else return getEntry().message;
 	}
 
+	public void addResult(Result<T> resultOne) {
+		entries.addAll(resultOne.getEntries()); 
+	}
+
 }

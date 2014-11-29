@@ -15,7 +15,6 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
-//@XmlRootElement(name="include")
 @XmlRootElement(name = "include")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class IncludeHierarchyBuilder {
@@ -25,7 +24,6 @@ public class IncludeHierarchyBuilder {
 	private String netLocation;
 	@XmlElement(name = "include")
 	private List<IncludeHierarchyBuilder> includeHierarchyBuilder = new ArrayList<>(); 
-	private IncludeHierarchy parent; 
 	
 	public IncludeHierarchyBuilder() {
 	}
@@ -37,24 +35,20 @@ public class IncludeHierarchyBuilder {
 			includeHierarchyBuilder.add(new IncludeHierarchyBuilder(childInclude)); 
 		}
 	}
-	public IncludeHierarchy buildIncludes() throws JAXBException, FileNotFoundException, IncludeException {
-		if (parent == null) {
-			parent = buildHierarchy(); 
-//			System.out.println("netlocation "+netLocation+" name "+name );
-		}
+	public IncludeHierarchy buildIncludes(IncludeHierarchy parent) throws JAXBException, FileNotFoundException, IncludeException {
+		IncludeHierarchy include = buildHierarchy(parent); 
 		for (IncludeHierarchyBuilder builder : getIncludeHierarchyBuilder()) {
-//			System.out.println("b netlocation "+builder.netLocation+" bname "+builder.name );
-			parent.include(buildPetriNet(builder.netLocation), builder.name); 
-			parent.getChildInclude(builder.name).setPetriNetLocation(builder.netLocation); 
+			IncludeHierarchy child = builder.buildIncludes(include);
+			include.include(child); 
 		}
-		return parent;
+		return include;
 	}
-	protected IncludeHierarchy buildHierarchy() throws JAXBException,
+	protected IncludeHierarchy buildHierarchy(IncludeHierarchy parent) throws JAXBException,
 			FileNotFoundException {
 		PetriNet net = buildPetriNet(netLocation); 
-		IncludeHierarchy includes = new IncludeHierarchy(net, name);
-		includes.setPetriNetLocation(netLocation); 
-		return includes;
+		IncludeHierarchy include = new IncludeHierarchy(net, parent, name);
+		include.setPetriNetLocation(netLocation); 
+		return include;
 	}
 	protected PetriNet buildPetriNet(String netLocation) throws JAXBException,
 			FileNotFoundException {

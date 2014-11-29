@@ -42,6 +42,9 @@ public interface PlaceStatus {
 	 */
 	public void setPlace(Place place);
 
+	public String getMergeXmlType();
+	public void buildMergeStatus(String type);
+
 	//TODO implement paintComponent from PlaceView, or equivalent 
 	
 }

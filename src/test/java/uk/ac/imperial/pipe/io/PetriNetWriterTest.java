@@ -24,6 +24,10 @@ import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NormalRate;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
@@ -31,6 +35,7 @@ import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import utils.FileUtils;
 
 public class PetriNetWriterTest extends XMLTestCase {
@@ -39,6 +44,7 @@ public class PetriNetWriterTest extends XMLTestCase {
     @Override
     public void setUp() throws JAXBException {
         XMLUnit.setIgnoreWhitespace(true);
+        XMLUnit.setIgnoreComments(true);
         writer = new PetriNetIOImpl();
     }
 
@@ -56,7 +62,31 @@ public class PetriNetWriterTest extends XMLTestCase {
 
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlacePath()), petriNet);
     }
-    public void testMarshalsPlaceWithInterfaceStatus() throws IOException, SAXException, JAXBException {
+    public void testMarshalsPlaceWithHomeInterfaceStatus() throws IOException, SAXException, JAXBException {
+    	PetriNet petriNet = new PetriNet(new NormalPetriNetName("netb"));
+    	Token token = new ColoredToken("Red", new Color(255, 0, 0));
+    	Place place = new DiscretePlace("P0", "P0");
+    	place.setX(255);
+    	place.setY(240);
+    	place.setNameXOffset(5);
+    	place.setNameYOffset(26);
+    	place.setTokenCount(token.getId(), 1);
+    	
+    	PlaceStatus status = new PlaceStatusInterface(place);
+    	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
+    	status.setMergeStatus(true);
+    	status.setMergeInterfaceStatus(new MergeInterfaceStatusHome(place, status)); 
+    	status.setExternalStatus(true); 
+    	status.setInputOnlyStatus(true); 
+    	place.setStatus(status); 
+    	
+    	
+    	petriNet.addToken(token);
+    	petriNet.addPlace(place);
+    	
+    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath()), petriNet);
+    }
+    public void testMarshalsPlaceWithAwayInterfaceStatusAndOrdinaryPlace() throws IOException, SAXException, JAXBException {
     	PetriNet petriNet = new PetriNet();
     	Token token = new ColoredToken("Red", new Color(255, 0, 0));
     	Place place = new DiscretePlace("P0", "P0");
@@ -66,16 +96,57 @@ public class PetriNetWriterTest extends XMLTestCase {
     	place.setNameYOffset(26);
     	place.setTokenCount(token.getId(), 1);
     	
-    	PlaceStatus status = new PlaceStatusInterface(place); 
+    	Place placebP0 = new DiscretePlace("b.P0", "b.P0");
+    	placebP0.setX(255);
+    	placebP0.setY(240);
+    	placebP0.setNameXOffset(5);
+    	placebP0.setNameYOffset(26);
+    	placebP0.setTokenCount(token.getId(), 1);
+    	PlaceStatus status = new PlaceStatusInterface(placebP0);
+    	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
     	status.setMergeStatus(true);
+    	status.setMergeInterfaceStatus(new MergeInterfaceStatusAway(place, status, "b.P0")); 
     	status.setExternalStatus(true); 
     	status.setInputOnlyStatus(true); 
-    	place.setStatus(status); 
+    	placebP0.setStatus(status); 
+    	
     	
     	petriNet.addToken(token);
     	petriNet.addPlace(place);
+    	petriNet.addPlace(placebP0);
     	
-    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithInterfaceStatusPath()), petriNet);
+    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTwoPlacesOneWithAwayInterfaceStatusPath()), petriNet);
+    }
+    public void testMarshalsPlaceWithAvailableInterfaceStatusAndOrdinaryPlace() throws IOException, SAXException, JAXBException {
+    	PetriNet petriNet = new PetriNet(new NormalPetriNetName("neta"));
+    	Token token = new ColoredToken("Red", new Color(255, 0, 0));
+    	Place place = new DiscretePlace("P0", "P0");
+    	place.setX(255);
+    	place.setY(240);
+    	place.setNameXOffset(5);
+    	place.setNameYOffset(26);
+    	place.setTokenCount(token.getId(), 1);
+    	
+    	Place placebP0 = new DiscretePlace("b.P0", "b.P0");
+    	placebP0.setX(255);
+    	placebP0.setY(240);
+    	placebP0.setNameXOffset(5);
+    	placebP0.setNameYOffset(26);
+    	placebP0.setTokenCount(token.getId(), 1);
+    	PlaceStatus status = new PlaceStatusInterface(placebP0);
+    	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
+    	status.setMergeStatus(true);
+    	status.setMergeInterfaceStatus(new MergeInterfaceStatusAvailable(place, status, "b.P0")); 
+    	status.setExternalStatus(true); 
+    	status.setInputOnlyStatus(true); 
+    	placebP0.setStatus(status); 
+    	
+    	
+    	petriNet.addToken(token);
+    	petriNet.addPlace(place);
+//    	petriNet.addPlace(placebP0);
+    	// An available place does not (yet) exist in the PN, so won't be persisted.  Only the ordinary place will be written
+    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithAvailableInterfaceStatusPath()), petriNet);
     }
 
     private void assertResultsEqual(String expectedPath, PetriNet petriNet)
@@ -86,6 +157,7 @@ public class PetriNetWriterTest extends XMLTestCase {
         String expected = XMLUtils.readFile(expectedPath, Charset.defaultCharset());
 
         String actual = stringWriter.toString();
+//        System.out.println(actual );
         assertXMLEqual(expected, actual);
     }
 

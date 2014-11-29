@@ -60,8 +60,14 @@ public class XMLUtils {
         return "/xml/place/singlePlace.xml";
     }
 
-    public static String getSinglePlaceWithInterfaceStatusPath() {
-    	return "/xml/place/singlePlaceInterfaceStatus.xml";
+    public static String getSinglePlaceWithHomeInterfaceStatusPath() {
+    	return "/xml/place/singlePlaceHomeInterfaceStatus.xml";
+    }
+    public static String getSinglePlaceWithAvailableInterfaceStatusPath() {
+    	return "/xml/place/singlePlaceAvailableInterfaceStatus.xml";
+    }
+    public static String getTwoPlacesOneWithAwayInterfaceStatusPath() {
+    	return "/xml/place/twoPlacesOneWithAwayInterfaceStatus.xml";
     }
 
 
@@ -82,6 +88,11 @@ public class XMLUtils {
 	public static String getMultipleIncludeHierarchyFile() {
 		return "/xml/include/multipleIncludes.xml";
 	}
+	public static String getMultipleIncludeHierarchyWithInterfaceStatusFile() {
+		return "/xml/include/multipleIncludesWithInterfaceStatus.xml";
+	}
+	
+	
 	
 	public static String readFile(String path, Charset encoding)
 			throws IOException

@@ -12,7 +12,7 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
-		return null;
+		return new Result<InterfacePlaceAction>();
 	}
 	@Override
 	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
@@ -32,6 +32,11 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 	@Override
 	public boolean canRemove() {
 		return false;
+	}
+
+	@Override
+	public String getXmlType() {
+		return null;
 	}
 
 

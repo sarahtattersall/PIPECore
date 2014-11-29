@@ -130,6 +130,17 @@ public class PlaceStatusInterface implements PlaceStatus {
 		}
 		return result;
 	}
+	@Override
+	public void buildMergeStatus(String type) {
+		merge = true;  
+		if (type.equals(MergeInterfaceStatus.HOME)) {
+			mergeStatus = new MergeInterfaceStatusHome(null, this);			
+		} 
+		else {
+			mergeStatus = new MergeInterfaceStatusAway(null, this, null);			
+			
+		}
+	}
 
 
 	protected Result<InterfacePlaceAction> buildExternalStatus() {
@@ -233,6 +244,14 @@ public class PlaceStatusInterface implements PlaceStatus {
 	@Override
 	public void setPlace(Place place) {
 		this.place = place; 
+		mergeStatus.setHomePlace(place); 
+		//update MergeStatus
 	}
+
+	@Override
+	public String getMergeXmlType() {
+		return mergeStatus.getXmlType();
+	}
+
 
 }

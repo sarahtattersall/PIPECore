@@ -65,12 +65,5 @@ public class AdaptedPetriNet {
     @XmlJavaTypeAdapter(ArcAdapter.class)
     public Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
 
-//	public String getId() {
-//		return id;
-//	}
-//
-//	public void setId(String id) {
-//		this.id = id;
-//	}
 
 }

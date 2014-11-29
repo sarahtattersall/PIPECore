@@ -118,5 +118,14 @@ public class PlaceStatusNormal implements PlaceStatus {
 		this.place = place; 
 	}
 
+	@Override
+	public String getMergeXmlType() {
+		return null;
+	}
+
+	@Override
+	public void buildMergeStatus(String type) {
+	}
+
 
 }

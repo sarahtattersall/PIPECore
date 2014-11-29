@@ -69,4 +69,9 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 		return result;
 	}
 
+	@Override
+	public String getXmlType() {
+		return  HOME;
+	}
+
 }

@@ -26,7 +26,9 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
     @Override
     public PlaceStatus unmarshal(AdaptedPlaceStatus adaptedPlaceStatus) {
     	PlaceStatus status = new PlaceStatusInterface(); 
-    	status.setMergeStatus(adaptedPlaceStatus.getMerge()); 
+    	if (adaptedPlaceStatus.getMergeStatus() != null) {
+    		status.buildMergeStatus(adaptedPlaceStatus.getMergeStatus().getType()); 
+    	}
     	status.setExternalStatus(adaptedPlaceStatus.getExternal()); 
     	status.setInputOnlyStatus(adaptedPlaceStatus.getInputOnly());
     	status.setOutputOnlyStatus(adaptedPlaceStatus.getOutputOnly());
@@ -40,7 +42,12 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
     @Override
     public AdaptedPlaceStatus marshal(PlaceStatus placeStatus) {
     	AdaptedPlaceStatus adaptedStatus = new AdaptedPlaceStatus(); 
-    	adaptedStatus.setMerge(placeStatus.isMergeStatus());
+    	String merge = placeStatus.getMergeXmlType();
+    	if (merge != null) {
+    		AdaptedPlaceStatus.MergeStatus mergeStatus = new AdaptedPlaceStatus.MergeStatus(); 
+    		mergeStatus.setType(merge);
+    		adaptedStatus.setMergeStatus(mergeStatus);
+    	}
     	adaptedStatus.setExternal(placeStatus.isExternalStatus()); 
     	adaptedStatus.setInputOnly(placeStatus.isInputOnlyStatus());
     	adaptedStatus.setOutputOnly(placeStatus.isOutputOnlyStatus()); 

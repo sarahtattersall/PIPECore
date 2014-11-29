@@ -94,12 +94,18 @@ public class IncludeHierarchy  {
 	public IncludeHierarchy include(PetriNet petriNet, String name) throws  IncludeException {
 		validateInclude(petriNet, name);
 		IncludeHierarchy childHierarchy = new IncludeHierarchy(petriNet, this, name);
-		addIncludeToIncludeMap(name, childHierarchy); 
-		childHierarchy.buildUniqueName(); 
-		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+		include(childHierarchy); 
+//		addIncludeToIncludeMap(name, childHierarchy); 
+//		childHierarchy.buildUniqueName(); 
+//		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
 		return childHierarchy; 
 	}
-	
+	public void include(IncludeHierarchy childHierarchy) throws IncludeException {
+		addIncludeToIncludeMap(childHierarchy.getName(), childHierarchy); 
+		childHierarchy.buildUniqueName(); 
+		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+	}
+
 	private void buildRootAndLevelRelativeToRoot(IncludeHierarchy parent) {
 		isRoot = (parent == null) ? true : false;
 		if (isRoot) {
@@ -456,6 +462,7 @@ public class IncludeHierarchy  {
 	public void addToInterface(Place place, boolean merge, boolean external, boolean inputOnly,
 			boolean outputOnly) throws IncludeException {
 		verifyPlace(place); 
+		// following only needed if Available
 		place.addToInterface(this);
 		PlaceStatus status = place.getStatus(); 
 		status.setMergeStatus(merge); 

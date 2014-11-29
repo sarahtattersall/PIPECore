@@ -49,5 +49,22 @@ public class ResultTest {
 		assertEquals("retrieves first entry","dummy message for net", result.getEntry().message); 
 		assertEquals("convenience method","dummy message for net", result.getMessage()); 
 	}
-
+	@Test
+	public void accumulatesAllEntriesFromMultipleResult() throws Exception {
+		result = new Result<>();
+		Result<Integer> resultOne = buildResult(1);
+		result.addResult(resultOne); 
+		assertEquals(2, result.getEntries().size()); 
+		Result<Integer> resultTwo = buildResult(3);
+		result.addResult(resultTwo); 
+		assertEquals(4, result.getEntries().size()); 
+		assertEquals("result 1", result.getEntries().get(0).message); 
+		assertEquals("result 4", result.getEntries().get(3).message); 
+	}
+	private Result<Integer> buildResult(int i) {
+		Result<Integer> result = new Result<>();
+		result.addEntry("result "+i, 1); 
+		result.addEntry("result "+(i+1), 1); 
+		return result;
+	}
 }

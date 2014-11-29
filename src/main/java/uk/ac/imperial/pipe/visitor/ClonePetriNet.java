@@ -304,9 +304,6 @@ public final class ClonePetriNet {
         Place newPlace = cloner.cloned;
         if (refreshingExecutablePetriNet) {
         if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
-//        	if ((!(place instanceof InterfacePlace)) && (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway))) {
-
-//        	if (!(place instanceof InterfacePlace)) {
         		prefixIdWithQualifiedName(newPlace); 
         	}
         }
@@ -327,8 +324,6 @@ public final class ClonePetriNet {
         places.put(place.getId(), newPlace);
     }
 	protected void updatePendingPlacesToDelete(Place place, Place newPlace) {
-//		if (place instanceof InterfacePlace) {
-//		if ((place instanceof InterfacePlace) || (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
 		if (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway) {
 			pendingPlacesToDelete.add(newPlace); 
 		}

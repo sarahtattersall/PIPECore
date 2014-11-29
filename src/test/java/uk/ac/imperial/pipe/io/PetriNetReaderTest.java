@@ -89,7 +89,7 @@ public class PetriNetReaderTest {
     }
     @Test
     public void createsPlaceWithInterfaceStatus() throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
-    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithInterfaceStatusPath()));
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath()));
     	
     	assertThat(petriNet.getPlaces()).hasSize(1);
     	assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
@@ -249,21 +249,6 @@ public class PetriNetReaderTest {
     	assertTrue(transition instanceof DiscreteExternalTransition); 
     	assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition); 
     }
-//	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()), petriNet);
-//}
-    
-//PetriNet net = new PetriNet(new NormalPetriNetName("net"));
-//executablePetriNet = net.getExecutablePetriNet();  
-//transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
-//TransitionCloner cloner = new TransitionCloner(); 
-//transition.accept(cloner); 
-//Transition newTransition = cloner.cloned;
-//assertEquals("T1", newTransition.getId()); 
-//assertEquals(transition, newTransition); 
-    
-    
-    
-
 
     @Test
     public void readsTokens() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {

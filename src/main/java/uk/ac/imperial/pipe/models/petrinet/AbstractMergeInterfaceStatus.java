@@ -37,6 +37,10 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 	public String getAwayId() {
 		return awayId;
 	}
+	@Override
+	public  void setAwayId(String awayId) {
+		this.awayId = awayId;
+	}
 
 	@Override
 	public Result<InterfacePlaceAction> add(PetriNet petriNet) {
@@ -58,5 +62,6 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 				status+" status.  Must be issued by MergeInterfaceStatusHome against the home include hierarchy.");
 		return result; 
 	}
+
 
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <pnml>
-   <net>
+   <net id="netb">
       <token id="Red" red="255" green="0" blue="0"/>
       <place id="P0">
          <graphics>
@@ -23,9 +23,7 @@
          </initialMarking>
          <toolspecificplace tool="PIPE" version="5">
             <status>
-	            <merge>
-	            	<value>true</value>
-	         	</merge>
+	            <merge type="home"/>
 	            <external>
 	            	<value>true</value>
 	         	</external>

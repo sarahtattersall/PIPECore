@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<include name="top" netLocation="/xml/place/twoPlacesOneWithAwayInterfaceStatus.xml">
+    <include name="a" netLocation="/xml/place/singlePlaceAvailableInterfaceStatus.xml">
+    	<include name="b" netLocation="/xml/place/singlePlaceHomeInterfaceStatus.xml"/>
+	</include>
+</include>
