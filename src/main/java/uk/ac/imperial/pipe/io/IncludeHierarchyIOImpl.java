@@ -1,7 +1,10 @@
 package uk.ac.imperial.pipe.io;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
 
 import javax.xml.bind.JAXBContext;
@@ -62,32 +65,31 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 		return holder;
 	}
     /**
-     * Writes the IncludeHierarchy to the given stream
+     * Writes the IncludeHierarchyBuilder to the given stream
      *
      * @param stream
+     * @param IncludeHierarchyBuilder
      */
-	//TODO reconcile holder and include, and create writeTo(String path...)
 	@Override
-	public void writeTo(Writer stream,
-			IncludeHierarchyBuilder builder) throws JAXBException {
+	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException {
         Marshaller m = context.createMarshaller();
-//        m.setAdapter(new IncludeHierarchyBuilderAdapter());
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
         m.marshal(builder, stream);
 	}
 
+	/**
+	 * Writes the IncludeHierarchyBuilder to the given path
+	 *
+	 * @param path
+	 * @param IncludeHierarchyBuilder
+	 */
+	@Override
+	public void writeTo(String path, IncludeHierarchyBuilder builder) throws JAXBException, IOException {
+		writeTo(new FileWriter(new File(path)), builder); 
+	}
 
 	public final IncludeHierarchyBuilder getBuilder() {
 		return builder;
 	}
-
-//    @Override
-//    public void writeTo(String path, PetriNet petriNet) throws JAXBException {
-//        Marshaller m = context.createMarshaller();
-//        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-//        PetriNetHolder holder = new PetriNetHolder();
-//        holder.addNet(petriNet);
-//        m.marshal(holder, new File(path));
-//    }
 
 }

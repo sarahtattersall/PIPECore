@@ -368,8 +368,8 @@ public class PetriNetTest {
     }
     @Test
     public void testEqualityEqualPetriNets() {
-        PetriNet net1 = createSimplePetriNet(1);
-        PetriNet net2 = createSimplePetriNet(1);
+        PetriNet net1 = createSimplePetriNet(1, "");
+        PetriNet net2 = createSimplePetriNet(1, "");
         assertTrue(net1.equals(net2));
     }
 
@@ -378,11 +378,12 @@ public class PetriNetTest {
      * Initialises a token in P1 and gives arcs A1 and A2 a weight of tokenWeight to a default token
      *
      * @param tokenWeight
+     * @param name TODO
      * @return
      */
-    public PetriNet createSimplePetriNet(int tokenWeight) {
+    public PetriNet createSimplePetriNet(int tokenWeight, String name) {
         String arcWeight = Integer.toString(tokenWeight);
-        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+        return APetriNet.named(name).and(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
                 AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
@@ -391,23 +392,25 @@ public class PetriNetTest {
 
     @Test
     public void testEqualityNotEqualPetriNets() {
-        PetriNet net1 = createSimplePetriNet(1);
-        PetriNet net2 = createSimplePetriNet(4);
+        PetriNet net1 = createSimplePetriNet(1, "net1");
+        PetriNet net2 = createSimplePetriNet(4, "net1");
         assertFalse(net1.equals(net2));
+        PetriNet net3 = createSimplePetriNet(1, "net3");
+        assertFalse(net1.equals(net3));
     }
 
     @Test
     public void equalsAndHashCodeLawsWhenEqual() {
-        PetriNet net1 = createSimplePetriNet(1);
-        PetriNet net2 = createSimplePetriNet(1);
+        PetriNet net1 = createSimplePetriNet(1, "net1");
+        PetriNet net2 = createSimplePetriNet(1, "net1");
         assertTrue(net1.equals(net2));
         assertEquals(net1.hashCode(), net2.hashCode());
     }
 
     @Test
     public void equalsAndHashCodeLawsWhenNotEqual() {
-        PetriNet net1 = createSimplePetriNet(1);
-        PetriNet net2 = createSimplePetriNet(5);
+        PetriNet net1 = createSimplePetriNet(1, "");
+        PetriNet net2 = createSimplePetriNet(5, "");
         assertFalse(net1.equals(net2));
     }
 

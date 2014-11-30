@@ -167,6 +167,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		transitionContextMap = new HashMap<>(); 
 	}
 
+	public PetriNetRunner(String path) {
+		this(getPetriNet(path)); 
+	}
 	@Override
 	public void setSeed(long seed) {
 		this.random = new Random(seed); 

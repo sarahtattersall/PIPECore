@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.io;
 
 import java.io.FileNotFoundException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,8 +54,14 @@ public class IncludeHierarchyBuilder {
 	protected PetriNet buildPetriNet(String netLocation) throws JAXBException,
 			FileNotFoundException {
 		PetriNetIO petriNetIO = new PetriNetIOImpl(); 
-		//TODO perhaps retry with / without leading slash, i.e., absolute path vs. working directory  
-		PetriNet net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
+		PetriNet net; 
+		URL url = PetriNetIO.class.getResource(netLocation);
+		if (url != null) {
+			net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
+		}
+		else {
+			net = petriNetIO.read(netLocation); 
+		}
 		return net;
 	}
 	public final String getName() {

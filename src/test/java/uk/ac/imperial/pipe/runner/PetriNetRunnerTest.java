@@ -11,10 +11,13 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -23,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
+import javax.xml.bind.JAXBException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -39,7 +44,14 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.io.IncludeHierarchyBuilder;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
+import uk.ac.imperial.pipe.io.PetriNetIO;
+import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.XMLUtils;
+import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
@@ -68,20 +80,14 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	private int events;
 	private StateReport report;
 	private int checkCase;
-
 	private ByteArrayOutputStream out;
-
 	private PrintStream print;
-
 	private BufferedReader reader;
-
 	private File file;
-
 	private int tokenFired;
-
 	private boolean tokenEvent;
-
 	private String targetPlaceId;
+	private String includePath;
 
     @Before
     public void setUp() {
@@ -92,9 +98,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         file = new File("firingReport.csv"); 
         if (file.exists()) file.delete(); 
         tokenEvent = false; 
-        tokenFired = 0; 
+        tokenFired = 0;
     }
-    @Test
+	@Test
     public void simpleNetNotifiesOfStartAndFinishAndEachStateChange() throws InterruptedException {
     	checkCase = 1; 
     	net = buildTestNet();
@@ -214,7 +220,8 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     public void throwsIfNullPetriNetOrPetriNetNotFound() throws Exception {
     	expectedException.expect(IllegalArgumentException.class);
     	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: null");
-    	runner = new PetriNetRunner(null); 
+    	PetriNet net = null; 
+    	runner = new PetriNetRunner(net); 
     	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: nonexistentNet");
     	String[] args = new String[]{"nonexistentNet","","",""}; 
     	PetriNetRunner.main(args);
@@ -298,10 +305,10 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("2,\"top.a.T0\",0,0,0,1", lines.get(3)); 
 	}	
 	@Test
-	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
+	public void roundTripThroughPersistenceForInterfacePlacesAndExternalTransitions() throws Exception {
 		checkCase = 5; 
-		net = buildNetWithInterfacePlacesAndExternalTransition(); 
-		runner = new PetriNetRunner(net); 
+		buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(includePath); 
 		runner.setSeed(456327998101l);
 		runner.addPropertyChangeListener(this); 
 		runner.listenForTokenChanges(this, "a.P1");
@@ -312,6 +319,21 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.run(); 
 		assertEquals("testnet7", test.getUpdatedContext()); 
 	}	
+//	@Test
+//	public void roundTripThroughPersistenceForInterfacePlacesAndExternalTransitions() throws Exception {
+//		checkCase = 5; 
+//		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+//		runner = new PetriNetRunner(net); 
+//		runner.setSeed(456327998101l);
+//		runner.addPropertyChangeListener(this); 
+//		runner.listenForTokenChanges(this, "a.P1");
+//		targetPlaceId = "a.P1"; 
+//		TestingContext test = new TestingContext(7);
+//		runner.setTransitionContext("a.b.T0", test); 
+//		runner.setFiringLimit(10); 
+//		runner.run(); 
+//		assertEquals("testnet7", test.getUpdatedContext()); 
+//	}	
 	@Test
 	public void throwsIfListenRequestReceivedForPlaceNotExternallyAccessible() throws Exception {
 		expectedException.expect(InterfaceException.class); 
@@ -355,6 +377,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
 	@After
 	public void tearDown() {
+        deleteFile("net3.xml");
+        deleteFile("net4.xml");
+        deleteFile("include.xml");
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file
 		if (file.exists()) file.delete(); // comment to view file
 	}
@@ -590,10 +615,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("a.b.P1", it.next());
 		assertEquals("a.b.P2", it.next());
 	}
-
+	
 	private PetriNet buildNetWithInterfacePlacesAndExternalTransition() throws Exception{
 		PetriNet net3 = buildNet3();
-		net3.setName(new NormalPetriNetName("testnet")); 
 		PetriNet net4 = buildNet4();
 		IncludeHierarchy includes = new IncludeHierarchy(net3, "a");
 		IncludeHierarchy includeb = includes.include(net4, "b");  
@@ -607,13 +631,25 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		tokenweights.put("Default", "1"); 
 		OutboundArc arcOut = new OutboundNormalArc(aT0, aIP0, tokenweights);
 		net3.add(arcOut); 
-		
-		
+		writeFiles(net3, net4, includes, includeb); 
+
 		return net3;
+	}
+	protected void writeFiles(PetriNet net3, PetriNet net4,
+			IncludeHierarchy includes, IncludeHierarchy includeb)
+			throws JAXBException, IOException {
+		PetriNetIO netIO = new PetriNetIOImpl(); 
+		netIO.writeTo("net3.xml", net3); 
+		netIO.writeTo("net4.xml", net4);
+		includes.setPetriNetLocation("net3.xml");
+		includeb.setPetriNetLocation("net4.xml");
+		IncludeHierarchyIO includeIO = new IncludeHierarchyIOImpl(); 
+		includePath = "include.xml"; 
+		includeIO.writeTo(includePath, new IncludeHierarchyBuilder(includes));
 	}
 
     private PetriNet buildNet4() {
-    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    	PetriNet net = APetriNet.named("includednet").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
     					and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2")).
     					and(AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).
     					and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
@@ -622,11 +658,15 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	return net; 
     }
     private PetriNet buildNet3() {
-    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    	PetriNet net = APetriNet.named("testnet").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
     			and(APlace.withId("P1").externallyAccessible()).and(AnImmediateTransition.withId("T0")).
     			and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
     			andFinally(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
     	return net; 
     }
+    private void deleteFile(String filename) {
+    	File file = new File(filename);
+    	if (file.exists()) file.delete(); 
+	}
 
 }
