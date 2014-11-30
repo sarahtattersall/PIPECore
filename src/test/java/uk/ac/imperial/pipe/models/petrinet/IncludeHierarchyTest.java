@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -330,6 +331,40 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome); 
     	assertEquals(place, place.getStatus().getMergeInterfaceStatus().getHomePlace()); 
 	}
+    @Test
+    public void placeAddedToInterfaceWithMergeStatusAndExternalIsAccessibleInHomeNetButNotAwayNetUnlessOverridden() throws Exception {
+    	includes.include(net2, "a"); 
+    	IncludeHierarchy include2 = includes.getInclude("a"); 
+    	Place place = net2.getComponent("P0", Place.class); 
+    	include2.addToInterface(place, true, true, false, false); 
+    	Place topPlace = includes.getInterfacePlace("a.P0"); 
+    	includes.addAvailablePlaceToPetriNet(topPlace);
+    	assertFalse(topPlace.getStatus().isExternal()); 
+    	//TODO consider whether change indicator should be part of the API
+    	assertTrue("indicates that status has changed from original home place",
+    			((PlaceStatusInterface) topPlace.getStatus()).hasExternalChanged());   
+    	assertTrue(place.getStatus().isExternal()); 
+    	topPlace.getStatus().setExternal(true); 
+    	assertTrue(topPlace.getStatus().isExternal()); 
+    }
+    @Test
+    public void placeAddedToInterfaceWithMergeStatusHasArcConstraintInAwayNetButNotHomeNet() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("Place has an inputOnly ArcConstraint, and will only accept InboundArcs: a.P0");
+
+    	includes.include(net2, "a"); 
+    	IncludeHierarchy include2 = includes.getInclude("a"); 
+    	Place place = net2.getComponent("P0", Place.class); 
+    	Transition transition = net2.getComponent("T0", Transition.class); 
+    	include2.addToInterface(place, true, false, true, false); 
+    	OutboundArc arc = new OutboundNormalArc(transition, place, new HashMap<String, String>());
+    	assertEquals("P0",arc.getTarget().getId()); 
+    	Place topPlace = includes.getInterfacePlace("a.P0"); 
+    	includes.addAvailablePlaceToPetriNet(topPlace);
+    	assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
+    	@SuppressWarnings("unused")
+		OutboundArc arcFail = new OutboundNormalArc(transition, topPlace, new HashMap<String, String>());
+    }
     @Test
 	public void placeAddedToInterfacePlaceCollection() throws Exception {
     	Place place = net1.getComponent("P0", Place.class); 

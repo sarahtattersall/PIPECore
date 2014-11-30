@@ -272,21 +272,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("4,\"a.T0\",0,4", lines.get(5)); 
 		fileReader.close(); 
 	}
-	@Test
-	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
-		checkCase = 5; 
-		net = buildNetWithInterfacePlacesAndExternalTransition(); 
-		runner = new PetriNetRunner(net); 
-		runner.setSeed(456327998101l);
-		runner.addPropertyChangeListener(this); 
-		runner.listenForTokenChanges(this, "a.P1");
-		targetPlaceId = "a.P1"; 
-		TestingContext test = new TestingContext(7);
-		runner.setTransitionContext("a.b.T0", test); 
-    	runner.setFiringLimit(10); 
-		runner.run(); 
-		assertEquals("testnet7", test.getUpdatedContext()); 
-	}	
 
 
 	@Test
@@ -312,7 +297,62 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		assertEquals("1,\"top.T0\",0,1,1,0", lines.get(2)); 
 		assertEquals("2,\"top.a.T0\",0,0,0,1", lines.get(3)); 
 	}	
-	
+	@Test
+	public void commandLineRunsForInterfacePlacesAndExternalTransition() throws Exception {
+		checkCase = 5; 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.setSeed(456327998101l);
+		runner.addPropertyChangeListener(this); 
+		runner.listenForTokenChanges(this, "a.P1");
+		targetPlaceId = "a.P1"; 
+		TestingContext test = new TestingContext(7);
+		runner.setTransitionContext("a.b.T0", test); 
+    	runner.setFiringLimit(10); 
+		runner.run(); 
+		assertEquals("testnet7", test.getUpdatedContext()); 
+	}	
+	@Test
+	public void throwsIfListenRequestReceivedForPlaceNotExternallyAccessible() throws Exception {
+		expectedException.expect(InterfaceException.class); 
+		expectedException.expectMessage("PetriNetRunner.listenForTokenChanges: requested place is not externally accessible: a.P0"); 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.listenForTokenChanges(this, "a.P0");
+	}
+	@Test
+	public void throwsIfListenRequestReceivedForNonexistentPlace() throws Exception {
+		expectedException.expect(InterfaceException.class); 
+		expectedException.expectMessage("PetriNetRunner.listenForTokenChanges: requested place does not exist in executable Petri net: a.P99"); 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.listenForTokenChanges(this, "a.P99");
+	}
+	@Test
+	public void throwsIfMarkPlaceRequestReceivedForPlaceNotExternallyAccessible() throws Exception {
+		expectedException.expect(InterfaceException.class); 
+		expectedException.expectMessage("PetriNetRunner.markPlace: requested place is not externally accessible: a.P0"); 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.markPlace("a.P0", "Default", 1); 
+	}
+	@Test
+	public void throwsIfMarkPlaceRequestReceivedForNonexistentPlace() throws Exception {
+		expectedException.expect(InterfaceException.class); 
+		expectedException.expectMessage("PetriNetRunner.markPlace: requested place does not exist in executable Petri net: a.P99"); 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.markPlace("a.P99", "Default", 1); 
+	}
+	@Test
+	public void throwsIfMarkPlaceRequestReceivedForNonexistentToken() throws Exception {
+		expectedException.expect(InterfaceException.class); 
+		expectedException.expectMessage("PetriNetRunner.markPlace: requested token does not exist in executable Petri net: FredToken"); 
+		net = buildNetWithInterfacePlacesAndExternalTransition(); 
+		runner = new PetriNetRunner(net); 
+		runner.markPlace("a.P1", "FredToken", 1); 
+	}
+
 	@After
 	public void tearDown() {
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file
@@ -331,7 +371,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	}
 	private PetriNet buildNet(String place) {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-                        and(APlace.withId("P1")).and(APlace.withId("P2")).and(AnImmediateTransition.withId("T0")).and(
+                        and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(
                         ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
                         ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
@@ -341,7 +381,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	}
 	private PetriNet buildHaltingNet() {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-				and(APlace.withId("P1")).and(APlace.withId("P2")).and(AnImmediateTransition.withId("T0")).and(
+				and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
 				AnImmediateTransition.withId("T1")).and(
 				ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
 				ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
@@ -457,7 +497,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			Entry<String, Integer> entry = token.entrySet().iterator().next(); 
 			if (tokenFired == 0) { 
 				checkToken("Default", entry.getKey(), 1, entry.getValue()); 
-				runner.markPlace("P2","Default",1); 
+				try {
+					runner.markPlace("P2","Default",1);
+				} catch (InterfaceException e) {
+					e.printStackTrace();
+				} 
 			}
 			if (tokenFired == 1) { checkToken("Default", entry.getKey(), 0, entry.getValue()); }
 			tokenFired++;
@@ -488,7 +532,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			Entry<String, Integer> entry = token.entrySet().iterator().next(); 
 			if (tokenFired == 0) { 
 				checkToken("Default", entry.getKey(), 1, entry.getValue()); 
-				runner.markPlace("a.b.P1","Default",1); 
+				try {
+					runner.markPlace("a.b.P1","Default",1);
+				} catch (InterfaceException e) {
+					e.printStackTrace();
+				} 
 			}
 			if (tokenFired == 1) { checkToken("Default", entry.getKey(), 0, entry.getValue()); }
 			tokenFired++;
@@ -566,7 +614,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
     private PetriNet buildNet4() {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-    					and(APlace.withId("P1")).and(APlace.withId("P2")).
+    					and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2")).
     					and(AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).
     					and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
     					and(ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token()).
@@ -575,7 +623,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     }
     private PetriNet buildNet3() {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-    			and(APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).
+    			and(APlace.withId("P1").externallyAccessible()).and(AnImmediateTransition.withId("T0")).
     			and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
     			andFinally(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
     	return net; 

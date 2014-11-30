@@ -1,7 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<InterfacePlaceAction>  
-  	implements InterfaceStatus, MergeInterfaceStatus {
+  	implements InterfaceStatus, MergeInterfaceStatus{
+
+	private ArcConstraint arcConstraint = new NoArcConstraint();
 
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
@@ -49,6 +51,26 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	}
 
 	public final void setAwayId(String awayId) {
+	}
+
+//	@Override
+//	public boolean acceptInboundArc() {
+//		return true;
+//	}
+//
+//	@Override
+//	public boolean acceptOutboundArc() {
+//		return true;
+//	}
+
+	@Override
+	public void setArcConstraint(ArcConstraint arcConstraint) {
+		this.arcConstraint = arcConstraint; 
+	}
+
+	@Override
+	public ArcConstraint getArcConstraint() {
+		return arcConstraint;
 	}
 
 

@@ -29,9 +29,9 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
     	if (adaptedPlaceStatus.getMergeStatus() != null) {
     		status.buildMergeStatus(adaptedPlaceStatus.getMergeStatus().getType()); 
     	}
-    	status.setExternalStatus(adaptedPlaceStatus.getExternal()); 
-    	status.setInputOnlyStatus(adaptedPlaceStatus.getInputOnly());
-    	status.setOutputOnlyStatus(adaptedPlaceStatus.getOutputOnly());
+    	status.setExternal(adaptedPlaceStatus.getExternal()); 
+    	status.setInputOnlyArcConstraint(adaptedPlaceStatus.getInputOnly());
+    	status.setOutputOnlyArcConstraint(adaptedPlaceStatus.getOutputOnly());
     	return status;
     }
     /**
@@ -48,9 +48,9 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
     		mergeStatus.setType(merge);
     		adaptedStatus.setMergeStatus(mergeStatus);
     	}
-    	adaptedStatus.setExternal(placeStatus.isExternalStatus()); 
-    	adaptedStatus.setInputOnly(placeStatus.isInputOnlyStatus());
-    	adaptedStatus.setOutputOnly(placeStatus.isOutputOnlyStatus()); 
+    	adaptedStatus.setExternal(placeStatus.isExternal()); 
+    	adaptedStatus.setInputOnly(placeStatus.isInputOnlyArcConstraint());
+    	adaptedStatus.setOutputOnly(placeStatus.isOutputOnlyArcConstraint()); 
         return adaptedStatus;
     }
 }

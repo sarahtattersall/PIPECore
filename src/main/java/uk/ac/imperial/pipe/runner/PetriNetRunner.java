@@ -38,6 +38,7 @@ import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.state.State;
@@ -45,10 +46,13 @@ import uk.ac.imperial.state.State;
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
 
+	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
 	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
 	public static final String EXECUTION_STARTED = "execution started";
 	public static final String UPDATED_STATE = "state updated";
 	public static final String EXECUTION_COMPLETED = "execution complete";
+	private static final String MARK_PLACE = "markPlace";
+	private static final String LISTEN_FOR_TOKEN_CHANGES = "listenForTokenChanges";
 	private static PrintStream PRINTSTREAM;
 	private static Map<String, PetriNet> TEST_NETS;
 	private Random random;
@@ -184,16 +188,40 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		end(); 
 	}
 	@Override
-	public void markPlace(String placeId, String token, int count) { 
+	public void markPlace(String placeId, String token, int count) throws InterfaceException { 
+		validateToken(token); 
+		validatePlace(placeId, MARK_PLACE); 
 		pendingPlaceMarkings.add(new TokenCount(placeId, token, count)); 
 	}
+	private void validateToken(String requestedToken) throws InterfaceException {
+		boolean found = false; 
+		for (Token token : executablePetriNet.getTokens()) {
+			if (token.getId().equalsIgnoreCase(requestedToken)) {
+				found = true; 
+			}
+		}
+		if (!found) {
+			throw new InterfaceException(PETRI_NET_RUNNER+MARK_PLACE+": requested token does not exist in executable Petri net: "+requestedToken); 
+		}
+	}
 	@Override
-	public void listenForTokenChanges(PropertyChangeListener listener, String placeId) {
+	public void listenForTokenChanges(PropertyChangeListener listener, String placeId) throws InterfaceException {
+		validatePlace(placeId, LISTEN_FOR_TOKEN_CHANGES); 
 		if (!(listenerMap.containsKey(placeId))) {
 			listenerMap.put(placeId, new ArrayList<PropertyChangeListener>()); 
 		}
 		listenerMap.get(placeId).add(listener); 
 		rebuildListeners();			
+	}
+	private void validatePlace(String placeId, String location) throws InterfaceException {
+		try {
+			Place place = executablePetriNet.getComponent(placeId, Place.class);
+			if (!place.getStatus().isExternal()) {
+				throw new InterfaceException(PETRI_NET_RUNNER+location+": requested place is not externally accessible: "+placeId); 
+			}
+		} catch (PetriNetComponentNotFoundException e) {
+			throw new InterfaceException(PETRI_NET_RUNNER+location+": requested place does not exist in executable Petri net: "+placeId); 
+		} 
 	}
 	@Override
 	public void setTransitionContext(String transitionId, Object object) {
@@ -231,7 +259,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 					place.addPropertyChangeListener(propertyChangeListener); 
 				}
 			} catch (PetriNetComponentNotFoundException e) {
-				//TODO test for non-presence
+				e.printStackTrace(); // logic error, since we should guard against this at listen request
 			} 
 			
 		}
@@ -246,7 +274,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 				Place place = executablePetriNet.getComponent(tokenCount.placeId, Place.class);
 				place.setTokenCount(tokenCount.token, tokenCount.count);
 			} catch (PetriNetComponentNotFoundException e) {
-				//TODO test this, but at time of marking request
+				e.printStackTrace();  // logic error, since we should guard against this at marking request
 			}
 			iterator.remove(); 
 		}

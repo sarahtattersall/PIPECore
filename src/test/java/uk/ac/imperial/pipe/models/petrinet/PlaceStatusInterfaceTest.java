@@ -1,19 +1,25 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
+import java.util.HashMap;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
-import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 
+//TODO test changes to status for existing nets and components
+// ....e.g., change to inputOnly for a place that already has outbound arcs
 public class PlaceStatusInterfaceTest {
 
 	private Place place;
@@ -21,6 +27,11 @@ public class PlaceStatusInterfaceTest {
 	private PetriNet net;
 	private IncludeHierarchy includes;
 	private Result<InterfacePlaceAction> result;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+	
 	@Before
 	public void setUp() throws Exception {
 		place = new DiscretePlace("P0"); 
@@ -31,9 +42,7 @@ public class PlaceStatusInterfaceTest {
 	@Test
 	public void defaultsToNoOpInterfaceStatusForMergeAndExternalAndInputAndOutput() throws Exception {
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
-		assertTrue(status.getExternalInterfaceStatus() instanceof NoOpInterfaceStatus);
-		assertTrue(status.getInputOnlyInterfaceStatus() instanceof NoOpInterfaceStatus);
-		assertTrue(status.getOutputOnlyInterfaceStatus() instanceof NoOpInterfaceStatus);
+		assertTrue(status.getArcConstraint() instanceof NoArcConstraint);
 	}
 	@Test
 	public void NoOpStatusReturnsEmptyResult() throws Exception {
@@ -53,72 +62,106 @@ public class PlaceStatusInterfaceTest {
 	}
 	@Test
 	public void externalStatus() throws Exception {
-		status.setExternalStatus(true); 
+		status.setExternal(true); 
 		assertFalse(status.update().hasResult()); 
-		assertTrue(status.getExternalInterfaceStatus() instanceof ExternalInterfaceStatus); 
-		status.setExternalStatus(false); 
+		assertTrue(status.isExternal()); 
+		status.setExternal(false); 
 		assertFalse(status.update().hasResult()); 
-		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
+		assertFalse(status.isExternal()); 
 	}
 	@Test
 	public void inputOnlyStatus() throws Exception {
-		status.setInputOnlyStatus(true); 
+		status.setInputOnlyArcConstraint(true); 
 		assertFalse(status.update().hasResult()); 
-		assertTrue(status.getInputOnlyInterfaceStatus() instanceof InputOnlyInterfaceStatus); 
-		status.setExternalStatus(false); 
+		assertTrue(status.getArcConstraint() instanceof InputOnlyArcConstraint); 
+		status.setExternal(false); 
 		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
+		assertTrue(status.getArcConstraint().acceptInboundArc()); 
+		assertFalse(status.getArcConstraint().acceptOutboundArc()); 
 	}
 	@Test
 	public void outputOnlyStatus() throws Exception {
-		status.setOutputOnlyStatus(true); 
+		status.setOutputOnlyArcConstraint(true); 
 		assertFalse(status.update().hasResult()); 
-		assertTrue(status.getOutputOnlyInterfaceStatus() instanceof OutputOnlyInterfaceStatus); 
-		status.setExternalStatus(false); 
+		assertTrue(status.getArcConstraint() instanceof OutputOnlyArcConstraint); 
+		status.setExternal(false); 
 		assertFalse(status.update().hasResult()); 
 		assertTrue(status.getMergeInterfaceStatus() instanceof NoOpInterfaceStatus);
+		assertFalse(status.getArcConstraint().acceptInboundArc()); 
+		assertTrue(status.getArcConstraint().acceptOutboundArc()); 
 	}
 	@Test
 	public void inputAndOutputCantCoexist() throws Exception {
-		status.setInputOnlyStatus(true); 
+		status.setInputOnlyArcConstraint(true); 
 		result = status.update(); 
 		assertFalse(result.hasResult());
-		status.setOutputOnlyStatus(true); 
+		status.setOutputOnlyArcConstraint(true); 
 		result = status.update(); 
 		assertTrue(result.hasResult());
-		assertEquals("PlaceStatus.setOutputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
+		assertEquals("PlaceStatus.setOutputOnlyArcConstraint: arc constraint may not be both input only and output only.", result.getMessage()); 
 		
-		assertTrue(status.isInputOnlyStatus()); 
-		assertFalse(status.isOutputOnlyStatus()); 
-		status.setInputOnlyStatus(false); 
+		assertTrue(status.isInputOnlyArcConstraint()); 
+		assertFalse(status.isOutputOnlyArcConstraint()); 
+		status.setInputOnlyArcConstraint(false); 
 		result = status.update(); 
 		assertFalse(result.hasResult());
-		status.setOutputOnlyStatus(true); 
+		status.setOutputOnlyArcConstraint(true); 
 		result = status.update(); 
 		assertFalse(result.hasResult());
-		status.setInputOnlyStatus(true); 
+		status.setInputOnlyArcConstraint(true); 
 		result = status.update(); 
 		assertTrue(result.hasResult());
-		assertEquals("PlaceStatus.setInputOnlyStatus: status may not be both input only and output only.", result.getMessage()); 
+		assertEquals("PlaceStatus.setInputOnlyArcConstraint: arc constraint may not be both input only and output only.", result.getMessage()); 
 	}
 	@Test
 	public void copyConstructorForPlaceStatus() throws Exception {
 		status.setMergeStatus(true); 
-		status.setExternalStatus(true); 
-		status.setInputOnlyStatus(true); 
+		status.setExternal(true); 
+		status.setInputOnlyArcConstraint(true); 
 		PlaceStatus newstatus = new PlaceStatusInterface(status, place);  
 		assertTrue(newstatus.isMergeStatus());
-		assertTrue(newstatus.isExternalStatus());
-		assertTrue(newstatus.isInputOnlyStatus());
-		assertFalse(newstatus.isOutputOnlyStatus());
+		assertTrue(newstatus.isExternal());
+		assertTrue(newstatus.isInputOnlyArcConstraint());
+		assertFalse(newstatus.isOutputOnlyArcConstraint());
 		//TODO incorporate adjusting the include hierarchy into ClonePetriNet?  see MergeInterfaceStatusHome
 		assertEquals("but this is probably not right -- usually we're copying to another include",
 				status.getIncludeHierarchy(), newstatus.getIncludeHierarchy()); 
 	}
+	
+	@Test
+	public void inputOnlyAcceptsOnlyInboundArcsAndThrowsForOutboundArcs() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("Place has an inputOnly ArcConstraint, and will only accept InboundArcs: P0");
+		status.setInputOnlyArcConstraint(true); 
+		status.update(); 
+		Place place = net.getComponent("P0", Place.class); 
+		place.setStatus(status); 
+		Transition transition = net.getComponent("T0", Transition.class);
+		InboundArc inbound = new InboundNormalArc(place, transition, new HashMap<String, String>());
+		assertEquals("P0", inbound.getSource().getId()); 
+
+		@SuppressWarnings("unused")
+		OutboundArc outbound = new OutboundNormalArc(transition, place, new HashMap<String, String>());
+	}
+	@Test
+	public void outputOnlyAcceptsOnlyOutboundArcsAndThrowsForInboundArcs() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("Place has an outputOnly ArcConstraint, and will only accept OutboundArcs: P0");
+		status.setOutputOnlyArcConstraint(true); 
+		status.update(); 
+		Place place = net.getComponent("P0", Place.class); 
+		place.setStatus(status); 
+		Transition transition = net.getComponent("T0", Transition.class);
+		OutboundArc outbound = new OutboundNormalArc(transition, place, new HashMap<String, String>());
+		assertEquals("P0", outbound.getTarget().getId()); 
+		
+		@SuppressWarnings("unused")
+		InboundArc inbound = new InboundNormalArc(place, transition, new HashMap<String, String>());
+	}
 	protected void buildNet() throws PetriNetComponentNotFoundException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-    			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(
-    			ANormalArc.withSource("P0").andTarget("T0"));
+    			APlace.withId("P1")).andFinally(AnImmediateTransition.withId("T0"));
 	}
 
 	//TODO PlaceStatusNormalTest

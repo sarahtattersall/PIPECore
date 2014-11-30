@@ -5,10 +5,12 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 	protected Place homePlace;
 	protected PlaceStatus placeStatus;
 	protected String awayId;
+	private ArcConstraint arcConstraint;
 
 	public AbstractMergeInterfaceStatus(Place homePlace, PlaceStatus placeStatus) {
 		this.homePlace = homePlace; 
 		this.placeStatus = placeStatus; 
+		this.arcConstraint = new NoArcConstraint();
 	}
 
 	public AbstractMergeInterfaceStatus(Place homePlace,
@@ -61,6 +63,16 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 		result.addMessage("MergeInterfaceStatus"+status+"."+method+": not supported for "+
 				status+" status.  Must be issued by MergeInterfaceStatusHome against the home include hierarchy.");
 		return result; 
+	}
+
+	@Override
+	public void setArcConstraint(ArcConstraint arcConstraint) {
+		this.arcConstraint = arcConstraint; 
+	}
+
+	@Override
+	public ArcConstraint getArcConstraint() {
+		return arcConstraint;
 	}
 
 

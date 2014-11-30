@@ -74,4 +74,13 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 		return  HOME;
 	}
 
+	@Override
+	public void setArcConstraint(ArcConstraint arcConstraint) {
+	}
+
+	@Override
+	public ArcConstraint getArcConstraint() {
+		return new NoArcConstraint();
+	}
+
 }

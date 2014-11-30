@@ -466,9 +466,9 @@ public class IncludeHierarchy  {
 		place.addToInterface(this);
 		PlaceStatus status = place.getStatus(); 
 		status.setMergeStatus(merge); 
-		status.setExternalStatus(external);
-		status.setInputOnlyStatus(inputOnly);
-		status.setOutputOnlyStatus(outputOnly); 
+		status.setExternal(external);
+		status.setInputOnlyArcConstraint(inputOnly);
+		status.setOutputOnlyArcConstraint(outputOnly); 
 		Result<InterfacePlaceAction> result = status.update(); 
 		if (result.hasResult()) {  //TODO test 
 			StringBuffer sb = new StringBuffer(); 

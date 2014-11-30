@@ -39,6 +39,7 @@ public class ArcTest {
         when(mockTarget.getId()).thenReturn("target");
         when(mockSource.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0,0));
         when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0,0));
+        when(mockSource.getStatus()).thenReturn(new PlaceStatusNormal(mockSource)); 
     }
 
     @Test

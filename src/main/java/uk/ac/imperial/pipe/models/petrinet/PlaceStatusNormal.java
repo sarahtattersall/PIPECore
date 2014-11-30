@@ -4,16 +4,12 @@ public class PlaceStatusNormal implements PlaceStatus {
 
 	private Place place;
 	private MergeInterfaceStatus mergeInterfaceStatus;
-	private InterfaceStatus externalInterfaceStatus;
-	private InterfaceStatus inputOnlyInterfaceStatus;
-	private InterfaceStatus outputOnlyInterfaceStatus;
+	private ArcConstraint arcConstraint;
 
 	public PlaceStatusNormal(Place place) {
 		this.place = place;
 		this.mergeInterfaceStatus = new NoOpInterfaceStatus(); 
-		this.externalInterfaceStatus = new NoOpInterfaceStatus(); 
-		this.inputOnlyInterfaceStatus = new NoOpInterfaceStatus(); 
-		this.outputOnlyInterfaceStatus = new NoOpInterfaceStatus(); 
+		this.arcConstraint = new NoArcConstraint(); 
 	}
 
 	@Override
@@ -26,21 +22,6 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return mergeInterfaceStatus; 
 	}
 
-	@Override
-	public InterfaceStatus getExternalInterfaceStatus() {
-		return externalInterfaceStatus;
-	}
-
-	@Override
-	public InterfaceStatus getInputOnlyInterfaceStatus() {
-		return inputOnlyInterfaceStatus;
-	}
-
-	@Override
-	public InterfaceStatus getOutputOnlyInterfaceStatus() {
-		return outputOnlyInterfaceStatus;
-	}
-
 	public IncludeHierarchy getIncludeHierarchy() {
 		return null;
 	}
@@ -49,17 +30,17 @@ public class PlaceStatusNormal implements PlaceStatus {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setMergeStatus")); 
 	}
 	@Override
-	public void setExternalStatus(boolean external) {
+	public void setExternal(boolean external) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setExternalStatus")); 
 	}
 
 	@Override
-	public void setInputOnlyStatus(boolean inputOnly) {
+	public void setInputOnlyArcConstraint(boolean inputOnly) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setInputOnlyStatus")); 
 	}
 
 	@Override
-	public void setOutputOnlyStatus(boolean outputOnly) {
+	public void setOutputOnlyArcConstraint(boolean outputOnly) {
 		throw new UnsupportedOperationException(buildUnsupportedMessage("setOutputOnlyStatus")); 
 	}
 	private String buildUnsupportedMessage(String method) {
@@ -68,15 +49,15 @@ public class PlaceStatusNormal implements PlaceStatus {
 				" until Place.addToInterface(IncludeHierarchy) has been requested";
 	}
 
-	public boolean isOutputOnlyStatus() {
+	public boolean isOutputOnlyArcConstraint() {
 		return false;
 	}
 
-	public boolean isInputOnlyStatus() {
+	public boolean isInputOnlyArcConstraint() {
 		return false;
 	}
 
-	public boolean isExternalStatus() {
+	public boolean isExternal() {
 		return false;
 	}
 
@@ -97,18 +78,6 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return null;
 	}
 
-	public void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus) {
-		this.externalInterfaceStatus = externalInterfaceStatus; 
-	}
-
-	public void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus) {
-		this.inputOnlyInterfaceStatus = inputOnlyInterfaceStatus; 
-	}
-
-	public void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus) {
-		this.outputOnlyInterfaceStatus = outputOnlyInterfaceStatus; 
-	}
-
 	@Override
 	public void setIncludeHierarchy(IncludeHierarchy includeHierarchy) {
 	}
@@ -125,6 +94,14 @@ public class PlaceStatusNormal implements PlaceStatus {
 
 	@Override
 	public void buildMergeStatus(String type) {
+	}
+
+	public void setArcConstraint(ArcConstraint arcConstraint) {
+		this.arcConstraint = arcConstraint;
+	}
+
+	public ArcConstraint getArcConstraint() {
+		return arcConstraint;
 	}
 
 

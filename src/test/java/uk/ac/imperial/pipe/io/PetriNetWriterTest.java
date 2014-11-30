@@ -76,8 +76,8 @@ public class PetriNetWriterTest extends XMLTestCase {
     	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
     	status.setMergeStatus(true);
     	status.setMergeInterfaceStatus(new MergeInterfaceStatusHome(place, status)); 
-    	status.setExternalStatus(true); 
-    	status.setInputOnlyStatus(true); 
+    	status.setExternal(true); 
+    	status.setInputOnlyArcConstraint(true); 
     	place.setStatus(status); 
     	
     	
@@ -106,8 +106,8 @@ public class PetriNetWriterTest extends XMLTestCase {
     	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
     	status.setMergeStatus(true);
     	status.setMergeInterfaceStatus(new MergeInterfaceStatusAway(place, status, "b.P0")); 
-    	status.setExternalStatus(true); 
-    	status.setInputOnlyStatus(true); 
+    	status.setExternal(true); 
+    	status.setInputOnlyArcConstraint(true); 
     	placebP0.setStatus(status); 
     	
     	
@@ -137,8 +137,8 @@ public class PetriNetWriterTest extends XMLTestCase {
     	status.setIncludeHierarchy(new IncludeHierarchy(petriNet, "a")); 
     	status.setMergeStatus(true);
     	status.setMergeInterfaceStatus(new MergeInterfaceStatusAvailable(place, status, "b.P0")); 
-    	status.setExternalStatus(true); 
-    	status.setInputOnlyStatus(true); 
+    	status.setExternal(true); 
+    	status.setInputOnlyArcConstraint(true); 
     	placebP0.setStatus(status); 
     	
     	

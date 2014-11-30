@@ -9,13 +9,17 @@ public interface MergeInterfaceStatus extends InterfaceStatus {
 	public void setHomePlace(Place homePlace);
 
 	public String getAwayId();
+	public void setAwayId(String awayId);
+
+	public void setArcConstraint(ArcConstraint arcConstraint);
+	public ArcConstraint getArcConstraint();
 
 	public Result<InterfacePlaceAction> add(PetriNet petriNet);
 
 	public boolean canRemove();
 
 	public String getXmlType();
-	public void setAwayId(String awayId);
+	
 
 
 }

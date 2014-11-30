@@ -51,7 +51,7 @@ public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<
 		}
 		return awayPlace;
 	}
-
+	//TODO refactor, using the PlaceStatusInterface(PlaceStatus) constructor.  see also Merge...Available.add(PN).  
 	protected Place buildPlaceWithAvailableStatus(IncludeHierarchy includeHierarchy) {
 		Place newPlace;
 		PlaceCloner cloner = new PlaceCloner();
@@ -65,6 +65,16 @@ public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<
 		MergeInterfaceStatus mergeStatus = 
 				new MergeInterfaceStatusAvailable(homePlace, newPlace.getStatus(),  newPlace.getStatus().getMergeInterfaceStatus().getAwayId());  
 		newPlace.getStatus().setMergeInterfaceStatus(mergeStatus); 
+		newPlace.getStatus().setExternal(false); 
+		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
+			newPlace.getStatus().setInputOnlyArcConstraint(true); 
+			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
+		}
+		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
+			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
+			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
+		}
+		
 		newPlace.setId(mergeStatus.getAwayId()); 
 		listenForTokenCountChanges(newPlace);
 		return newPlace;

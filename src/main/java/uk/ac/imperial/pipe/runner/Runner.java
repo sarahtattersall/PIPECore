@@ -12,9 +12,9 @@ public interface Runner {
 	
 	public void addPropertyChangeListener(PropertyChangeListener listener);
 
-	public void listenForTokenChanges(PropertyChangeListener listener, String placeId);
+	public void listenForTokenChanges(PropertyChangeListener listener, String placeId) throws InterfaceException;
 
-	public void markPlace(String placeId, String token, int count);
+	public void markPlace(String placeId, String token, int count) throws InterfaceException;
 
 	public void setTransitionContext(String transitionId, Object object);
 

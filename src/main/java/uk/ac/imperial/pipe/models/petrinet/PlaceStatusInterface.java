@@ -2,41 +2,38 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 public class PlaceStatusInterface implements PlaceStatus {
 
-	private static final String STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY = "status may not be both input only and output only.";
-	private static final String SET_INPUT_ONLY_STATUS = "setInputOnlyStatus: ";
-	private static final String SET_OUTPUT_ONLY_STATUS = "setOutputOnlyStatus: ";
+	private static final String ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY = "arc constraint may not be both input only and output only.";
+	private static final String SET_INPUT_ONLY_ARC_CONSTRAINT = "setInputOnlyArcConstraint: ";
+	private static final String SET_OUTPUT_ONLY_CONSTRAINT = "setOutputOnlyArcConstraint: ";
 	private static final String PLACE_STATUS = "PlaceStatus.";
 	private Place place;
 	private boolean merge;
 	private boolean external;
 	private boolean inputOnly;
 	private boolean outputOnly;
-	private MergeInterfaceStatus mergeStatus;
-	private InterfaceStatus externalStatus;
-	private InterfaceStatus inputOnlyStatus;
-	private InterfaceStatus outputOnlyStatus;
+	private MergeInterfaceStatus mergeStatus = new NoOpInterfaceStatus();
+//	private MergeInterfaceStatus mergeStatus; 
 	private IncludeHierarchy includeHierarchy;
 	private boolean mergeChanged;
-	private boolean externalChanged;
 	private boolean inputOnlyChanged;
 	private boolean outputOnlyChanged;
 	private Result<InterfacePlaceAction> result;
+	private ArcConstraint arcConstraint;
+	private boolean externalChanged;
 
 	public PlaceStatusInterface(Place place) {
 		this(place, null); //TODO delete 
 	}
-
+	//TODO constructor should be aware of the source and destination merge status, and set fields accordingly.  
 	public PlaceStatusInterface(PlaceStatus placeStatus, Place place) {
 		this.place = place; 
 		this.includeHierarchy = placeStatus.getIncludeHierarchy(); 
 		setMergeStatus(placeStatus.isMergeStatus());
-		setExternalStatus(placeStatus.isExternalStatus());
-		setInputOnlyStatus(placeStatus.isInputOnlyStatus());
-		setOutputOnlyStatus(placeStatus.isOutputOnlyStatus());
+		setExternal(placeStatus.isExternal());
+		setInputOnlyArcConstraint(placeStatus.isInputOnlyArcConstraint());
+		setOutputOnlyArcConstraint(placeStatus.isOutputOnlyArcConstraint());
 		setMergeInterfaceStatus(placeStatus.getMergeInterfaceStatus()); 
-		setExternalInterfaceStatus(placeStatus.getExternalInterfaceStatus()); 
-		setInputOnlyInterfaceStatus(placeStatus.getInputOnlyInterfaceStatus()); 
-		setOutputOnlyInterfaceStatus(placeStatus.getOutputOnlyInterfaceStatus()); 
+		setArcConstraint(placeStatus.getArcConstraint()); 
 		resetUpdate(); 
 	}
 
@@ -44,9 +41,9 @@ public class PlaceStatusInterface implements PlaceStatus {
 		this.place = place; 
 		this.includeHierarchy = includeHierarchy; 
 		setMergeStatus(false); 
-		setExternalStatus(false); 
-		setInputOnlyStatus(false); 
-		setOutputOnlyStatus(false); 
+		setExternal(false); 
+		setInputOnlyArcConstraint(false); 
+		setOutputOnlyArcConstraint(false); 
 		update(); 
 	}
 	/**
@@ -57,9 +54,9 @@ public class PlaceStatusInterface implements PlaceStatus {
 
 	private void resetUpdate() {
 		mergeChanged = false; 
-		externalChanged = false; 
 		inputOnlyChanged = false; 
 		outputOnlyChanged = false; 
+		externalChanged = false; 
 		result = new Result<>(); 
 	}
 
@@ -74,26 +71,10 @@ public class PlaceStatusInterface implements PlaceStatus {
 	}
 
 	@Override
-	public InterfaceStatus getExternalInterfaceStatus() {
-		return externalStatus;
-	}
-
-	@Override
-	public InterfaceStatus getInputOnlyInterfaceStatus() {
-		return inputOnlyStatus;
-	}
-
-	@Override
-	public InterfaceStatus getOutputOnlyInterfaceStatus() {
-		return outputOnlyStatus;
-	}
-
-	@Override
 	public Result<InterfacePlaceAction> update() {
 		if (mergeChanged) buildMergeStatus(); 
-		if (externalChanged) buildExternalStatus(); 
-		if (inputOnlyChanged) buildInputOnlyStatus(); 
-		if (outputOnlyChanged) buildOutputOnlyStatus(); 
+		if (inputOnlyChanged) buildInputOnlyArcConstraint(); 
+		if (outputOnlyChanged) buildOutputOnlyArcConstraint(); 
 		Result<InterfacePlaceAction> tempResult = result; 
 		resetUpdate(); 
 		return tempResult;
@@ -101,23 +82,31 @@ public class PlaceStatusInterface implements PlaceStatus {
 
 	@Override
 	public void setMergeStatus(boolean merge) {
-		this.merge = merge; 
-		this.mergeChanged = true; 
+		if (merge != this.merge) {
+			this.merge = merge; 
+			this.mergeChanged = true; 
+		}
 	}
 	@Override
-	public void setExternalStatus(boolean external) {
-		this.external = external;
-		this.externalChanged = true; 
+	public void setExternal(boolean external) {
+		if (external != this.external) {
+			this.external = external;
+			this.externalChanged = true;
+		}
 	}
 	@Override
-	public void setInputOnlyStatus(boolean inputOnly) {
-		this.inputOnly = inputOnly;
-		this.inputOnlyChanged = true; 
+	public void setInputOnlyArcConstraint(boolean inputOnly) {
+		if (inputOnly != this.inputOnly) {
+			this.inputOnly = inputOnly;
+			this.inputOnlyChanged = true; 
+		}
 	}
 	@Override
-	public void setOutputOnlyStatus(boolean outputOnly) {
-		this.outputOnly = outputOnly; 
-		this.outputOnlyChanged = true; 
+	public void setOutputOnlyArcConstraint(boolean outputOnly) {
+		if (outputOnly != this.outputOnly) {
+			this.outputOnly = outputOnly; 
+			this.outputOnlyChanged = true; 
+		}
 	}
 
 	protected Result<InterfacePlaceAction> buildMergeStatus() {
@@ -142,47 +131,38 @@ public class PlaceStatusInterface implements PlaceStatus {
 		}
 	}
 
-
-	protected Result<InterfacePlaceAction> buildExternalStatus() {
-		if (external) {
-			externalStatus = new ExternalInterfaceStatus(); 
-		}
-		else {
-			externalStatus = new NoOpInterfaceStatus(); 
-		}
-		return result;
-	}
-
-
-	protected Result<InterfacePlaceAction> buildInputOnlyStatus() {
+	protected Result<InterfacePlaceAction> buildInputOnlyArcConstraint() {
 		if (inputOnly) {
 			if (outputOnly) {
-				result.addMessage(PLACE_STATUS+SET_INPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+				result.addMessage(PLACE_STATUS+SET_INPUT_ONLY_ARC_CONSTRAINT+ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
 				this.inputOnly = false; 
 			}
 			else {
-				inputOnlyStatus = new InputOnlyInterfaceStatus(); 
+//				arcConstraint = new InputOnlyArcConstraint(); 
+				mergeStatus.setArcConstraint(new InputOnlyArcConstraint()); 
 			}
 		}
 		else {
-			inputOnlyStatus = new NoOpInterfaceStatus();
+			mergeStatus.setArcConstraint(new NoArcConstraint()); 
+//			arcConstraint = new NoOpInterfaceStatus(); 
 		}
 		return result;
 	}
 
-
-	protected Result<InterfacePlaceAction> buildOutputOnlyStatus() {
+	protected Result<InterfacePlaceAction> buildOutputOnlyArcConstraint() {
 		if (outputOnly) {
 			if (inputOnly) {
-				result.addMessage(PLACE_STATUS+SET_OUTPUT_ONLY_STATUS+STATUS_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
+				result.addMessage(PLACE_STATUS+SET_OUTPUT_ONLY_CONSTRAINT+ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
 				this.outputOnly = false; 
 			} 
 			else {
-				outputOnlyStatus = new OutputOnlyInterfaceStatus();
+				mergeStatus.setArcConstraint(new OutputOnlyArcConstraint()); 
+//				arcConstraint = new OutputOnlyArcConstraint(); 
 			}
 		}
 		else {
-			outputOnlyStatus = new NoOpInterfaceStatus();
+			mergeStatus.setArcConstraint(new NoArcConstraint()); 
+//			arcConstraint = new NoArcConstraint(); 
 		}
 		return result;
 	}
@@ -193,17 +173,17 @@ public class PlaceStatusInterface implements PlaceStatus {
 	}
 
 	@Override
-	public boolean isExternalStatus() {
+	public boolean isExternal() {
 		return external;
 	}
 
 	@Override
-	public boolean isInputOnlyStatus() {
+	public boolean isInputOnlyArcConstraint() {
 		return inputOnly;
 	}
 
 	@Override
-	public boolean isOutputOnlyStatus() {
+	public boolean isOutputOnlyArcConstraint() {
 		return outputOnly;
 	}
 
@@ -216,20 +196,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 	public void setMergeInterfaceStatus(MergeInterfaceStatus interfaceStatus) {
 		this.mergeStatus = interfaceStatus; 
 	}
-	@Override
-	public void setOutputOnlyInterfaceStatus(InterfaceStatus outputOnlyInterfaceStatus) {
-		this.outputOnlyStatus = outputOnlyInterfaceStatus; 
-	}
 
-	@Override
-	public void setInputOnlyInterfaceStatus(InterfaceStatus inputOnlyInterfaceStatus) {
-		this.inputOnlyStatus = inputOnlyInterfaceStatus; 
-	}
-
-	@Override
-	public void setExternalInterfaceStatus(InterfaceStatus externalInterfaceStatus) {
-		this.externalStatus = externalInterfaceStatus; 
-	}
 
 	@Override
 	public IncludeHierarchy getIncludeHierarchy() {
@@ -251,6 +218,22 @@ public class PlaceStatusInterface implements PlaceStatus {
 	@Override
 	public String getMergeXmlType() {
 		return mergeStatus.getXmlType();
+	}
+
+	@Override
+	public ArcConstraint getArcConstraint() {
+		return mergeStatus.getArcConstraint();
+//		return arcConstraint;
+	}
+
+	@Override
+	public void setArcConstraint(ArcConstraint arcConstraint) {
+		mergeStatus.setArcConstraint(arcConstraint);
+//		this.arcConstraint = arcConstraint;
+	}
+
+	protected boolean hasExternalChanged() {
+		return externalChanged;
 	}
 
 

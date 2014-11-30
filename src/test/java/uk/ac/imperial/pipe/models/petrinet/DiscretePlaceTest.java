@@ -297,14 +297,14 @@ public class DiscretePlaceTest {
     	//FIXME set in interface implies an include hierarchy, but we're not giving one. 
     	place.addToInterface(includes); 
     	place.getStatus().setMergeStatus(true); 
-    	place.getStatus().setExternalStatus(true); 
-    	place.getStatus().setOutputOnlyStatus(true); 
-    	place.getStatus().setInputOnlyStatus(false); 
+    	place.getStatus().setExternal(true); 
+    	place.getStatus().setOutputOnlyArcConstraint(true); 
+    	place.getStatus().setInputOnlyArcConstraint(false); 
     	DiscretePlace newPlace = new DiscretePlace(place); 
     	assertTrue(newPlace.getStatus().isMergeStatus());
-    	assertTrue(newPlace.getStatus().isExternalStatus());
-    	assertTrue(newPlace.getStatus().isOutputOnlyStatus());
-    	assertFalse(newPlace.getStatus().isInputOnlyStatus());
+    	assertTrue(newPlace.getStatus().isExternal());
+    	assertTrue(newPlace.getStatus().isOutputOnlyArcConstraint());
+    	assertFalse(newPlace.getStatus().isInputOnlyArcConstraint());
 	}
     @Test
 	public void interfaceRequestsThrowUnsupportedOperationExceptionIfNotInInterface() throws Exception {
@@ -315,15 +315,15 @@ public class DiscretePlaceTest {
     		assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.addToInterface(IncludeHierarchy) has been requested", e.getMessage());
     	}
     	try {
-    		place.getStatus().setExternalStatus(true); 
+    		place.getStatus().setExternal(true); 
     		fail("should throw because PlaceStatusNormal means not in the interface"); 
     	} catch (UnsupportedOperationException e) {}
     	try {
-    		place.getStatus().setInputOnlyStatus(true); 
+    		place.getStatus().setInputOnlyArcConstraint(true); 
     		fail("should throw because PlaceStatusNormal means not in the interface"); 
     	} catch (UnsupportedOperationException e) {}
     	try {
-    		place.getStatus().setOutputOnlyStatus(true); 
+    		place.getStatus().setOutputOnlyArcConstraint(true); 
     		fail("should throw because PlaceStatusNormal means not in the interface"); 
     	} catch (UnsupportedOperationException e) {}
 	}

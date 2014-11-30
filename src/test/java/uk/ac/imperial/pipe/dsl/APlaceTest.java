@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 public class APlaceTest {
@@ -65,4 +66,11 @@ public class APlaceTest {
         expected.setTokenCount("Default", 1);
         assertEquals(expected, place);
     }
+    @Test
+	public void placeIsExternallyAccessible() throws Exception {
+    	Place place = APlace.withId("P0").create(tokens, places, transitions, rateParameters);
+    	assertFalse(place.getStatus().isExternal()); 
+    	place = APlace.withId("P0").externallyAccessible().create(tokens, places, transitions, rateParameters);
+    	assertTrue(place.getStatus().isExternal()); 
+	}
 }

@@ -104,9 +104,9 @@ public class PetriNetReaderTest {
     	PlaceStatus status = place.getStatus(); 
     	assertTrue(status instanceof PlaceStatusInterface); 
     	assertTrue(status.isMergeStatus());
-    	assertTrue(status.isExternalStatus());
-    	assertTrue(status.isInputOnlyStatus());
-    	assertFalse(status.isOutputOnlyStatus());
+    	assertTrue(status.isExternal());
+    	assertTrue(status.isInputOnlyArcConstraint());
+    	assertFalse(status.isOutputOnlyArcConstraint());
     	assertEquals(place, status.getPlace()); 
     }
 

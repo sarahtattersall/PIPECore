@@ -53,7 +53,7 @@ public class IncludeHierarchyBuilder {
 	protected PetriNet buildPetriNet(String netLocation) throws JAXBException,
 			FileNotFoundException {
 		PetriNetIO petriNetIO = new PetriNetIOImpl(); 
-		//TODO perhaps retry with / without leading slash 
+		//TODO perhaps retry with / without leading slash, i.e., absolute path vs. working directory  
 		PetriNet net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
 		return net;
 	}
