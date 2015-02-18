@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.runner;
 
-import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
@@ -21,26 +20,21 @@ import javax.xml.bind.JAXBException;
 
 import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.animation.PetriNetAnimator;
-import uk.ac.imperial.pipe.dsl.ANormalArc;
-import uk.ac.imperial.pipe.dsl.APetriNet;
-import uk.ac.imperial.pipe.dsl.APlace;
-import uk.ac.imperial.pipe.dsl.AToken;
-import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.io.FileUtils;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
+import uk.ac.imperial.pipe.io.PetriNetIOImpl;
+import uk.ac.imperial.pipe.io.PetriNetReader;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
-import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
-import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
@@ -48,13 +42,14 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
 	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
 	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
+	private static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = "PetriNetRunner:  PetriNet XML could not be parsed successfully: ";
+	private static final String INCLUDE_HIERARCHY_EXCEPTION = "PetriNetRunner:  Error attempting to build include hierarchy: ";
 	public static final String EXECUTION_STARTED = "execution started";
 	public static final String UPDATED_STATE = "state updated";
 	public static final String EXECUTION_COMPLETED = "execution complete";
 	private static final String MARK_PLACE = "markPlace";
 	private static final String LISTEN_FOR_TOKEN_CHANGES = "listenForTokenChanges";
 	private static PrintStream PRINTSTREAM;
-	private static Map<String, PetriNet> TEST_NETS;
 	private Random random;
 	private int firingLimit;
 	private ExecutablePetriNet executablePetriNet;
@@ -68,91 +63,6 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private List<TokenCount> pendingPlaceMarkings;
 	private Map<String, Object> transitionContextMap;
 
-	/**
-	 * temporary map to store some sample Petri nets for testing, until support added for marshalling hierarchical Petri nets from XML
-	 */
-	static {
-		TEST_NETS = new HashMap<String, PetriNet>(); 
-		TEST_NETS.put("testSimple", buildTestNet()); 
-		TEST_NETS.put("testLooping", buildLoopingTestNet()); 
-		TEST_NETS.put("testHierarchy", buildNetWithHierarchy()); 
-		TEST_NETS.put("testLoopingHierarchy", buildNetWithLoopingHierarchy()); 
-		try {
-			TEST_NETS.put("testInterfacePlaces", buildNetWithInterfacePlace());
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-	}
-    private static PetriNet buildLoopingTestNet() {
-    	return buildNet("P0"); 
-    }
-	private static PetriNet buildNetWithLoopingHierarchy() {
-		PetriNet petriNet = buildLoopingTestNet(); 
-		try {
-			petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "left");
-			petriNet.getIncludeHierarchy().include(buildLoopingTestNet(), "right"); 
-		} catch (IncludeException e) {
-		} 
-		return petriNet;
-	}
-	private static PetriNet buildNetWithHierarchy() {
-		PetriNet petriNet = buildTestNet(); 
-		try {
-			petriNet.getIncludeHierarchy().include(buildTestNet(), "left");
-			petriNet.getIncludeHierarchy().include(buildTestNet(), "right"); 
-		} catch (IncludeException e) {
-		} 
-		return petriNet;
-	}
-	private static PetriNet buildTestNet() {
-		return buildNet("P2"); 
-	}
-	private static PetriNet buildNet(String place) {
-		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-                        and(APlace.withId("P1")).and(APlace.withId("P2")).and(AnImmediateTransition.withId("T0")).and(
-                        AnImmediateTransition.withId("T1")).and(
-                        ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
-                        ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
-                        ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).andFinally(
-                        ANormalArc.withSource("T1").andTarget(place).with("1", "Default").token()); 
-		return net;
-	}
-	private static PetriNet buildNetWithInterfacePlace() throws Exception {
-		PetriNet net = buildNet1();
-		net.setName(new NormalPetriNetName("net")); 
-		PetriNet net2 = buildNet2();
-		IncludeHierarchy includes = new IncludeHierarchy(net, "top");
-		includes.include(net2, "a");  
-		net.setIncludeHierarchy(includes);
-		Place originP1 = net2.getComponent("P1", Place.class); 
-    	includes.getInclude("a").addToInterface(originP1, true, false, false, false ); 
-    	includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("a.P1")); 
-		Place topIP1 = includes.getInterfacePlace("a.P1"); 
-		Transition topT0 = net.getComponent("T0", Transition.class);
-		Map<String,String> tokenweights = new HashMap<String, String>(); 
-		tokenweights.put("Default", "1"); 
-		OutboundArc arcOut = new OutboundNormalArc(topT0, topIP1, tokenweights);
-		net.add(arcOut); 
-		
-		return net;
-	}
-    private static PetriNet buildNet1() {
-    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
-    			and(AnImmediateTransition.withId("T0")).
-    			andFinally(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token());
-    	return net; 
-    }
-    private static PetriNet buildNet2() {
-    	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).and(
-    					APlace.withId("P1")).and(APlace.withId("P2")).and(
-    					AnImmediateTransition.withId("T0")).and(
-    					ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
-    					ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token()).andFinally(
-    					ANormalArc.withSource("T0").andTarget("P2").with("1", "Default").token()); 								
-    	return net; 
-    }
-
-	
 	public PetriNetRunner(PetriNet petriNet) {
 		if (petriNet == null) throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+"null");
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
@@ -166,7 +76,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		pendingPlaceMarkings = new ArrayList<>();
 		transitionContextMap = new HashMap<>(); 
 	}
-
+	public PetriNetRunner() {
+	}
 	public PetriNetRunner(String path) {
 		this(getPetriNet(path)); 
 	}
@@ -318,10 +229,13 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		}
 		return sortedPlaces;
 	}
-
-	public static void setPrintStreamForTesting(PrintStream print) {
-		PRINTSTREAM = print;
+	protected Map<String, List<PropertyChangeListener>> getListenerMap() {
+		return listenerMap;
 	}
+	protected List<TokenCount> getPendingPlaceMarkings() {
+		return pendingPlaceMarkings;
+	}
+
     public static void main(String[] args) {
     	if (args.length != 4) {
     		printUsage(); 
@@ -376,26 +290,40 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		return writer; 
 	}
 
-	private static PetriNet getPetriNet(String petriNetName) {
-		PetriNet net = TEST_NETS.get(petriNetName); 
-		if (net == null) { 
-			try {
-				IncludeHierarchyIO reader = new IncludeHierarchyIOImpl();
-				IncludeHierarchy include = reader.read(petriNetName);
-				net = include.getPetriNet(); 
-				
-			} catch (JAXBException e) {
-				e.printStackTrace();
+	public static PetriNet getPetriNet(String petriNetName) {
+		PetriNet net = null;  
+		try {
+			net = readFileAsIncludeHierarchy(petriNetName); 
+		} catch (JAXBException e) {
+	        try {
+	        	net = readFileAsSinglePetriNet(petriNetName);
+			} catch (FileNotFoundException e1) {
+				e1.printStackTrace();
 				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
-			} catch (IncludeException e) {
-				e.printStackTrace();
-				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
+			} catch (JAXBException e1) {
+				e1.printStackTrace();
+				throw new IllegalArgumentException(PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_+petriNetName); 
 			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
+		} catch (IncludeException e) {
+			//TODO test 
+			e.printStackTrace();
+			throw new IllegalArgumentException(INCLUDE_HIERARCHY_EXCEPTION+petriNetName); 
 		}
 		return net;
+	}
+	protected static PetriNet readFileAsIncludeHierarchy(String petriNetName)
+			throws JAXBException, FileNotFoundException, IncludeException {
+		IncludeHierarchyIO reader = new IncludeHierarchyIOImpl();
+		IncludeHierarchy include = reader.read(petriNetName);
+		return include.getPetriNet();
+	}
+	protected static PetriNet readFileAsSinglePetriNet(String petriNetName)
+			throws JAXBException, FileNotFoundException {
+		PetriNetReader reader = new PetriNetIOImpl();
+		return reader.read(FileUtils.fileLocation(petriNetName));
 	}
 
 	private static void printUsage() {
@@ -408,11 +336,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private static void setPrintStream() {
 		if (PRINTSTREAM == null) PRINTSTREAM = System.out;
 	}
-	protected Map<String, List<PropertyChangeListener>> getListenerMap() {
-		return listenerMap;
-	}
-	protected List<TokenCount> getPendingPlaceMarkings() {
-		return pendingPlaceMarkings;
+	protected static void setPrintStreamForTesting(PrintStream print) {
+		PRINTSTREAM = print;
 	}
 	private class TokenCount {
 		public String placeId; 

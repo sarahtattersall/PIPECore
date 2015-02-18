@@ -16,7 +16,8 @@ import org.xml.sax.SAXException;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
-import utils.FileUtils;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.runner.PetriNetRunner;
 
 public class IncludeHierarchyWriterTest extends XMLTestCase {
     IncludeHierarchyWriter writer;
@@ -32,6 +33,29 @@ public class IncludeHierarchyWriterTest extends XMLTestCase {
         writer = (IncludeHierarchyWriter) io;
         reader = (IncludeHierarchyReader) io; 
     }
+    
+    public static void main(String[] args) throws Exception {
+	    PetriNet net = buildNet(); 
+		IncludeHierarchyIO io = new IncludeHierarchyIOImpl();
+		IncludeHierarchyWriter writer = (IncludeHierarchyWriter) io;
+		writer.writeTo("src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml", new IncludeHierarchyBuilder(net.getIncludeHierarchy())); 
+//		for include hierarchies, see IncludeHierarchyWriterTest
+//		IncludeHierarchy includes = new IncludeHierarchy(net, "top"); 
+//		includes.setPetriNetLocation("net3.xml");
+////		includeb.setPetriNetLocation("net4.xml");
+//		IncludeHierarchyIO includeIO = new IncludeHierarchyIOImpl(); 
+//		String includePath = "include.xml"; 
+//		includeIO.writeTo(includePath, new IncludeHierarchyBuilder(includes));
+	}
+
+    private static PetriNet buildNet() {
+    	return PetriNetRunner.getPetriNet("testInterfacePlaces");
+//    	PetriNet net = null; 
+//    	// build net ....
+//		return net;
+	}
+    
+     
     public void testMarshalsSingleIncludeHierarchy() throws Exception {
     	checkIncludeReadWriteMatches(FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFile()));
     }

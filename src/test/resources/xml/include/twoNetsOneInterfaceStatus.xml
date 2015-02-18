@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<include name="top" netLocation="src/test/resources/xml/include/topNet.xml">
+    <include name="a" netLocation="src/test/resources/xml/include/aNet.xml"/>
+</include>

@@ -10,7 +10,6 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedIncludeHierarchyBuilder.Includes;
 import uk.ac.imperial.pipe.models.petrinet.*;
-import utils.FileUtils;
 
 import javax.xml.bind.JAXBException;
 import java.awt.Color;
@@ -34,7 +33,7 @@ public class IncludeHierarchyReaderTest {
     public void setUp() throws JAXBException {
         reader = new IncludeHierarchyIOImpl();
     }
-
+    //TODO include file includes another include file
     @Test
     public void createsSingleIncludeHierarchy()
     		throws Exception {

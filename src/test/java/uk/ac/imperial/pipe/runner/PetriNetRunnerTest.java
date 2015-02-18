@@ -45,6 +45,7 @@ import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.io.FileUtils;
 import uk.ac.imperial.pipe.io.IncludeHierarchyBuilder;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
@@ -63,7 +64,6 @@ import uk.ac.imperial.pipe.models.petrinet.TestingContext;
 import uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import utils.FileUtils;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetRunnerTest implements PropertyChangeListener {
@@ -206,9 +206,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.setTransitionContext("T99", test); 
 	}
 	@Test
-    public  void stopsAtRunLimit() throws InterruptedException {
+    public  void stopsAtRunLimit() throws Exception {
     	checkCase = 2; 
-    	net = buildLoopingTestNet(); 
+    	
+    	net = PetriNetRunner.readFileAsSinglePetriNet("src/test/resources/xml/loopingNet.xml"); 
+//    	net = buildLoopingTestNet(); 
     	runner = new PetriNetRunner(net); 
     	runner.setSeed(456327998101l);
     	runner.addPropertyChangeListener(this); 
@@ -240,10 +242,10 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void commandLineRuns() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
-		String[] args = new String[]{"testSimple","firingReport.csv","5","123456"}; 
+		String[] args = new String[]{"src/test/resources/xml/simpleNet2.xml","firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-		assertEquals("PetriNetRunner:  executing testSimple, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  executing src/test/resources/xml/simpleNet2.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
@@ -257,7 +259,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void runsFromIncludeXmlFile() throws Exception {
 		PetriNetRunner.setPrintStreamForTesting(print);
-//		String[] args = new String[]{"xml/include/singleInclude.xml","firingReport.csv","5","123456"}; 
 		String[] args = new String[]{FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFileReadyToFire()),"firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
@@ -284,10 +285,10 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void commandLineRunsForInterfacePlaces() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
-		String[] args = new String[]{"testInterfacePlaces","firingReport.csv","5","123456"}; 
+		String[] args = new String[]{"src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml","firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-		assertEquals("PetriNetRunner:  executing testInterfacePlaces, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  executing src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
@@ -319,21 +320,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.run(); 
 		assertEquals("testnet7", test.getUpdatedContext()); 
 	}	
-//	@Test
-//	public void roundTripThroughPersistenceForInterfacePlacesAndExternalTransitions() throws Exception {
-//		checkCase = 5; 
-//		net = buildNetWithInterfacePlacesAndExternalTransition(); 
-//		runner = new PetriNetRunner(net); 
-//		runner.setSeed(456327998101l);
-//		runner.addPropertyChangeListener(this); 
-//		runner.listenForTokenChanges(this, "a.P1");
-//		targetPlaceId = "a.P1"; 
-//		TestingContext test = new TestingContext(7);
-//		runner.setTransitionContext("a.b.T0", test); 
-//		runner.setFiringLimit(10); 
-//		runner.run(); 
-//		assertEquals("testnet7", test.getUpdatedContext()); 
-//	}	
 	@Test
 	public void throwsIfListenRequestReceivedForPlaceNotExternallyAccessible() throws Exception {
 		expectedException.expect(InterfaceException.class); 

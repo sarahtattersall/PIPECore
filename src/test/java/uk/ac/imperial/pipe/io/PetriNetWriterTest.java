@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -29,6 +31,8 @@ import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NormalRate;
+import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
+import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
@@ -36,11 +40,59 @@ import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import utils.FileUtils;
+import uk.ac.imperial.pipe.runner.PetriNetRunner;
 
 public class PetriNetWriterTest extends XMLTestCase {
     PetriNetWriter writer;
+    /**
+     * main to make it convenient to persist test Petri nets
+     * @param args
+     * @throws Exception
+     */
+    @SuppressWarnings("unused")
+	public static void main(String[] args) throws Exception {
+    	PetriNet net = buildNet(); 
+//	    writeSingleNet("src/test/resources/xml/someTestNet.xml", net); 
+	    // or...
+//	    writeIncludeHierarchy(); 
+	}
+    protected static void writeSingleNet(String where, PetriNet net) throws JAXBException {
+    	PetriNetIO netIO = new PetriNetIOImpl(); 
+    	netIO.writeTo(where, net);
+    }
+	@SuppressWarnings("unused")
+	private static void writeIncludeHierarchy() throws Exception {
+		PetriNet net = buildNet();
+		net.setName(new NormalPetriNetName("net")); 
+		PetriNet net2 = buildNet(); 
+		IncludeHierarchy includes = new IncludeHierarchy(net, "top");
+		includes.include(net2, "a");  
+		net.setIncludeHierarchy(includes);
+		Place originP1 = net2.getComponent("P1", Place.class); 
+		includes.getInclude("a").addToInterface(originP1, true, false, false, false ); 
+		includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("a.P1")); 
+		Place topIP1 = includes.getInterfacePlace("a.P1"); 
+		Transition topT0 = net.getComponent("T0", Transition.class);
+		Map<String,String> tokenweights = new HashMap<String, String>(); 
+		tokenweights.put("Default", "1"); 
+		OutboundArc arcOut = new OutboundNormalArc(topT0, topIP1, tokenweights);
+		net.add(arcOut); 
+		writeSingleNet("src/test/resources/xml/include/topNet.xml", net); 
+		writeSingleNet("src/test/resources/xml/include/aNet.xml", net2); 
+		includes.setPetriNetLocation("src/test/resources/xml/include/topNet.xml");
+		includes.getInclude("a").setPetriNetLocation("src/test/resources/xml/include/aNet.xml");
+		IncludeHierarchyIO includeIO = new IncludeHierarchyIOImpl(); 
+		String includePath = "src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml"; 
+		includeIO.writeTo(includePath, new IncludeHierarchyBuilder(includes));
+	}
 
+    private static PetriNet buildNet() {
+//    	return PetriNetRunner.getPetriNet("testInterfacePlaces");
+    	PetriNet net = null; 
+    	// build net using DSL ....
+		return net;
+	}
+    
     @Override
     public void setUp() throws JAXBException {
         XMLUnit.setIgnoreWhitespace(true);

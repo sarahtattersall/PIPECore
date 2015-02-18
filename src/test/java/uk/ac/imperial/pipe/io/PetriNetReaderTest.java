@@ -4,7 +4,6 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
-import utils.FileUtils;
 
 import javax.xml.bind.JAXBException;
 import java.awt.Color;
