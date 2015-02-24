@@ -1,9 +1,8 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.parsers.*;
-import uk.ac.imperial.state.State;
-
 import java.util.Map;
+
+import uk.ac.imperial.state.State;
 
 /**
  * Represents a normal arc from places to transitions.
@@ -28,23 +27,17 @@ public class InboundNormalArc extends InboundArc {
      * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
      */
     @Override
-    public final boolean canFire(PetriNet petriNet, State state) {
+    public final boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
         Place place = getSource();
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
         Map<String, String> tokenWeights = getTokenWeights();
-        StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
-        FunctionalWeightParser<Double> functionalWeightParser = new PetriNetWeightParser(stateEvalVisitor, petriNet);
-
-
+        double tokenWeight = 0; 
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-            FunctionalResults<Double> results = functionalWeightParser.evaluateExpression(entry.getValue());
-            if (results.hasErrors()) {
+        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue()); 
+            if (tokenWeight == -1.0) {
                 //TODO:
                 throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
             }
-
-            double tokenWeight = results.getResult();
-
             String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
             if (currentCount < tokenWeight && currentCount != -1) {

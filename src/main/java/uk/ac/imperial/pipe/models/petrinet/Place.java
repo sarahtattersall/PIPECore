@@ -1,8 +1,12 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeListener;
 import java.util.Map;
 
-public interface Place extends Connectable {
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+
+
+public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Place diameter
      */
@@ -11,7 +15,7 @@ public interface Place extends Connectable {
     /**
      * Message fired when the places tokens change in any way
      */
-    String TOKEN_CHANGE_MESSAGE = "tokens";
+    public String TOKEN_CHANGE_MESSAGE = "tokens";
 
     double getMarkingXOffset();
 
@@ -60,4 +64,20 @@ public interface Place extends Connectable {
      * @param token
      */
     void removeAllTokens(String token);
+
+    /**
+     * 
+     * @return whether this place is in the interface for the Petri net.  
+     */
+	public  boolean isInInterface();
+
+	public abstract void setInInterface(boolean inInterface);
+
+	public void addToInterface(IncludeHierarchy includeHierarchy);
+	
+	public PlaceStatus getStatus();
+
+	public void setStatus(PlaceStatus status); 
+
+
 }

@@ -21,7 +21,7 @@ import java.io.FileNotFoundException;
 
 /**
  * Manages addition and deletion of Petri nets. It uses the publish-subscribe design
- * pattern to notify observers of additons and deletions of Petri nets.
+ * pattern to notify observers of additions and deletions of Petri nets.
  */
 public final class PetriNetManagerImpl implements PetriNetManager {
     /**

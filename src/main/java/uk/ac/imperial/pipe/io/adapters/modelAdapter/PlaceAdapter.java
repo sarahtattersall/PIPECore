@@ -1,6 +1,10 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
-import com.google.common.base.Joiner;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedPlace;
 import uk.ac.imperial.pipe.io.adapters.model.NameDetails;
 import uk.ac.imperial.pipe.io.adapters.model.OffsetGraphics;
@@ -8,10 +12,9 @@ import uk.ac.imperial.pipe.io.adapters.model.Point;
 import uk.ac.imperial.pipe.io.adapters.utils.ConnectableUtils;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.common.base.Joiner;
 
 /**
  * Marhsals Places into and out of their PNML format
@@ -20,8 +23,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     private final Map<String, Place> places;
 
     /**
-     * Empty constructor needed formarshallingg. Since the method to marshall does not actually
-     * use these fields it's ok to initialise them as empty/null.
+     * Empty constructor needed for marshalling. Since the method to marshal does not actually
+     * use these fields it's ok to initialize them as empty/null.
      */
     public PlaceAdapter() {
         places = new HashMap<>();
@@ -48,6 +51,10 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         ConnectableUtils.setConnectablePosition(place, adaptedPlace);
         ConnectableUtils.setConntactableNameOffset(place, adaptedPlace);
         place.setTokenCounts(stringToWeights(adaptedPlace.getInitialMarking().getTokenCounts()));
+        if (adaptedPlace.getToolSpecificPlace() != null) {
+        	place.setStatus(adaptedPlace.getToolSpecificPlace().getStatus());
+        	place.getStatus().setPlace(place); 
+        }
         places.put(place.getId(), place);
         return place;
     }
@@ -73,7 +80,11 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         offsetGraphics.point.setX(place.getMarkingXOffset());
         offsetGraphics.point.setY(place.getMarkingYOffset());
         adapted.getInitialMarking().setGraphics(offsetGraphics);
-
+        if (place.getStatus() instanceof PlaceStatusInterface) {
+            AdaptedPlace.ToolSpecificPlace toolSpecific = new AdaptedPlace.ToolSpecificPlace();
+            toolSpecific.setStatus(place.getStatus()); 
+        	adapted.setToolSpecificPlace(toolSpecific); 
+        }
 
         return adapted;
     }

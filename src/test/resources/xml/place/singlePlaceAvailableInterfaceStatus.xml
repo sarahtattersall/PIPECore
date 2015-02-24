@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<pnml>
+   <net id="neta">
+      <token id="Red" red="255" green="0" blue="0"/>
+      <place id="P0">
+      <!-- P0 in this net is unrelated to P0 in the home net (singlePlaceHomeInterfaceStatus.xml)  
+         Available places don't appear in their nets, but must be re-created as the 
+         include hierarchy is built, as defined by the access scope -->
+         <graphics>
+            <position x="255.0" y="240.0"/>
+         </graphics>
+         <name>
+            <value>P0</value>
+            <graphics>
+               <offset x="5.0" y="26.0"/>
+            </graphics>
+         </name>
+         <capacity>
+            <value>0</value>
+         </capacity>
+         <initialMarking>
+            <graphics>
+               <offset x="0.0" y="0.0"/>
+            </graphics>
+            <value>Red,1</value>
+         </initialMarking>
+      </place>
+   </net>
+</pnml>
+

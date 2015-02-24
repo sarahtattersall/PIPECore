@@ -174,6 +174,12 @@ public class AdaptedTransition extends AdaptedConnectable {
         private String rateDefinition;
 
         /**
+         * External class name
+         */
+        @XmlAttribute
+        private String externalClass;
+        
+        /**
          *
          * @return tool type
          */
@@ -220,5 +226,21 @@ public class AdaptedTransition extends AdaptedConnectable {
         public final void setRateDefinition(String rateDefinition) {
             this.rateDefinition = rateDefinition;
         }
+
+		/**
+		 *
+		 * @return external class name 
+		 */
+		public String getExternalClass() {
+			return externalClass;
+		}
+
+		/**
+		 *
+		 * @param className Name of the class to be invoked
+		 */
+		public void setExternalClass(String externalClass) {
+			this.externalClass = externalClass;
+		}
     }
 }

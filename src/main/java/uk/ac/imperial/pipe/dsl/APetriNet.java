@@ -7,6 +7,7 @@ import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,9 +33,18 @@ import java.util.logging.Logger;
 public final class APetriNet {
     private static final Logger LOGGER = Logger.getLogger(APetriNet.class.getName());
     private Collection<DSLCreator<? extends PetriNetComponent>> creators = new ArrayList<>();
+	private String name;
 
 
-    /**
+    private APetriNet(String name) {
+    	this.name = name; 
+	}
+
+	private APetriNet() {
+		this("");
+	}
+
+	/**
      * Entry method for creating a Petri Net
      * @param creator item creator to add to Petri net
      * @param <T> type of PetriNetComponent
@@ -46,6 +56,15 @@ public final class APetriNet {
         return aPetriNet;
     }
 
+    /**
+     * Alternate entry method for creating a Petri Net
+     * @param name of the Petri Net to be created
+     * @return instance of APetriNet class for chaining
+     */
+    public static APetriNet named(String name) {
+    	APetriNet aPetriNet = new APetriNet(name);
+    	return aPetriNet;
+    }
     /**
      *
      * Adds more 'items' to the PetriNet by collecting their creators
@@ -93,7 +112,7 @@ public final class APetriNet {
         Map<String, Transition> transitions = new HashMap<>();
         Map<String, FunctionalRateParameter> rateParameters = new HashMap<>();
 
-        PetriNet petriNet = new PetriNet();
+        PetriNet petriNet = new PetriNet(new NormalPetriNetName(name));
         for (DSLCreator<? extends PetriNetComponent> creator : creators) {
             try {
                 petriNet.add(creator.create(tokens, places, transitions, rateParameters));
@@ -103,4 +122,5 @@ public final class APetriNet {
         }
         return petriNet;
     }
+
 }

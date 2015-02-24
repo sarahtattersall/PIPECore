@@ -1,16 +1,18 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
-
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
 import java.util.HashMap;
 import java.util.Map;
+
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 /**
  * This class maps to the Place in PNML and has a discrete number of tokens
  */
-public final class DiscretePlace extends AbstractConnectable implements Place {
+public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Marking x offset relative to the place x coordinate
@@ -32,6 +34,10 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      */
     private Map<String, Integer> tokenCounts = new HashMap<>();
 
+	private boolean inInterface;
+
+	private PlaceStatus status;
+
     /**
      * Constructor
      * @param id
@@ -39,6 +45,7 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      */
     public DiscretePlace(String id, String name) {
         super(id, name);
+        status = new PlaceStatusNormal(this);
     }
 
     /**
@@ -46,7 +53,7 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      * @param id
      */
     public DiscretePlace(String id) {
-        super(id, id);
+        this(id, id);
     }
 
     /**
@@ -58,6 +65,8 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
         this.capacity = place.capacity;
         this.markingXOffset = place.markingXOffset;
         this.markingYOffset = place.markingYOffset;
+        status = place.getStatus().copyStatus(this); 
+        inInterface = place.isInInterface();
     }
 
     /**
@@ -392,4 +401,57 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
     public void removeAllTokens(String token) {
         tokenCounts.remove(token);
     }
+    /**
+     * 
+     * @return whether this Place is in the interface for the Petri net.  
+     */
+    @Override
+	public boolean isInInterface() {
+    	return inInterface;
+    }
+	@Override
+	public void setInInterface(boolean inInterface) {
+    	this.inInterface = inInterface;
+    	if (inInterface) {
+    		status = new PlaceStatusInterface(this); //FIXME
+    	}
+    	else {
+    		status = new PlaceStatusNormal(this); 
+    	}
+    }
+    
+    /**
+     * Token count change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net
+     *
+     * @param event 
+     */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
+				setTokenCounts((Map<String, Integer>) event.getNewValue()); 
+		}
+	}
+
+
+	@Override
+	public PlaceStatus getStatus() {
+		return status; 
+	}
+
+	//TODO perhaps these methods should be moved to a different interface...
+
+	@Override
+	public void addToInterface(IncludeHierarchy includeHierarchy)  {
+		status = new PlaceStatusInterface(this, includeHierarchy) ;  
+	}
+
+	@Override
+	public void setStatus(PlaceStatus status) {
+		this.status = status; 
+	}
+
+
+
+
 }

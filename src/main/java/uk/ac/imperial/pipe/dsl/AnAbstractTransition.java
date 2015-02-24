@@ -67,7 +67,7 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
     @Override
     public Transition create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions,
                              Map<String, FunctionalRateParameter> rateParameters) {
-        Transition transition = new DiscreteTransition(id, id);
+        Transition transition = buildTransition();
         transition.setPriority(priority);
         transition.setTimed(timed);
         transition.setInfiniteServer(infinite);
@@ -83,6 +83,13 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
         transitions.put(id, transition);
         return transition;
     }
+
+
+
+	protected Transition buildTransition() {
+		Transition transition = new DiscreteTransition(id, id);
+		return transition;
+	}
 
     /**
      * Set the transition priority

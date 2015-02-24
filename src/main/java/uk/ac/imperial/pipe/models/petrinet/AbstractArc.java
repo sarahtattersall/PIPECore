@@ -79,7 +79,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         this.tokenWeights = tokenWeights;
         this.type = type;
 
-        this.id = source.getId() + " TO " + target.getId();
+        buildId(false);
         tagged = false;
 
 
@@ -115,6 +115,14 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     }
 
+	protected void buildId(boolean rebuild) {
+		String old = id; 
+		id = source.getId() + " TO " + target.getId();
+		if (rebuild) {
+			changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
+		}
+	}
+
     /**
      *
      * @return weight of the arc
@@ -142,6 +150,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void setSource(S source) {
         S old = this.source;
         this.source = source;
+        buildId(true); 
         changeSupport.firePropertyChange(SOURCE_CHANGE_MESSAGE, old, source);
     }
 
@@ -162,6 +171,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void setTarget(T target) {
         T old = this.target;
         this.target = target;
+        buildId(true); 
         changeSupport.firePropertyChange(TARGET_CHANGE_MESSAGE, old, target);
     }
 

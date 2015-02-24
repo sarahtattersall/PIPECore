@@ -7,8 +7,8 @@ import java.util.HashSet;
 /**
  * Used for naming components, listens to component
  *
- * This abstract class provides the implementation for getting unique names
- * It is up to subclasses to provide the implementation
+ * This abstract class provides unique names 
+ * Subclasses must call the constructor to set the namePrefix
  */
 public abstract class AbstractUniqueNamer implements UniqueNamer {
 

@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.io.adapters.model;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.*;
 import uk.ac.imperial.pipe.models.petrinet.*;
 
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -14,6 +15,13 @@ import java.util.Collection;
  */
 @XmlType(propOrder = {"tokens", "annotations", "rateParameters", "places", "transitions", "arcs"})
 public class AdaptedPetriNet {
+	
+	/**
+	 * id will be marshalled to name
+	 */
+	@XmlAttribute
+	public String id;
+	
     /**
      * Petri net tokens
      */
@@ -56,5 +64,6 @@ public class AdaptedPetriNet {
     @XmlElement(name = "arc")
     @XmlJavaTypeAdapter(ArcAdapter.class)
     public Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
+
 
 }

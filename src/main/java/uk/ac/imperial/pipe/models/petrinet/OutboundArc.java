@@ -17,6 +17,8 @@ public abstract class OutboundArc extends AbstractArc<Transition, Place> {
      */
     public OutboundArc(Transition source, Place target, Map<String, String> tokenWeights, ArcType type) {
         super(source, target, tokenWeights, type);
+        if (!target.getStatus().getArcConstraint().acceptOutboundArc()) 
+        	throw new IllegalArgumentException("Place has an inputOnly ArcConstraint, and will only accept InboundArcs: "+target.getId()); 
     }
 
     /**

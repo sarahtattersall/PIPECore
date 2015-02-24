@@ -1,28 +1,32 @@
 package uk.ac.imperial.pipe.animation;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import uk.ac.imperial.pipe.models.petrinet.AbstractTransition;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.parsers.FunctionalResults;
-import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
-import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class has useful functions relevant for the animation
  * of a Petri net. It does not alter the state of the Petri net.
  */
 public final class PetriNetAnimationLogic implements AnimationLogic {
-    /**
-     * Petri net this class represents the logic for
-     */
-    private final PetriNet petriNet;
 
+    /**
+     * Executable Petri net this class represents the logic for
+     */
+    private final ExecutablePetriNet executablePetriNet;
     /**
      * Cache for storing a states enabled transitions
      * Needs to be concurrent thus to handle multiple calls to methods using this data structure
@@ -32,13 +36,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
     /**
      * Constructor
-     * @param petriNet Petri net to perform animation logic on
+     * @param executablePetriNet executable Petri net to perform animation logic on
      */
-    public PetriNetAnimationLogic(PetriNet petriNet) {
-        this.petriNet = petriNet;
-    }
+    public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
+    	this.executablePetriNet = executablePetriNet; 
+	}
 
-    /**
+	/**
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -97,7 +101,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @param transition
      * @return Map of places whose token counts differ from those in the initial state
      */
-    //TODO: This method is a bit too long
+    //TODO:  refactor to ExecutablePetriNet 
     @Override
     public State getFiredState(State state, Transition transition) {
         HashedStateBuilder builder = new HashedStateBuilder();
@@ -108,33 +112,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
         Set<Transition> enabled = getEnabledTransitions(state);
         if (enabled.contains(transition)) {
-            //Decrement previous places
-            for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-                String placeId = arc.getSource().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, Integer> entry : state.getTokens(placeId).entrySet()) {
-                    String tokenId = entry.getKey();
-                    if (arcWeights.containsKey(tokenId)) {
-                        int currentCount = entry.getValue();
-                        int arcWeight = (int) getArcWeight(state, arcWeights.get(tokenId));
-                        builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
-                    }
-                }
-            }
-
-
-            State temporaryState = builder.build();
-
-            for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-                String placeId = arc.getTarget().getId();
-                Map<String, String> arcWeights = arc.getTokenWeights();
-                for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-                    String tokenId = entry.getKey();
-                    int currentCount = temporaryState.getTokens(placeId).get(tokenId);
-                    int arcWeight = (int) getArcWeight(state, entry.getValue());
-                    builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
-                }
-            }
+        	//TODO keep refactoring....
+        	builder = ((AbstractTransition) transition).fire(executablePetriNet, state, builder);
+//            fireTransition(state, transition, builder);
         }
 
         return builder.build();
@@ -147,15 +127,12 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     @Override
     public double getArcWeight(State state, String weight) {
-        StateEvalVisitor evalVisitor = new StateEvalVisitor(petriNet, state);
-        PetriNetWeightParser parser = new PetriNetWeightParser(evalVisitor, petriNet);
-        FunctionalResults<Double> result = parser.evaluateExpression(weight);
-        if (result.hasErrors()) {
+    	double result =  executablePetriNet.evaluateExpression(state, weight); 
+        if (result == -1.0) {
             //TODO:
             throw new RuntimeException("Could not parse arc weight");
         }
-
-        return result.getResult();
+        return result; 
     }
 
     /**
@@ -166,35 +143,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         cachedEnabledTransitions.clear();
     }
 
-    /**
-     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
-     * from it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return subtracted weight
-     */
-    private int subtractWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight - arcWeight;
-    }
-
-    /**
-     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
-     * to it if this is the case
-     *
-     * @param currentWeight
-     * @param arcWeight
-     * @return added weight
-     */
-    private int addWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight + arcWeight;
-    }
 
     /**
      * @return all the currently enabled transitions in the petri net
@@ -202,7 +150,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     private Set<Transition> findEnabledTransitions(State state) {
 
         Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : petriNet.getTransitions()) {
+        for (Transition transition : executablePetriNet.getTransitions()) {
             if (isEnabled(transition, state)) {
                 enabledTransitions.add(transition);
             }
@@ -220,19 +168,18 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * @return true if transition is enabled
      */
     private boolean isEnabled(Transition transition, State state) {
-        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
-            if (!arc.canFire(petriNet, state)) {
+        for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
+            if (!arc.canFire(executablePetriNet, state)) {
                 return false;
             }
         }
-        for (Arc<Transition, Place> arc : petriNet.outboundArcs(transition)) {
-            if (!arc.canFire(petriNet, state)) {
+        for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
+            if (!arc.canFire(executablePetriNet, state)) {
                 return false;
             }
         }
         return true;
     }
-
 
     /**
      * @param transitions to check if any are timed
@@ -246,7 +193,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         }
         return false;
     }
-
 
     /**
      * @param transitions to find max priority of
@@ -299,5 +245,4 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             }
         }
     }
-
 }

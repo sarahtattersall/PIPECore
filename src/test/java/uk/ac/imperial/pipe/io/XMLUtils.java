@@ -44,6 +44,10 @@ public class XMLUtils {
         return "/xml/transition/singleTransition.xml";
     }
 
+    public static String getExternalTransitionRateParameterFile() {
+    	return "/xml/transition/externalTransitionRateParameter.xml";
+    }
+
     public static String getRateParameterFile() {
         return "/xml/rateParameter/rateParameter.xml";
     }
@@ -56,10 +60,45 @@ public class XMLUtils {
         return "/xml/place/singlePlace.xml";
     }
 
-    public static String readFile(String path, Charset encoding)
-            throws IOException
-    {
-        byte[] encoded = Files.readAllBytes(Paths.get(path));
-        return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+    public static String getSinglePlaceWithHomeInterfaceStatusPath() {
+    	return "/xml/place/singlePlaceHomeInterfaceStatus.xml";
     }
+    public static String getSinglePlaceWithAvailableInterfaceStatusPath() {
+    	return "/xml/place/singlePlaceAvailableInterfaceStatus.xml";
+    }
+    public static String getTwoPlacesOneWithAwayInterfaceStatusPath() {
+    	return "/xml/place/twoPlacesOneWithAwayInterfaceStatus.xml";
+    }
+
+
+	public static String getExternalTransitionFile() {
+		return "/xml/transition/singleExternalTransition.xml";
+	}
+
+	public static String getSingleIncludeHierarchyFile() {
+		return "/xml/include/singleInclude.xml";
+	}
+	public static String getSingleIncludeHierarchyFileReadyToFire() {
+		return "/xml/include/singleIncludeReadyToFire.xml";
+	}
+	public static String getSingleMIncludeHierarchyFile() {
+		return "/xml/include/singleTestInclude.xml";
+	}
+
+	public static String getMultipleIncludeHierarchyFile() {
+		return "/xml/include/multipleIncludes.xml";
+	}
+	public static String getMultipleIncludeHierarchyWithInterfaceStatusFile() {
+		return "/xml/include/multipleIncludesWithInterfaceStatus.xml";
+	}
+	
+	
+	
+	public static String readFile(String path, Charset encoding)
+			throws IOException
+			{
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+			}
+
 }

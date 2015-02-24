@@ -9,3 +9,6 @@ release.properties
 
 gen/
 src/main/antlr4/uk/ac/imperial/pipe/parsers/gen/
+.project
+.classpath
+.settings/

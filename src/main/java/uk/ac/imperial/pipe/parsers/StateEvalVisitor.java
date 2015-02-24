@@ -1,11 +1,11 @@
 package uk.ac.imperial.pipe.parsers;
 
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.state.State;
-
 import java.util.Map;
+
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.state.State;
 
 /**
  * This class evaluates an expression based on a State so that the underlying
@@ -14,28 +14,23 @@ import java.util.Map;
  * It is particularly useful for any concurrent analysis.
  */
 public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
-    /**
-     * Petri net
-     */
-    private final PetriNet petriNet;
 
-    /**
-     * A state of the given Petri net
-     */
     private final State state;
+    /**
+     * Executable Petri net
+     */
+	private ExecutablePetriNet executablePetriNet;
 
     /**
      * Constructor
-     * @param petriNet
+     * @param executablePetriNet
      * @param state
      */
-    public StateEvalVisitor(PetriNet petriNet, State state) {
-        this.petriNet = petriNet;
-        this.state = state;
-    }
-
-
-    @Override
+    public StateEvalVisitor(ExecutablePetriNet executablePetriNet, State state) {
+    	this.executablePetriNet = executablePetriNet; 
+    	this.state = state;
+	}
+	@Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
         Double left = visit(ctx.expression(0));
         Double right = visit(ctx.expression(1));
@@ -115,7 +110,7 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
      * @throws PetriNetComponentNotFoundException
      */
     public Place getPlace(String id) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(id, Place.class);
+        return executablePetriNet.getComponent(id, Place.class);
     }
 
 }
