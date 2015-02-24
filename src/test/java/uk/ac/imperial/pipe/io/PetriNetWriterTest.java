@@ -52,6 +52,7 @@ public class PetriNetWriterTest extends XMLTestCase {
     @SuppressWarnings("unused")
 	public static void main(String[] args) throws Exception {
     	PetriNet net = buildNet(); 
+    	writeSingleNet("src/test/resources/xml/inputOutputInterfaceStatus.xml", net); 
 //	    writeSingleNet("src/test/resources/xml/someTestNet.xml", net); 
 	    // or...
 //	    writeIncludeHierarchy(); 
@@ -87,8 +88,17 @@ public class PetriNetWriterTest extends XMLTestCase {
 	}
 
     private static PetriNet buildNet() {
+		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+				and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
+				AnImmediateTransition.withId("T1")).and(
+				ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
+				ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
+				ANormalArc.withSource("P2").andTarget("T1").with("1", "Default").token()).and(
+				ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).andFinally(
+				ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token()); 
+
 //    	return PetriNetRunner.getPetriNet("testInterfacePlaces");
-    	PetriNet net = null; 
+//    	PetriNet net = null; 
     	// build net using DSL ....
 		return net;
 	}
