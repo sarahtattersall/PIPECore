@@ -2,13 +2,16 @@ package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
+import java.util.Random;
 import java.util.Set;
 
 /**
  * Class responsible for calculating transitions that can fire etc.
  */
 public interface Animator {
-    /**
+    public static final String ERROR_NO_TRANSITIONS_TO_FIRE = "Error - no transitions to fire!";
+
+	/**
      * Saves the current state of the Petri net, allowing it to
      * be reset at any point
      */
@@ -62,4 +65,11 @@ public interface Animator {
     // TODO: NOT SURE IF BETTER TO JUST HAVE UNDO/REDO IN ANIMATION HISTORY? HAVE TO STORE ENTIRE PETRI
     //       NET STATES SO MAYBE NOT?
     void fireTransitionBackwards(Transition transition);
+
+    /**
+	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
+	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
+	 * @param random
+	 */
+	public void setRandom(Random random);
 }

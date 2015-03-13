@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.state.State;
 
 /**
  * A transition is a Petri net component that is responsible for firing and thus moving
@@ -73,11 +72,9 @@ public interface Transition extends Connectable {
      * <p/>
      * If an infinite server the transition will return its rate * enabling degree
      *
-     * @param state given state of a petri net to evaluate the functional rate of
      * @return actual evaluated rate of the Petri net
      */
-    Double getActualRate(PetriNet petriNet, State state);
-
+    Double getActualRate(ExecutablePetriNet executablePetriNet);
     /**
      *
      * @return string representation of the rate
@@ -138,4 +135,12 @@ public interface Transition extends Connectable {
      * @return true if enabled
      */
     boolean isEnabled();
+
+    /**
+    * Execute actions specific to this transition.  Invoked by {@link AbstractTransition#fire(ExecutablePetriNet, uk.ac.imperial.state.State, uk.ac.imperial.state.HashedStateBuilder)}
+    * @see AbstractTransition  
+    */
+
+	public void fire();
+
 }

@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.parsers;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 /**
  * Evaluates a functional expression
@@ -11,18 +11,17 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     /**
      * Underlying Petri net
      */
-    private PetriNet petriNet;
+    private AbstractPetriNet abstractPetriNet;
 
     /**
      * Constructor for evaluating expressions that contain petri
      * net components, i.e places
      */
-    public EvalVisitor(PetriNet petriNet) {
-
-        this.petriNet = petriNet;
+    public EvalVisitor(AbstractPetriNet abstractPetriNet) {
+        this.abstractPetriNet = abstractPetriNet;
     }
 
-    @Override
+	@Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
         Double left = visit(ctx.expression(0));
         Double right = visit(ctx.expression(1));
@@ -94,16 +93,14 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
         Double value = visit(ctx.expression());
         return Math.ceil(value);
     }
-
-
     /**
      *
      * @param id
      * @return place for id
      * @throws PetriNetComponentNotFoundException
      */
-    public Place getPlace(String id) throws PetriNetComponentNotFoundException {
-        return petriNet.getComponent(id, Place.class);
-    }
+	public Place getPlace(String id) throws PetriNetComponentNotFoundException {
+		return abstractPetriNet.getComponent(id, Place.class);
+	}
 
 }

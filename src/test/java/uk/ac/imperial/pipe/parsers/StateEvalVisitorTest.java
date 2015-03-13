@@ -11,6 +11,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.state.HashedState;
 import uk.ac.imperial.state.HashedStateBuilder;
@@ -25,7 +26,9 @@ import static org.junit.Assert.assertEquals;
 public class StateEvalVisitorTest {
 
     private static final PetriNet EMPTY_PETRI_NET = new PetriNet();
+    private static final ExecutablePetriNet EMPTY_EXECUTABLE_PETRI_NET = EMPTY_PETRI_NET.getExecutablePetriNet();
     private static final State EMPTY_STATE = new HashedState(new HashMap<String, Map<String, Integer>>());
+	private ExecutablePetriNet executablePetriNet;
 
     public ParseTree parseTreeForExpr(String expr) {
         CharStream input = new ANTLRInputStream(expr);
@@ -38,7 +41,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicInt() {
         ParseTree tree = parseTreeForExpr("2");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(2.0), result);
@@ -47,7 +51,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicIntegerAddition() {
         ParseTree tree = parseTreeForExpr("2 + 8");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(10.0), result);
@@ -57,7 +62,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicDoubleAddition() {
         ParseTree tree = parseTreeForExpr("2.5 + 8.3");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(10.8), result);
@@ -66,7 +72,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicIntegerSubtraction() {
         ParseTree tree = parseTreeForExpr("5 - 1");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(4.0), result);
@@ -75,7 +82,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicDoubleSubtraction() {
         ParseTree tree = parseTreeForExpr("2.5 - 0.2");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(2.3), result);
@@ -85,7 +93,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicIntegerMultiplication() {
         ParseTree tree = parseTreeForExpr("5 * 2");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(10.0), result);
@@ -94,7 +103,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicDoubleMultiplication() {
         ParseTree tree = parseTreeForExpr("2.5 * 4");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(10.0), result);
@@ -104,7 +114,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicIntegerDivision() {
         ParseTree tree = parseTreeForExpr("5 / 2");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(2.5), result);
@@ -113,7 +124,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicDoubleDivision() {
         ParseTree tree = parseTreeForExpr("5 / 2.5");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(2), result);
@@ -123,7 +135,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesBasicParentheses() {
         ParseTree tree = parseTreeForExpr("(2)");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(2), result);
@@ -132,7 +145,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesAdditionParentheses() {
         ParseTree tree = parseTreeForExpr("(2 + 3) * 5");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
 
         assertEquals(new Double(25), result);
@@ -142,7 +156,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesFloor() {
         ParseTree tree = parseTreeForExpr("floor(2.1)");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
         assertEquals(new Double(2.0), result);
     }
@@ -150,7 +165,8 @@ public class StateEvalVisitorTest {
     @Test
     public void parsesCeil() {
         ParseTree tree = parseTreeForExpr("ceil(2.1)");
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_PETRI_NET, EMPTY_STATE);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(EMPTY_EXECUTABLE_PETRI_NET, EMPTY_STATE);
         Double result = evalVisitor.visit(tree);
         assertEquals(new Double(3.0), result);
     }
@@ -160,11 +176,13 @@ public class StateEvalVisitorTest {
     public void parsesPlaceTokenNumber() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0"));
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
 
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         ParseTree parseTree = parseTreeForExpr("#(P0)");
         Double result = evalVisitor.visit(parseTree);
 
@@ -178,13 +196,15 @@ public class StateEvalVisitorTest {
                 AToken.called("Red").withColor(Color.RED)).andFinally(
                 APlace.withId("P0"));
 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         builder.placeWithToken("P0", "Red", 6);
         State state = builder.build();
 
 
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         ParseTree parseTree = parseTreeForExpr("#(P0, Red)");
         Double result = evalVisitor.visit(parseTree);
 
@@ -196,11 +216,13 @@ public class StateEvalVisitorTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0"));
 
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
 
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         ParseTree parseTree = parseTreeForExpr("#(P1)");
         Double result = evalVisitor.visit(parseTree);
 
@@ -212,12 +234,13 @@ public class StateEvalVisitorTest {
     public void parsesPlaceCapacity() throws PetriNetComponentNotFoundException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
-
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
 
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         ParseTree parseTree = parseTreeForExpr("cap(P0)");
         Double result = evalVisitor.visit(parseTree);
 
@@ -230,12 +253,13 @@ public class StateEvalVisitorTest {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
 
-
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
 
-        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+//        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(petriNet, state);
+        ParseTreeVisitor<Double> evalVisitor = new StateEvalVisitor(executablePetriNet, state);
         ParseTree parseTree = parseTreeForExpr("cap(P1)");
         Double result = evalVisitor.visit(parseTree);
 

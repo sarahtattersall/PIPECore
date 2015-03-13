@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import org.junit.Test;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.models.petrinet.*;
+import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -21,7 +22,18 @@ public class APetriNetTest {
 
         assertEquals(expected, petriNet);
     }
+    @Test
+	public void createsNamedPetriNet() throws Exception {
+    	PetriNet petriNet = APetriNet.named("net1").andFinally(APlace.withId("P0"));
+    	
+    	PetriNet expected = new PetriNet(new NormalPetriNetName("net1"));
+    	Place place = new DiscretePlace("P0", "P0");
+    	expected.addPlace(place);
+    	
+    	assertEquals(expected, petriNet);
 
+	}
+    
     @Test
     public void createsPetriNetWithMultipleItems() {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.RED))
