@@ -73,16 +73,6 @@ public final class PetriNetAnimator implements Animator {
             throw new RuntimeException(ERROR_NO_TRANSITIONS_TO_FIRE);
         }
         Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
-        
-
-//        int index = getRandom().nextInt(enabledTransitions.size());
-//        
-//        Iterator<Transition> iter = enabledTransitions.iterator();
-//        Transition transition = iter.next();
-//        for (int i = 1; i < index; i++) {
-//        	transition = iter.next();
-//        }
-//        return transition;
         int index = getRandom().nextInt(enabledTransitions.size());
         return enabledTransitionsArray[index]; 
     }
