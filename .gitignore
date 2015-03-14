@@ -7,5 +7,9 @@ release.properties
 .idea/
 *.iml
 
+.project
+.settings
+.classpath
+
 gen/
 src/main/antlr4/uk/ac/imperial/pipe/parsers/gen/

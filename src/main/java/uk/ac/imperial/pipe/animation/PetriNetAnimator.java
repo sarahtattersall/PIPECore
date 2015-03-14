@@ -13,7 +13,9 @@ import java.util.*;
  * in place modifications to the Petri net.
  */
 public final class PetriNetAnimator implements Animator {
-    /**
+    private static final String ERROR_NO_TRANSITIONS_TO_FIRE = "Error - no transitions to fire!";
+
+	/**
      * Petri net to animate
      */
     private final PetriNet petriNet;
@@ -67,21 +69,31 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public Transition getRandomEnabledTransition() {
-        Collection<Transition> enabledTransitions = getEnabledTransitions();
+        Set<Transition> enabledTransitions = getEnabledTransitions();
         if (enabledTransitions.isEmpty()) {
-            throw new RuntimeException("Error - no transitions to fire!");
+            throw new RuntimeException(ERROR_NO_TRANSITIONS_TO_FIRE);
         }
-
-        Random random = new Random();
-        int index = random.nextInt(enabledTransitions.size());
-
-        Iterator<Transition> iter = enabledTransitions.iterator();
-        Transition transition = iter.next();
-        for (int i = 1; i < index; i++) {
-            transition = iter.next();
-        }
-        return transition;
+        Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
+        int index = new Random().nextInt(enabledTransitions.size());
+        return enabledTransitionsArray[index]; 
     }
+//    @Override
+//    public Transition getRandomEnabledTransition() {
+//        Collection<Transition> enabledTransitions = getEnabledTransitions();
+//        if (enabledTransitions.isEmpty()) {
+//            throw new RuntimeException("Error - no transitions to fire!");
+//        }
+//
+//        Random random = new Random();
+//        int index = random.nextInt(enabledTransitions.size());
+//
+//        Iterator<Transition> iter = enabledTransitions.iterator();
+//        Transition transition = iter.next();
+//        for (int i = 1; i < index; i++) {
+//            transition = iter.next();
+//        }
+//        return transition;
+//    }
 
     /**
      *
