@@ -14,6 +14,7 @@ import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class PetriNetAnimatorTest {
 
@@ -88,6 +89,45 @@ public class PetriNetAnimatorTest {
 
         Collection<Transition> enabled = animator.getEnabledTransitions();
         assertThat(enabled).contains(transition2);
+    }
+    @Test
+    public void randomTransitionsReturnsSingleEligibleTransition() throws PetriNetComponentNotFoundException {
+    	// PN with single enabled transition
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P1").containing(1, "Default").token()).
+    			and(APlace.withId("P2")).
+    			and(AnImmediateTransition.withId("T1")).and(
+    			ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).andFinally(
+    			ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token());
+    	
+    	Animator animator = new PetriNetAnimator(petriNet);
+//    	animator.setRandom(new Random(123456l)); 
+    	Transition t = animator.getRandomEnabledTransition(); 
+    	assertEquals("T1", t.getId()); 
+    }
+    @Test
+    public void randomTransitionsIncludesAllEligibleTransitionsInRoughProportion() throws PetriNetComponentNotFoundException {
+    	// PN with two enabled transitions
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P1").containing(1, "Default").token()).
+    			and(APlace.withId("P2")).and(APlace.withId("P3")).
+    			and(AnImmediateTransition.withId("T1")).and(AnImmediateTransition.withId("T2")).and(
+    			ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).and(
+    			ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token()).and(
+    			ANormalArc.withSource("P1").andTarget("T2").with("1", "Default").token()).andFinally(
+    			ANormalArc.withSource("T2").andTarget("P3").with("1", "Default").token());
+    	
+    	Animator animator = new PetriNetAnimator(petriNet);
+    	Transition t = null; 
+    	int t1 = 0; 
+    	int t2 = 0; 
+    	for (int i = 0; i < 10; i++) {
+    		t = animator.getRandomEnabledTransition();
+    		if (t.getId().equalsIgnoreCase("T1")) t1++;
+    		else t2++;
+		}
+    	assertTrue(t1 > 0); 
+    	assertTrue(t2 > 0); 
     }
 
     @Test
