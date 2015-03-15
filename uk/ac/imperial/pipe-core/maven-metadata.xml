@@ -4,8 +4,8 @@
   <artifactId>pipe-core</artifactId>
   <versioning>
     <versions>
-      <version>1.0.3-SNAPSHOT</version>
+      <version>1.0.2-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20150314215925</lastUpdated>
+    <lastUpdated>20150315035028</lastUpdated>
   </versioning>
 </metadata>
