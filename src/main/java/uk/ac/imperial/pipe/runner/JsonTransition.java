@@ -5,6 +5,7 @@ import javax.json.JsonNumber;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 
+//TODO consider whether this is needed, given that TransitionJsonParameters only uses JsonObject
 public class JsonTransition {
 	private JsonObject transitions; 
 	private String transitionId ;

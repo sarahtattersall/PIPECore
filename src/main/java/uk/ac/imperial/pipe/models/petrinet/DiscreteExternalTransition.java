@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import uk.ac.imperial.pipe.runner.JsonParameters;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 public class DiscreteExternalTransition extends AbstractTransition implements Transition {
@@ -67,6 +68,13 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 	}
 
 	public void setContextForClient(Object context) {
+		if (getClient() instanceof TransitionJsonParameters) {
+			if (!(context instanceof JsonParameters)) {
+				throw new IllegalArgumentException("DiscreteExternalTransition.setContextForClient: Client is TransitionJsonParameters but context is: " + context.getClass().getName());
+			} else {
+				((JsonParameters) context).setActiveTransition(getId());
+			}
+		}
 		client.setContext(context); 
 	}
 	@Override
