@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import javax.json.Json;
@@ -23,13 +23,16 @@ public class TransitionJsonParametersTest {
     
 	@Rule
     public ExpectedException expectedException = ExpectedException.none();
+	private TestingExternalTransitionProvider provider;
 
 	@Before
 	public void setUp() throws Exception {
 		parms = new JsonParameters(validJson);
 		parms.setActiveTransition("T0"); // DiscreteExternalTransition will do this
 		transition = new TestingTransitionJsonParameters();
-		transition.setContext(parms); 
+		provider = new TestingExternalTransitionProvider(); 
+		provider.setContext(parms); 
+		transition.setExternalTransitionProvider(provider); 
 	}
 	
 	@Test
@@ -53,7 +56,8 @@ public class TransitionJsonParametersTest {
 	public void throwsIllegalArgumentExceptionIfContextNotJsonParameters() throws Exception {
 		expectedException.expect(IllegalArgumentException.class); 
 		expectedException.expectMessage("AbstractTransitionJsonParameters.setContext:  expected JsonParameters, found: " + java.lang.String.class.getName()); 
-		transition.setContext("Not a JsonParameters");
+		provider.setContext("Not a JsonParameters");
+		transition.setExternalTransitionProvider(provider); 
 	}
 	
 }

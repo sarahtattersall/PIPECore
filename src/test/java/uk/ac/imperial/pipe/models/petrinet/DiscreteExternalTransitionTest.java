@@ -1,30 +1,40 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.awt.Color;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.runner.InterfaceException;
 import uk.ac.imperial.pipe.runner.JsonParameters;
+import uk.ac.imperial.pipe.runner.PlaceMarker;
 import uk.ac.imperial.pipe.visitor.TransitionCloner;
 
-public class DiscreteExternalTransitionTest {
+public class DiscreteExternalTransitionTest implements PlaceMarker {
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
 	private ExecutablePetriNet executablePetriNet;
-	private Transition transition;
+	private DiscreteExternalTransition transition;
 	
 	@Before
 	public void setUp() throws Exception {
-		PetriNet net = new PetriNet(new NormalPetriNetName("net"));
+		PetriNet net = buildNet(); 
 		executablePetriNet = net.getExecutablePetriNet();  
 		transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
 	}
-	
 	@Test
 	public void throwsIfClassDoesntExist() throws Exception {
         exception.expect(IllegalArgumentException.class);
@@ -59,39 +69,53 @@ public class DiscreteExternalTransitionTest {
 	@Test
 	public void externalTransitionLoadsClass() throws Exception {
 		transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 
-		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
+		ExternalTransition externalTransition = transition.getClient();  
 		assertTrue(externalTransition instanceof TestingExternalTransition); 
 	}
 	@Test
 	public void externalTransitionFiresWithContextAndExecutablePetriNet() throws Exception {
-		((DiscreteExternalTransition) transition).executablePetriNet = executablePetriNet;   
-		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
+		transition.executablePetriNet = executablePetriNet;   
+		ExternalTransition externalTransition = transition.getClient();  
 		assertTrue(externalTransition instanceof TestingExternalTransition); 
 		TestingContext test = new TestingContext(2);
-		externalTransition.setContext(test);
-		externalTransition.setExecutablePetriNet(executablePetriNet);
+		transition.setContextForClient(test);
+		transition.setPlaceMarker(this); 
+		externalTransition.setExternalTransitionProvider(transition);
 		externalTransition.fire();
 		assertEquals("net2", test.getUpdatedContext()); 
 	}
 	@Test
 	public void externalTransitionInvokedByDiscreteExternalTransition() throws Exception {
-		((DiscreteExternalTransition) transition).executablePetriNet = executablePetriNet;   
-		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
+		transition.executablePetriNet = executablePetriNet;   
+		ExternalTransition externalTransition = transition.getClient();  
 		assertTrue(externalTransition instanceof TestingExternalTransition); 
 		TestingContext test = new TestingContext(2);
-		((DiscreteExternalTransition) transition).setContextForClient(test);   
+		transition.setContextForClient(test);   
+		transition.setPlaceMarker(this);   
 		transition.fire(); 
 		assertEquals("net2", test.getUpdatedContext()); 
 	}
 	@Test
+	public void canUpdateAnotherPlaceInExecutablePetriNet() throws Exception {
+		transition.executablePetriNet = executablePetriNet;   
+		ExternalTransition externalTransition = transition.getClient();  
+		assertTrue(externalTransition instanceof TestingExternalTransition); 
+		TestingContext test = new TestingContext(2);
+		transition.setContextForClient(test);   
+		transition.setPlaceMarker(this);   
+		assertEquals(0, executablePetriNet.getComponent("P1", Place.class).getTokenCount("Default")); 
+		transition.fire(); 
+		assertEquals(2, executablePetriNet.getComponent("P1", Place.class).getTokenCount("Default")); 
+	}
+	@Test
 	public void setsActiveTransitionIfContextIsJsonParameters() throws Exception {
 		transition = new DiscreteExternalTransition("T0", "T0","uk.ac.imperial.pipe.models.petrinet.TestingTransitionJsonParameters"); 
-		((DiscreteExternalTransition) transition).executablePetriNet = executablePetriNet;   
-		ExternalTransition externalTransition = ((DiscreteExternalTransition) transition).getClient();  
+		transition.executablePetriNet = executablePetriNet;   
+		ExternalTransition externalTransition = transition.getClient();  
 		assertTrue(externalTransition instanceof TestingTransitionJsonParameters); 
 		String validJson = "{\"name\":[\"Mary\",\"Ann\"],\"surname\":\"Lastname\",\"transitions\":{\"T0\":{\"num\":1},\"T1\":[\"sam\",\"sally\"],\"T2\":1,\"T3\":\"someValue\",\"T4\":[true,false,null]}}"; 
 		JsonParameters test = new JsonParameters(validJson);
-		((DiscreteExternalTransition) transition).setContextForClient(test);   
+		transition.setContextForClient(test);   
 		transition.fire(); 
 		TestingTransitionJsonParameters testingTransitionJsonParameters = (TestingTransitionJsonParameters) externalTransition;
 		assertEquals(1, testingTransitionJsonParameters.getNum());
@@ -121,4 +145,20 @@ public class DiscreteExternalTransitionTest {
 		transition2 = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition2"); 
 		assertNotEquals("different client class",transition, transition2); 	
 	}
+	@Override
+	public void markPlace(String placeId, String token, int count)
+			throws InterfaceException {
+		try {
+			executablePetriNet.getComponent(placeId, Place.class).setTokenCount(token, count);
+		} catch (PetriNetComponentNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+    private PetriNet buildNet() {
+    	PetriNet net = APetriNet.named("net").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
+    			and(APlace.withId("P1").externallyAccessible()).and(AnImmediateTransition.withId("T0")).
+    			and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
+    			andFinally(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
+    	return net; 
+    }
 }

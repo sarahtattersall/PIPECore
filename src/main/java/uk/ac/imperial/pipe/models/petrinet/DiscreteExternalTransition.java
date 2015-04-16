@@ -1,13 +1,16 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.runner.JsonParameters;
+import uk.ac.imperial.pipe.runner.PlaceMarker;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
-public class DiscreteExternalTransition extends AbstractTransition implements Transition {
+public class DiscreteExternalTransition extends AbstractTransition implements Transition, ExternalTransitionProvider {
 
 	private Class<ExternalTransition> clientClass;
 	private ExternalTransition client;
 	private String className;
+	private PlaceMarker placeMarker;
+	private Object context;
 
 	public DiscreteExternalTransition(String id, String name, String className) {
 		super(id, name);
@@ -59,14 +62,16 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 
 	@Override
 	public void fire() {
-		client.setExecutablePetriNet(executablePetriNet); 
+		client.setExternalTransitionProvider(this); 
 		client.fire(); 
 	}
 
 	public ExternalTransition getClient() {
 		return client;
 	}
-
+	public void setPlaceMarker(PlaceMarker placeMarker) {
+		this.placeMarker = placeMarker;
+	}
 	public void setContextForClient(Object context) {
 		if (getClient() instanceof TransitionJsonParameters) {
 			if (!(context instanceof JsonParameters)) {
@@ -75,7 +80,7 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 				((JsonParameters) context).setActiveTransition(getId());
 			}
 		}
-		client.setContext(context); 
+		this.context = context; 
 	}
 	@Override
 	public boolean equals(Object o) {
@@ -95,5 +100,20 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 
 	public String getClassName() {
 		return className;
+	}
+
+	@Override
+	public PlaceMarker getPlaceMarker() {
+		return placeMarker;
+	}
+
+	@Override
+	public ExecutablePetriNet getExecutablePetriNet() {
+		return executablePetriNet;
+	}
+
+	@Override
+	public Object getContext() {
+		return context;
 	}
 }
