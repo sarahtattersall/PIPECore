@@ -7,5 +7,9 @@ public class TestingTransitionJsonParameters extends AbstractTransitionJsonParam
 		return getParameters().getInt("num");
 	}
 
+	@Override
+	public void fire() {
+	}
+
 
 }

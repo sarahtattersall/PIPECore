@@ -35,6 +35,7 @@ public class JsonParameters {
 	private JsonObject transitions;
 	private JsonTransition activeTransition;
 
+	//TODO add getter to return the entire JsonObject
 	public JsonParameters(String jsonString) {
 		this.jsonString = jsonString;
 		verifyNotEmptyOrNull();

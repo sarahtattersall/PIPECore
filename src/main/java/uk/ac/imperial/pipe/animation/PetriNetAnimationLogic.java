@@ -19,8 +19,9 @@ import uk.ac.imperial.state.State;
 
 /**
  * This class has useful functions relevant for the animation
- * of a Petri net. It does not alter the state of the Petri net.
+ * of a Petri net. 
  */
+//TODO reallocate this logic; previously:  "It does not alter the state of the Petri net."
 public final class PetriNetAnimationLogic implements AnimationLogic {
 
     /**

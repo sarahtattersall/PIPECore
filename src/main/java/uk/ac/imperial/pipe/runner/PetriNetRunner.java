@@ -139,14 +139,15 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	}
 	@Override
 	public void setTransitionContext(String transitionId, Object object) {
-		addContextToTransition(transitionId, object); 
+		addContextAndPlaceMarkerToTransition(transitionId, object); 
 		transitionContextMap.put(transitionId, object); 
 	}
-	protected void addContextToTransition(String transitionId, Object object) {
+	protected void addContextAndPlaceMarkerToTransition(String transitionId, Object object) {
 		try {
 			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
 			if ((transition instanceof DiscreteExternalTransition)) { 
-				((DiscreteExternalTransition) transition).getClient().setContext(object); 
+				((DiscreteExternalTransition) transition).setContextForClient(object); 
+				((DiscreteExternalTransition) transition).setPlaceMarker(this); 
 			}
 			else {
 				throw new IllegalArgumentException("PetriNetRunner:  set transition context may only be invoked for uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition.  Requested component: "+transition.getClass().getName()); 
@@ -158,7 +159,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private void updateExternalTransitions() {
 		Set<Entry<String, Object>> entries = transitionContextMap.entrySet(); 
 		for (Entry<String, Object> entry : entries) {
-			addContextToTransition(entry.getKey(), entry.getValue()); 
+			addContextAndPlaceMarkerToTransition(entry.getKey(), entry.getValue()); 
 		}
 	}
 
