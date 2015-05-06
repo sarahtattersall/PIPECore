@@ -114,6 +114,9 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 
 	@Override
 	public Object getContext() {
+		if (context == null) {
+			throw new IllegalStateException("ExternalTransitionProvider.getContext:  client "+this.className+" attempted to use Context but none was provided.  Use Runner.setTransitionContext(String transitionId, Object object)."); 
+		}
 		return context;
 	}
 }

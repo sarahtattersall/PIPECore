@@ -65,7 +65,13 @@ public class DiscreteExternalTransitionTest implements PlaceMarker {
 		exception.expectMessage("DiscreteExternalTransition.init:  client class name not specified.");
 		transition = new DiscreteExternalTransition("T1", "T1",null); 
 	}
-	
+	@Test
+	public void throwsIfAccessToContextIsAttemptedButContextWasNotSet() throws Exception {
+		exception.expect(IllegalStateException.class);
+		exception.expectMessage("ExternalTransitionProvider.getContext:  client uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition attempted to use Context but none was provided.  Use Runner.setTransitionContext(String transitionId, Object object).");
+		transition.fire(); 
+	}
+
 	@Test
 	public void externalTransitionLoadsClass() throws Exception {
 		transition = new DiscreteExternalTransition("T1", "T1","uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition"); 

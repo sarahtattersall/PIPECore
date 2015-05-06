@@ -143,6 +143,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		transitionContextMap.put(transitionId, object); 
 	}
 	protected void addContextAndPlaceMarkerToTransition(String transitionId, Object object) {
+		if (object == null) {
+			throw new IllegalArgumentException("PetriNetRunner:  set transition context requested but object provided was null");
+		}
 		try {
 			Transition transition = executablePetriNet.getComponent(transitionId, Transition.class);
 			if ((transition instanceof DiscreteExternalTransition)) { 
@@ -202,7 +205,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			transition = animator.getRandomEnabledTransition(); 
 			animator.fireTransition(transition); 
 			firing = new Firing(round, transition.getId(), executablePetriNet.getState()); 
-			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing); 
+			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
 			previousFiring = firing; 
 		} catch (RuntimeException e) {
 			if ((e.getMessage() != null) && (e.getMessage().equals(Animator.ERROR_NO_TRANSITIONS_TO_FIRE))) transitionsToFire = false;  
@@ -348,6 +351,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			this.placeId = placeId;
 			this.token = token; 
 			this.count = count; 
+		}
+		@Override
+		public String toString() {
+			return "TokenCount: "+this.placeId+" "+this.token+" "+this.count;
 		}
 	}
 	@Override
