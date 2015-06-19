@@ -207,6 +207,14 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.setTransitionContext("T99", test); 
 	}
 	@Test
+	public void throwsIfSetContextInvokedWithNull() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("PetriNetRunner:  set transition context requested but object provided was null");
+		net = buildNet5(); 
+		Runner runner = new PetriNetRunner(net); 
+		runner.setTransitionContext("T0", null); 
+	}
+	@Test
     public  void stopsAtRunLimit() throws Exception {
     	checkCase = 2; 
     	

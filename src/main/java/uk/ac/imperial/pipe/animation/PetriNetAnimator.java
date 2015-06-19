@@ -1,10 +1,11 @@
 package uk.ac.imperial.pipe.animation;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -18,6 +19,7 @@ import uk.ac.imperial.state.State;
  */
 public final class PetriNetAnimator implements Animator {
 
+	private static Logger logger = LogManager.getLogger(PetriNetAnimator.class);  
     /**
      * Executable Petri net to animate
      */
@@ -69,6 +71,7 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public Transition getRandomEnabledTransition() {
         Set<Transition> enabledTransitions = getEnabledTransitions();
+        logger.debug("enabled transitions count: "+enabledTransitions.size());
         if (enabledTransitions.isEmpty()) {
             throw new RuntimeException(ERROR_NO_TRANSITIONS_TO_FIRE);
         }

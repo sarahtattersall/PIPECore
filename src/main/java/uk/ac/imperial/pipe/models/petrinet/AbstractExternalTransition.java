@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.runner.PlaceMarker;
 
 public abstract class AbstractExternalTransition implements ExternalTransition {
 
@@ -22,26 +21,5 @@ public abstract class AbstractExternalTransition implements ExternalTransition {
 	public final ExternalTransitionProvider getExternalTransitionProvider() {
 		return externalTransitionProvider;
 	}
-
-//	@Override
-//	public void setContext(Object context) {
-//		this.context = context; 
-//	}
-//
-//	@Override
-//	public void setExecutablePetriNet(ExecutablePetriNet executablePetriNet) {
-//		this.executablePetriNet = executablePetriNet; 
-//	}
-//
-//	@Override
-//	public void setPlaceMarker(PlaceMarker placeMarker) {
-//		this.placeMarker = placeMarker; 
-//	}
-
-//	@Override
-//	public PlaceMarker getPlaceMarker() {
-//		return placeMarker;
-//	}
-
 
 }
