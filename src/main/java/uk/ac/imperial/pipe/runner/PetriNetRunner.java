@@ -18,6 +18,9 @@ import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.animation.PetriNetAnimator;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
@@ -39,7 +42,7 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
-
+	private static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
 	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
 	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
 	private static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = "PetriNetRunner:  PetriNet XML could not be parsed successfully: ";
@@ -75,6 +78,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		listenerMap = new HashMap<>();
 		pendingPlaceMarkings = new ArrayList<>();
 		transitionContextMap = new HashMap<>(); 
+		logger.info("creating PetriNetRunner for PetriNet "+petriNet.getName().getName());
 	}
 	public PetriNetRunner() {
 	}
@@ -94,6 +98,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
 	@Override
 	public void run() {
+		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
 		start(); 
 		while ((round < firingLimit) && transitionsToFire()) {
 			round++; 
@@ -106,6 +111,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		validateToken(token); 
 		validatePlace(placeId, MARK_PLACE); 
 		pendingPlaceMarkings.add(new TokenCount(placeId, token, count)); 
+		logger.debug("received request to mark place "+placeId+" with "+count+" "+token+" tokens.");
 	}
 	private void validateToken(String requestedToken) throws InterfaceException {
 		boolean found = false; 
@@ -125,7 +131,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			listenerMap.put(placeId, new ArrayList<PropertyChangeListener>()); 
 		}
 		listenerMap.get(placeId).add(listener); 
-		rebuildListeners();			
+		rebuildListeners();		
+		logger.debug("received request from listener "+listener+" for token changes to place "+placeId);
 	}
 	private void validatePlace(String placeId, String location) throws InterfaceException {
 		try {
@@ -158,6 +165,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		} catch (PetriNetComponentNotFoundException e) {
 			throw new IllegalArgumentException("PetriNetRunner:  set transition context requested for a transition that does not exist in the executable petri net: "+transitionId); 
 		}
+		logger.debug("received request to add context "+object.toString()+" for external transition "+transitionId);
 	}
 	private void updateExternalTransitions() {
 		Set<Entry<String, Object>> entries = transitionContextMap.entrySet(); 
@@ -203,11 +211,12 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		Transition transition = null; 
 		try {
 			transition = animator.getRandomEnabledTransition(); 
+			logger.debug("about to fire transition "+transition.getId()); 
 			animator.fireTransition(transition); 
 			firing = new Firing(round, transition.getId(), executablePetriNet.getState()); 
 			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
 			previousFiring = firing; 
-		} catch (RuntimeException e) {
+		} catch (RuntimeException e) { //TODO rework this:  no transitions shouldnt be an exception 
 			if ((e.getMessage() != null) && (e.getMessage().equals(Animator.ERROR_NO_TRANSITIONS_TO_FIRE))) transitionsToFire = false;  
 			else throw e; 
 		}
@@ -215,6 +224,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	
 	private void end() {
 		changeSupport.firePropertyChange(EXECUTION_COMPLETED, null, null); 
+		logger.debug(EXECUTION_COMPLETED); 
 	}
 
 	private boolean transitionsToFire() {
@@ -224,6 +234,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private void start() {
 		// previousFiring is Round 0
 		changeSupport.firePropertyChange(EXECUTION_STARTED, previousFiring, executablePetriNetPlaces()); 
+		logger.debug(EXECUTION_STARTED); 
 	}
 
 	private Collection<String> executablePetriNetPlaces() {	
@@ -362,6 +373,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		if (evt.getPropertyName().equals(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE)) {
 			rebuildListeners();	
 			updateExternalTransitions(); 
+			logger.debug("received "+ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE+"; rebuilt listeners and updated external transitions.");
 		}
 		else {
 			throw new RuntimeException("PetriNetRunner received unexpected event: "+evt.getPropertyName());

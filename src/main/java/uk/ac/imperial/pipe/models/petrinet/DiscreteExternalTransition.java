@@ -1,11 +1,15 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import uk.ac.imperial.pipe.runner.JsonParameters;
 import uk.ac.imperial.pipe.runner.PlaceMarker;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 public class DiscreteExternalTransition extends AbstractTransition implements Transition, ExternalTransitionProvider {
 
+	private static Logger logger = LogManager.getLogger(DiscreteExternalTransition.class);  
 	private Class<ExternalTransition> clientClass;
 	private ExternalTransition client;
 	private String className;
@@ -33,6 +37,7 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 		try {
 			this.clientClass = (Class<ExternalTransition>) Class.forName(this.className);
 			client = this.clientClass.newInstance(); 
+			logger.debug("transition "+this.id+" built client: "+this.className); 
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException("DiscreteExternalTransition.init:  client class does not exist: "+this.className+"\n"+e.getMessage());
 		} catch (ClassCastException e) {
@@ -63,7 +68,9 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 	@Override
 	public void fire() {
 		client.setExternalTransitionProvider(this); 
+		logger.debug("transition "+this.id+" about to fire: "+this.className);
 		client.fire(); 
+		logger.debug("transition "+this.id+" client returned control: "+this.className);
 	}
 
 	public ExternalTransition getClient() {
@@ -80,6 +87,7 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 				((JsonParameters) context).setActiveTransition(getId());
 			}
 		}
+		logger.debug("transition "+this.id+" set context "+context.toString()+"for client: "+this.className);
 		this.context = context; 
 	}
 	@Override
