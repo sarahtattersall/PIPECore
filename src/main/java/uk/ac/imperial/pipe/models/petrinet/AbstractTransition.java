@@ -54,6 +54,11 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 * Angle at which this transition should be displayed
 	 */
 	protected int angle = 0;
+	/**
+	 * Delay in milliseconds before transition will fire, once enabled.  
+	 */
+	protected int delay;
+	
 	public AbstractTransition(String id, String name) {
 		super(id, name);
 	}
@@ -560,6 +565,16 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    int old = this.angle;
 	    this.angle = angle;
 	    changeSupport.firePropertyChange(ANGLE_CHANGE_MESSAGE, old, angle);
+	}
+
+	@Override
+	public void setDelay(int delay) {
+		this.delay = delay; 
+	}
+
+	@Override
+	public int getDelay() {
+		return delay;
 	}
 
 }
