@@ -8,7 +8,7 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 /**
  * Discrete implementation of a transition
  */
-public final class DiscreteTransition extends AbstractTransition implements Transition {
+public class DiscreteTransition extends AbstractTransition implements Transition {
 
     /**
      * Constructor with default rate and priority
