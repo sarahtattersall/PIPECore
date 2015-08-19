@@ -60,5 +60,14 @@ public final class ATimedTransition extends AnAbstractTransition<ATimedTransitio
         this.rate = rate;
         return getInstance();
     }
+    /**
+     * Sets the delay in milliseconds
+     * @param delay
+     * @return builder for chaining
+     */
+	public ATimedTransition andDelay(int delay) {
+		this.delay = delay; 
+		return getInstance();
+	}
 
 }

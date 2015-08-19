@@ -36,6 +36,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * from different threads running in analysis modules
      */
     public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
+	private long currentTime;
+	private long initialTime;
 
     /**
      * Constructor
@@ -44,6 +46,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
     	this.executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this); 
+	}
+
+	public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet, long initialTime) {
+		this(executablePetriNet);
+		this.initialTime = initialTime; 
 	}
 
 	/**
@@ -252,6 +259,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		clear(); 
+		clear();
+	}
+	protected void setCurrentTimeForTesting(long currentTime) {
+		this.currentTime =  currentTime; 
 	}
 }

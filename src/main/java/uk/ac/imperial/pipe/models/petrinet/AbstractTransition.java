@@ -428,6 +428,10 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    if (!rate.equals(that.rate)) {
 	        return false;
 	    }
+
+	    if (delay != that.delay) {
+	    		return false;
+	    }
 	
 	    return true;
 	}
@@ -597,6 +601,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	@Override
 	public void setDelay(int delay) {
+		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
 		this.delay = delay; 
 	}
 

@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -7,7 +8,10 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -27,10 +31,17 @@ public class DiscreteTransitionTest {
 
 
     private ExecutablePetriNet executablePetriNet;
-
+	private Transition transition;
+	
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+	
+	@Before
+	public void setUp() throws Exception {
+		transition = new DiscreteTransition("id", "name");
+	}
 	@Test
     public void calculatesCorrectArcConnectionForTransitionAbove() {
-        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -78,7 +89,6 @@ public class DiscreteTransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTransitionRight() {
-        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -98,7 +108,6 @@ public class DiscreteTransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTargetOnLeft() {
-        Transition transition = new DiscreteTransition("id", "name");
         // No rotation
         transition.setAngle(0);
 
@@ -119,7 +128,6 @@ public class DiscreteTransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTopRotated180() {
-        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(180);
 
         int x1 = 100;
@@ -138,7 +146,6 @@ public class DiscreteTransitionTest {
 
     @Test
     public void calculatesCorrectArcConnectionPointForTransitionBelowRotated90() {
-        Transition transition = new DiscreteTransition("id", "name");
         transition.setAngle(90);
 
         int sourceX = 0;
@@ -232,7 +239,25 @@ public class DiscreteTransitionTest {
         t1.disable();
         assertEquals(t1, t2);
     }
-
+    @Test
+    public void transitionNotEqualsIfTimedDiffers() throws Exception {
+	    	DiscreteTransition t1 = new DiscreteTransition("id", "name");
+	    	DiscreteTransition t2  = new DiscreteTransition("id", "name");
+	    	t1.setTimed(true);
+	    	t2.setTimed(false);
+	    	assertNotEquals(t1, t2); 
+    }
+    @Test
+	public void transitionNotEqualsIfDelaysDiffer() throws Exception {
+	    	DiscreteTransition t1 = new DiscreteTransition("id", "name");
+	    	DiscreteTransition t2  = new DiscreteTransition("id", "name");
+	    	t1.setTimed(true);
+	    	t2.setTimed(true);
+	    	t1.setDelay(1000);
+	    	t2.setDelay(0);
+	    	assertNotEquals(t1, t2); 
+	}
+   
     @Test
     public void evaluatesRateAgainstPetriNet() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
@@ -244,4 +269,17 @@ public class DiscreteTransitionTest {
         double rate = transition.getActualRate(executablePetriNet);
         assertEquals(5, rate, 0.0001);
     }
+	@Test
+	public void delayCanBeSet() throws Exception {
+        transition.setTimed(true); 
+		assertEquals("default",0, transition.getDelay()); 
+		transition.setDelay(1000);
+		assertEquals(1000, transition.getDelay()); 
+	}
+	@Test
+	public void throwsIfDelaySetForNonTimedTransition() throws Exception {
+		expectedException.expect(IllegalStateException.class);
+		expectedException.expectMessage("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
+		transition.setDelay(1000);
+	}
 }
