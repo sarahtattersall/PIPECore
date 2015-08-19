@@ -34,6 +34,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * from different threads running in analysis modules
      */
     public Map<State, Set<Transition>> cachedEnabledTransitions = new ConcurrentHashMap<>();
+	private long currentTime;
+	private long initialTime;
 
     /**
      * Constructor
@@ -41,6 +43,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
+	}
+
+	public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet, long initialTime) {
+		this(executablePetriNet);
+		this.initialTime = initialTime; 
 	}
 
 	/**
@@ -246,4 +253,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             }
         }
     }
+
+	protected void setCurrentTimeForTesting(long currentTime) {
+		this.currentTime =  currentTime; 
+	}
 }

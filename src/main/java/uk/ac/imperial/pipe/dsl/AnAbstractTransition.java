@@ -48,6 +48,10 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
      * Transition y location
      */
     private int y = 0;
+    /**
+     * Delay in milliseconds
+     */
+	protected int delay;
 
     public AnAbstractTransition(String id, boolean timed) {
         this.id = id;
@@ -79,7 +83,10 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
         } else if (!rateParameter.isEmpty()) {
             transition.setRate(rateParameters.get(rateParameter));
         }
-
+        if (timed) {
+        		transition.setDelay(delay); 
+        }
+        
         transitions.put(id, transition);
         return transition;
     }

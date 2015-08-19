@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -27,16 +28,17 @@ public class PetriNetAnimationLogicTest {
 
 
     private ExecutablePetriNet executablePetriNet;
+	private PetriNetAnimationLogic animator;
 
+    @Before
+	public void setUp() throws Exception {
+	}
+    
 	@Test
     public void infiniteServerSemantics() {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
-                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
-                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
-                ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
-        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+		PetriNet petriNet = buildPetriNet();
+		executablePetriNet = petriNet.getExecutablePetriNet(); 
+		animator = new PetriNetAnimationLogic(executablePetriNet);
 
         State state = executablePetriNet.getState();
         Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
@@ -50,6 +52,42 @@ public class PetriNetAnimationLogicTest {
         int actualP2 = successor.getTokens("P1").get("Default");
         assertEquals(1, actualP2);
     }
+	@Test
+	public void timedTransitionExecutesFollowingDelay() {
+		PetriNet petriNet = buildTimedPetriNet();
+		executablePetriNet = petriNet.getExecutablePetriNet(); 
+		animator = new PetriNetAnimationLogic(executablePetriNet, 40000);
+		State state = executablePetriNet.getState();
+		((PetriNetAnimationLogic) animator).setCurrentTimeForTesting(40001); 
+		Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+		assertEquals(0, successors.size());
+		((PetriNetAnimationLogic) animator).setCurrentTimeForTesting(41000); 
+		assertEquals(1, successors.size());
+//		State successor = successors.keySet().iterator().next();
+//		
+//		int actualP1 = successor.getTokens("P0").get("Default");
+//		assertEquals(1, actualP1);
+//		
+//		int actualP2 = successor.getTokens("P1").get("Default");
+//		assertEquals(1, actualP2);
+	}
+
+	protected PetriNet buildPetriNet() {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
+                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
+                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+                ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
+		return petriNet;
+	}
+	protected PetriNet buildTimedPetriNet() {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+		APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
+		ATimedTransition.withId("T0").andDelay(1000)).and(
+		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
+		return petriNet;
+	}
 
     @Test
     public void multiColorArcsCanFire() throws PetriNetComponentNotFoundException {
