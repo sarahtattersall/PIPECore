@@ -1,35 +1,68 @@
 package uk.ac.imperial.pipe.io;
 
-import org.junit.Before;
-import org.junit.Test;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.*;
-import utils.FileUtils;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.extractProperty;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import javax.xml.bind.JAXBException;
 import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.PetriNetAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TestingThrowsPetriNetAdapter;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.ArcType;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import utils.FileUtils;
 
 public class PetriNetReaderTest {
 
+ 	
     private static final String DEFAULT_TOKEN = "Default";
     private static final String RED_TOKEN = "Red";
     PetriNetReader reader;
 
     @Before
     public void setUp() throws JAXBException {
-        reader = new PetriNetIOImpl();
+        reader = new PetriNetIOImpl();  // Defaults to false,true
+//        reader = new PetriNetIOImpl(false, true);  
+    }
+
+//    @Test
+    public void readNetForDebugging() throws  JAXBException, FileNotFoundException {
+    	PetriNet petriNet = null; 
+    	petriNet = reader.read("/Users/stevedoubleday/dissertation/navigation/heteroassociation1.xml");
+
+//        petriNet = reader.read("/some/path/somepnml.xml");
+        assertNotNull(petriNet); 
     }
 
     @Test
     public void createGSPN() throws  JAXBException, FileNotFoundException {
+    	//XML has unparsed tags 
+        reader = new PetriNetIOImpl(true, true);  // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/gspn1.xml"));
         assertEquals(5, petriNet.getPlaces().size());
         assertEquals(5, petriNet.getTransitions().size());
@@ -99,7 +132,6 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsMarkingIfNoTokensSet() throws JAXBException, FileNotFoundException {
-
         PetriNet petriNet = reader.read(FileUtils.fileLocation(getNoPlaceTokenPath()));
         assertThat(petriNet.getPlaces()).isNotEmpty();
         Place place = petriNet.getPlaces().iterator().next();
@@ -160,6 +192,8 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsInhibitoryArc() throws JAXBException, FileNotFoundException {
+    	//XML has unparsed tags 
+        reader = new PetriNetIOImpl(true, true);  // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInhibitorArcFile()));
         assertThat(petriNet.getArcs()).extracting("type").containsExactly(ArcType.INHIBITOR);
     }
@@ -194,13 +228,113 @@ public class PetriNetReaderTest {
         assertEquals(rateParameter, transition.getRate());
     }
 
-
     @Test
     public void readsTokens() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-        PetriNet petriNet = reader.read(FileUtils.fileLocation("/xml/token/two_token.xml"));
+        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getTwoTokenFile()));
         Collection<Token> tokens = petriNet.getTokens();
         assertEquals(2,tokens.size());
     }
+    @Test
+    public void messagePrintedWithoutThrowingWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+        reader = new TestingPetriNetIOImpl(true, false); 
+        checkPrintedAndDoesntThrowWhenUnexpectedElement();
+    }
+    @Test
+    public void messagePrintedButDoesntThrowWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	reader = new TestingPetriNetIOImpl(false, false); 
+    	checkPrintedAndDoesntThrowWhenUnexpectedElement();
+    }
 
+	protected void checkPrintedAndDoesntThrowWhenUnexpectedElement()
+			throws JAXBException, FileNotFoundException {
+		@SuppressWarnings("unused")
+		PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
+        PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
+    	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
+    			"Message: unexpected element (uri:\"\", local:\"blah\"). Expected elements are <{}definition>,<{}arc>,<{}token>,<{}labels>,<{}transition>,<{}place>\n" +
+    			"Object: null\n" +
+    			"URL: null\n" +
+    			"Node: null\n" +
+    			"Line: 4\n" +
+    			"Column: 16\n" +
+    			"Linked exception: null", handler.getFormattedEvents().get(0).formattedEvent);
+    	assertTrue(handler.printMessage(handler.getFormattedEvents().get(0)));
+	}
+    @Test
+    public void noMessagePrintedAndDoesntThrowWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	reader = new PetriNetIOImpl(true, true);   
+    	@SuppressWarnings("unused")
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
+    	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
+    	assertEquals(true, handler.getFormattedEvents().get(0).unexpected); 
+    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
+    }
+    @Test
+    public void messagePrintedAndThrowsForFirstNonUnexpectedElementError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	reader = new TestingThrowsPetriNetIOImpl(false, true);  // true false 
+    	try {
+    		@SuppressWarnings("unused")
+    		PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
+    	} catch (UnmarshalException e) {
+    		assertEquals("java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.", e.getMessage()); 
+    	}
+    	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
+    	assertEquals(2, handler.getFormattedEvents().size());
+    	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
+    			"Message: unexpected element (uri:\"\", local:\"blah\"). Expected elements are <{}definition>,<{}arc>,<{}token>,<{}labels>,<{}transition>,<{}place>\n" +
+    			"Object: null\n" +
+    			"URL: null\n" +
+    			"Node: null\n" +
+    			"Line: 4\n" +
+    			"Column: 16\n" +
+    			"Linked exception: null", handler.getFormattedEvents().get(0).formattedEvent);
+    	assertEquals(true, handler.getFormattedEvents().get(0).unexpected); 
+    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
+    	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
+    			"Message: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.\n" +
+    			"Object: null\n" +
+    			"URL: null\n" +
+    			"Node: null\n" +
+    			"Line: 26\n" +
+    			"Column: 11\n" +
+    			"Linked exception: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.", handler.getFormattedEvents().get(1).formattedEvent);
+    	assertEquals(false, handler.getFormattedEvents().get(1).unexpected); 
+    	assertTrue(handler.printMessage(handler.getFormattedEvents().get(1)));
+    }
+    private class TestingPetriNetIOImpl extends PetriNetIOImpl {
 
+		public TestingPetriNetIOImpl(boolean continueProcessing,
+				boolean suppressUnexpectedElementMessages) throws JAXBException {
+			super(continueProcessing, suppressUnexpectedElementMessages);
+	    	petriNetValidationEventHandler = new TestingPetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages); 
+		}
+		@Override
+		protected void initialiseUnmarshaller() throws JAXBException {
+			super.initialiseUnmarshaller();
+		}
+    }
+    private class TestingThrowsPetriNetIOImpl extends TestingPetriNetIOImpl {
+    	
+    	public TestingThrowsPetriNetIOImpl(boolean continueProcessing,
+    			boolean suppressUnexpectedElementMessages) throws JAXBException {
+    		super(continueProcessing, suppressUnexpectedElementMessages);
+    		petriNetValidationEventHandler = new TestingPetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages); 
+    	}
+    	@Override
+    	protected void initialiseUnmarshaller() throws JAXBException {
+    		super.initialiseUnmarshaller();
+    		getUnmarshaller().setAdapter(PetriNetAdapter.class, new TestingThrowsPetriNetAdapter()); 
+    	}
+    }
+    private class TestingPetriNetValidationEventHandler extends PetriNetValidationEventHandler {
+
+		public TestingPetriNetValidationEventHandler(
+				boolean continueProcessing,
+				boolean suppressUnexpectedElementMessages) {
+			super(continueProcessing, suppressUnexpectedElementMessages);
+		}
+    	@Override
+    	public void printMessages() {
+    	}
+    }
 }
