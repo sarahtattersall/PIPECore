@@ -10,7 +10,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 /**
  * Marshals a Petri net into the verbose format needed for PNML
  */
-public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
+public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     /**
      *
      * @param v

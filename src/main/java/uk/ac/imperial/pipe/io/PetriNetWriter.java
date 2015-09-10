@@ -3,6 +3,8 @@ package uk.ac.imperial.pipe.io;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import javax.xml.bind.JAXBException;
+
+import java.io.IOException;
 import java.io.Writer;
 
 /**
@@ -14,8 +16,9 @@ public interface PetriNetWriter {
      * Write the petri net to the given path
      * @param path
      * @param petriNet
+     * @throws IOException 
      */
-    void writeTo(String path, PetriNet petriNet) throws JAXBException;
+    void writeTo(String path, PetriNet petriNet) throws JAXBException, IOException;
 
     /**
      * Write the Petri net to the given stream

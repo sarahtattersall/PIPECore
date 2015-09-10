@@ -56,10 +56,18 @@ public class XMLUtils {
         return "/xml/place/singlePlace.xml";
     }
 
+    public static String getInvalidPetriNetFile() {
+    	return "/xml/invalidPetriNet.xml";
+    }
+    public static String getTwoTokenFile() {
+    	return "/xml/token/two_token.xml";
+    }
     public static String readFile(String path, Charset encoding)
             throws IOException
     {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
+
+
 }
