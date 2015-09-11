@@ -94,7 +94,7 @@ public class ExpanderTest {
     }
 
     @Test
-    public void singleTokenPetriNetIsExpandedToItself() {
+    public void singleTokenPetriNetIsExpandedToItself() throws PetriNetComponentException {
         petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                 AnImmediateTransition.withId("T0")).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").with("2", "Default").tokens());

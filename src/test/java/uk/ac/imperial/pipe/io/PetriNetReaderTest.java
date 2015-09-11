@@ -46,16 +46,13 @@ public class PetriNetReaderTest {
 
     @Before
     public void setUp() throws JAXBException {
-        reader = new PetriNetIOImpl();  // Defaults to false,true
-//        reader = new PetriNetIOImpl(false, true);  
+        reader = new PetriNetIOImpl();  
+//        reader = new PetriNetIOImpl(false, true); // equivalent to null constructor  
     }
-
 //    @Test
-    public void readNetForDebugging() throws  JAXBException, FileNotFoundException {
+    public void readNetForConvenientDebugging() throws  JAXBException, FileNotFoundException {
     	PetriNet petriNet = null; 
-    	petriNet = reader.read("/Users/stevedoubleday/dissertation/navigation/heteroassociation1.xml");
-
-//        petriNet = reader.read("/some/path/somepnml.xml");
+        petriNet = reader.read("/some/path/somepnml.xml");
         assertNotNull(petriNet); 
     }
 
@@ -132,14 +129,10 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsMarkingIfNoTokensSet() throws JAXBException, FileNotFoundException {
-        PetriNet petriNet = reader.read(FileUtils.fileLocation(getNoPlaceTokenPath()));
+        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getNoPlaceTokenPath()));
         assertThat(petriNet.getPlaces()).isNotEmpty();
         Place place = petriNet.getPlaces().iterator().next();
         assertThat(place.getTokenCounts()).isEmpty();
-    }
-
-    private String getNoPlaceTokenPath() {
-        return "/xml/place/noTokenPlace.xml";
     }
 
     @Test
@@ -229,6 +222,14 @@ public class PetriNetReaderTest {
     }
 
     @Test
+    public void rateParameterReferencesPlace()
+    		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getRateParameterReferencesPlaceFile()));
+        assertThat(petriNet.getRateParameters()).extracting("id","expression").containsExactly(
+                tuple("rate1",  "#(P0)"));
+    }
+    
+    @Test
     public void readsTokens() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getTwoTokenFile()));
         Collection<Token> tokens = petriNet.getTokens();
@@ -280,6 +281,8 @@ public class PetriNetReaderTest {
     	}
     	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
     	assertEquals(2, handler.getFormattedEvents().size());
+    	assertEquals("unexpected element message saved, but doesn't throw",true, handler.getFormattedEvents().get(0).unexpected); 
+    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
     	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
     			"Message: unexpected element (uri:\"\", local:\"blah\"). Expected elements are <{}definition>,<{}arc>,<{}token>,<{}labels>,<{}transition>,<{}place>\n" +
     			"Object: null\n" +
@@ -288,17 +291,15 @@ public class PetriNetReaderTest {
     			"Line: 4\n" +
     			"Column: 16\n" +
     			"Linked exception: null", handler.getFormattedEvents().get(0).formattedEvent);
-    	assertEquals(true, handler.getFormattedEvents().get(0).unexpected); 
-    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
+    	assertEquals("second error not unexpected element, so throws",false, handler.getFormattedEvents().get(1).unexpected); 
     	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
     			"Message: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.\n" +
     			"Object: null\n" +
     			"URL: null\n" +
     			"Node: null\n" +
-    			"Line: 26\n" +
+    			"Line: 6\n" +
     			"Column: 11\n" +
     			"Linked exception: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.", handler.getFormattedEvents().get(1).formattedEvent);
-    	assertEquals(false, handler.getFormattedEvents().get(1).unexpected); 
     	assertTrue(handler.printMessage(handler.getFormattedEvents().get(1)));
     }
     private class TestingPetriNetIOImpl extends PetriNetIOImpl {

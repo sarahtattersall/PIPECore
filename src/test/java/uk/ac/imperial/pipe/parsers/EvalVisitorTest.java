@@ -10,7 +10,7 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.awt.Color;
@@ -150,7 +150,7 @@ public class EvalVisitorTest {
 
 
     @Test
-    public void parsesPlaceTokenNumber() throws PetriNetComponentNotFoundException {
+    public void parsesPlaceTokenNumber() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens());
 
@@ -163,7 +163,7 @@ public class EvalVisitorTest {
     }
 
     @Test
-    public void parsesPlaceColorTokenNumber() throws PetriNetComponentNotFoundException {
+    public void parsesPlaceColorTokenNumber() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens().and(6, "Red").tokens());
@@ -176,7 +176,7 @@ public class EvalVisitorTest {
     }
 
     @Test
-    public void parsesPlaceTokenNumberAsZeroIfDoesNotExist() throws PetriNetComponentNotFoundException {
+    public void parsesPlaceTokenNumberAsZeroIfDoesNotExist() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").and(4, "Default").tokens());
 
@@ -189,7 +189,7 @@ public class EvalVisitorTest {
 
 
     @Test
-    public void parsesPlaceCapacity() throws PetriNetComponentNotFoundException {
+    public void parsesPlaceCapacity() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
 
@@ -202,7 +202,7 @@ public class EvalVisitorTest {
     }
 
     @Test
-    public void parsesPlaceCapacityAsZeroIfDoesNotExist() throws PetriNetComponentNotFoundException {
+    public void parsesPlaceCapacityAsZeroIfDoesNotExist() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
                 APlace.withId("P0").andCapacity(10));
 

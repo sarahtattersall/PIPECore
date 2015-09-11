@@ -22,8 +22,8 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
         PetriNet petriNet = new PetriNet();
         addToPetriNet(v.tokens, petriNet);
         addToPetriNet(v.annotations, petriNet);
-        addToPetriNet(v.rateParameters, petriNet);
         addToPetriNet(v.places, petriNet);
+        addToPetriNet(v.rateParameters, petriNet);
         addToPetriNet(v.transitions, petriNet);
         addToPetriNet(v.arcs, petriNet);
         return petriNet;

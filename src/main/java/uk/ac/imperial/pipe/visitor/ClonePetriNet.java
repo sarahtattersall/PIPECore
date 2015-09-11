@@ -77,16 +77,16 @@ public final class ClonePetriNet {
             visit(token);
         }
 
-        for (RateParameter rateParameter : petriNet.getRateParameters()) {
-            visit(rateParameter);
-        }
-
         for (Annotation annotation : petriNet.getAnnotations()) {
             visit(annotation);
         }
 
         for (Place place : petriNet.getPlaces()) {
             visit(place);
+        }
+
+        for (RateParameter rateParameter : petriNet.getRateParameters()) {
+        	visit(rateParameter);
         }
 
         for (Transition transition : petriNet.getTransitions()) {

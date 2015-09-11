@@ -15,24 +15,16 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	private List<FormattedEvent> formattedEvents;
 	private boolean suppressUnexpectedElementMessages;
 
-	public PetriNetValidationEventHandler() {
-		this(false, true); 
-	}
-	
 	public PetriNetValidationEventHandler(boolean continueProcessing, boolean suppressUnexpectedElementMessages) {
 		this.continueProcessing = continueProcessing; 
 		this.suppressUnexpectedElementMessages = suppressUnexpectedElementMessages; 
 		formattedEvents = new ArrayList<>();  
 	}
 
-//    * Cases: 
-//    * continue=true, suppress=true:  processing continues, all messages suppressed (suitable only for testing)
-//    * continue=true, suppress=false:  processing continues, all messages printed (suitable only for testing)
-//    * continue=false, suppress=true:  processing stops at first message other than "unexpected element"; 
-//    *     all "unexpected element" messages suppressed (default)
-//    * continue=false, suppress=false:  processing stops at first message other than "unexpected element"; 
-//    *     all messages printed
-
+	public PetriNetValidationEventHandler() {
+		this(false, true); 
+	}
+	
 	
 	@Override
 	public boolean handleEvent(ValidationEvent event) {
@@ -97,6 +89,7 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	public List<FormattedEvent> getFormattedEvents() {
 		return formattedEvents;
 	}
+	
 	protected class FormattedEvent {
 		public boolean unexpected; 
 		public String formattedEvent; 

@@ -4,7 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
@@ -26,7 +27,7 @@ public class PetriNetAnimationLogicTest {
 
 
     @Test
-    public void infiniteServerSemantics() {
+    public void infiniteServerSemantics() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
                 AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
@@ -49,7 +50,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void multiColorArcsCanFire() throws PetriNetComponentNotFoundException {
+    public void multiColorArcsCanFire() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P0").containing(1, "Default").token().and(1, "Red").token()).and(
@@ -70,7 +71,7 @@ public class PetriNetAnimationLogicTest {
 
 
     @Test
-    public void multiColorArcsCanFireWithZeroWeighting() throws PetriNetComponentNotFoundException {
+    public void multiColorArcsCanFireWithZeroWeighting() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P0").containing(1, "Default").token().and(1, "Red").token()).and(
@@ -90,7 +91,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyIdentifiesEnabledTransition() throws PetriNetComponentNotFoundException {
+    public void correctlyIdentifiesEnabledTransition() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -105,8 +106,9 @@ public class PetriNetAnimationLogicTest {
      *
      * @param tokenWeight
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimplePetriNet(int tokenWeight) {
+    public PetriNet createSimplePetriNet(int tokenWeight) throws PetriNetComponentException {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
@@ -116,7 +118,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyIdentifiesEnabledWithNoSecondColourToken() throws PetriNetComponentNotFoundException {
+    public void correctlyIdentifiesEnabledWithNoSecondColourToken() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
                 APlace.withId("P1").containing(1, "Red").token().and(1, "Default").token()).and(
@@ -131,7 +133,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyIdentifiesNotEnabledTransitionDueToEmptyPlace() throws PetriNetComponentNotFoundException {
+    public void correctlyIdentifiesNotEnabledTransitionDueToEmptyPlace() throws PetriNetComponentException {
         int tokenWeight = 4;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Place place = petriNet.getComponent("P1", Place.class);
@@ -145,7 +147,7 @@ public class PetriNetAnimationLogicTest {
 
     @Test
     public void correctlyIdentifiesNotEnabledTransitionDueToNotEnoughTokens()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         int tokenWeight = 4;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -157,7 +159,7 @@ public class PetriNetAnimationLogicTest {
 
     @Test
     public void correctlyIdentifiesNotEnabledTransitionDueToOnePlaceNotEnoughTokens()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNetTwoPlacesToTransition(tokenWeight);
         Transition transition = petriNet.getComponent("T1", Transition.class);
@@ -173,8 +175,9 @@ public class PetriNetAnimationLogicTest {
      *
      * @param tokenWeight
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) {
+    public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) throws PetriNetComponentException {
         String weight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                 APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
@@ -184,7 +187,7 @@ public class PetriNetAnimationLogicTest {
 
     @Test
     public void correctlyIdentifiesNotEnabledTransitionDueToArcNeedingTwoDifferentTokens()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
 
@@ -201,7 +204,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyIdentifiesEnabledTransitionRequiringTwoTokens() throws PetriNetComponentNotFoundException {
+    public void correctlyIdentifiesEnabledTransitionRequiringTwoTokens() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
 
@@ -236,7 +239,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyDoesNotEnableTransitionsIfPlaceCapacityIsFull() throws PetriNetComponentNotFoundException {
+    public void correctlyDoesNotEnableTransitionsIfPlaceCapacityIsFull() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(2);
         Token token = petriNet.getComponent("Default", Token.class);
 
@@ -253,7 +256,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyEnablesTransitionIfSelfLoop() throws PetriNetComponentNotFoundException {
+    public void correctlyEnablesTransitionIfSelfLoop() throws PetriNetComponentException {
         PetriNet petriNet = createSelfLoopPetriNet("1");
         Place place = petriNet.getComponent("P0", Place.class);
         Token token = petriNet.getComponent("Default", Token.class);
@@ -267,7 +270,7 @@ public class PetriNetAnimationLogicTest {
         assertThat(enabled).containsExactly(transition);
     }
 
-    private PetriNet createSelfLoopPetriNet(String tokenWeight) {
+    private PetriNet createSelfLoopPetriNet(String tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                 AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens()).andFinally(
@@ -275,7 +278,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void correctlyMarksInhibitorArcEnabledTransition() throws PetriNetComponentNotFoundException {
+    public void correctlyMarksInhibitorArcEnabledTransition() throws PetriNetComponentException {
         PetriNet petriNet = createSimpleInhibitorPetriNet(1);
         Transition transition = petriNet.getComponent("T1", Transition.class);
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
@@ -289,8 +292,9 @@ public class PetriNetAnimationLogicTest {
      *
      * @param tokenWeight
      * @return simple Petri net with P1 -o T1 -> P2
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) {
+    public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                 APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
                 AnInhibitorArc.withSource("P1").andTarget("T1")).andFinally(
@@ -298,7 +302,7 @@ public class PetriNetAnimationLogicTest {
     }
 
     @Test
-    public void calculatesSimpleSuccessorStates() {
+    public void calculatesSimpleSuccessorStates() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(1);
         State state = AnimationUtils.getState(petriNet);
         AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
@@ -316,7 +320,7 @@ public class PetriNetAnimationLogicTest {
 
 
     @Test
-    public void calculatesSelfLoop() {
+    public void calculatesSelfLoop() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(AnImmediateTransition.withId("T0")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
@@ -336,9 +340,10 @@ public class PetriNetAnimationLogicTest {
     /**
      * If a state contains Integer.MAX_VALUE then this is considered to be infinite
      * so infinity addition and subtraction rules should apply
+     * @throws PetriNetComponentException 
      */
     @Test
-    public void infinityLogic() {
+    public void infinityLogic() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
 

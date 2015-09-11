@@ -112,7 +112,7 @@ public class PetriNetWriterTest extends XMLTestCase {
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionRateParameterFile()), petriNet);
     }
 
-    public void testMarshalsArc() throws IOException, SAXException, JAXBException {
+    public void testMarshalsArc() throws IOException, SAXException, JAXBException, PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").locatedAt(0, 0)).and(AnImmediateTransition.withId("T0").locatedAt(0, 0)).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").and("4", "Default").tokens());
