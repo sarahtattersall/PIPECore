@@ -7,6 +7,7 @@ import org.junit.rules.ExpectedException;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 import java.awt.Color;
@@ -58,7 +59,7 @@ public class PetriNetWeightParserTest {
 
 
     @Test
-    public void willNotEvaluateExpressionIfPetriNetDoesNotContainComponent() throws UnparsableException {
+    public void willNotEvaluateExpressionIfPetriNetDoesNotContainComponent() throws UnparsableException, PetriNetComponentException {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P1"));
         FunctionalWeightParser<Double> parser = new PetriNetWeightParser(evalVisitor, petriNet);
         FunctionalResults<Double> result = parser.evaluateExpression("#(P0)");
@@ -68,7 +69,7 @@ public class PetriNetWeightParserTest {
 
 
     @Test
-    public void evaluatesIfPlaceIsInPetriNet() throws UnparsableException {
+    public void evaluatesIfPlaceIsInPetriNet() throws UnparsableException, PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 
         EvalVisitor evalVisitor = new EvalVisitor(petriNet);
@@ -78,7 +79,7 @@ public class PetriNetWeightParserTest {
     }
 
     @Test
-    public void returnsCorrectComponentsForTotalTokens() {
+    public void returnsCorrectComponentsForTotalTokens() throws PetriNetComponentException {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
         EvalVisitor evalVisitor = new EvalVisitor(petriNet);
@@ -89,7 +90,7 @@ public class PetriNetWeightParserTest {
 
 
     @Test
-    public void returnsCorrectComponentsForSpecificTokens() {
+    public void returnsCorrectComponentsForSpecificTokens() throws PetriNetComponentException {
 
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(APlace.withId("P0").containing(10, "Default").tokens());
 

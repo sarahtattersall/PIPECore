@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.animation;
 
 import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
@@ -21,7 +21,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void correctlyIncrementsTokenCountInSelfLoop() throws PetriNetComponentNotFoundException {
+    public void correctlyIncrementsTokenCountInSelfLoop() throws PetriNetComponentException {
 
         PetriNet petriNet = createSelfLoopPetriNet("1");
         Place place = petriNet.getComponent("P0", Place.class);
@@ -36,7 +36,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void firingFunctionalTransitionMovesTokens() throws PetriNetComponentNotFoundException {
+    public void firingFunctionalTransitionMovesTokens() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Red").withColor(Color.RED)).and(
                 AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").containing(5, "Default").tokens()).and(APlace.withId("P1")).and(
@@ -56,7 +56,7 @@ public class PetriNetAnimatorTest {
     }
 
     @Test
-    public void firingTransitionDoesNotDisableTransition() throws PetriNetComponentNotFoundException {
+    public void firingTransitionDoesNotDisableTransition() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Place place = petriNet.getComponent("P1", Place.class);
@@ -73,7 +73,7 @@ public class PetriNetAnimatorTest {
     }
 
     @Test
-    public void firingTransitionEnablesNextTransition() throws PetriNetComponentNotFoundException {
+    public void firingTransitionEnablesNextTransition() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
                 AnImmediateTransition.withId("T1")).and(AnImmediateTransition.withId("T2")).and(
@@ -91,7 +91,7 @@ public class PetriNetAnimatorTest {
         assertThat(enabled).contains(transition2);
     }
     @Test
-    public void randomTransitionsReturnsSingleEligibleTransition() throws PetriNetComponentNotFoundException {
+    public void randomTransitionsReturnsSingleEligibleTransition() throws PetriNetComponentException {
     	// PN with single enabled transition
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
     			APlace.withId("P1").containing(1, "Default").token()).
@@ -106,7 +106,7 @@ public class PetriNetAnimatorTest {
     	assertEquals("T1", t.getId()); 
     }
     @Test
-    public void randomTransitionsIncludesAllEligibleTransitionsInRoughProportion() throws PetriNetComponentNotFoundException {
+    public void randomTransitionsIncludesAllEligibleTransitionsInRoughProportion() throws PetriNetComponentException {
     	// PN with two enabled transitions
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
     			APlace.withId("P1").containing(1, "Default").token()).
@@ -131,7 +131,7 @@ public class PetriNetAnimatorTest {
     }
 
     @Test
-    public void firingTransitionBackwardMovesTokensBack() throws PetriNetComponentNotFoundException {
+    public void firingTransitionBackwardMovesTokensBack() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(0, "Default").token()).and(AnImmediateTransition.withId("T1")).andFinally(
                 ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token());
@@ -149,7 +149,7 @@ public class PetriNetAnimatorTest {
 
 
 
-    private PetriNet createSelfLoopPetriNet(String tokenWeight) {
+    private PetriNet createSelfLoopPetriNet(String tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                 AnImmediateTransition.withId("T1")).and(
                 ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens()).andFinally(
@@ -159,7 +159,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void correctlyEnablesTransitionEvenAfterFiring() throws PetriNetComponentNotFoundException {
+    public void correctlyEnablesTransitionEvenAfterFiring() throws PetriNetComponentException {
         PetriNet petriNet = createSimpleInhibitorPetriNet(1);
         Transition transition = petriNet.getComponent("T1", Transition.class);
 
@@ -172,7 +172,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void firingTransitionMovesToken() throws PetriNetComponentNotFoundException {
+    public void firingTransitionMovesToken() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
 
@@ -194,8 +194,9 @@ public class PetriNetAnimatorTest {
      *
      * @param tokenWeight
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) {
+    public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                 APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
                 AnInhibitorArc.withSource("P1").andTarget("T1")).andFinally(
@@ -204,7 +205,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void firingTransitionDisablesTransition() throws PetriNetComponentNotFoundException {
+    public void firingTransitionDisablesTransition() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
 
@@ -218,7 +219,7 @@ public class PetriNetAnimatorTest {
 
 
     @Test
-    public void firingTransitionBackwardEnablesTransition() throws PetriNetComponentNotFoundException {
+    public void firingTransitionBackwardEnablesTransition() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                         APlace.withId("P2").containing(1, "Default").token()).and(AnImmediateTransition.withId("T1")).andFinally(
@@ -233,7 +234,7 @@ public class PetriNetAnimatorTest {
     }
 
     @Test
-    public void restoresPetriNet() {
+    public void restoresPetriNet() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(1);
         PetriNet copy = ClonePetriNet.clone(petriNet);
 
@@ -251,8 +252,9 @@ public class PetriNetAnimatorTest {
      *
      * @param tokenWeight
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimplePetriNet(int tokenWeight) {
+    public PetriNet createSimplePetriNet(int tokenWeight) throws PetriNetComponentException {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(

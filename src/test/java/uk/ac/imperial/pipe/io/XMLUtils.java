@@ -62,12 +62,19 @@ public class XMLUtils {
     public static String getTwoTokenFile() {
     	return "/xml/token/two_token.xml";
     }
+    public static String getRateParameterReferencesPlaceFile() {
+    	return "/xml/rateParameter/rateReferencesPlace.xml";
+    }
+    
+    public static String getNoPlaceTokenPath() {
+    	return "/xml/place/noTokenPlace.xml";
+    }
+
     public static String readFile(String path, Charset encoding)
             throws IOException
     {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }
-
 
 }

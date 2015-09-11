@@ -1,7 +1,12 @@
 package uk.ac.imperial.pipe.dsl;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
 
 import java.awt.Color;
@@ -11,8 +16,12 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class APetriNetTest {
+	
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+		
     @Test
-    public void createsPetriNetWithOnePlace() {
+    public void createsPetriNetWithOnePlace() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P0"));
 
         PetriNet expected = new PetriNet();
@@ -23,7 +32,7 @@ public class APetriNetTest {
     }
 
     @Test
-    public void createsPetriNetWithMultipleItems() {
+    public void createsPetriNetWithMultipleItems() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.RED))
                                      .and(APlace.withId("P0"))
                                      .and(AnImmediateTransition.withId("T0"))
@@ -47,9 +56,10 @@ public class APetriNetTest {
     /**
      * This is an example of creating everything.
      * It shows how much space DSL saves
+     * @throws PetriNetComponentException 
      */
     @Test
-    public void createColoredPetriNet() throws InvalidRateException {
+    public void createColoredPetriNet() throws InvalidRateException, PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Red").withColor(Color.RED))
                 .and(AToken.called("Blue").withColor(Color.BLUE))
                 .and(ARateParameter.withId("Foo").andExpression("10"))
@@ -97,5 +107,25 @@ public class APetriNetTest {
 
         assertEquals(expected, petriNet);
     }
-
+    @Test
+    public void createsPetriNetWithRateParameterReferencingPlace() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P0").and(1, "Default").token()).andFinally(
+    			ARateParameter.withId("rate1").andExpression("#(P0)")); 
+    	RateParameter rate = petriNet.getComponent("rate1", RateParameter.class);
+    	assertEquals("#(P0)", rate.getExpression());
+    }
+    /**
+     * Show that order of building the petrinet matters.  For details, see {@link DSLCreator}
+     * @throws PetriNetComponentException
+     */
+    @Test
+    public void throwsIfComponentCreatedBeforeComponentItDependsOn() throws PetriNetComponentException {
+    	expectedException.expect(PetriNetComponentException.class); 
+    	expectedException.expectMessage("uk.ac.imperial.pipe.exceptions.InvalidRateException: Rate of #(P0) is invalid"); 
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			ARateParameter.withId("rate1").andExpression("#(P0)")).andFinally(
+    			APlace.withId("P0").and(1, "Default").token());
+    }
+    
 }

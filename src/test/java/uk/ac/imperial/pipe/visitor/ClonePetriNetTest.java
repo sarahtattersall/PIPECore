@@ -3,9 +3,11 @@ package uk.ac.imperial.pipe.visitor;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.*;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
@@ -22,7 +24,7 @@ public class ClonePetriNetTest {
     PetriNet clonedPetriNet;
 
     @Before
-    public void setUp() {
+    public void setUp() throws PetriNetComponentException {
         oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
                 ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
@@ -64,4 +66,21 @@ public class ClonePetriNetTest {
         assertTrue(arc.getSource() == clonedP0);
         assertTrue(arc.getTarget() == clonedT0);
     }
+    @Test
+    public void clonesRateParameter() throws PetriNetComponentException {
+	    checkRateParameter("3");
+    }
+    @Test
+    public void clonesRateParameterReferencingPlace() throws PetriNetComponentException {
+    	checkRateParameter("#(P0)");
+    }
+	protected void checkRateParameter(String rateExpression)
+			throws PetriNetComponentException {
+		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+				APlace.withId("P0").and(1, "Default").token()).andFinally(
+				ARateParameter.withId("rate1").andExpression(rateExpression)); 
+    	clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+    	RateParameter rate = clonedPetriNet.getComponent("rate1", RateParameter.class);
+    	assertEquals(rateExpression, rate.getExpression());
+	}
 }
