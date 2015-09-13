@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -49,7 +50,7 @@ public class BuildUniqueNameCommandTest extends AbstractMapEntryTest {
 		net6 = createSimpleNet(6);
 		includes = new IncludeHierarchy(net1, "top"); 
 	}
-	public PetriNet createSimpleNet(int i) {
+	public PetriNet createSimpleNet(int i) throws PetriNetComponentException {
 		PetriNet net = 
 				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(

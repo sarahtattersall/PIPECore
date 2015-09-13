@@ -39,6 +39,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.io.FileUtils;
 import uk.ac.imperial.pipe.io.IncludeHierarchyBuilder;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
@@ -91,7 +92,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         tokenFired = 0;
     }
 	@Test
-    public void simpleNetNotifiesOfStartAndFinishAndEachStateChange() throws InterruptedException {
+    public void simpleNetNotifiesOfStartAndFinishAndEachStateChange() throws InterruptedException, PetriNetComponentException {
     	checkCase = 1; 
     	net = buildTestNet();
     	runner = new PetriNetRunner(net); 
@@ -396,13 +397,13 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     //TODO runsNetsWithTimedTransitions
     //TODO runsNetsWithFunctionalExpressions
     //TODO generatesSameFiringSequenceIfMultipleTransitionsEnabledWhenSeedIsSpecified
-    protected PetriNet buildLoopingTestNet() {
+    protected PetriNet buildLoopingTestNet() throws PetriNetComponentException {
     	return buildNet("P0"); 
     }
-	protected PetriNet buildTestNet() {
+	protected PetriNet buildTestNet() throws PetriNetComponentException {
 		return buildNet("P2"); 
 	}
-	private PetriNet buildNet(String place) {
+	private PetriNet buildNet(String place) throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
                         and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(
@@ -412,7 +413,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
                         ANormalArc.withSource("T1").andTarget(place).with("1", "Default").token()); 
 		return net;
 	}
-	private PetriNet buildHaltingNet() {
+	private PetriNet buildHaltingNet() throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
 				and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
 				AnImmediateTransition.withId("T1")).and(
@@ -423,7 +424,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 				ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token()); 
 		return net;
 	}
-    private PetriNet buildExternalTransitionTestNet() {
+    private PetriNet buildExternalTransitionTestNet() throws PetriNetComponentException {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
     			and(APlace.withId("P1").externallyAccessible()).and(
     			AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).and(
@@ -675,7 +676,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		includeIO.writeTo(includePath, new IncludeHierarchyBuilder(includes));
 	}
 
-    private PetriNet buildNet4() {
+    private PetriNet buildNet4() throws PetriNetComponentException {
 		PetriNet net = APetriNet.named("includednet").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
 			and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2")).
 			and(AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).
@@ -684,14 +685,14 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 			andFinally(ANormalArc.withSource("T0").andTarget("P2").with("1", "Default").token());
 		return net; 
     }
-    private PetriNet buildNet3() {
+    private PetriNet buildNet3() throws PetriNetComponentException {
     	PetriNet net = APetriNet.named("testnet").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
     			and(APlace.withId("P1").externallyAccessible()).and(AnImmediateTransition.withId("T0")).
     			and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
     			andFinally(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token());
     	return net; 
     }
-	private PetriNet buildNet5() {
+	private PetriNet buildNet5() throws PetriNetComponentException {
     	PetriNet net = APetriNet.named("testnet").and(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
 			and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(APlace.withId("P3")).
 			and(AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")).

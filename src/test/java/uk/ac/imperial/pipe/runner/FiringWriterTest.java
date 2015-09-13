@@ -21,6 +21,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 public class FiringWriterTest {
@@ -35,7 +36,7 @@ public class FiringWriterTest {
 
 	
     @Before
-    public void setUp() {
+    public void setUp() throws PetriNetComponentException {
         net = buildNet();
         runner = new PetriNetRunner(net); 
         runner.setSeed(456327998101l);
@@ -69,7 +70,7 @@ public class FiringWriterTest {
     	file.delete();  // comment to leave file for viewing
     }
     
-	private PetriNet buildNet() {
+	private PetriNet buildNet() throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
                         and(APlace.withId("P1")).and(APlace.withId("P2")).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(
