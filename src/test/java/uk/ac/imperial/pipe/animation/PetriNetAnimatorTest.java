@@ -143,7 +143,6 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     @Test
     public void firingTransitionEnablesNextTransition() throws PetriNetComponentException {
         PetriNet petriNet = buildSequentiallyEnabledPetriNet();
-
         epn = petriNet.getExecutablePetriNet(); 
         animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
@@ -303,7 +302,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
     // I think the reset function is a little bit tricky - am not sure it belongs in
     // the animator.
-    //@Test
+    @Test
     public void restoresPetriNet() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(1);
         PetriNet copy = ClonePetriNet.clone(petriNet);

@@ -18,14 +18,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATestArc;
 import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.dsl.AnInhibitorArc;
-import uk.ac.imperial.pipe.dsl.ATestArc;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -35,8 +34,6 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TimedState;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.state.State;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
 import uk.ac.imperial.pipe.runner.TimedPetriNetRunner;
 import utils.AbstractTestLog4J2;
 
@@ -65,7 +62,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 
         timedState = executablePetriNet.getTimedState();
         successors = animationLogic.getSuccessors(timedState);
-
         assertEquals(1, successors.size());
         successor = successors.keySet().iterator().next();
 
