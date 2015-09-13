@@ -37,7 +37,6 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 		this.event = event;
 		// ValidationEventHandler says we must exit on fatal error
 		if (event.getSeverity() == event.FATAL_ERROR) return false;
-		
 		boolean unexpectedElement = saveAndCheckUnexpectedElement(event);
 		if ((unexpectedElement) && (!continueProcessing)) {
 			return true;  // continue only if saw unexpected element 
@@ -78,12 +77,21 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	}
 
 	private boolean saveAndCheckUnexpectedElement(ValidationEvent event) {
+//<<<<<<< b3c5fc1ed238e32bdc5d64e94dcbc86ac8fd9c84
 		if ((event.getLinkedException() == null) && (event.getMessage().startsWith(UNEXPECTED_ELEMENT))) {
 			formattedEvents.add(new FormattedEvent(true, formatEvent(), formatMessage())); 
 			return true;
 		}
 		else {
 			formattedEvents.add(new FormattedEvent(false, formatEvent(), formatMessage())); 
+//SJDclean =======
+//		if ((event.getLinkedException() == null) && (event.getMessage().startsWith("unexpected element"))) {
+//			formattedEvents.add(new FormattedEvent(true, printEvent())); 
+//			return true;
+//		}
+//		else {
+//			formattedEvents.add(new FormattedEvent(false, printEvent())); 
+//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 			return false;
 		}
 	}
@@ -110,6 +118,9 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	}
 
 	public String formatEvent() {
+//=======
+//	public String printEvent() {
+//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 		ValidationEventLocator locator = event.getLocator(); 
 		StringBuffer sb = new StringBuffer(); 
 		sb.append("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: "); 
@@ -155,4 +166,13 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 		this.xmlFileType = xmlFileType;
 	}
 
+//SJDclean=======
+//		
+//		public FormattedEvent(boolean unexpected, String formattedEvent) {
+//			this.unexpected = unexpected; 
+//			this.formattedEvent = formattedEvent; 
+//		}
+//		
+//	}
+//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 }
