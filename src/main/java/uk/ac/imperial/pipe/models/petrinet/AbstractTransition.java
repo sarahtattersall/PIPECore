@@ -56,10 +56,9 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 * Angle at which this transition should be displayed
 	 */
 	protected int angle = 0;
-	/**
-	 * Delay in milliseconds before transition will fire, once enabled.  
-	 */
-	protected int delay;
+	
+	int delay = 0;
+	long nextFiringTime = Long.MIN_VALUE;
 	
 	public AbstractTransition(String id, String name) {
 		super(id, name);
@@ -608,6 +607,17 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	@Override
 	public int getDelay() {
 		return delay;
+	}
+	
+	@Override
+	public void setNextFiringTime(long nextFiringTime) {
+		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setNextFiringTime:  firingTime cannot be set if Transition is not timed.");
+		this.nextFiringTime = nextFiringTime; 
+	}
+
+	@Override
+	public long getNextFiringTime() {
+		return this.nextFiringTime;
 	}
 
 }

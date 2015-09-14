@@ -80,18 +80,19 @@ public class PetriNetAnimationLogicTest {
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
 		animator = new PetriNetAnimationLogic(executablePetriNet, 40000);
 		State state = executablePetriNet.getState();
-		((PetriNetAnimationLogic) animator).setCurrentTimeForTesting(40001); 
+		((PetriNetAnimationLogic) animator).advanceToTime(40001); 
 		Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
 		assertEquals(0, successors.size());
-		((PetriNetAnimationLogic) animator).setCurrentTimeForTesting(41000); 
+		((PetriNetAnimationLogic) animator).advanceToTime(41000);
+		successors = animator.getSuccessors(state);
 		assertEquals(1, successors.size());
-//		State successor = successors.keySet().iterator().next();
-//		
-//		int actualP1 = successor.getTokens("P0").get("Default");
-//		assertEquals(1, actualP1);
-//		
-//		int actualP2 = successor.getTokens("P1").get("Default");
-//		assertEquals(1, actualP2);
+		State successor = successors.keySet().iterator().next();
+		
+		int actualP1 = successor.getTokens("P0").get("Default");
+		assertEquals(1, actualP1);
+		
+		int actualP2 = successor.getTokens("P1").get("Default");
+		assertEquals(1, actualP2);
 	}
 
 	protected PetriNet buildPetriNet() throws PetriNetComponentException {

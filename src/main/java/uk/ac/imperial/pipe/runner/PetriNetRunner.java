@@ -212,16 +212,15 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	protected void fireOneTransition() {
 		markPendingPlaces();
 		Transition transition = null; 
-		try {
-			transition = animator.getRandomEnabledTransition(); 
+		transition = animator.getRandomEnabledTransition();
+		if (transition == null) { 
+			transitionsToFire = false;
+		} else {
 			logger.debug("about to fire transition "+transition.getId()); 
 			animator.fireTransition(transition); 
 			firing = new Firing(round, transition.getId(), executablePetriNet.getState()); 
 			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
-			previousFiring = firing; 
-		} catch (RuntimeException e) { //TODO rework this:  no transitions shouldnt be an exception 
-			if ((e.getMessage() != null) && (e.getMessage().equals(Animator.ERROR_NO_TRANSITIONS_TO_FIRE))) transitionsToFire = false;  
-			else throw e; 
+			previousFiring = firing;
 		}
 	}
 	
