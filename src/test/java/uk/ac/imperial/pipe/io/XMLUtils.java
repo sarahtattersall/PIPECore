@@ -60,6 +60,20 @@ public class XMLUtils {
         return "/xml/place/singlePlace.xml";
     }
 
+    public static String getInvalidPetriNetFile() {
+    	return "/xml/invalidPetriNet.xml";
+    }
+    public static String getTwoTokenFile() {
+    	return "/xml/token/two_token.xml";
+    }
+    public static String getRateParameterReferencesPlaceFile() {
+    	return "/xml/rateParameter/rateReferencesPlace.xml";
+    }
+    
+    public static String getNoPlaceTokenPath() {
+    	return "/xml/place/noTokenPlace.xml";
+    }
+
     public static String getSinglePlaceWithHomeInterfaceStatusPath() {
     	return "/xml/place/singlePlaceHomeInterfaceStatus.xml";
     }

@@ -1,11 +1,11 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -141,7 +141,7 @@ public class PlaceRemovalEligibilityCommandTest {
 
 	}
 
- 	private PetriNet createSimpleNet(int i) {
+ 	private PetriNet createSimpleNet(int i) throws PetriNetComponentException {
 		PetriNet net = 
 				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -151,7 +151,7 @@ public class PlaceRemovalEligibilityCommandTest {
 		net.setName(new NormalPetriNetName("net"+i));
 		return net; 
 	}
- 	private PetriNet createSimpleNetOneArc(int i) {
+ 	private PetriNet createSimpleNetOneArc(int i) throws PetriNetComponentException {
  		PetriNet net = 
  				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
  				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(

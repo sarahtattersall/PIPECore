@@ -2,12 +2,9 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeIteratorTest {
@@ -48,7 +46,7 @@ public class IncludeIteratorTest {
 		net6 = createSimpleNet(6);
 		includes = new IncludeHierarchy(net1, "top"); 
 	}
-	public PetriNet createSimpleNet(int i) {
+	public PetriNet createSimpleNet(int i) throws PetriNetComponentException {
 		PetriNet net = 
 				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
