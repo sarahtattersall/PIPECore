@@ -39,7 +39,10 @@ public class PetriNetAnimationLogicTest {
 
 	
     private ExecutablePetriNet executablePetriNet;
-	private PetriNetAnimationLogic animator;
+	private PetriNetAnimationLogic animationLogic;
+	private State state;
+	private Map<State, Collection<Transition>> successors;
+	private State successor;
 
     @Before
 	public void setUp() throws Exception {
@@ -59,40 +62,64 @@ public class PetriNetAnimationLogicTest {
     public void infiniteServerSemantics() throws PetriNetComponentException {
 		PetriNet petriNet = buildPetriNet();
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
-		animator = new PetriNetAnimationLogic(executablePetriNet);
-//>>>>>>> starting timed transition tests
+		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 
-        State state = executablePetriNet.getState();
-        Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+        state = executablePetriNet.getState();
+        successors = animationLogic.getSuccessors(state);
 
         assertEquals(1, successors.size());
-        State successor = successors.keySet().iterator().next();
+        successor = successors.keySet().iterator().next();
 
-        int actualP1 = successor.getTokens("P0").get("Default");
-        assertEquals(1, actualP1);
+        checkCountForPlace(1, "P0");
+        checkCountForPlace(1, "P1");
 
-        int actualP2 = successor.getTokens("P1").get("Default");
-        assertEquals(1, actualP2);
     }
+	
+	
 	@Test
-	public void timedTransitionExecutesFollowingDelay() {
-		PetriNet petriNet = buildTimedPetriNet();
-		executablePetriNet = petriNet.getExecutablePetriNet(); 
-		animator = new PetriNetAnimationLogic(executablePetriNet, 40000);
-		State state = executablePetriNet.getState();
-		((PetriNetAnimationLogic) animator).advanceToTime(40001); 
-		Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+//<<<<<<< 2d290c87bc606112a7e9b5a10c5be8ffacaf0b75
+//	public void timedTransitionExecutesFollowingDelay() {
+//		PetriNet petriNet = buildTimedPetriNet();
+//		executablePetriNet = petriNet.getExecutablePetriNet(); 
+//		animator = new PetriNetAnimationLogic(executablePetriNet, 40000);
+//		State state = executablePetriNet.getState();
+//		((PetriNetAnimationLogic) animator).advanceToTime(40001); 
+//		Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+//SJDclean=======
+	public void timedTransitionExecutesFollowingDelay() throws PetriNetComponentException {
+		advanceNetToTime(buildTimedPetriNet(1000), 40001);
+//>>>>>>> added 3 commented tests
 		assertEquals(0, successors.size());
-		((PetriNetAnimationLogic) animator).advanceToTime(41000);
-		successors = animator.getSuccessors(state);
+		animationLogic.advanceToTime(41000);
+		successors = animationLogic.getSuccessors(state);
 		assertEquals(1, successors.size());
-		State successor = successors.keySet().iterator().next();
+		successor = successors.keySet().iterator().next();
 		
-		int actualP1 = successor.getTokens("P0").get("Default");
-		assertEquals(1, actualP1);
+		checkCountForPlace(1, "P0");
+		checkCountForPlace(1, "P1");
 		
-		int actualP2 = successor.getTokens("P1").get("Default");
-		assertEquals(1, actualP2);
+	}
+//	@Test
+	public void timedTransitionWithZeroDelayExecutesImmediately() throws PetriNetComponentException {
+		advanceNetToTime(buildTimedPetriNet(0), 40000);
+		successors = animationLogic.getSuccessors(state);
+		assertEquals(1, successors.size());
+		successor = successors.keySet().iterator().next();
+		
+		checkCountForPlace(1, "P0");
+		checkCountForPlace(1, "P1");
+		
+	}
+	protected void checkCountForPlace(Integer count, String place) {
+		assertEquals(count, successor.getTokens(place).get("Default"));
+	}
+	
+	protected void advanceNetToTime(PetriNet petriNet, int advanceToTime) {
+		executablePetriNet = petriNet.getExecutablePetriNet(); 
+		animationLogic = new PetriNetAnimationLogic(executablePetriNet, 40000);
+		state = executablePetriNet.getState();
+		animationLogic.advanceToTime(advanceToTime); 
+		successors = animationLogic.getSuccessors(state);
 	}
 
 	protected PetriNet buildPetriNet() throws PetriNetComponentException {
@@ -103,12 +130,72 @@ public class PetriNetAnimationLogicTest {
                 ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 		return petriNet;
 	}
-	protected PetriNet buildTimedPetriNet() {
+//<<<<<<< 2d290c87bc606112a7e9b5a10c5be8ffacaf0b75
+//	protected PetriNet buildTimedPetriNet() {
+//SJDclean=======
+	protected PetriNet buildTimedPetriNet(int delay) throws PetriNetComponentException {
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
 		APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
-		ATimedTransition.withId("T0").andDelay(1000)).and(
+		ATimedTransition.withId("T0").andDelay(delay)).and(
 		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
 		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
+		return petriNet;
+	}
+//	@Test
+	public void timerForSecondTimedTransitionOnlyStartsWhenTransitionIsEnabled() throws PetriNetComponentException {
+		PetriNet petriNet = buildTimedPetriNetTwoTimedTransitions(500);
+		advanceNetToTime(petriNet, 41000);
+		assertEquals(1, successors.size());
+		successor = successors.keySet().iterator().next();
+		
+		checkCountForPlace(0, "P0");
+		checkCountForPlace(1, "P1");
+		checkCountForPlace(0, "P2");
+		
+		successors = animationLogic.getSuccessors(successor);
+		assertEquals(0, successors.size());
+		
+		animationLogic.advanceToTime(41500); 
+
+		successors = animationLogic.getSuccessors(successor);
+		assertEquals(1, successors.size());
+		successor = successors.keySet().iterator().next();
+		checkCountForPlace(0, "P0");
+		checkCountForPlace(0, "P1");
+		checkCountForPlace(1, "P2");
+	}
+	//FIXME commented test
+//	@Test  
+	public void secondTimedTransitionWithZeroDelayFiresWhenTransitionIsEnabled() throws PetriNetComponentException {
+		PetriNet petriNet = buildTimedPetriNetTwoTimedTransitions(0);
+		advanceNetToTime(petriNet, 41000);
+		assertEquals(1, successors.size());
+		successor = successors.keySet().iterator().next();
+		
+		checkCountForPlace(0, "P0");
+		checkCountForPlace(1, "P1");
+		checkCountForPlace(0, "P2");
+		
+		successors = animationLogic.getSuccessors(successor);
+		assertEquals(1, successors.size());
+		successor = successors.keySet().iterator().next();
+		checkCountForPlace(0, "P0");
+		checkCountForPlace(0, "P1");
+		checkCountForPlace(1, "P2");
+	}
+
+	
+	protected PetriNet buildTimedPetriNetTwoTimedTransitions(int t1delay) throws PetriNetComponentException {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+				APlace.withId("P0").and(1, "Default").tokens()).and(
+				APlace.withId("P1").and(0, "Default").tokens()).and(
+				APlace.withId("P2").and(0, "Default").tokens()).and(
+				ATimedTransition.withId("T0").andDelay(1000)).and(
+				ATimedTransition.withId("T1").andDelay(t1delay)).and(
+				ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).and(
+				ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).and(
+				ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).
+				andFinally(ANormalArc.withSource("T1").andTarget("P2").and("1", "Default").token());
 		return petriNet;
 	}
 
@@ -408,15 +495,14 @@ public class PetriNetAnimationLogicTest {
                 ANormalArc.withSource("T0").andTarget("P0").with("1", "Default").token());
 
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        State state = executablePetriNet.getState();
-        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
-        Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
+        state = executablePetriNet.getState();
+        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
+        successors = animationLogic.getSuccessors(state);
 
         assertEquals(1, successors.size());
-        State successor = successors.keySet().iterator().next();
+        successor = successors.keySet().iterator().next();
 
-        int actualP1 = successor.getTokens("P0").get("Default");
-        assertEquals(1, actualP1);
+        checkCountForPlace(1, "P0");
     }
 
     /**
