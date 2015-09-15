@@ -18,6 +18,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Manages addition and deletion of Petri nets. It uses the publish-subscribe design
@@ -102,9 +103,10 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      * @param petriNet petri net to save
      * @param outFile file to save petri net to
      * @throws JAXBException
+     * @throws IOException 
      */
     @Override
-    public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException {
+    public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException {
 
         uk.ac.imperial.pipe.io.PetriNetWriter writer = new PetriNetIOImpl();
         writer.writeTo(outFile.getAbsolutePath(), petriNet);

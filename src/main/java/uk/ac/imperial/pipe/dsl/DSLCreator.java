@@ -34,8 +34,8 @@ public interface DSLCreator<T extends PetriNetComponent> {
      *
      * A suggested order would be
      * Tokens
-     * RateParameters
      * Places
+     * RateParameters
      * Transitions
      * Arcs
      *

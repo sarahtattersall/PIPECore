@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 /**
  * Marshals a Petri net into the verbose format needed for PNML
  */
-public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
+public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     /**
      *
      * @param v
@@ -26,8 +26,8 @@ public final class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet>
         }
         addToPetriNet(v.tokens, petriNet);
         addToPetriNet(v.annotations, petriNet);
-        addToPetriNet(v.rateParameters, petriNet);
         addToPetriNet(v.places, petriNet);
+        addToPetriNet(v.rateParameters, petriNet);
         addToPetriNet(v.transitions, petriNet);
         addToPetriNet(v.arcs, petriNet);
         return petriNet;

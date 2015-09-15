@@ -85,8 +85,9 @@ public final class APetriNet {
      * @param finalCreator last item creator to add to Petri net
      * @param <T> type of PetriNetComponent
      * @return the created Petri net containing all the items made from the added creators
+     * @throws PetriNetComponentException 
      */
-    public  <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator) {
+    public  <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator) throws PetriNetComponentException {
         return and(finalCreator).makePetriNet();
     }
 
@@ -95,8 +96,9 @@ public final class APetriNet {
      * @param creator item creator to add to Petri net
      * @param <T> type of PetriNetComponent
      * @return created petri net containing the item
+     * @throws PetriNetComponentException 
      */
-    public static <T extends PetriNetComponent> PetriNet withOnly(DSLCreator<T> creator) {
+    public static <T extends PetriNetComponent> PetriNet withOnly(DSLCreator<T> creator) throws PetriNetComponentException {
         APetriNet aPetriNet = new APetriNet();
         return aPetriNet.andFinally(creator);
     }
@@ -105,8 +107,9 @@ public final class APetriNet {
      * Creates a petri net by looping through the creators and calling
      * their create methods
      * @return petri net with components added
+     * @throws PetriNetComponentException 
      */
-    private PetriNet makePetriNet() {
+    private PetriNet makePetriNet() throws PetriNetComponentException {
         Map<String, Token> tokens = new HashMap<>();
         Map<String, Place> places = new HashMap<>();
         Map<String, Transition> transitions = new HashMap<>();
@@ -117,7 +120,7 @@ public final class APetriNet {
             try {
                 petriNet.add(creator.create(tokens, places, transitions, rateParameters));
             } catch (PetriNetComponentException e) {
-                LOGGER.log(Level.SEVERE, e.getMessage());
+                throw e; 
             }
         }
         return petriNet;

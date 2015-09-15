@@ -3,5 +3,6 @@ language: java
 branches:
   except:
     - mvn-repo
-
+    
 sudo: false
+    
