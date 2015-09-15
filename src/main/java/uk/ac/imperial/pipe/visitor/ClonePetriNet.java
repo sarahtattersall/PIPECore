@@ -117,9 +117,9 @@ public final class ClonePetriNet {
 	 * the corresponding collection in the ExecutablePetriNet:  
 	 * <ul>
 	 * <li>tokens
-	 * <li>rateParameters
 	 * <li>annotations
 	 * <li>places
+	 * <li>rateParameters
 	 * <li>transitions
 	 * <li>inboundArcs
 	 * <li>outboundArcs
@@ -208,16 +208,16 @@ public final class ClonePetriNet {
             visit(token);
         }
 
-        for (RateParameter rateParameter : petriNet.getRateParameters()) {
-            visit(rateParameter);
-        }
-
         for (Annotation annotation : petriNet.getAnnotations()) {
             visit(annotation);
         }
 
         for (Place place : petriNet.getPlaces()) {
             visit(place);
+        }
+        
+        for (RateParameter rateParameter : petriNet.getRateParameters()) {
+        	visit(rateParameter);
         }
         for (Transition transition : petriNet.getTransitions()) {
             visit(transition);

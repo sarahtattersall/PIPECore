@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -15,9 +14,6 @@ import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,7 +54,7 @@ public class ExecutablePetriNetTest {
         executablePetriNet = net.getExecutablePetriNet();  
     }
     @Test
-    public void equalsAndHashCodeLawsWhenEqual() {
+    public void equalsAndHashCodeLawsWhenEqual() throws PetriNetComponentException {
     	net = buildTestNet();
     	executablePetriNet = net.getExecutablePetriNet(); 
     	PetriNet net2 = buildTestNet();
@@ -79,7 +75,7 @@ public class ExecutablePetriNetTest {
     }
 
     @Test
-    public void collectionsMatchOriginalPetriNet() {
+    public void collectionsMatchOriginalPetriNet() throws PetriNetComponentException {
         net = buildTestNet();
         executablePetriNet = net.getExecutablePetriNet();  
         assertThat(executablePetriNet.getAnnotations()).hasSize(0); 
@@ -192,14 +188,14 @@ public class ExecutablePetriNetTest {
         executablePetriNet.refresh();
     	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
 	}
-    protected PetriNet buildNet1() {
+    protected PetriNet buildNet1() throws PetriNetComponentException {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).
     					and(AnImmediateTransition.withId("T0")).and(
     					AnImmediateTransition.withId("T1")).
     					andFinally(ANormalArc.withSource("T0").andTarget("P0").with("#(P0)", "Default").token());
     	return net; 
     }
-    protected PetriNet buildNet2() {
+    protected PetriNet buildNet2() throws PetriNetComponentException {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     					APlace.withId("P1")).and(APlace.withId("P2")).and(APlace.withId("P3")).and(
     					AnImmediateTransition.withId("T0")).and(
@@ -307,7 +303,7 @@ public class ExecutablePetriNetTest {
 		catch (PetriNetComponentNotFoundException e) {
 		}
 	}
-	protected PetriNet buildTestNet() {
+	protected PetriNet buildTestNet() throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(

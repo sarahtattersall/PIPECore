@@ -48,8 +48,7 @@ public class MergeInterfaceStatusHomeTest {
 	public void setUp() throws Exception {
 		setup(true); 
 	}
-	protected void setup(boolean arcs) throws PetriNetComponentNotFoundException,
-			IncludeException {
+	protected void setup(boolean arcs) throws IncludeException, PetriNetComponentException {
 		net = new PetriNet(); 
 		includes = new IncludeHierarchy(net, "top"); 
 		place = new DiscretePlace("P10");
@@ -252,14 +251,14 @@ public class MergeInterfaceStatusHomeTest {
 	}
 
 	
-	protected PetriNet buildNet(int i) throws PetriNetComponentNotFoundException {
+	protected PetriNet buildNet(int i) throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(
     			ANormalArc.withSource("P0").andTarget("T0"));
 		net.setName(new NormalPetriNetName("net"+i));
 		return net;
 	}
-	protected PetriNet buildNetNoArc(int i) throws PetriNetComponentNotFoundException {
+	protected PetriNet buildNetNoArc(int i) throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).andFinally(AnImmediateTransition.withId("T0"));
 		net.setName(new NormalPetriNetName("net"+i));

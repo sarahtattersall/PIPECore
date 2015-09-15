@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor;
@@ -164,7 +165,7 @@ public class DiscreteTransitionTest {
 
     @Test
     public void infiniteServerRateMultipliesByEnablingDegreeNonFunctionalArc()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsAnInfinite().server().andRate("4")).and(
@@ -182,7 +183,7 @@ public class DiscreteTransitionTest {
 
     @Test
     public void infiniteServerRateMultipliesByEnablingDegreeFunctionalArcs()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsAnInfinite().server().andRate("4")).and(
@@ -200,7 +201,7 @@ public class DiscreteTransitionTest {
 
     @Test
     public void actualRateSingleServer()
-            throws PetriNetComponentNotFoundException {
+            throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsASingle().server().andRate("4")).and(
@@ -258,7 +259,7 @@ public class DiscreteTransitionTest {
 	}
    
     @Test
-    public void evaluatesRateAgainstPetriNet() throws PetriNetComponentNotFoundException {
+    public void evaluatesRateAgainstPetriNet() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(5, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsASingle().server().andRate("#(P0)")).andFinally(

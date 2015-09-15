@@ -16,7 +16,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 
 //TODO test changes to status for existing nets and components
 // ....e.g., change to inputOnly for a place that already has outbound arcs
@@ -159,7 +159,7 @@ public class PlaceStatusInterfaceTest {
 		@SuppressWarnings("unused")
 		InboundArc inbound = new InboundNormalArc(place, transition, new HashMap<String, String>());
 	}
-	protected void buildNet() throws PetriNetComponentNotFoundException {
+	protected void buildNet() throws PetriNetComponentException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).andFinally(AnImmediateTransition.withId("T0"));
 	}

@@ -12,9 +12,11 @@ import org.junit.Test;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ARateParameter;
 import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
@@ -24,6 +26,7 @@ import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
@@ -33,11 +36,11 @@ public class ClonePetriNetTest {
     PetriNet clonedPetriNet;
 
     @Before
-    public void setUp() {
+    public void setUp() throws PetriNetComponentException {
         buildSimpleNet();
     }
     //TODO clones InterfacePlaces (?)
-	private void buildSimpleNet() {
+	private void buildSimpleNet() throws PetriNetComponentException {
 		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
                 ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
@@ -120,7 +123,25 @@ public class ClonePetriNetTest {
     	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
     	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size()); 
     }
-	protected PetriNet buildTestNet() {
+    @Test
+    public void clonesRateParameter() throws PetriNetComponentException {
+	    checkRateParameter("3");
+    }
+    @Test
+    public void clonesRateParameterReferencingPlace() throws PetriNetComponentException {
+    	checkRateParameter("#(P0)");
+    }
+	protected void checkRateParameter(String rateExpression)
+			throws PetriNetComponentException {
+		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+				APlace.withId("P0").and(1, "Default").token()).andFinally(
+				ARateParameter.withId("rate1").andExpression(rateExpression)); 
+    	clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+    	RateParameter rate = clonedPetriNet.getComponent("rate1", RateParameter.class);
+    	assertEquals(rateExpression, rate.getExpression());
+	}
+
+	protected PetriNet buildTestNet() throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
                         AnImmediateTransition.withId("T1")).and(

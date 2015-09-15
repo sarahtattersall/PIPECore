@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +41,6 @@ import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.runner.PetriNetRunner;
 
 public class PetriNetWriterTest extends XMLTestCase {
     PetriNetWriter writer;
@@ -57,7 +57,7 @@ public class PetriNetWriterTest extends XMLTestCase {
 	    // or...
 //	    writeIncludeHierarchy(); 
 	}
-    protected static void writeSingleNet(String where, PetriNet net) throws JAXBException {
+    protected static void writeSingleNet(String where, PetriNet net) throws JAXBException, IOException {
     	PetriNetIO netIO = new PetriNetIOImpl(); 
     	netIO.writeTo(where, net);
     }
@@ -87,7 +87,7 @@ public class PetriNetWriterTest extends XMLTestCase {
 		includeIO.writeTo(includePath, new IncludeHierarchyBuilder(includes));
 	}
 
-    private static PetriNet buildNet() {
+    private static PetriNet buildNet() throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0").containing(1, "Default").token()).
 				and(APlace.withId("P1").externallyAccessible()).and(APlace.withId("P2").externallyAccessible()).and(AnImmediateTransition.withId("T0")).and(
 				AnImmediateTransition.withId("T1")).and(
@@ -110,6 +110,16 @@ public class PetriNetWriterTest extends XMLTestCase {
         writer = new PetriNetIOImpl();
     }
 
+    public void testInvalidNetGeneratesUnderstandableMessage() throws Exception {
+    	writer = new PetriNetIOImpl(true, true);
+    	PetriNet petriNet = new InvalidPetriNet();
+    	StringWriter stringWriter = new StringWriter();
+    	writer.writeTo(stringWriter, petriNet);
+    	assertTrue(((PetriNetIOImpl) writer).getEventHandler().getFormattedEvents().get(0).formattedEvent.startsWith(
+    		"PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
+    	    "Message: TestingInvalidPetriNet threw an exception for testing"));
+    }
+    
     public void testMarshalsPlace() throws IOException, SAXException, JAXBException {
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("Red", new Color(255, 0, 0));
@@ -279,7 +289,7 @@ public class PetriNetWriterTest extends XMLTestCase {
     	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()), petriNet);
     }
 
-    public void testMarshalsArc() throws IOException, SAXException, JAXBException {
+    public void testMarshalsArc() throws IOException, SAXException, JAXBException, PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").locatedAt(0, 0)).and(AnImmediateTransition.withId("T0").locatedAt(0, 0)).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").and("4", "Default").tokens());
@@ -301,6 +311,12 @@ public class PetriNetWriterTest extends XMLTestCase {
         AnnotationImpl annotation = new AnnotationImpl(93, 145, "#P12s", 48, 20, false);
         petriNet.addAnnotation(annotation);
         assertResultsEqual(FileUtils.fileLocation(XMLUtils.getAnnotationFile()), petriNet);
+    }
+    private class InvalidPetriNet extends PetriNet {
+    	@Override
+    	public Collection<Token> getTokens() {
+    		throw new RuntimeException("TestingInvalidPetriNet threw an exception for testing.");
+    	}
     }
 }
 

@@ -342,8 +342,9 @@ public class PetriNetTest {
      *
      * @param tokenWeight
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) {
+    public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) throws PetriNetComponentException {
         String weight = Integer.toString(tokenWeight);
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                 APlace.withId("P2")).and(AnImmediateTransition.withId("T1")).and(
@@ -367,7 +368,7 @@ public class PetriNetTest {
                 transition.getRate() instanceof NormalRate);
     }
     @Test
-    public void testEqualityEqualPetriNets() {
+    public void testEqualityEqualPetriNets() throws PetriNetComponentException {
         PetriNet net1 = createSimplePetriNet(1, "");
         PetriNet net2 = createSimplePetriNet(1, "");
         assertTrue(net1.equals(net2));
@@ -380,8 +381,9 @@ public class PetriNetTest {
      * @param tokenWeight
      * @param name TODO
      * @return
+     * @throws PetriNetComponentException 
      */
-    public PetriNet createSimplePetriNet(int tokenWeight, String name) {
+    public PetriNet createSimplePetriNet(int tokenWeight, String name) throws PetriNetComponentException {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.named(name).and(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
@@ -391,7 +393,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void testEqualityNotEqualPetriNets() {
+    public void testEqualityNotEqualPetriNets() throws PetriNetComponentException {
         PetriNet net1 = createSimplePetriNet(1, "net1");
         PetriNet net2 = createSimplePetriNet(4, "net1");
         assertFalse(net1.equals(net2));
@@ -400,7 +402,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void equalsAndHashCodeLawsWhenEqual() {
+    public void equalsAndHashCodeLawsWhenEqual() throws PetriNetComponentException {
         PetriNet net1 = createSimplePetriNet(1, "net1");
         PetriNet net2 = createSimplePetriNet(1, "net1");
         assertTrue(net1.equals(net2));
@@ -408,7 +410,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void equalsAndHashCodeLawsWhenNotEqual() {
+    public void equalsAndHashCodeLawsWhenNotEqual() throws PetriNetComponentException {
         PetriNet net1 = createSimplePetriNet(1, "");
         PetriNet net2 = createSimplePetriNet(5, "");
         assertFalse(net1.equals(net2));
@@ -528,7 +530,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void correctEmptyOutboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctEmptyOutboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).andFinally(
                         AnImmediateTransition.withId("T0"));
@@ -538,7 +540,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void correctEmptyInboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctEmptyInboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).andFinally(
                         AnImmediateTransition.withId("T0"));
@@ -548,7 +550,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void removesTransitionInboundWhenDeleted() throws PetriNetComponentNotFoundException {
+    public void removesTransitionInboundWhenDeleted() throws PetriNetComponentException {
         PetriNet petriNet =
 
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
@@ -565,7 +567,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void correctInboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctInboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
 
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
@@ -580,7 +582,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void correctDeletesFromInboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctDeletesFromInboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         AnImmediateTransition.withId("T0")).andFinally(
@@ -593,7 +595,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void correctOutboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctOutboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -608,7 +610,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void removesAllOutBoundWhenTransitionDeleted() throws PetriNetComponentNotFoundException {
+    public void removesAllOutBoundWhenTransitionDeleted() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -622,7 +624,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void correctOutboundArcsIfTransitionChangesName() throws PetriNetComponentNotFoundException {
+    public void correctOutboundArcsIfTransitionChangesName() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -639,7 +641,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void correctRemovalDeletesFromOutboundArcs() throws PetriNetComponentNotFoundException {
+    public void correctRemovalDeletesFromOutboundArcs() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         AnImmediateTransition.withId("T0")).andFinally(
@@ -652,7 +654,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void cannotDeletePlaceIfReferencedByTransition() throws PetriNetComponentNotFoundException {
+    public void cannotDeletePlaceIfReferencedByTransition() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(APlace.withId("P0")).andFinally(
                 ATimedTransition.withId("T0").andRate("#(P0)"));
         Place place = petriNet.getComponent("P0", Place.class);
@@ -668,7 +670,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void cannotDeletePlaceIfReferencedByRateParam() throws PetriNetComponentNotFoundException {
+    public void cannotDeletePlaceIfReferencedByRateParam() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(APlace.withId("P0")).andFinally(ARateParameter.withId("R1").andExpression("#(P0)"));
         Place place = petriNet.getComponent("P0", Place.class);
         try {
@@ -681,7 +683,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void cannotDeletePlaceIfReferencedByArc() throws PetriNetComponentNotFoundException {
+    public void cannotDeletePlaceIfReferencedByArc() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -699,7 +701,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void allComponents() {
+    public void allComponents() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -713,7 +715,7 @@ public class PetriNetTest {
 
 
     @Test
-    public void containsComponents() {
+    public void containsComponents() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -727,7 +729,7 @@ public class PetriNetTest {
     }
 
     @Test
-    public void doesNotContainComponents() {
+    public void doesNotContainComponents() throws PetriNetComponentException {
         PetriNet petriNet =
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                         APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
@@ -817,7 +819,7 @@ public class PetriNetTest {
     	assertEquals("wasnt previously in the net, but now added",
     			p2, net.getPlaces().iterator().next()); 
 	}
-	protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentNotFoundException {
+	protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(
     			ANormalArc.withSource(source).andTarget(target));

@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * Responsible for creating and managing Petri nets
@@ -52,9 +53,10 @@ public interface PetriNetManager {
      *
      * @param petriNet petri net to save
      * @param outFile file to save petri net to
+     * @throws IOException 
      */
     //TODO: SHOULD REALLY TELL IT TO SAVE ONE OF ITS OWN PETRI NETS RATHER THAN PASSING IT IN
-    void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException;
+    void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException;
 
     /**
      * Remove this Petri net from storage

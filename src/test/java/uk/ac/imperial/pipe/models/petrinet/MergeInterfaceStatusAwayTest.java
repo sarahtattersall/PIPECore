@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 
@@ -18,6 +18,7 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
@@ -58,7 +59,7 @@ public class MergeInterfaceStatusAwayTest {
 //		assertEquals("MergeInterfaceStatusAway.remove: not supported for Away status.  " +
 //				"Must be issued by MergeInterfaceStatusHome against the home include hierarchy.", result.getMessage()); 
 	}
-	protected PetriNet buildNet(int i) throws PetriNetComponentNotFoundException {
+	protected PetriNet buildNet(int i) throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
     			APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).andFinally(
     			ANormalArc.withSource("P0").andTarget("T0"));
