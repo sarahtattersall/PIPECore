@@ -67,13 +67,12 @@ public final class PetriNetAnimator implements Animator {
      *
      * @return a random transition which is enabled given the Petri nets current state
      */
-    //TODO rather than throwing, should return null when no more transitions, and caller should check for that
     @Override
     public Transition getRandomEnabledTransition() {
         Set<Transition> enabledTransitions = getEnabledTransitions();
         logger.debug("enabled transitions count: "+enabledTransitions.size());
         if (enabledTransitions.isEmpty()) {
-            throw new RuntimeException(ERROR_NO_TRANSITIONS_TO_FIRE);
+        	return null;
         }
         Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
         int index = getRandom().nextInt(enabledTransitions.size());
