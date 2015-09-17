@@ -487,6 +487,11 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
         assertFalse(arc.canFire(executablePetriNet, timedState.getState() )); 
         Collection<Transition> transitions = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
+//        State state = executablePetriNet.getState();
+//        InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
+//        assertFalse(arc.canFire(executablePetriNet, state)); 
+//        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+//        Collection<Transition> transitions = animator.getEnabledTransitions(state);
         assertEquals(0, transitions.size());
     }
 
