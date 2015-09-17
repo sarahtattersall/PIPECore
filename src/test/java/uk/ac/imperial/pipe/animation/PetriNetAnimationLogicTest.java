@@ -89,6 +89,23 @@ public class PetriNetAnimationLogicTest {
         assertEquals("Both transitions were not enabled", 2, transitions.size());
         assertThat(transitions).contains(t0, t1);
     }
+    @Test
+    public void arcweightThatEvaluatesToZeroDoesNotEnableTransition() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P0").and(0, "Default").tokens()).and(
+    			AnImmediateTransition.withId("T0")).andFinally(
+    			ANormalArc.withSource("P0").andTarget("T0").with("#(P0)", "Default").token());
+//    	Transition transition = petriNet.getComponent("T0", Transition.class);
+        State state = AnimationUtils.getState(petriNet);
+        InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
+        assertFalse(arc.canFire(petriNet, state)); 
+//        for (Arc<Place, Transition> arc : petriNet.inboundArcs(transition)) {
+        AnimationLogic animator = new PetriNetAnimationLogic(petriNet);
+        Collection<Transition> transitions = animator.getEnabledTransitions(state);
+        assertEquals(0, transitions.size());
+//            if (!arc.canFire(petriNet, state)) {
+//
+    }
 
     @Test
     public void correctlyIdentifiesEnabledTransition() throws PetriNetComponentException {
