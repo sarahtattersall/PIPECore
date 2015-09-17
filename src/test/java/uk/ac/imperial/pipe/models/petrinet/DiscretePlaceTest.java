@@ -6,8 +6,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
@@ -19,20 +21,31 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
+import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 
-public class DiscretePlaceTest {
+@RunWith(MockitoJUnitRunner.class)
+public class DiscretePlaceTest implements PropertyChangeListener {
 
 	
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    DiscretePlace place;
+    private DiscretePlace place;
+    private DiscretePlace rootP0;
 
 	private PetriNet net;
 
 	private IncludeHierarchy includes;
+
 
     @Before
     public void setUp() {
@@ -279,7 +292,56 @@ public class DiscretePlaceTest {
     	place.setTokenCount("Default", 3); 
     	assertEquals(3, mirror.getTokenCount("Default")); 
 	}
-    
+    @Test
+	public void whenNotifiedOfTokenChangeSendsDifferentNotificationMessage() throws Exception {
+    	place.addPropertyChangeListener(this);
+    	Map<String, Integer> tokenCounts = new HashMap<>();
+    	tokenCounts.put("Default", 7);
+    	place.propertyChange(new PropertyChangeEvent(this, Place.TOKEN_CHANGE_MESSAGE, null, tokenCounts));
+	}
+    //verify whenNotifiedOfTokenChangeSendsDifferentNotificationMessage
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		assertEquals(Place.TOKEN_CHANGE_MIRROR_MESSAGE, evt.getPropertyName());
+	}
+	//TODO find a better place for this test and/or refactor
+    @Test
+	public void refreshOfExecutablePetriNetRemovesOldPlacesAsListeners() throws Exception {
+    	PetriNet petriNet = buildSimpleNet(); 
+    	petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
+    	rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+    	place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
+    	checkPlaceAsListener(true, rootP0);
+    	executablePetriNet.refreshRequired(); 
+    	executablePetriNet.refresh(); 
+    	DiscretePlace rootP0new = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+    	checkPlaceAsListener(true, rootP0new);
+    	checkPlaceAsListener(false, rootP0);
+	}
+
+	protected void checkPlaceAsListener(boolean expected, Place otherPlace) {
+		boolean found = false; 
+		PropertyChangeListener[] placeListeners = place.changeSupport.getPropertyChangeListeners(); 
+    	for (PropertyChangeListener propertyChangeListener : placeListeners) {
+			if (propertyChangeListener == otherPlace) {
+				// equals() won't work because overridden in DiscretePlace
+				found = true;
+			} 
+		}
+    	assertEquals(expected, found); 	
+	}
+	private PetriNet buildSimpleNet() throws PetriNetComponentException {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
+                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
+                .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+                .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
+                .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+                .andFinally(ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token());
+		return petriNet; 
+	}
+
     // Hier.addToInterface(place)
     //   place.setIsInInterface
     @Test
@@ -334,5 +396,6 @@ public class DiscretePlaceTest {
     	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
 //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
 	}
+
 }
 

@@ -314,13 +314,13 @@ public final class ClonePetriNet {
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
         	newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
         	pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
-        	newPlace.addPropertyChangeListener(place); 
         }
         else if (refreshingExecutablePetriNet) {
         	updatePendingPlaces(place, newPlace); 
         	updatePendingPlacesToDelete(place, newPlace);
-        	newPlace.addPropertyChangeListener(place); 
         }
+        newPlace.addPropertyChangeListener(place); 
+        place.addPropertyChangeListener(newPlace); 
         places.put(place.getId(), newPlace);
     }
 	protected void updatePendingPlacesToDelete(Place place, Place newPlace) {
