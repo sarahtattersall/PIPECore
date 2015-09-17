@@ -44,7 +44,9 @@ public class InboundNormalArc extends InboundArc {
             }
             String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
-            if (currentCount < tokenWeight) {  
+            //TODO test:  currentCount = -1 can't mean that the arc can fire
+//            if ((currentCount < tokenWeight) && (currentCount != -1)) {
+            if ((currentCount < tokenWeight) || (currentCount == 0)) {
                 return false;
             }
         }
