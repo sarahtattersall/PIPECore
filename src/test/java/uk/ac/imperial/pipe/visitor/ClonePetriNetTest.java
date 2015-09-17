@@ -82,6 +82,17 @@ public class ClonePetriNetTest {
         assertTrue(arc.getTarget() == clonedT0);
     }
     @Test
+	public void clonedPlaceAndItsSourcePlaceBothMirrorTokenCountChanges() throws Exception {
+    	clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+    	assertEquals(oldPetriNet, clonedPetriNet);
+    	Place oldP = oldPetriNet.getComponent("P0", Place.class); 
+    	Place cloneP = clonedPetriNet.getComponent("P0", Place.class); 
+    	oldP.setTokenCount("Default", 2); 
+    	assertEquals(2, cloneP.getTokenCount("Default")); 
+    	cloneP.setTokenCount("Default", 3); 
+    	assertEquals(3, oldP.getTokenCount("Default")); 
+	}
+    @Test
 	public void clonePetriNetToExecutablePetriNetReplacingExistingState() throws Exception {
     	buildSimpleNet(); 
     	oldPetriNet.setIncludeHierarchy(new IncludeHierarchy(oldPetriNet, "root"));

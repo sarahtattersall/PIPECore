@@ -72,12 +72,19 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 */
 	public void refresh() {
 		if (isRefreshRequired()) {
+			notifyListenersToRemovePlaces(); 
 			initializeMaps(); 
 			refreshIncludeHierarchyComponents(); 
 			addSelfAsListenerForPlaceTokenCountChanges(); 
 			buildState(); 
 			refreshRequired = false;
 		    changeSupport.firePropertyChange(PETRI_NET_REFRESHED_MESSAGE, null, null);
+		}
+	}
+
+	private void notifyListenersToRemovePlaces() {
+		for (Place place : places.values()) {
+			place.removeSelfFromListeners(); 
 		}
 	}
 

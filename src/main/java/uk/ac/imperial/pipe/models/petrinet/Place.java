@@ -7,15 +7,28 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 
 
 public interface Place extends Connectable, PropertyChangeListener {
-    /**
+    
+	
+
+	/**
      * Place diameter
      */
     int DIAMETER = 30;
 
     /**
+     * Message fired when place is being deleted so listeners stop listening
+     */
+	public static final String REMOVE_PLACE_MESSAGE = "remove place";
+
+    /**
      * Message fired when the places tokens change in any way
      */
-    public String TOKEN_CHANGE_MESSAGE = "tokens";
+    public static final String TOKEN_CHANGE_MESSAGE = "tokens";
+    
+    /**
+     * Message fired when mirroring token changes in another place 
+     */
+    public static final String TOKEN_CHANGE_MIRROR_MESSAGE = "tokens mirrored";
 
     double getMarkingXOffset();
 
@@ -77,7 +90,9 @@ public interface Place extends Connectable, PropertyChangeListener {
 	
 	public PlaceStatus getStatus();
 
-	public void setStatus(PlaceStatus status); 
+	public void setStatus(PlaceStatus status);
+
+	public void removeSelfFromListeners(); 
 
 
 }

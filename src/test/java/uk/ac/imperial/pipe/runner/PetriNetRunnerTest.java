@@ -437,7 +437,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 //		System.out.println(evt);
-		if (!(evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE))) events++; 
+		if (!(evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) && 
+			!(evt.getPropertyName().equals(Place.REMOVE_PLACE_MESSAGE))) 
+		{
+			events++; 
+			
+		}
 		switch (checkCase) {
 		case 1: checkNormalEvents(evt); break; 
 		case 2: checkNormalEventsLooping(evt); break; 

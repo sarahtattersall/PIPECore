@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -174,7 +175,12 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     @Override
     public void setTokenCounts(Map<String, Integer> tokenCounts) {
-        if (hasCapacityRestriction()) {
+        Map<String, Integer> old = setTokenCountsBare(tokenCounts);
+        notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
+    }
+
+	protected Map<String, Integer> setTokenCountsBare(Map<String, Integer> tokenCounts) {
+		if (hasCapacityRestriction()) {
             int count = getNumberOfTokensStored(tokenCounts);
             if (count > capacity) {
                 throw new RuntimeException("Count of tokens exceeds capacity!");
@@ -182,8 +188,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         this.tokenCounts = new HashMap<>(tokenCounts);
-        changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
-    }
+		return old;
+	}
 
     /**
      *
@@ -222,8 +228,12 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         setTokenCount(token, count);
-        changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
+        notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
+
+	protected void notifyTokenListeners(String propertyMessage, Map<String, Integer> old, Map<String, Integer> tokenCounts) {
+		changeSupport.firePropertyChange(propertyMessage, old, tokenCounts);
+	}
 
     /**
      * Modifies the token count of the specified token
@@ -242,7 +252,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         tokenCounts.put(token, count);
-        changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
+        notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
     /**
@@ -279,7 +289,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
             count--;
             tokenCounts.put(token, count);
         }
-        changeSupport.firePropertyChange(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
+        notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
     @Override
@@ -421,15 +431,23 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     }
     
     /**
-     * Token count change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net
+     * Update token count to mirror another place 
+     * (e.g., change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net, or vice versa)
      *
+     * Generates TOKEN_CHANGE_MIRROR_MESSAGE to inform non-Place listeners that tokens have been updated (e.g., PlaceView)
+     * 
      * @param event 
      */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
-				setTokenCounts((Map<String, Integer>) event.getNewValue()); 
+			Map<String, Integer> tokenCounts = (Map<String, Integer>) event.getNewValue();
+			Map<String, Integer> old = setTokenCountsBare(tokenCounts); 
+	        notifyTokenListeners(TOKEN_CHANGE_MIRROR_MESSAGE, old, tokenCounts);
+		}
+		else if (event.getPropertyName().equals(REMOVE_PLACE_MESSAGE)) {
+			changeSupport.removePropertyChangeListener((PropertyChangeListener) event.getSource());
 		}
 	}
 
@@ -451,7 +469,9 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		this.status = status; 
 	}
 
-
-
+	@Override
+	public void removeSelfFromListeners() {
+		notifyTokenListeners(Place.REMOVE_PLACE_MESSAGE, null, null);
+	}
 
 }
