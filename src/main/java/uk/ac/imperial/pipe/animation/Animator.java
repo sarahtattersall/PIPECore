@@ -25,9 +25,11 @@ public interface Animator {
     /**
      * @return a random transition that can fire
      */
+// Should be given by animation logic.
     Transition getRandomEnabledTransition();
 
-
+// Don't allow access through this!
+// Nobody is using this outside animation anyway.
     /**
      * Finds all of the transitions which are enabled
      * If there are any immediate transitions then these take priority
