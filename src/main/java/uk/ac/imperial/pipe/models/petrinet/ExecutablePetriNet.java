@@ -3,9 +3,12 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 
 import java.beans.PropertyChangeEvent;
+
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
@@ -39,6 +42,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private PetriNet petriNet;
 	private boolean refreshRequired;
 	private State state;
+	// Wrapping the state with time
+	private TimedState timedState;
+	
+	//protected long timeStep = 10; // Is done in milliseconds.
+	//protected long initialTime = 0;
+	//public long currentTime= this.initialTime;
+	
     /**
      * Functional weight parser
      */
@@ -50,14 +60,21 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * the structure of the two Petri nets.
 	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
 	 */
-
-	public ExecutablePetriNet(PetriNet petriNet) {
+	
+	public ExecutablePetriNet(PetriNet petriNet, long initTime) {
 		this.petriNet = petriNet;
 		includeHierarchy = petriNet.getIncludeHierarchy(); 
-		refreshRequired = true; 
+		refreshRequired = true;
+		//this.initialTime = initTime;
+		//this.currentTime = this.initialTime;
 		refresh(); 
+		timedState = new TimedState(state, initTime);
 	}
-
+	
+	public ExecutablePetriNet(PetriNet petriNet) {
+		this(petriNet, 0);
+	}
+	
 	/**
 	 * This will cause the executable Petri net to be immediately re-built from the underlying 
 	 * source Petri net, using {@link uk.ac.imperial.pipe.visitor.ClonePetriNet.clone(PetriNet)} 
@@ -143,6 +160,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refresh(); 
 		return state;
 	}
+	
+	public TimedState getTimedState() {
+		// Refresh State - TODO: not sure necessary to reassign all the time
+		timedState.setState( getState() );
+		return timedState;
+	}
+	
 	/**
 	 * Updates the State of the executable Petri net.  All places will be updated with 
 	 * corresponding token counts, both in the 
@@ -159,6 +183,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         	place.setTokenCounts(state.getTokens(place.getId()));
         }
 	}
+	
+	public void setTimedState(TimedState timedState) {
+		setState(timedState.getState());
+		this.timedState = timedState;
+	}
+	
+	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 		refreshRequired = true; 

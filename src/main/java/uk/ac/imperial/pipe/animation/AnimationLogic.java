@@ -1,10 +1,13 @@
 package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Transition;
+
 import uk.ac.imperial.state.State;
+import uk.ac.imperial.pipe.models.petrinet.TimedState;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -16,7 +19,18 @@ public interface AnimationLogic {
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
-    Set<Transition> getEnabledTransitions(State state);
+	//STEVE: I propose to remove this method (at least from the interface)
+	// In my opinion, the AnimationLogic is following the right sequence of which transitions can
+	// be fired. The animator only accesses it through the getNextRandomTransition.
+	// Or if you really want to mess around you can getImmediateTransitions and get getTimedTransitions 
+	// and do whatever you want with it. But putting them all in one place will surely lead
+	// to someone using it the wrong way.
+    Set<Transition> getEnabledTransitions(TimedState state);
+	
+    /**
+     * @return a random transition that can fire
+     */
+    Transition getRandomEnabledTransition(TimedState state);
 
     /**
      * Calculates successor states of a given state
@@ -24,7 +38,7 @@ public interface AnimationLogic {
      * @param state
      * @return successors of the given state
      */
-    Map<State, Collection<Transition>> getSuccessors(State state);
+    Map<TimedState, Collection<Transition>> getSuccessors(TimedState state);
 
     /**
      *
@@ -32,7 +46,7 @@ public interface AnimationLogic {
      * @param transition
      * @return the successor state after firing the transition
      */
-    State getFiredState(State state, Transition transition);
+    TimedState getFiredState(TimedState state, Transition transition);
 
     /**
      *
@@ -40,7 +54,7 @@ public interface AnimationLogic {
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
-    double getArcWeight(State state, String weight);
+    double getArcWeight(TimedState state, String weight);
 
     /**
      * Clears any caching done in the animation logic
@@ -48,4 +62,11 @@ public interface AnimationLogic {
      * a state will no longer be visited etc.
      */
     void clear();
+    
+    /**
+	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
+	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
+	 * @param random
+	 */
+	public void setRandom(Random random);
 }
