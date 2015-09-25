@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -102,7 +103,6 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 
 
 	protected IncludeHierarchy includeHierarchy;
-
 
     public AbstractPetriNet() {
     	initialiseIdMap();

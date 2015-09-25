@@ -100,6 +100,7 @@ public class PetriNetAnimatorTest {
         Collection<Transition> enabled = animator.getEnabledTransitions();
         assertThat(enabled).contains(transition2);
     }
+    
     @Test
     public void randomTransitionsReturnsSingleEligibleTransition() throws PetriNetComponentException {
     	// PN with single enabled transition
