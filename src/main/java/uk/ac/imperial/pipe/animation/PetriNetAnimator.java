@@ -82,7 +82,7 @@ public final class PetriNetAnimator implements Animator {
 // Remove
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledTransitions(executablePetriNet.getTimedState());
+        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     }
 
     /**
