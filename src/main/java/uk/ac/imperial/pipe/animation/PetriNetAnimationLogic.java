@@ -88,7 +88,16 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     @Override
     @Deprecated
     public Set<Transition> getEnabledTransitions(TimedState timedState) {
-    	// TODO: Turn on cached immediate transitions for current state.
+    	return getEnabledImmediateOrTimedTransitions(timedState);
+    }
+    /**
+     * Replaces getEnabledTransitions; intended for internal use and testing
+     * @param timedState
+     * @return enabled immediate transitions, if any; else enabled timed transitions 
+     */
+	protected Set<Transition> getEnabledImmediateOrTimedTransitions(
+			TimedState timedState) {
+		// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
         //    return cachedEnabledTransitions.get(state);
         //}
@@ -103,7 +112,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         enabledTransitions = getEnabledTimedTransitionsForCurrentTime(
 				timedState, enabledTransitions);
         return enabledTransitions;
-    }
+	}
 	
     /**
     *
@@ -164,7 +173,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     @Override
     public Map<TimedState, Collection<Transition>> getSuccessors(TimedState timedState) {
     	// TODO: successor has to be adapted.
-        Collection<Transition> enabled = getEnabledTransitions(timedState);
+        Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timedState);
         logger.debug("Get Succ: " + timedState);
         if (enabled.size() > 0) {
         	logger.debug("Enabled : " + enabled.iterator().next());
@@ -208,7 +217,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             builder.placeWithTokens(placeId, timedState.getState().getTokens(placeId));
         }
 
-        Set<Transition> enabled = getEnabledTransitions(timedState);
+        Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(timedState);
         if (enabled.contains(transition)) {
         	//TODO keep refactoring....
         	builder = ((AbstractTransition) transition).fire(executablePetriNet, timedState.getState(), builder);
