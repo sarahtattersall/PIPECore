@@ -7,6 +7,8 @@ import java.awt.Color;
 import java.util.Collection;
 import java.util.Random;
 
+import org.apache.logging.log4j.Level;
+import org.junit.Before;
 import org.junit.Test;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
@@ -23,9 +25,15 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
+import utils.AbstractTestLog4J2;
 
-public class PetriNetAnimatorTest {
+public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
+	@Before
+	public void setUp() throws Exception {
+//		setUpLog4J2(PetriNetAnimator.class, Level.DEBUG, true); 
+//		setUpLog4J2ForRoot(Level.DEBUG);  
+	}
 
 
     @Test

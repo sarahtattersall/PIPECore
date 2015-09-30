@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.util.Collection;
 import java.util.Map;
 
+import org.apache.logging.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,9 +35,10 @@ import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.state.State;
 import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import utils.AbstractTestLog4J2;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PetriNetAnimationLogicTest {
+public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 
 
     private ExecutablePetriNet executablePetriNet;
@@ -48,9 +50,10 @@ public class PetriNetAnimationLogicTest {
 
     @Before
 	public void setUp() throws Exception {
+//    	setUpLog4J2(PetriNetAnimationLogic.class, Level.DEBUG, true); 
+//    	setUpLog4J2ForRoot(Level.DEBUG);  
 	}
-    
-	@Test
+    @Test
     public void infiniteServerSemantics() throws PetriNetComponentException {
 		PetriNet petriNet = buildPetriNet();
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
@@ -80,9 +83,9 @@ public class PetriNetAnimationLogicTest {
 		checkCountForPlace(2, "P0");
 		checkCountForPlace(1, "P1");
 		
-		System.out.println(successors);
+//		System.out.println(successors);
 		advanceNetToTime(42000, successor );
-		System.out.println(successors);
+//		System.out.println(successors);
 		//successors = animationLogic.getSuccessors(successor);
 		assertEquals(1, successors.size());
 		successor = successors.keySet().iterator().next();
