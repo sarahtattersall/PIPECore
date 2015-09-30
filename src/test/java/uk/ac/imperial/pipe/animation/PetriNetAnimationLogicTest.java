@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.dsl.AnInhibitorArc;
@@ -35,9 +37,10 @@ import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.state.State;
 import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import utils.AbstractTestLog4J2;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PetriNetAnimationLogicTest {
+public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 
 	
     private ExecutablePetriNet executablePetriNet;
@@ -49,19 +52,25 @@ public class PetriNetAnimationLogicTest {
 
     @Before
 	public void setUp() throws Exception {
+//    	setUpLog4J2(PetriNetAnimationLogic.class, Level.DEBUG, true); 
+//    	setUpLog4J2ForRoot(Level.DEBUG);  
 	}
-    
-	@Test
-//<<<<<<< 5bfbeec3b4365eac5d86077ff5c2ef1f2643b576
-//    public void infiniteServerSemantics() throws PetriNetComponentException {
-//        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-//                APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
-//                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
-//                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
-//                ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
-//        executablePetriNet = petriNet.getExecutablePetriNet(); 
-//        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+//<<<<<<< 11df5b8893857df071ff771a524c093a3c114042
+//    
+//	@Test
+////<<<<<<< 5bfbeec3b4365eac5d86077ff5c2ef1f2643b576
+////    public void infiniteServerSemantics() throws PetriNetComponentException {
+////        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+////                APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
+////                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
+////                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+////                ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
+////        executablePetriNet = petriNet.getExecutablePetriNet(); 
+////        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+////=======
 //=======
+    @Test
+//>>>>>>> Deprecate AnimationLogic.getEnabledTransitions, convert 2 tests to log4j
     public void infiniteServerSemantics() throws PetriNetComponentException {
 		PetriNet petriNet = buildPetriNet();
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
@@ -91,10 +100,10 @@ public class PetriNetAnimationLogicTest {
 //SJDclean=======
 	public void timedTransitionExecutesFollowingDelay() throws PetriNetComponentException {
 //<<<<<<< 55df0c4d7513e7ac33409170339c49988ee1b32e
-		advanceNetToTime(buildTimedPetriNet(1000), 40001);
+//		advanceNetToTime(buildTimedPetriNet(1000), 40001);
 //>>>>>>> added 3 commented tests
 //=======
-//		buildTimedPetriNet(1000, 40000);
+		buildTimedPetriNet(1000, 40000);
 //>>>>>>> Introduced a TimedState as an extension of the PN-State which includes the currentTime and for the timed Petri Networks the time when transitions ar allowed to fire.
 		assertEquals(0, successors.size());
 		advanceNetToTime(41000, executablePetriNet.getTimedState() );
@@ -105,9 +114,9 @@ public class PetriNetAnimationLogicTest {
 		checkCountForPlace(2, "P0");
 		checkCountForPlace(1, "P1");
 		
-		System.out.println(successors);
+//		System.out.println(successors);
 		advanceNetToTime(42000, successor );
-		System.out.println(successors);
+//		System.out.println(successors);
 		//successors = animationLogic.getSuccessors(successor);
 		assertEquals(1, successors.size());
 		successor = successors.keySet().iterator().next();

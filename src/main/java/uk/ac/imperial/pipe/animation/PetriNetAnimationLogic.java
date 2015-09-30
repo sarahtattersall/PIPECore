@@ -12,6 +12,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import uk.ac.imperial.pipe.models.petrinet.AbstractTransition;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -34,8 +37,17 @@ import uk.ac.imperial.state.State;
  * 	- current time of PN 
  *  
  */
+//<<<<<<< 11df5b8893857df071ff771a524c093a3c114042
 //TODO reallocate this logic; previously:  "It does not alter the state of the Petri net."
 public final class PetriNetAnimationLogic implements AnimationLogic, PropertyChangeListener {
+//SJDClean=======
+//public final class PetriNetAnimationLogic implements AnimationLogic {
+//	
+//	/**
+//	 *  Logger  
+//	 */
+//	private static Logger logger = LogManager.getLogger(PetriNetAnimationLogic.class);  
+//>>>>>>> Deprecate AnimationLogic.getEnabledTransitions, convert 2 tests to log4j
 
     /**
      * Executable Petri net this class represents the logic for
@@ -68,6 +80,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	 * First, is looking for all immediate transitions.
 	 * Only if there are none, current timed transitions are used.
 	 * 
+	 * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimedState)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -76,7 +89,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 // be fired. The animator only accesses it through the getNextRandomTransition.
 // Or if you really want to mess around you can getImmediateTransitions and getTimedTransitions 
 // and do whatever you want with it. But putting them all in one place will surely lead
-// to someone using it the wrong way.
+// to someone using it the wrong way.  
+//Malte:  note that the GUI (TransitionAnimationHandler) allows the user to fire any arbitrary enabled transition
+//  presumably the user accepts the risk of firing transitions in an order that wouldn't be used by this class.     
+    @Override
+    @Deprecated
     public Set<Transition> getEnabledTransitions(TimedState timedState) {
     	// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
@@ -90,13 +107,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         	removePrioritiesLessThan(maxPriority, enabledTransitions);
         }
         cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
-        // Second: Checking timed transitions which should fire by now when there are no
-        // immediate transitions left.
-        if (enabledTransitions.isEmpty()) {
-        	if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime() )) {
-        		enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
-        	}
-        }
+        enabledTransitions = getEnabledTimedTransitionsForCurrentTime(
+				timedState, enabledTransitions);
         return enabledTransitions;
     }
 	
@@ -131,11 +143,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        // APPROACH: for enabled timed transitions put 
        // observed places in a map and for every changed place do a lookup if this might affect
        // a timed transition.
-       if (enabledTransitions.isEmpty()) {
-       		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
-       			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
-       		}
-       }
+       enabledTransitions = getEnabledTimedTransitionsForCurrentTime(timedState,
+			enabledTransitions);
        //logger.debug("enabled transitions count: "+enabledTransitions.size());
        if (enabledTransitions.isEmpty()) {
     	   return null;
@@ -145,6 +154,16 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        return enabledTransitionsArray[index]; 
    }
 
+	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(
+			TimedState timedState, Set<Transition> enabledTransitions) {
+		if (enabledTransitions.isEmpty()) {
+		   		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
+		   			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
+		   		}
+		   }
+		return enabledTransitions;
+	}
+
     /**
      * @param state to be evaluated
      * @return all successors of this state
@@ -153,9 +172,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     public Map<TimedState, Collection<Transition>> getSuccessors(TimedState timedState) {
     	// TODO: successor has to be adapted.
         Collection<Transition> enabled = getEnabledTransitions(timedState);
-        System.out.println("Get Succ: " + timedState);
+//        logger.debug("Get Succ: " + timedState);
         if (enabled.size() > 0) {
-        	System.out.println("Enabled : " + enabled.iterator().next());
+//        	logger.debug("Enabled : " + enabled.iterator().next());
         }
         Map<TimedState, Collection<Transition>> successors = new HashMap<>();
         for (Transition transition : enabled) {
@@ -204,11 +223,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         }
         // NEW - the Fired Timed Transitions have to be removed from the enabled map.
         State returnState = builder.build();
-        System.out.println("Fired State: " + returnState);
+//        logger.debug("Fired State: " + returnState);
         TimedState returnTimedState = new TimedState (returnState, timedState.getEnabledTimedTransitions(), timedState.getCurrentTime() );
         // TODO: Cloning the old enabled timed transitions - could be done more efficient!
         if (transition.isTimed()) {
-        	System.out.println("Was a timed transition " + transition);
+//        	logger.debug("Was a timed transition " + transition);
         	Set<Transition> currentTrans = returnTimedState.getEnabledTimedTransitions().get( timedState.getCurrentTime() );
         	currentTrans.remove(transition);
         	if (currentTrans.isEmpty()) {
@@ -246,7 +265,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     /**
      * @return all the currently enabled immediate transitions in the petri net
      */
-    public Set<Transition> getEnabledImmediateTransitions(State state) {
+    //TODO make public and add to interface if getRandomEnabledTransition is insufficient
+    protected Set<Transition> getEnabledImmediateTransitions(State state) {
 
         Set<Transition> enabledTransitions = new HashSet<>();
         for (Transition transition : executablePetriNet.getTransitions()) {
@@ -260,7 +280,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     /**
      * @return all the currently enabled timed transitions in the petri net
      */
-    public Set<Transition> getEnabledTimedTransitions(State state) {
+    //TODO make public and add to interface if getRandomEnabledTransition is insufficient
+    protected Set<Transition> getEnabledTimedTransitions(State state) {
 
         Set<Transition> enabledTransitions = new HashSet<>();
         for (Transition transition : executablePetriNet.getTransitions()) {

@@ -1,14 +1,12 @@
 package uk.ac.imperial.pipe.animation;
 
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-
-import uk.ac.imperial.state.State;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
  * Contains methods which deal with the logic of animation, for instance
@@ -16,15 +14,11 @@ import java.util.Set;
  */
 public interface AnimationLogic {
     /**
+     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimedState)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
-	//STEVE: I propose to remove this method (at least from the interface)
-	// In my opinion, the AnimationLogic is following the right sequence of which transitions can
-	// be fired. The animator only accesses it through the getNextRandomTransition.
-	// Or if you really want to mess around you can getImmediateTransitions and get getTimedTransitions 
-	// and do whatever you want with it. But putting them all in one place will surely lead
-	// to someone using it the wrong way.
+	@Deprecated
     Set<Transition> getEnabledTransitions(TimedState state);
 	
     /**
