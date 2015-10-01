@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Sets;
+
 import uk.ac.imperial.pipe.models.petrinet.AbstractTransition;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -59,7 +61,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 	/**
 	 * Random for use in random firing.   
      */
-	private Random random; 
+	private Random random;
+
+	private Set<Transition> markedEnabledTransitions; 
 	
     /**
      * Constructor
@@ -67,6 +71,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
+		initMarkedEnabledTransitions();  
 	}
 
 	/**
@@ -109,8 +114,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         	removePrioritiesLessThan(maxPriority, enabledTransitions);
         }
         cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
-        enabledTransitions = getEnabledTimedTransitionsForCurrentTime(
-				timedState, enabledTransitions);
+        enabledTransitions = getEnabledTimedTransitionsForCurrentTime(timedState, enabledTransitions);
         return enabledTransitions;
 	}
 	
@@ -156,8 +160,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
        return enabledTransitionsArray[index]; 
    }
 
-	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(
-			TimedState timedState, Set<Transition> enabledTransitions) {
+	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(TimedState timedState, 
+			Set<Transition> enabledTransitions) {
 		if (enabledTransitions.isEmpty()) {
 		   		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
 		   			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
@@ -223,8 +227,14 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         	builder = ((AbstractTransition) transition).fire(executablePetriNet, timedState.getState(), builder);
 //            fireTransition(state, transition, builder);
         }
-        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
-        State returnState = builder.build();
+        TimedState returnTimedState = removeTimedTransitionsFromEnabledMap(timedState, transition, builder);
+        updateAffectedTransitionsStatus(returnTimedState);
+        return returnTimedState;
+    }
+
+	protected TimedState removeTimedTransitionsFromEnabledMap(TimedState timedState, Transition transition, 
+			HashedStateBuilder builder) {
+		State returnState = builder.build();
         logger.debug("Fired State: " + returnState);
         TimedState returnTimedState = new TimedState (returnState, timedState.getEnabledTimedTransitions(), timedState.getCurrentTime() );
         // TODO: Cloning the old enabled timed transitions - could be done more efficient!
@@ -237,9 +247,26 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         	}
         	registerEnabledTimedTransitions( returnTimedState );
         }
-        return ( returnTimedState );
-    }
+		return returnTimedState;
+	}
 
+    /**
+     * Computes transitions which need to be disabled because they are no longer enabled and
+     * those that need to be enabled because they have been newly enabled.
+     */
+    protected void updateAffectedTransitionsStatus(TimedState state) {
+    	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+    	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
+    		transition.disable();
+    		markedEnabledTransitions.remove(transition);
+    	}
+    	for (Transition transition : Sets.difference(enabled, markedEnabledTransitions)) {
+    		transition.enable();
+    		markedEnabledTransitions.add(transition);
+    	}
+    }
+    
+    
     /**
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
@@ -432,6 +459,23 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     	}
     }
     
+	@Override
+	public void stopAnimation() {
+		for (Transition transition : markedEnabledTransitions) {
+			transition.disable(); 
+		}
+	}
+
+	@Override
+	public void startAnimation() {
+		initMarkedEnabledTransitions();  
+    	updateAffectedTransitionsStatus(executablePetriNet.getTimedState()); 
+	}
+
+	protected void initMarkedEnabledTransitions() {
+		markedEnabledTransitions = new HashSet<Transition>();
+	}
+
 //	protected void setCurrentTimeForTesting(long currentTime) {
 //		this.currentTime =  currentTime; 
 //	}

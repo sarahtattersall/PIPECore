@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -36,10 +37,6 @@ public final class PetriNetAnimator implements Animator {
      * Petri net so that it can be reapplied to the Petri net at any time
      */
     private TimedState savedState;
-    /**
-     * Random for use in random firing.   
-     */
-//Remove	private Random random; 
 
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
@@ -62,7 +59,11 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void reset() {
+//    	Set<Transition> currentEnabledTransitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     	executablePetriNet.setTimedState(savedState);
+//    	animationLogic.updateAffectedTransitionsStatus(currentEnabledTransitions, animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState())); 
+    	animationLogic.stopAnimation();  
+
     }
 
     /**
@@ -76,10 +77,10 @@ public final class PetriNetAnimator implements Animator {
     }
 
     /**
-     *
+     * @deprecated use {@link #getRandomEnabledTransition()}
      * @return all enabled transitions for the Petri nets current underlying state
      */
-// Remove
+    @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
         return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
@@ -139,36 +140,6 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
-
-    /**
-     * Get the internal current time of the animated Petri network.
-     */
-    //public long getCurrentTime() {
-    //	return this.executablePetriNet.currentTime;
-    //}
-    
-    /**
-     * Set the internal time step of the animated Petri network.
-     */
-   // public void setTimeStep(long newStep) {
-   // 	this.timeStep = newStep;
-   // }
-    
-    /**
-     * Get the internal time step of the animated Petri network.
-     */
-    //public long getTimeStep() {
-    //	return this.executablePetriNet.timeStep;
-    //}
-    
-    // Move to Animator
-    /**
-     * Advance current time one time step.
-     */
-    //public void advanceSingleTimeStep() {
-    //	registerEnabledTimedTransitions(executablePetriNet.getState());
-    //	this.execucurrentTime += this.timeStep;
-    //}
     
     public void fireAllCurrentEnabledTransitions() {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( executablePetriNet.getTimedState() );
@@ -216,5 +187,16 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public void setRandom(Random random) {
 		animationLogic.setRandom(random);
+	}
+
+	@Override
+	public AnimationLogic getAnimationLogic() {
+		return animationLogic	;
+	}
+
+	@Override
+	public void startAnimation() {
+		saveState();
+		animationLogic.startAnimation(); 
 	}
 }
