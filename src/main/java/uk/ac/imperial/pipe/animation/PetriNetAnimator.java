@@ -1,7 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
 import java.util.HashSet;
-
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -13,9 +12,8 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.state.State;
 import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
  * Contains methods to help with animating the Petri net and performs
@@ -39,10 +37,6 @@ public final class PetriNetAnimator implements Animator {
      * Petri net so that it can be reapplied to the Petri net at any time
      */
     private TimedState savedState;
-    /**
-     * Random for use in random firing.   
-     */
-//Remove	private Random random; 
 
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
@@ -65,7 +59,11 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void reset() {
+//    	Set<Transition> currentEnabledTransitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     	executablePetriNet.setTimedState(savedState);
+//    	animationLogic.updateAffectedTransitionsStatus(currentEnabledTransitions, animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState())); 
+    	animationLogic.stopAnimation();  
+
     }
 
     /**
@@ -79,13 +77,13 @@ public final class PetriNetAnimator implements Animator {
     }
 
     /**
-     *
+     * @deprecated use {@link #getRandomEnabledTransition()}
      * @return all enabled transitions for the Petri nets current underlying state
      */
-// Remove
+    @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledTransitions(executablePetriNet.getTimedState());
+        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     }
 
     /**
@@ -142,40 +140,10 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
-
-    /**
-     * Get the internal current time of the animated Petri network.
-     */
-    //public long getCurrentTime() {
-    //	return this.executablePetriNet.currentTime;
-    //}
-    
-    /**
-     * Set the internal time step of the animated Petri network.
-     */
-   // public void setTimeStep(long newStep) {
-   // 	this.timeStep = newStep;
-   // }
-    
-    /**
-     * Get the internal time step of the animated Petri network.
-     */
-    //public long getTimeStep() {
-    //	return this.executablePetriNet.timeStep;
-    //}
-    
-    // Move to Animator
-    /**
-     * Advance current time one time step.
-     */
-    //public void advanceSingleTimeStep() {
-    //	registerEnabledTimedTransitions(executablePetriNet.getState());
-    //	this.execucurrentTime += this.timeStep;
-    //}
     
     public void fireAllCurrentEnabledTransitions() {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( executablePetriNet.getTimedState() );
-    	System.out.println("Next fired trans " + nextTransition);
+    	logger.debug("Next fired trans " + nextTransition);
     	if (nextTransition != null) {
     		fireTransition(nextTransition);
     		fireAllCurrentEnabledTransitions();
@@ -190,28 +158,28 @@ public final class PetriNetAnimator implements Animator {
     	fireAllCurrentEnabledTransitions();
     	animationLogic.registerEnabledTimedTransitions( timedState );
     	if ( timedState.getEnabledTimedTransitions().ceilingKey( timedState.getCurrentTime() ) != null) {
-    		System.out.println("Timed transitions");
+    		logger.debug("Timed transitions");
     		Map.Entry<Long,Set<Transition>> nextTimedTransitions = timedState.getEnabledTimedTransitions().ceilingEntry( timedState.getCurrentTime() );
     		while (nextTimedTransitions.getKey() < newTime) {
-    			System.out.println("Found one " + newTime + " - " + nextTimedTransitions.getKey() );
+    			logger.debug("Found one " + newTime + " - " + nextTimedTransitions.getKey() );
     			Iterator<Transition> transitionIterator = nextTimedTransitions.getValue().iterator();
     			while (transitionIterator.hasNext()) {
-    				System.out.println("Fire it");
+    				logger.debug("Fire it");
     				Transition nextTransition = transitionIterator.next();
     				//TODO - remove firing from here!
     				fireAllCurrentEnabledTransitions();
     			} 
     			timedState.getEnabledTimedTransitions().remove( nextTimedTransitions.getKey() );
     			nextTimedTransitions = timedState.getEnabledTimedTransitions().higherEntry( nextTimedTransitions.getKey() );
-    			System.out.println("NEXT TRANS: " + nextTimedTransitions);
+    			logger.debug("NEXT TRANS: " + nextTimedTransitions);
     			if (nextTimedTransitions == null) {
-    				System.out.println("Break");
+    				logger.debug("Break");
     				break;
     			}
-    			System.out.println("NEXT TRANS: " + nextTimedTransitions);
+    			logger.debug("NEXT TRANS: " + nextTimedTransitions);
     		}
     	}
-    	System.out.println("NEW TIME " + newTime);
+    	logger.debug("NEW TIME " + newTime);
     	timedState.setCurrentTime(newTime);
     }
     
@@ -219,5 +187,16 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public void setRandom(Random random) {
 		animationLogic.setRandom(random);
+	}
+
+	@Override
+	public AnimationLogic getAnimationLogic() {
+		return animationLogic	;
+	}
+
+	@Override
+	public void startAnimation() {
+		saveState();
+		animationLogic.startAnimation(); 
 	}
 }
