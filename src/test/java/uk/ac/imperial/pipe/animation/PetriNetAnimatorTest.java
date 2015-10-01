@@ -2,6 +2,8 @@ package uk.ac.imperial.pipe.animation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.util.Collection;
@@ -10,6 +12,9 @@ import java.util.Random;
 import org.apache.logging.log4j.Level;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -27,7 +32,16 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 import utils.AbstractTestLog4J2;
 
+@RunWith(MockitoJUnitRunner.class)
 public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
+
+	private PetriNetAnimationLogic animationLogic;
+	private ExecutablePetriNet epn;
+	private Animator animator;
+
+    @Mock
+    private Animator mockAnimator;
+
 
 	@Before
 	public void setUp() throws Exception {
@@ -70,44 +84,77 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         assertEquals(0, ep1.getTokenCount("Default"));
         assertEquals(10, ep2.getTokenCount("Red"));
     }
-
     @Test
-    public void firingTransitionDoesNotDisableTransition() throws PetriNetComponentException {
+    public void firingTransitionDoesNotDisableTransitionIfCouldStillFire() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
         Place place = petriNet.getComponent("P1", Place.class);
         Token token = petriNet.getComponent("Default", Token.class);
         place.setTokenCount(token.getId(), 2);
 
-        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
-        Animator animator = new PetriNetAnimator(epn);
+        epn = petriNet.getExecutablePetriNet(); 
+        animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
 
-
-        Collection<Transition> enabled = animator.getEnabledTransitions();
+        Collection<Transition> enabled = getEnabledTransitions();
         assertThat(enabled).contains(transition);
     }
 
+
+	protected Collection<Transition> getEnabledTransitions() {
+			animationLogic = (PetriNetAnimationLogic) animator.getAnimationLogic(); 
+		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getTimedState());
+		return enabled;
+	}
+
+	@Test
+	public void firingTransitionEnablesAndDisablesIndividualTransitionsAppropriately() throws Exception {
+		PetriNet petriNet = buildSequentiallyEnabledPetriNet();
+		
+		epn = petriNet.getExecutablePetriNet(); 
+		animator = new PetriNetAnimator(epn);
+		Transition transition = epn.getComponent("T1", Transition.class);
+		Transition transition2 = epn.getComponent("T2", Transition.class);
+		assertFalse(transition.isEnabled());
+		assertFalse(transition2.isEnabled());
+		animator.startAnimation(); 
+		assertTrue(transition.isEnabled());
+		assertFalse(transition2.isEnabled());
+		animator.fireTransition(transition);
+		assertFalse(transition.isEnabled());
+		assertTrue(transition2.isEnabled());
+		animator.reset(); 
+		assertFalse(transition.isEnabled());
+		assertFalse(transition2.isEnabled());
+		
+	}
     @Test
     public void firingTransitionEnablesNextTransition() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-                AnImmediateTransition.withId("T1")).and(AnImmediateTransition.withId("T2")).and(
-                ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).and(
-                ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token()).andFinally(
-                ANormalArc.withSource("P2").andTarget("T2").with("1", "Default").token());
+        PetriNet petriNet = buildSequentiallyEnabledPetriNet();
 
-        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
-        Animator animator = new PetriNetAnimator(epn);
+        epn = petriNet.getExecutablePetriNet(); 
+        animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
 
         Transition transition2 = epn.getComponent("T2", Transition.class);
 
-        Collection<Transition> enabled = animator.getEnabledTransitions();
+        Collection<Transition> enabled = getEnabledTransitions();
         assertThat(enabled).contains(transition2);
     }
+
+
+	protected PetriNet buildSequentiallyEnabledPetriNet()
+			throws PetriNetComponentException {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
+                AnImmediateTransition.withId("T1")).and(AnImmediateTransition.withId("T2")).and(
+                ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token()).and(
+                ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token()).andFinally(
+                ANormalArc.withSource("P2").andTarget("T2").with("1", "Default").token());
+		return petriNet;
+	}
     
     @Test
     public void randomTransitionsReturnsSingleEligibleTransition() throws PetriNetComponentException {
@@ -172,11 +219,11 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     @Test
     public void correctlyEnablesTransitionEvenAfterFiring() throws PetriNetComponentException {
         PetriNet petriNet = createSimpleInhibitorPetriNet(1);
-        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
-        Animator animator = new PetriNetAnimator(epn);
+        epn = petriNet.getExecutablePetriNet(); 
+        animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
-        Collection<Transition> enabled = animator.getEnabledTransitions();
+        Collection<Transition> enabled = getEnabledTransitions();
         assertThat(enabled).contains(transition);
     }
 
@@ -217,12 +264,11 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     public void firingTransitionDisablesTransition() throws PetriNetComponentException {
         int tokenWeight = 1;
         PetriNet petriNet = createSimplePetriNet(tokenWeight);
-        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
-        Animator animator = new PetriNetAnimator(epn);
+        epn = petriNet.getExecutablePetriNet(); 
+        animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
-
-        Collection<Transition> enabled = animator.getEnabledTransitions();
+        Collection<Transition> enabled = getEnabledTransitions();
         assertThat(enabled).doesNotContain(transition);
     }
     @Test
@@ -231,12 +277,12 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
                 APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1")).and(
                         APlace.withId("P2").containing(1, "Default").token()).and(AnImmediateTransition.withId("T1")).andFinally(
                         ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token());
-        ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
-        Animator animator = new PetriNetAnimator(epn);
+        epn = petriNet.getExecutablePetriNet(); 
+        animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransitionBackwards(transition);
 
-        Collection<Transition> enabled = animator.getEnabledTransitions();
+        Collection<Transition> enabled = getEnabledTransitions();
         assertThat(enabled).contains(transition);
     }
 
@@ -246,8 +292,10 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         PetriNet copy = ClonePetriNet.clone(petriNet);
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         ExecutablePetriNet copyepn = copy.getExecutablePetriNet();
+        assertEquals(copyepn, epn);
         Animator animator = new PetriNetAnimator(epn);
         animator.fireTransition(animator.getRandomEnabledTransition());
+        assertFalse(copyepn.equals(epn));
         
         animator.reset(); 
         assertEquals(copyepn, epn);
@@ -272,3 +320,4 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     }
 
 }
+

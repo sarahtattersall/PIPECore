@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.animation;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -36,10 +37,6 @@ public final class PetriNetAnimator implements Animator {
      * Petri net so that it can be reapplied to the Petri net at any time
      */
     private TimedState savedState;
-    /**
-     * Random for use in random firing.   
-     */
-//Remove	private Random random; 
 
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
@@ -62,7 +59,11 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void reset() {
+//    	Set<Transition> currentEnabledTransitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     	executablePetriNet.setTimedState(savedState);
+//    	animationLogic.updateAffectedTransitionsStatus(currentEnabledTransitions, animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState())); 
+    	animationLogic.stopAnimation();  
+
     }
 
     /**
@@ -76,10 +77,10 @@ public final class PetriNetAnimator implements Animator {
     }
 
     /**
-     *
+     * @deprecated use {@link #getRandomEnabledTransition()}
      * @return all enabled transitions for the Petri nets current underlying state
      */
-// Remove
+    @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
         return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
@@ -139,6 +140,7 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
+<<<<<<< 9b197a93f9333000d7fddd936f4cbd1d5ce13fae
 //<<<<<<< 55df0c4d7513e7ac33409170339c49988ee1b32e
 //	private Random getRandom() {
 //		if (random == null) {
@@ -185,6 +187,8 @@ public final class PetriNetAnimator implements Animator {
     //	registerEnabledTimedTransitions(executablePetriNet.getState());
     //	this.execucurrentTime += this.timeStep;
     //}
+=======
+>>>>>>> refactor to stop using getEnabledTransitions in animator and animatorLogic
     
     public void fireAllCurrentEnabledTransitions() {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( executablePetriNet.getTimedState() );
@@ -233,5 +237,16 @@ public final class PetriNetAnimator implements Animator {
     public void setRandom(Random random) {
 		animationLogic.setRandom(random);
 //>>>>>>> Introduced a TimedState as an extension of the PN-State which includes the currentTime and for the timed Petri Networks the time when transitions ar allowed to fire.
+	}
+
+	@Override
+	public AnimationLogic getAnimationLogic() {
+		return animationLogic	;
+	}
+
+	@Override
+	public void startAnimation() {
+		saveState();
+		animationLogic.startAnimation(); 
 	}
 }

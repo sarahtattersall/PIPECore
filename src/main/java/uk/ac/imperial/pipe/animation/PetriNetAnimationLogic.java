@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Sets;
+
 import uk.ac.imperial.pipe.models.petrinet.AbstractTransition;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -64,8 +66,12 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	 * Random for use in random firing.   
      */
 	private Random random;
-	private long timeStep;
-	private long currentTime; 
+//<<<<<<< 9b197a93f9333000d7fddd936f4cbd1d5ce13fae
+//	private long timeStep;
+//	private long currentTime; 
+//SJDclean=======
+
+	private Set<Transition> markedEnabledTransitions; 
 	
     /**
      * Constructor
@@ -73,7 +79,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      */
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
+//<<<<<<< 9b197a93f9333000d7fddd936f4cbd1d5ce13fae
     	this.executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this); 
+//=======
+		initMarkedEnabledTransitions();  
+//>>>>>>> refactor to stop using getEnabledTransitions in animator and animatorLogic
 	}
 
 	/**
@@ -116,8 +126,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         	removePrioritiesLessThan(maxPriority, enabledTransitions);
         }
         cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
-        enabledTransitions = getEnabledTimedTransitionsForCurrentTime(
-				timedState, enabledTransitions);
+        enabledTransitions = getEnabledTimedTransitionsForCurrentTime(timedState, enabledTransitions);
         return enabledTransitions;
 	}
 	
@@ -163,8 +172,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        return enabledTransitionsArray[index]; 
    }
 
-	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(
-			TimedState timedState, Set<Transition> enabledTransitions) {
+	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(TimedState timedState, 
+			Set<Transition> enabledTransitions) {
 		if (enabledTransitions.isEmpty()) {
 		   		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
 		   			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
@@ -235,9 +244,21 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         	builder = ((AbstractTransition) transition).fire(executablePetriNet, timedState.getState(), builder);
 //            fireTransition(state, transition, builder);
         }
-        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
-        State returnState = builder.build();
-//        logger.debug("Fired State: " + returnState);
+//<<<<<<< 9b197a93f9333000d7fddd936f4cbd1d5ce13fae
+//        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
+//        State returnState = builder.build();
+////        logger.debug("Fired State: " + returnState);
+//SJDclean=======
+        TimedState returnTimedState = removeTimedTransitionsFromEnabledMap(timedState, transition, builder);
+        updateAffectedTransitionsStatus(returnTimedState);
+        return returnTimedState;
+    }
+
+	protected TimedState removeTimedTransitionsFromEnabledMap(TimedState timedState, Transition transition, 
+			HashedStateBuilder builder) {
+		State returnState = builder.build();
+        logger.debug("Fired State: " + returnState);
+//>>>>>>> refactor to stop using getEnabledTransitions in animator and animatorLogic
         TimedState returnTimedState = new TimedState (returnState, timedState.getEnabledTimedTransitions(), timedState.getCurrentTime() );
         // TODO: Cloning the old enabled timed transitions - could be done more efficient!
         if (transition.isTimed()) {
@@ -249,9 +270,26 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         	}
         	registerEnabledTimedTransitions( returnTimedState );
         }
-        return ( returnTimedState );
-    }
+		return returnTimedState;
+	}
 
+    /**
+     * Computes transitions which need to be disabled because they are no longer enabled and
+     * those that need to be enabled because they have been newly enabled.
+     */
+    protected void updateAffectedTransitionsStatus(TimedState state) {
+    	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+    	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
+    		transition.disable();
+    		markedEnabledTransitions.remove(transition);
+    	}
+    	for (Transition transition : Sets.difference(enabled, markedEnabledTransitions)) {
+    		transition.enable();
+    		markedEnabledTransitions.add(transition);
+    	}
+    }
+    
+    
     /**
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
@@ -453,43 +491,60 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //		this.currentTime =  currentTime; 
 //	}
 //SJDclean =======
-    /**
-     * Get the internal current time of the animated Petri network.
-     */
-    public long getCurrentTime() {
-    	return this.currentTime;
-    }
+////    /**
+////     * Get the internal current time of the animated Petri network.
+////     */
+////    public long getCurrentTime() {
+////    	return this.currentTime;
+////    }
+////    
+////    /**
+////     * Set the internal time step of the animated Petri network.
+////     */
+////    public void setTimeStep(long newStep) {
+////    	this.timeStep = newStep;
+////    }
+////    
+////    /**
+////     * Get the internal time step of the animated Petri network.
+////     */
+////    public long getTimeStep() {
+////    	return this.timeStep;
+////    }
+//    
+//    /**
+//     * Advance current time one time step.
+//     */
+//    public void advanceSingleTimeStep() {
+//    	registerEnabledTimedTransitions(executablePetriNet.getTimedState());
+//    	this.currentTime += this.timeStep;
+//    }
+//    
+//    /**
+//     * Advance current time.
+//     */
+//    protected void advanceToTime(long newTime) {
+//    	registerEnabledTimedTransitions(executablePetriNet.getTimedState());
+//    	this.currentTime = newTime;
+//    }
     
-    /**
-     * Set the internal time step of the animated Petri network.
-     */
-    public void setTimeStep(long newStep) {
-    	this.timeStep = newStep;
-    }
-    
-    /**
-     * Get the internal time step of the animated Petri network.
-     */
-    public long getTimeStep() {
-    	return this.timeStep;
-    }
-    
-    /**
-     * Advance current time one time step.
-     */
-    public void advanceSingleTimeStep() {
-    	registerEnabledTimedTransitions(executablePetriNet.getTimedState());
-    	this.currentTime += this.timeStep;
-    }
-    
-    /**
-     * Advance current time.
-     */
-    protected void advanceToTime(long newTime) {
-    	registerEnabledTimedTransitions(executablePetriNet.getTimedState());
-    	this.currentTime = newTime;
-    }
-    
+	@Override
+	public void stopAnimation() {
+		for (Transition transition : markedEnabledTransitions) {
+			transition.disable(); 
+		}
+	}
+
+	@Override
+	public void startAnimation() {
+		initMarkedEnabledTransitions();  
+    	updateAffectedTransitionsStatus(executablePetriNet.getTimedState()); 
+	}
+
+	protected void initMarkedEnabledTransitions() {
+		markedEnabledTransitions = new HashSet<Transition>();
+	}
+
 //	protected void setCurrentTimeForTesting(long currentTime) {
 //		this.currentTime =  currentTime; 
 //	}

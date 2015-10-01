@@ -63,4 +63,14 @@ public interface AnimationLogic {
 	 * @param random
 	 */
 	public void setRandom(Random random);
+	/**
+	 * Clients must call to indicate the end of animation
+	 * All transitions will be marked as disabled
+	 */
+	public void stopAnimation();
+	/**
+	 * Clients must call to indicate the beginning of animation
+	 * All initially enabled transitions will be marked as enabled
+	 */
+	public void startAnimation();
 }
