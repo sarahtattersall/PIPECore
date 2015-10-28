@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
 import org.apache.logging.log4j.LogManager;
+
 import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.runner.JsonParameters;

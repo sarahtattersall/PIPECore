@@ -19,7 +19,7 @@ public interface AnimationLogic {
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
-	//STEVE: I propose to remove this method (at least from the interface)
+	// TODO: I (Malte) propose to remove this method (at least from the interface)
 	// In my opinion, the AnimationLogic is following the right sequence of which transitions can
 	// be fired. The animator only accesses it through the getNextRandomTransition.
 	// Or if you really want to mess around you can getImmediateTransitions and get getTimedTransitions 

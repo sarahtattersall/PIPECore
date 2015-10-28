@@ -42,7 +42,7 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
-	private static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
+	protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
 	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
 	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
 	private static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = "PetriNetRunner:  PetriNet XML could not be parsed successfully: ";
@@ -55,13 +55,14 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private static PrintStream PRINTSTREAM;
 	private Random random;
 	private int firingLimit;
-	private ExecutablePetriNet executablePetriNet;
-	private int round;
-	private boolean transitionsToFire;
+	//TODO: executablePN should be protected
+	public ExecutablePetriNet executablePetriNet;
+	protected int round;
+	//protected boolean transitionsToFire;
 	private State previousState;
-	private Animator animator;
-	private Firing previousFiring;
-	private Firing firing;
+	protected Animator animator;
+	protected Firing previousFiring;
+	protected Firing firing;
 	private Map<String, List<PropertyChangeListener>> listenerMap;
 	private List<TokenCount> pendingPlaceMarkings;
 	private Map<String, Object> transitionContextMap;
@@ -71,7 +72,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
 		executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this); 
 		round = 0; 
-		transitionsToFire = true; 
+		//transitionsToFire = true; 
 		previousState = executablePetriNet.getState(); 
 		previousFiring = new Firing(round, "", previousState);; 
 		animator = new PetriNetAnimator(executablePetriNet);
@@ -100,9 +101,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	public void run() {
 		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
 		start(); 
-		while ((round < firingLimit) && transitionsToFire()) {
+		boolean transitionsToFire = true;
+		while ((round < firingLimit) && transitionsToFire) {
 			round++; 
-			fireOneTransition();
+			transitionsToFire = fireOneTransition();
 		}
 		end(); 
 	}
@@ -195,7 +197,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		Iterator<TokenCount> iterator = pendingPlaceMarkings.iterator(); 
 		TokenCount tokenCount = null; 
 		while (iterator.hasNext()) {
-			tokenCount = iterator.next(); 
+			tokenCount = iterator.next();
 			try {
 				Place place = executablePetriNet.getComponent(tokenCount.placeId, Place.class);
 				place.setTokenCount(tokenCount.token, tokenCount.count);
@@ -204,33 +206,40 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			}
 			iterator.remove(); 
 		}
+		if (tokenCount != null) {
+			// TODO: Can token counts can be decreased?
+			// This should be checked too.
+			this.executablePetriNet.getTimedState().registerEnabledTimedTransitions(
+					this.executablePetriNet.getTimedState().getEnabledTimedTransitions() );
+		}
 	}
 
-	protected void fireOneTransition() {
+	protected boolean fireOneTransition() {
 		markPendingPlaces();
 		Transition transition = null; 
 		transition = animator.getRandomEnabledTransition();
 		if (transition == null) { 
-			transitionsToFire = false;
+			return false;
 		} else {
 			logger.debug("about to fire transition "+transition.getId()); 
 			animator.fireTransition(transition); 
 			firing = new Firing(round, transition.getId(), executablePetriNet.getState()); 
 			changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
 			previousFiring = firing;
+			return true;
 		}
 	}
 	
-	private void end() {
+	protected void end() {
 		changeSupport.firePropertyChange(EXECUTION_COMPLETED, null, null); 
 		logger.debug(EXECUTION_COMPLETED); 
 	}
 
-	private boolean transitionsToFire() {
-		return transitionsToFire;
-	}
+	//protected boolean transitionsToFire() {
+	//	return transitionsToFire;
+	//}
 
-	private void start() {
+	protected void start() {
 		// previousFiring is Round 0
 		changeSupport.firePropertyChange(EXECUTION_STARTED, previousFiring, executablePetriNetPlaces()); 
 		logger.debug(EXECUTION_STARTED); 

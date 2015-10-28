@@ -1,31 +1,28 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
+import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
-public class TimedState {
+public abstract class TimedState {
 	
-	private State state;
-	private ConcurrentSkipListMap<Long, Set<Transition>> enabledTimedTransitions;
-	private long currentTime, initialTime;
-
-	public TimedState(State state, ConcurrentSkipListMap<Long, Set<Transition>> timedTrans, long time) {
-	    this(state, time);
-	    this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>(timedTrans);
+	protected State state;
+	protected long currentTime;
+	
+	protected TimedState() {
+		super();
 	}
 	
 	public TimedState(State state, long time) {
-    	super();
-    	this.state = state;
-    	this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
-    	this.initialTime = time;
-    	this.currentTime = time;
-	}
-
-	public String toString() { 
-		return "(" + this.state + ", " + this.enabledTimedTransitions + ", " + this.currentTime + ")"; 
+		HashedStateBuilder builder = new HashedStateBuilder();
+        for (String placeId : state.getPlaces()) {
+            builder.placeWithTokens(placeId, state.getTokens(placeId));
+        }
+    	this.state = builder.build();
+		this.currentTime = currentTime;
 	}
 
 	public State getState() {
@@ -35,14 +32,6 @@ public class TimedState {
 	public void setState(State state) {
 		this.state = state;
 	}
-
-	public ConcurrentSkipListMap<Long, Set<Transition>> getEnabledTimedTransitions() {
-		return this.enabledTimedTransitions;
-	}
-
-	public void setSecond(ConcurrentSkipListMap<Long, Set<Transition>> transitions) {
-		this.enabledTimedTransitions = transitions;
-	}
 	    
 	public long getCurrentTime() {
 		return this.currentTime;
@@ -50,6 +39,31 @@ public class TimedState {
 	    
 	public void setCurrentTime(long newTime) {
 		this.currentTime = newTime;
+		registerEnabledTimedTransitions( getEnabledTimedTransitions() );
 	}
+	
+	public abstract void resetTimeAndTimedTransitions(long newInitTime);
+	
+	public abstract TimedState makeCopy();
+	
+	public abstract long getNextFiringTime();
+	
+	public abstract boolean hasUpcomingTimedTransition();
+	
+	public abstract Set<Transition> getCurrentlyEnabledTimedTransitions();
+	
+    public abstract void registerEnabledTimedTransitions(Set<Transition> enabledTransitions);
+    
+    public abstract void unregisterTimedTransition(Transition transition, long atTime);
+    
+	public abstract Set<Long> getNextFiringTimes();
+	
+	public abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
+	
+	public abstract Set<Transition> getEnabledImmediateTransitions();
+	
+	public abstract Set<Transition> getEnabledTimedTransitions();
+	
+	public abstract boolean isEnabled(Transition transition);
 
 }

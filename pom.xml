@@ -190,6 +190,21 @@
 
 
         <plugins>
+        	<!-- package everything in one single jar: mvn clean package assembly:assembly -->
+      		<plugin>
+        		<artifactId>maven-assembly-plugin</artifactId>
+        		<configuration>
+		          <descriptorRefs>
+        		    <descriptorRef>jar-with-dependencies</descriptorRef>
+		          </descriptorRefs>
+        		  <archive>
+		            <manifest>
+        		      <mainClass>um.ac.imperial.pipe.runner.PetriNetRunner</mainClass>
+		            </manifest>
+        		  </archive>
+		        </configuration>
+      		</plugin>
+      		
             <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>

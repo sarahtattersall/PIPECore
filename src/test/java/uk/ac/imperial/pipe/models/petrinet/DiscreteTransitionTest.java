@@ -206,9 +206,8 @@ public class DiscreteTransitionTest {
                 APlace.withId("P0").and(5, "Default").tokens()).and(APlace.withId("P1").and(2, "Default").tokens()).and(
                 ATimedTransition.withId("T0").andIsASingle().server().andRate("4")).and(
                 ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
-                ANormalArc.withSource("P1").andTarget("T0").and("1)", "Default").token());
+                ANormalArc.withSource("P1").andTarget("T0").and("1", "Default").token());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        
         Transition t0 = executablePetriNet.getComponent("T0", Transition.class);
         double actualRate = t0.getActualRate(executablePetriNet);
         assertEquals(4, actualRate, 0.0001);

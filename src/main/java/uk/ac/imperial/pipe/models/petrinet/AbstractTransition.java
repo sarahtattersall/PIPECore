@@ -56,7 +56,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	protected int angle = 0;
 	
 	int delay = 0;
-	long nextFiringTime = Long.MIN_VALUE;
+	//long nextFiringTime = Long.MIN_VALUE;
 	
 	public AbstractTransition(String id, String name) {
 		super(id, name);
@@ -72,14 +72,15 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 		this.state = state; 
 		this.builder = builder; 
 		fire(); 
+		//TODO: shouldn't this go into fire?
+		// Right now, when you fire a transition: nothing happens
 		consumeInboundTokens();
 
 		State temporaryState = builder.build();
-
+		//TODO: shouldn't this go into fire?
 		produceOutboundTokens(temporaryState);
 		return builder; 
 	}
-
 
 	protected void produceOutboundTokens(State temporaryState) {
 		for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(this)) {
@@ -581,7 +582,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 		return delay;
 	}
 	
-	@Override
+	/*@Override
 	public void setNextFiringTime(long nextFiringTime) {
 		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setNextFiringTime:  firingTime cannot be set if Transition is not timed.");
 		this.nextFiringTime = nextFiringTime; 
@@ -590,6 +591,6 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	@Override
 	public long getNextFiringTime() {
 		return this.nextFiringTime;
-	}
+	}*/
 
 }
