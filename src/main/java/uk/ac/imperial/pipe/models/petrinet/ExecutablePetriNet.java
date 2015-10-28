@@ -6,6 +6,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
@@ -65,7 +66,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		//this.initialTime = initTime;
 		//this.currentTime = this.initialTime;
 		refresh(); 
-		timedState = new TimedState(state, initTime);
+		timedState = new HashedTimedState(this, state, initTime);
 	}
 	
 	public ExecutablePetriNet(PetriNet petriNet) {
@@ -298,6 +299,128 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return super.getRateParameters();
 	}
 
+	/**
+	 * Fire a specific transition for the given TimedState.
+	 */
+	public void fireTransition(Transition transition, TimedState timedState) {
+		//TODO: Clean up - should the timedState be copied first to the network
+		// then the transition fired - and then the timedState set again?
+		transition.fire(); 
+		//TODO: shouldn't this go into fire?
+		consumeInboundTokens(transition, timedState);
+		produceOutboundTokens(transition, timedState);
+		timedState.setState( this.getState() );
+		if (transition.isTimed()) {
+			timedState.unregisterTimedTransition(transition, timedState.getCurrentTime() );
+    	}
+    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
+	}
+
+	protected void consumeInboundTokens(Transition transition, TimedState timedState) {
+		/*for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
+		    String placeId = arc.getSource().getId();
+		    Map<String, String> arcWeights = arc.getTokenWeights();
+		    Map<String, Integer> tokens = timedState.getState().getTokens(placeId);
+		    for (Map.Entry<String, Integer> entry : tokens.entrySet()) {
+		        String tokenId = entry.getKey();
+		        if (arcWeights.containsKey(tokenId)) {
+		            int currentCount = entry.getValue();
+		            int arcWeight = (int) getArcWeight(arcWeights.get(tokenId), timedState);
+		            // Write to current state map
+		            // TODO: right now it is handled through the 
+		            //tokens.put(tokenId, subtractWeight(currentCount, arcWeight));
+		            // TODO: This is still strange as a place has also always a marking associated.
+		            //arc.getSource().setTokenCount(tokenId, subtractWeight(currentCount, arcWeight));
+		            //builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
+		        }
+		    }
+		}*/
+		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
+	        Place place = arc.getSource();
+	        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+	            String tokenId = entry.getKey();
+	            String functionalWeight = entry.getValue();
+	            double weight = getArcWeight(functionalWeight, timedState);
+	            int currentCount = place.getTokenCount(tokenId);
+	            //int newCount = currentCount + (int) weight;
+	            // TODO: This is still strange as a place has also always a marking associated.
+	            place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
+	            //timedState.setState( this.getState() );
+	        }
+	    }
+	}
+	
+	protected void produceOutboundTokens(Transition transition, TimedState timedState) {
+		/*for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
+		    String placeId = arc.getTarget().getId();
+		    Map<String, String> arcWeights = arc.getTokenWeights();
+		    Map<String, Integer> tokens = timedState.getState().getTokens(placeId);
+		    for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
+		        String tokenId = entry.getKey();
+		        int currentCount = timedState.getState().getTokens(placeId).get(tokenId);
+		        int arcWeight = (int) getArcWeight(entry.getValue(), timedState);
+		        //tokens.put(tokenId, addWeight(currentCount, arcWeight) );
+		        //builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
+		        ((Place) arc.getTarget()).setTokenCount(tokenId, addWeight(currentCount, arcWeight ));
+		    }
+		}*/
+	    //Increment new places
+	    for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
+	        Place place = arc.getTarget(); 
+	        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+	            String tokenId = entry.getKey();
+	            String functionalWeight = entry.getValue();
+	            double weight = getArcWeight(functionalWeight, timedState);
+	            int currentCount = place.getTokenCount(tokenId);
+	            //int newCount = oldCount - (int) weight;
+	            place.setTokenCount(tokenId, addWeight(currentCount, (int) weight ));
+	        }
+	    }
+	}
+	
+	/** MOVED FROM ABSTRACTTRANSITION
+     * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
+     * from it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return subtracted weight
+     */
+    protected int subtractWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight - arcWeight;
+    }
+
+    /** MOVED FROM ABSTRACT TRANSITION
+     * Treats Integer.MAX_VALUE as infinity and so will not add the weight
+     * to it if this is the case
+     *
+     * @param currentWeight
+     * @param arcWeight
+     * @return added weight
+     */
+    protected int addWeight(int currentWeight, int arcWeight) {
+        if (currentWeight == Integer.MAX_VALUE) {
+            return currentWeight;
+        }
+        return currentWeight + arcWeight;
+    }
+    /** MOVED FROM ABSTRACT TRANSITION
+     * @param state  petri net state to evaluate weight against
+     * @param weight a functional weight
+     * @return the evaluated weight for the given state
+     */
+    protected double getArcWeight(String weight, TimedState timedState) {
+    	double result =  this.evaluateExpression(timedState.getState(), weight); 
+        if (result == -1.0) {
+            //TODO:
+            throw new RuntimeException("Could not parse arc weight");
+        }
+        return result; 
+    }
+	
 	/**
 	 * @param transition to calculate inbound arc for
 	 * @return arcs that are inbound to transition, that is arcs that come into the transition

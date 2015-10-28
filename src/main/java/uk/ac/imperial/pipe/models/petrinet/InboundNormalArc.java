@@ -37,7 +37,7 @@ public class InboundNormalArc extends InboundArc {
         Map<String, String> tokenWeights = getTokenWeights();
         double tokenWeight = 0; 
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue()); 
+        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue());
             if (tokenWeight == -1.0) {
                 //TODO:
                 throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");

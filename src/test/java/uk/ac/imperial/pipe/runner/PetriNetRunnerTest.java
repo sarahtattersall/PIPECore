@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.runner;
 
 import static org.junit.Assert.assertEquals;
+
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
@@ -33,9 +34,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import uk.ac.imperial.pipe.animation.PetriNetAnimationLogic;
+import uk.ac.imperial.pipe.animation.PetriNetAnimator;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
@@ -91,6 +95,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         tokenEvent = false; 
         tokenFired = 0;
     }
+    
 	@Test
     public void simpleNetNotifiesOfStartAndFinishAndEachStateChange() throws InterruptedException, PetriNetComponentException {
     	checkCase = 1; 
@@ -335,7 +340,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.setTransitionContext("a.b.T0", test); 
     	runner.setFiringLimit(10); 
 		runner.run(); 
-		assertEquals("testnet7", test.getUpdatedContext()); 
+		// Changed name from testnet7 to net7 as transitions can't necessarily access their
+		// higher level EPNs.
+		assertEquals("net7", test.getUpdatedContext()); 
 	}	
 	@Test
 	public void externalTransitionMarksAnotherPlace() throws Exception {
@@ -348,7 +355,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner.setTransitionContext("T0", test); 
 		runner.setFiringLimit(10); 
 		runner.run(); 
-		assertEquals("testnet7", test.getUpdatedContext()); 
+		// Changed name from testnet7 to net7 as transitions can't necessarily access their
+		// higher level EPNs.
+		assertEquals("net7", test.getUpdatedContext()); 
 	}	
 	@Test
 	public void throwsIfListenRequestReceivedForPlaceNotExternallyAccessible() throws Exception {
@@ -447,7 +456,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-//		System.out.println(evt);
 		if (!(evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) && 
 			!(evt.getPropertyName().equals(Place.REMOVE_PLACE_MESSAGE))) 
 		{

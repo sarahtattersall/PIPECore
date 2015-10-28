@@ -52,7 +52,7 @@ public class DiscreteTransition extends AbstractTransition implements Transition
         this.rate = transition.rate;
         this.priority = transition.priority;
         this.delay = transition.delay;
-        this.nextFiringTime = transition.nextFiringTime;
+        //this.nextFiringTime = transition.nextFiringTime;
     }
 
     /**
