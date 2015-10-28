@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.animation;
 
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
+
 import java.util.Random;
 import java.util.Set;
 
@@ -25,6 +26,7 @@ public interface Animator {
     /**
      * @return a random transition that can fire
      */
+// TODO: Should be given by animation logic.
     Transition getRandomEnabledTransition();
 
      /**

@@ -162,13 +162,13 @@ public interface Transition extends Connectable {
 	 * For {@link DiscreteTimedTransition}, specify the next point of time, in milliseconds, 
 	 * that this transition will fire.
 	 */
-    public void setNextFiringTime(long time);
+    //public void setNextFiringTime(long time);
     
     /**
      * 
      * @return next time, in milliseconds, 
      * that this transition will fire
      */
-	public long getNextFiringTime();
+	//public long getNextFiringTime();
 
 }

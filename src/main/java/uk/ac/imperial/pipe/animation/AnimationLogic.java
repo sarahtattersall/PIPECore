@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.animation;
 
 import java.util.Collection;
+
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -18,6 +19,7 @@ public interface AnimationLogic {
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
+
 	@Deprecated
     Set<Transition> getEnabledTransitions(TimedState state);
 	

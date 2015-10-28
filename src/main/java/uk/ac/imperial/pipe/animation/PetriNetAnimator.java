@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.animation;
 
 import java.util.HashSet;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -38,7 +39,6 @@ public final class PetriNetAnimator implements Animator {
      */
     private TimedState savedState;
 
-
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet;
     	animationLogic = new PetriNetAnimationLogic(executablePetriNet);
@@ -51,7 +51,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void saveState() {
-    	savedState = executablePetriNet.getTimedState(); 
+    	savedState = executablePetriNet.getTimedState();
     }
 
     /**
@@ -70,7 +70,7 @@ public final class PetriNetAnimator implements Animator {
      *
      * @return a random transition which is enabled given the Petri nets current state
      */
-// Moved to AL
+// TODO: Clean up – Moved to AL
     @Override
     public Transition getRandomEnabledTransition() {
     	return animationLogic.getRandomEnabledTransition(executablePetriNet.getTimedState());
@@ -80,7 +80,6 @@ public final class PetriNetAnimator implements Animator {
      * @deprecated use {@link #getRandomEnabledTransition()}
      * @return all enabled transitions for the Petri nets current underlying state
      */
-    @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
         return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
@@ -93,23 +92,36 @@ public final class PetriNetAnimator implements Animator {
      * @param transition transition to fire
      */
     //TODO move state logic to Executable PN
-    @Override
-    public void fireTransition(Transition transition) {
-        TimedState newState = animationLogic.getFiredState(executablePetriNet.getTimedState(), transition);
+   /* @Override
+    public void fireTransition(Transition transition, TimedState timedState) {
+        //TimedState newState = animationLogic.getFiredState( timedState, transition);
+        this.executablePetriNet.fireTransition(transition, timedState);
         // TODO: A problem is that time is not part of the state - therefore must be handed additionally.
 //        if (transition.isTimed()) {
 //        	(newState.getEnabledTimedTransitions().get(newState.getCurrentTime())).remove(transition);
 //        	System.out.println("SET OF TRANS: " + newState.getEnabledTimedTransitions().get(newState.getCurrentTime()));
 //        }
-        for (Place place : executablePetriNet.getPlaces()) {
-            place.setTokenCounts(newState.getState().getTokens(place.getId()));
-        }
+//        for (Place place : executablePetriNet.getPlaces()) {
+//            place.setTokenCounts(newState.getState().getTokens(place.getId()));
+//        }
+    }*/
+    
+   /**
+    *
+    * Fires the transition if it is enabled in the Petri net for the current underlying state
+    *
+    * @param transition transition to fire
+    */
+    // TODO: Clean-up
+    public void fireTransition(Transition transition) {
+    	this.executablePetriNet.fireTransition(transition, this.executablePetriNet.getTimedState() );
     }
 
     /**
      * Undo the firing of the transition
      * @param transition transition to fire backwards
      */
+    // TODO: Has to be moved to ExecutablePetriNet - or later better TimedState?.
     @Override
     public void fireTransitionBackwards(Transition transition) {
         TimedState timedState = executablePetriNet.getTimedState();
@@ -140,19 +152,73 @@ public final class PetriNetAnimator implements Animator {
         }
     }
 
-    
+    /**
+     * Fire all currently enabled immediate transitions
+     * and afterwards the enabled timed transitions which are due to fire.
+     * 
+     * @param TimedState timedState
+     */
+    public void fireAllCurrentEnabledTransitions(TimedState timedState) {
+    	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
+    	if (nextTransition != null) {
+    		this.executablePetriNet.fireTransition(nextTransition, timedState);
+    		// TODO: Removing from timed transition table has to go somewhere else
+    		if (nextTransition.isTimed()) {
+    			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
+    		}
+    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
+        	timedState.registerEnabledTimedTransitions(enabledTransitions);
+    		fireAllCurrentEnabledTransitions(timedState);
+    	}
+    }
+
+    /**
+     * Fire a single enabled transition (immediate - or a timed one which is due when
+     * there is no immediate transition left).
+     * 
+     * @param TimedState timedState
+     */
+    public boolean fireOneEnabledTransition(TimedState timedState) {
+    	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
+/*
     public void fireAllCurrentEnabledTransitions() {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( executablePetriNet.getTimedState() );
     	logger.debug("Next fired trans " + nextTransition);
+>>>>>>> upstream/timed-transitions */
     	if (nextTransition != null) {
-    		fireTransition(nextTransition);
-    		fireAllCurrentEnabledTransitions();
+    		this.executablePetriNet.fireTransition(nextTransition, timedState);
+    		if (nextTransition.isTimed()) {
+    			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
+    		}
+    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
+        	timedState.registerEnabledTimedTransitions(enabledTransitions);
+    		return true;
+    	} else {
+    		return false;
     	}
     }
     
     /**
-     * Advance current time.
+     * Advance current time of the Petri Network.
+     * Fire all immediate transitions and afterwards step through time
+     * always firing the timed transitions that become due to fire.
      */
+    public void advanceNetToTime(TimedState timedState, long newTime) {
+    	if (newTime > timedState.getCurrentTime() ) {
+        	fireAllCurrentEnabledTransitions(timedState);
+        	while ( timedState.hasUpcomingTimedTransition() ) {
+        		long nextFiringTime = timedState.getNextFiringTime();
+        		if (nextFiringTime < newTime) {
+        			timedState.setCurrentTime(timedState.getNextFiringTime());
+        			fireAllCurrentEnabledTransitions(timedState);
+        		} else {
+        			timedState.setCurrentTime(newTime);
+        			break;
+        		}
+        	}
+        	timedState.setCurrentTime(newTime);
+    	}
+/*
     // TODO: Should go in animator as it fires transitions!
     protected void advanceToTime(TimedState timedState, long newTime) {
     	fireAllCurrentEnabledTransitions();
@@ -181,6 +247,7 @@ public final class PetriNetAnimator implements Animator {
     	}
     	logger.debug("NEW TIME " + newTime);
     	timedState.setCurrentTime(newTime);
+>>>>>>> upstream/timed-transitions */
     }
     
     

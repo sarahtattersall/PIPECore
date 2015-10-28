@@ -470,7 +470,7 @@ public class PetriNet extends AbstractPetriNet {
    public ExecutablePetriNet getExecutablePetriNet() {
 		if (executablePetriNet == null) {
 			executablePetriNet = new ExecutablePetriNet(this); 
-			addPropertyChangeListener(executablePetriNet); 
+			addPropertyChangeListener(executablePetriNet);
 		}
 		else executablePetriNet.refresh(); 
 		return executablePetriNet;
