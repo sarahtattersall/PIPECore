@@ -194,6 +194,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     	//startState.registerEnabledTimedTransitions(enabledTransitions);
     	// TODO: successor has to be adapted.
         //Collection<Transition> enabled = getEnabledTransitions(startState);
+    	
         Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timedState);
         logger.debug("Get Succ: " + timedState);
         if (enabled.size() > 0) {

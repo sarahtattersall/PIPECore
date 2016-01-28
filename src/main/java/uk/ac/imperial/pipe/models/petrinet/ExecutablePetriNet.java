@@ -340,14 +340,16 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
 	        Place place = arc.getSource();
 	        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-	            String tokenId = entry.getKey();
-	            String functionalWeight = entry.getValue();
-	            double weight = getArcWeight(functionalWeight, timedState);
-	            int currentCount = place.getTokenCount(tokenId);
-	            //int newCount = currentCount + (int) weight;
-	            // TODO: This is still strange as a place has also always a marking associated.
-	            place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
-	            //timedState.setState( this.getState() );
+	        	if (arc.getType() == ArcType.NORMAL) {
+	        		String tokenId = entry.getKey();
+	        		String functionalWeight = entry.getValue();
+	        		double weight = getArcWeight(functionalWeight, timedState);
+	        		int currentCount = place.getTokenCount(tokenId);
+	        		//int newCount = currentCount + (int) weight;
+	        		// TODO: This is still strange as a place has also always a marking associated.
+	        		place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
+	        		//timedState.setState( this.getState() );
+	        	}
 	        }
 	    }
 	}

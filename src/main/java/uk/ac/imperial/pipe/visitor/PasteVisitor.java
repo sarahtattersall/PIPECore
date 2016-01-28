@@ -195,6 +195,9 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
             case INHIBITOR:
                 newArc = new InboundInhibitorArc(source, target);
                 break;
+            case TEST:
+                newArc = new InboundTestArc(source, target);
+                break;
             default:
                 newArc = new InboundNormalArc(source, target, inboundArc.getTokenWeights());
         }

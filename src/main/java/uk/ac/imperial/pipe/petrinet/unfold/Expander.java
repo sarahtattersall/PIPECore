@@ -294,6 +294,9 @@ public final class Expander {
             case INHIBITOR:
                 newArc = new InboundInhibitorArc(source, target);
                 break;
+            case TEST:
+                newArc = new InboundTestArc(source, target);
+                break;
             default:
                 newArc = new InboundNormalArc(source, target, getNewArcWeight(arcWeight));
         }
