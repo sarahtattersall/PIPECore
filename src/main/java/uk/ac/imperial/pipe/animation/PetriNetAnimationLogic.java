@@ -205,11 +205,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     	//Set<Transition> enabledTransitions = startState.getEnabledTimedTransitionsNew();
     	//startState.registerEnabledTimedTransitions(enabledTransitions);
     	// TODO: successor has to be adapted.
-//<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
-////<<<<<<< 384394601450967788e197ab312eae581d637c80
-////        Collection<Transition> enabled = getEnabledTransitions(timedState);
-//////        logger.debug("Get Succ: " + timedState);
-////=======
         Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timedState);
         logger.debug("Get Succ: " + timedState);
 //>>>>>>> refactor to stop using PetriNetAnimationLogic.getEnabledTransitions

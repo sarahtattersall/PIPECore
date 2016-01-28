@@ -19,6 +19,7 @@ import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
+import uk.ac.imperial.pipe.models.petrinet.InboundTestArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
@@ -376,6 +377,9 @@ public final class ClonePetriNet {
         switch (arc.getType()) {
             case INHIBITOR:
                 newArc = new InboundInhibitorArc(source, target);
+                break;
+            case TEST:
+                newArc = new InboundTestArc(source, target);
                 break;
             default:
                 newArc = new InboundNormalArc(source, target, arc.getTokenWeights());

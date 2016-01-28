@@ -64,8 +64,29 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         String target = adaptedArc.getTarget();
         boolean normalArc = true; 
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
+        
         if (adaptedArc.getType().equals("inhibitor")) {
+//<<<<<<< 6e343ae074ded3eceb9677b0a1aa98be74246586
         	normalArc = false; 
+//SJDclean=======
+//            Place place = places.get(source);
+//            Transition transition = transitions.get(target);
+//            arc = new InboundInhibitorArc(place, transition);
+//        } else if (adaptedArc.getType().equals("test")) {
+//        	Place place = places.get(source);
+//            Transition transition = transitions.get(target);
+//            arc = new InboundTestArc(place, transition);
+//        } else {
+//            if (places.containsKey(source)) {
+//                Place place = places.get(source);
+//                Transition transition = transitions.get(target);
+//                arc = new InboundNormalArc(place, transition, weights);
+//            } else {
+//                Place place = places.get(target);
+//                Transition transition = transitions.get(source);
+//                arc = new OutboundNormalArc(transition, place, weights);
+//            }
+//>>>>>>> Added Test Arcs to the Petri Nets.
         }
         ArcEndpointsValidator aev = new ArcEndpointsValidator(source, target, arcId, places, transitions, normalArc, weights);
         arc = aev.createArc(); 
