@@ -54,10 +54,15 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         String source = adaptedArc.getSource();
         String target = adaptedArc.getTarget();
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
+        
         if (adaptedArc.getType().equals("inhibitor")) {
             Place place = places.get(source);
             Transition transition = transitions.get(target);
             arc = new InboundInhibitorArc(place, transition);
+        } else if (adaptedArc.getType().equals("test")) {
+        	Place place = places.get(source);
+            Transition transition = transitions.get(target);
+            arc = new InboundTestArc(place, transition);
         } else {
             if (places.containsKey(source)) {
                 Place place = places.get(source);
