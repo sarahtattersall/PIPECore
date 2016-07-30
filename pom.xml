@@ -10,9 +10,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.global.server>github</github.global.server>
     </properties>
-
     <scm>
-        <developerConnection>scm:git:git@github.com:sarahtattersall/PIPECore.git</developerConnection>
+    	<!-- 
+    	   Used by maven release plugin (prepare, not perform)   
+    	   Add -Dgithub.site.repositoryOwner=yourGithubUserId to maven release:prepare, e.g.,   
+    	   -Dgithub.site.repositoryOwner=sjdayday release:prepare
+    	 -->
+        <developerConnection>scm:git:git@github.com:${github.site.repositoryOwner}/PIPECore.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -232,9 +236,18 @@
             </plugin>
 
             <plugin>
+       	    	<!-- 
+		    	   Used by maven release plugin, and as part of deploy phase.  
+		    	   For release:perform, any command line arguments must be passed using -Darguments="args... "
+		    	   Add -Darguments=-Dgithub.site.repositoryOwner=yourGithubUserId to maven release:perform, e.g., 
+			    	   -Darguments=-Dgithub.site.repositoryOwner=sjdayday release:perform
+			       For release:prepare and the deploy phase, -Darguments is not needed:
+			           -Dgithub.site.repositoryOwner=sjdayday  release:prepare 
+			       	   -Dgithub.site.repositoryOwner=sjdayday clean deploy  
+	        	 -->
                 <groupId>com.github.github</groupId>
                 <artifactId>site-maven-plugin</artifactId>
-                <version>0.11</version>
+                <version>0.12</version>
                 <configuration>
                     <message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
                     <noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
@@ -242,7 +255,7 @@
                     <branch>refs/heads/mvn-repo</branch>
                     <includes><include>**/*</include></includes>
                     <repositoryName>PIPECore</repositoryName>
-                    <repositoryOwner>sjdayday</repositoryOwner>   <!-- for 1.0.2-SNAPSHOT, was: sarahtattersall -->
+                     <repositoryOwner>${github.site.repositoryOwner}</repositoryOwner>   
                     <merge>true</merge>
                 </configuration>
                 <executions>
@@ -284,15 +297,30 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
+               <!-- this version and maven-scm-provider-gitexe 1.8.1 correctly 
+               generate a release jar rather than a SNAPSHOT jar, but 
+               do not correctly distinguish branch and tag by the same name
+               so force an extra "-" in the tagNameFormat to keep them unique
+               later versions of the two plugins (e.g., 2.5.3 and 1.9.4) 
+               distinguish them via refs/heads/xxx and refs/tags/xxx but don't 
+               yet fix the original problem of generating a SNAPSHOT jar.  -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>2.4.2</version>
+                  <configuration>
+          			<tagNameFormat>@{project.artifactId}--@{project.version}</tagNameFormat>
+        		  </configuration>
+			      <dependencies>
+			        <dependency>
+			          <groupId>org.apache.maven.scm</groupId>
+			          <artifactId>maven-scm-provider-gitexe</artifactId>
+			          <version>1.8.1</version>
+			        </dependency>
+			       </dependencies>
             </plugin>
+
         </plugins>
     </build>
-
-
 
 </project>
