@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -69,7 +71,12 @@ public class PetriNetIOImpl implements PetriNetIO {
      */
     public PetriNetIOImpl(boolean continueProcessing, boolean suppressUnexpectedElementMessages) throws JAXBException {
     	context = JAXBContext.newInstance(PetriNetHolder.class);
-    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages); 
+    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages);
+    	// setting log level to FINEST to force continued reporting of errors; otherwise, suppressed 
+    	// after 10 errors in static field, generating unpredictable test side effects, under Java 1.8
+    	// https://java.net/projects/jaxb/lists/commits/archive/2013-08/message/4
+    	// https://java.net/projects/jaxb/lists/users/archive/2015-11/message/6
+    	Logger.getLogger("com.sun.xml.internal.bind").setLevel(Level.FINEST);
     }
 
     /**
