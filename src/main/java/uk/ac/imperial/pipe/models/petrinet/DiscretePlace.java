@@ -356,7 +356,7 @@ public final class DiscretePlace extends AbstractConnectable implements Place {
      * |
      * y V
      *
-     * @return
+     * @return point where arc attaches to this place
      */
     @Override
     public Point2D.Double getArcEdgePoint(double angle) {
