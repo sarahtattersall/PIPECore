@@ -68,7 +68,7 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
      * E.g. with("5", "Red").tokens()
      * @param tokenWeight
      * @param tokenName
-     * @return
+     * @return a builder for chaining 
      */
     public ANormalArc with(String tokenWeight, String tokenName) {
         weights.put(tokenName, tokenWeight);
@@ -79,7 +79,7 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
      * Added for readability, same as with method
      * @param tokenWeight
      * @param tokenName
-     * @return
+     * @return a builder for chaining 
      */
     public ANormalArc and(String tokenWeight, String tokenName) {
         return with(tokenWeight, tokenName);
