@@ -13,9 +13,9 @@ import java.util.Map;
 public class InboundNormalArc extends InboundArc {
     /**
      * Constructor
-     * @param source
-     * @param target
-     * @param tokenWeights
+     * @param source connectable of the arc
+     * @param target connectable of the arc
+     * @param tokenWeights of the arc 
      */
     public InboundNormalArc(Place source, Transition target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
@@ -23,7 +23,7 @@ public class InboundNormalArc extends InboundArc {
 
     /**
      *
-     * @param petriNet
+     * @param petriNet to be evaluated 
      * @param state current state of the Petri net
      * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
      */

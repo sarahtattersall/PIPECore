@@ -10,10 +10,10 @@ import java.util.Map;
 public abstract class InboundArc extends AbstractArc<Place, Transition> {
     /**
      * Constructor
-     * @param source
-     * @param target
-     * @param tokenWeights
-     * @param type
+     * @param source of the arc
+     * @param target of the arc
+     * @param tokenWeights of the arc
+     * @param type of the arc
      */
     public InboundArc(Place source, Transition target, Map<String, String> tokenWeights, ArcType type) {
         super(source, target, tokenWeights, type);
@@ -22,7 +22,7 @@ public abstract class InboundArc extends AbstractArc<Place, Transition> {
 
     /**
      * Visits the visitor if it is an {@link uk.ac.imperial.pipe.models.petrinet.ArcVisitor}
-     * @param visitor
+     * @param visitor to be accepted 
      */
     @Override
     public final void accept(PetriNetComponentVisitor visitor) {

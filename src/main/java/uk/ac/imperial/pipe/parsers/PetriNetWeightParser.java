@@ -30,7 +30,8 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
     /**
      * Parses Transition Rates to determine their value and
      * the components they reference.
-     *
+     * @param evalVisitor visitor to perform parsing 
+     * @param petriNet to be parsed 
      */
     public PetriNetWeightParser(RateGrammarBaseVisitor<Double> evalVisitor, PetriNet petriNet) {
         this.evalVisitor = evalVisitor;

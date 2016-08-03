@@ -41,8 +41,8 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
 
     /**
      * Constructor, sets draggable to true by default
-     * @param point
-     * @param curved
+     * @param point on the arc
+     * @param curved true if arc is curved 
      */
     public ArcPoint(Point2D point, boolean curved) {
         this(point, curved, true);
@@ -50,9 +50,9 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
 
     /**
      * Constructor that allows you to choose whether the point is draggable
-     * @param point
-     * @param curved
-     * @param draggable
+     * @param point on the arc
+     * @param curved true if arc is curved
+     * @param draggable true if arc is draggable
      */
     public ArcPoint(Point2D point, boolean curved, boolean draggable) {
         setPoint(point);
@@ -163,7 +163,7 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
 
     /**
      * visit {@link uk.ac.imperial.pipe.models.petrinet.ArcPointVisitor}
-     * @param visitor
+     * @param visitor to be accepted
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
@@ -183,7 +183,7 @@ public class ArcPoint extends AbstractPetriNetPubSub implements PlaceablePetriNe
 
     /**
      * Performs noop since an arc point doesn't yet have an id
-     * @param id
+     * @param id of the arc point
      */
     @Override
     public void setId(String id) {

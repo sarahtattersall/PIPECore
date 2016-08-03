@@ -69,8 +69,8 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      * Constructor with default rate and priority
-     * @param id
-     * @param name
+     * @param id of the transition
+     * @param name of the transition
      */
     public DiscreteTransition(String id, String name) {
         super(id, name);
@@ -78,7 +78,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      * Constructor that sets the default rate priority and the name of the transition to its id
-     * @param id
+     * @param id of the transition
      */
     public DiscreteTransition(String id) {
         super(id, id);
@@ -86,10 +86,10 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      * Constructor with the specified rate and priority
-     * @param id
-     * @param name
-     * @param rate
-     * @param priority
+     * @param id of the transition
+     * @param name of the transition
+     * @param rate of the transition
+     * @param priority of the transition
      */
     public DiscreteTransition(String id, String name, Rate rate, int priority) {
         super(id, name);
@@ -99,7 +99,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      * Copy constructor
-     * @param transition
+     * @param transition to be copied
      */
     public DiscreteTransition(DiscreteTransition transition) {
         super(transition);
@@ -274,7 +274,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      *
-     * @param priority the priority of this transition. Must be > 0.
+     * @param priority the priority of this transition. Must be &gt; 0.
      */
     @Override
     public void setPriority(int priority) {
@@ -303,9 +303,9 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      * Evaluate the transitions rate against the given state
-     * <p/>
+     * <p>
      * If an infinite server the transition will return its rate * enabling degree
-     *
+     * </p>
      * @param state given state of a petri net to evaluate the functional rate of
      * @return actual evaluated rate of the Petri net
      */
@@ -367,9 +367,9 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     /**
      * A Transition is enabled if all its input places are marked with at least one token
      * This method calculates the minimum number of tokens needed in order for a transition to be enabled
-     * <p/>
+     * <p>
      * The enabling degree is the number of times that a transition is enabled
-     *
+     * </p>
      * @param state state of the petri net
      * @param arcWeights evaluated arc weights for the given state
      * @return number of times this transition is enabled for the given state
@@ -436,7 +436,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      *
-     * @param infiniteServer true => infite server, false => single server
+     * @param infiniteServer true =&gt; infinite server, false =&gt; single server
      */
     @Override
     public void setInfiniteServer(boolean infiniteServer) {
@@ -476,7 +476,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
 
     /**
      *
-     * @param timed true => timed, false => immediate
+     * @param timed true =&gt; timed, false =&gt; immediate
      */
     @Override
     public void setTimed(boolean timed) {
@@ -506,7 +506,7 @@ public final class DiscreteTransition extends AbstractConnectable implements Tra
     /**
      * visits the visitor of it is a {@link uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor} or a
      * {@link uk.ac.imperial.pipe.models.petrinet.TransitionVisitor}.
-     * @param visitor
+     * @param visitor to be accepted 
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {

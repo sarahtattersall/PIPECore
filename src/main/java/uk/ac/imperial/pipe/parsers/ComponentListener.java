@@ -17,7 +17,7 @@ public class ComponentListener extends RateGrammarBaseListener {
 
     /**
      * When exiting a token_number token we store the id of the token
-     * @param ctx
+     * @param ctx token number context 
      */
     @Override public void exitToken_number(@NotNull RateGrammarParser.Token_numberContext ctx) {
         componentIds.add(ctx.ID().getText());

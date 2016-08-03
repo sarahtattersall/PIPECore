@@ -56,7 +56,7 @@ public final class ClonePetriNet {
 
     /**
      *
-     * @param petriNet
+     * @param petriNet to be cloned 
      * @return  cloned Petri net
      */
     public static PetriNet clone(PetriNet petriNet) {
@@ -106,7 +106,7 @@ public final class ClonePetriNet {
 
     /**
      * Clone a Petri net name
-     * @param name
+     * @param name of the Petri net 
      */
     private void visit(PetriNetName name) {
         if (name != null) {
@@ -246,7 +246,7 @@ public final class ClonePetriNet {
 
         /**
          * Clones a PetriNetFileName
-         * @param name
+         * @param name of the Petri net 
          */
         @Override
         public void visit(PetriNetFileName name) {

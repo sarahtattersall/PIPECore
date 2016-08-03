@@ -70,10 +70,11 @@ public interface Transition extends Connectable {
 
     /**
      * Evaluate the transitions rate against the given state
-     * <p/>
+     * <p>
      * If an infinite server the transition will return its rate * enabling degree
-     *
+     * </p>
      * @param state given state of a petri net to evaluate the functional rate of
+     * @param petriNet to be evaluated 
      * @return actual evaluated rate of the Petri net
      */
     Double getActualRate(PetriNet petriNet, State state);

@@ -62,7 +62,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     }
 
     /**
-     * @param state
+     * @param state to be evaluated
      * @return all successors of this state
      */
     @Override
@@ -86,15 +86,15 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * transition.
      * calculating the decremented token counts and then calculating the incremented
      * token counts.
-     * <p/>
+     * <p>
      * We cannot set the token counts in the decrement phase in case an increment
-     * depends on this value.
-     * <p/>
-     * E.g. if P0 -> T0 -> P1 and T0 -> P1 has a weight of #(P0) then we expect
-     * #(P0) to refer to the number of tokens before firing.
+     * depends on this value. </p>
+     * <p>
+     * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
+     * #(P0) to refer to the number of tokens before firing. </p>
      *
-     * @param state
-     * @param transition
+     * @param state to be evaluated
+     * @param transition  to be fired 
      * @return Map of places whose token counts differ from those in the initial state
      */
     //TODO: This method is a bit too long

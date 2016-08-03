@@ -50,7 +50,7 @@ public class AdaptedAnnotation {
 
     /**
      * Sets the border property
-     * @param border
+     * @param border of the annotation
      */
     public final void setBorder(boolean border) {
         this.border = border;

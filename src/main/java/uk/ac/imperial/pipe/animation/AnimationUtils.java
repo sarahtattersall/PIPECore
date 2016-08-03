@@ -17,7 +17,7 @@ public final class AnimationUtils {
 
     /**
      *
-     * @param petriNet
+     * @param petriNet current Petri net
      * @return Markov chain state representing the current placing of tokens in the Petri net
      */
     public static State getState(PetriNet petriNet) {

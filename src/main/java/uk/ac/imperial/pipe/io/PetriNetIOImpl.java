@@ -65,9 +65,9 @@ public class PetriNetIOImpl implements PetriNetIO {
      *     all "unexpected element" messages suppressed (default)
      * continue=false, suppress=false:  processing stops at first message other than "unexpected element"; 
      *     all messages printed
-     *  
-     * 
-     * @throws JAXBException
+     * @param continueProcessing processing to continue in the event of validation failure
+     * @param suppressUnexpectedElementMessages suppresses "unexpected element" messages
+     * @throws JAXBException if JAXBContext cannot be created for PetriNetHolder
      */
     public PetriNetIOImpl(boolean continueProcessing, boolean suppressUnexpectedElementMessages) throws JAXBException {
     	context = JAXBContext.newInstance(PetriNetHolder.class);
@@ -84,7 +84,7 @@ public class PetriNetIOImpl implements PetriNetIO {
      * Default settings of the continueProcessing and suppressUnexpectedElementMessage flags:
      * processing stops at first message other than "unexpected element"; all "unexpected element" messages suppressed
      * 
-     * @throws JAXBException
+     * @throws JAXBException if JAXBContext cannot be created for PetriNetHolder
      */
     public PetriNetIOImpl() throws JAXBException {
     	this(false, true); 
@@ -95,9 +95,10 @@ public class PetriNetIOImpl implements PetriNetIO {
 	/**
      * Writes the specified petri net to the given path
      *
-     * @param path
-     * @param petriNet
-	 * @throws IOException 
+     * @param path where Petri net will be written
+     * @param petriNet to write
+	 * @throws IOException if path is not found or other IO error
+	 * @throws JAXBException if Petri net cannot be marshalled
      */
     @Override
     public void writeTo(String path, PetriNet petriNet) throws JAXBException, IOException {
@@ -107,8 +108,9 @@ public class PetriNetIOImpl implements PetriNetIO {
     /**
      * Writes the Petri net to the given stream
      *
-     * @param stream
-     * @param petriNet
+     * @param stream where Petri net will be written
+     * @param petriNet to write 
+     * @throws JAXBException if Petri net cannot be marshalled
      */
     @Override
     public void writeTo(Writer stream, PetriNet petriNet) throws JAXBException {
@@ -158,7 +160,7 @@ public class PetriNetIOImpl implements PetriNetIO {
 
     /**
      * initialize unmarshaller with the correct adapters needed
-     * @throws JAXBException
+     * @throws JAXBException if Petri net cannot be unmarshalled 
      */
     protected void initialiseUnmarshaller() throws JAXBException {
 

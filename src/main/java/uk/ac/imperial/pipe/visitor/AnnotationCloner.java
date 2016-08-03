@@ -15,7 +15,7 @@ public class AnnotationCloner implements AnnotationImplVisitor {
 
     /**
      * Visits the annotation and clones it
-     * @param annotation
+     * @param annotation to be cloned 
      */
     @Override
     public void visit(AnnotationImpl annotation) {

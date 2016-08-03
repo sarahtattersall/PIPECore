@@ -17,9 +17,9 @@ import java.util.Map;
 public class OutboundNormalArc extends OutboundArc {
     /**
      * Constructor
-     * @param source
-     * @param target
-     * @param tokenWeights
+     * @param source connectable of the arc
+     * @param target connectable of the arc
+     * @param tokenWeights of the arc
      */
     public OutboundNormalArc(Transition source, Place target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
@@ -27,8 +27,8 @@ public class OutboundNormalArc extends OutboundArc {
 
     /**
      *
-     * @param petriNet
-     * @param state
+     * @param petriNet to be evaluated 
+     * @param state of the Petri net
      * @return true if there is no capacity restriction on the target or firing will
      *         not cause capacity overflow
      */
@@ -69,9 +69,10 @@ public class OutboundNormalArc extends OutboundArc {
 
     /**
      *
-     * @param petriNet
-     * @param state
-     *@param arc  @return the sum of total number of tokens that the specified arc needs for its weight
+     * @param petriNet to be evaluated 
+     * @param state of the Petri net
+     * @param arc for which counts are to be retrieved 
+     * @return the sum of total number of tokens that the specified arc needs for its weight
      */
     private int getTokenCounts(PetriNet petriNet, State state, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
         StateEvalVisitor stateEvalVisitor = new StateEvalVisitor(petriNet, state);
@@ -91,7 +92,7 @@ public class OutboundNormalArc extends OutboundArc {
 
     /**
      *
-     * @param state
+     * @param state of the Petri net
      * @return the number of tokens in this arcs target place for the given state
      */
     private int getTokensInPlace(State state) {

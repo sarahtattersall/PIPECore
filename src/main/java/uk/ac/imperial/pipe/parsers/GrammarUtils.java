@@ -18,7 +18,8 @@ public final class GrammarUtils {
      * Parses an expression
      *
      * @param expression string to parse
-     * @return ParseTree
+     * @param errorListeners listeners for parse errors 
+     * @return ParseTree from the parse 
      */
     public static ParseTree parse(String expression, ANTLRErrorListener... errorListeners) {
         CharStream input = new ANTLRInputStream(expression);

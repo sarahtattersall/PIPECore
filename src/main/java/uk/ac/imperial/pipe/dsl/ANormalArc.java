@@ -66,8 +66,8 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
     /**
      * Method for creating tokens
      * E.g. with("5", "Red").tokens()
-     * @param tokenWeight
-     * @param tokenName
+     * @param tokenWeight for the token
+     * @param tokenName for the token
      * @return a builder for chaining 
      */
     public ANormalArc with(String tokenWeight, String tokenName) {
@@ -77,8 +77,8 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
 
     /**
      * Added for readability, same as with method
-     * @param tokenWeight
-     * @param tokenName
+     * @param tokenWeight for the token
+     * @param tokenName for the token
      * @return a builder for chaining 
      */
     public ANormalArc and(String tokenWeight, String tokenName) {
@@ -87,10 +87,10 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
 
     /**
      *
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rateParameters with id of rateParameter
      * @return new inbound/outbound arc depending on if the soure was a place/transition
      */
     @Override
@@ -130,8 +130,8 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
     /**
      *
      * Registers a straight intermediate point at (x,y)
-     * @param x
-     * @param y
+     * @param x coordinate
+     * @param y coordinate
      * @return builder for chaining
      */
     public ANormalArc andIntermediatePoint(int x, int y) {
@@ -141,8 +141,8 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
 
     /**
      * Registers a curved intermedaite point at (x,y)
-     * @param x
-     * @param y
+     * @param x coordinate
+     * @param y coordinate
      * @return builder for chaining
      */
     public ANormalArc andACurvedIntermediatePoint(int x, int y) {

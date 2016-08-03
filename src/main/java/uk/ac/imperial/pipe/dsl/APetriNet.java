@@ -66,7 +66,7 @@ public final class APetriNet {
      * @param finalCreator last item creator to add to Petri net
      * @param <T> type of PetriNetComponent
      * @return the created Petri net containing all the items made from the added creators
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException if the PetriNet has errors due to mis-specified components
      */
     public  <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator) throws PetriNetComponentException {
         return and(finalCreator).makePetriNet();
@@ -77,7 +77,7 @@ public final class APetriNet {
      * @param creator item creator to add to Petri net
      * @param <T> type of PetriNetComponent
      * @return created petri net containing the item
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException if the PetriNet has errors due to mis-specified components
      */
     public static <T extends PetriNetComponent> PetriNet withOnly(DSLCreator<T> creator) throws PetriNetComponentException {
         APetriNet aPetriNet = new APetriNet();

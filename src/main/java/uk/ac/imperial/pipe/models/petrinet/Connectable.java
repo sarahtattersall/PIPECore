@@ -48,14 +48,16 @@ public interface Connectable extends PlaceablePetriNetComponent {
 
     /**
      * @return coords for an arc to connect to
-     * <p/>
+     * <p>
      * x, y are the top left corner so A
      * would return (4, 1) and B would
-     * return (14, 1)
-     * <p/>
+     * return (14, 1) </p>
+     * <p>
      * +---+         +---+
-     * | A |-------->| B |
+     * | A |--------&gt;| B |
      * +---+         +---+
+     * </p>
+     * @param angle at which to connect
      */
     Point2D.Double getArcEdgePoint(double angle);
 
