@@ -10,7 +10,7 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 public class PlaceNamer extends ComponentNamer {
 
     /**
-     * Constructor sets the name of the places in the Petri net to be in the form "P{@code<number>}"
+     * Constructor sets the name of the places in the Petri net to be in the form "P{@code <number>}"
      * @param petriNet of the places to be named 
      */
     public PlaceNamer(PetriNet petriNet) {

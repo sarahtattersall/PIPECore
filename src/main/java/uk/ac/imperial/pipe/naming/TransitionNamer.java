@@ -10,7 +10,7 @@ public class TransitionNamer extends ComponentNamer {
 
     /**
      *
-     * Constructor initialises the unique name for the transitions to be in the format "T {@code<number>}"
+     * Constructor initialises the unique name for the transitions to be in the format "T {@code <number>}"
      *
      * @param petriNet of the transitions to be named 
      */

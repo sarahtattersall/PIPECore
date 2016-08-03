@@ -39,7 +39,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Map of Token to corresponding weights
-     * Weights can be functional e.g {@code'> 5'}
+     * Weights can be functional e.g {@code '> 5'}
      */
     protected Map<String, String> tokenWeights = new HashMap<>();
 
@@ -67,7 +67,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
 
     /**
-     * Abstract arc constructor sets arc to {@code<source id> TO <target id>}
+     * Abstract arc constructor sets arc to {@code <source id> TO <target id>}
      * @param source connectable
      * @param target connectable
      * @param tokenWeights for this arc
