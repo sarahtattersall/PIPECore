@@ -32,10 +32,10 @@ public interface Animator {
      * Finds all of the transitions which are enabled
      * If there are any immediate transitions then these take priority
      * and timed transactions are not counted as enabled
-     * <p/>
-     * It also disables any immediate transitions with a lower
-     * priority than the highest available priority.
-     * <p/>
+     * 
+     * <p> It also disables any immediate transitions with a lower
+     * priority than the highest available priority. </p>
+     * 
      *
      * @return all transitions that can be enabled
      */
@@ -45,12 +45,12 @@ public interface Animator {
     /**
      * Removes the relevant number tokens from places into the transition
      * Adds tokens to the places out of the transition according to the arc weight
-     * <p/>
-     * Handles functional weights e.g. removing all of a places tokens and adding them
+     * 
+     * <p> Handles functional weights e.g. removing all of a places tokens and adding them
      * to the receiving place by calculating all incidence matrices before setting any token counts
-     * <p/>
-     * Recalculates enabled transitions
-     *
+     * </p>
+     * <p>Recalculates enabled transitions
+     *</p>
      * @param transition transition to fire
      */
     void fireTransition(Transition transition);

@@ -27,7 +27,7 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
     /**
      * Copy constructor
      *
-     * @param rateParameter
+     * @param rateParameter to be copied
      */
     public FunctionalRateParameter(FunctionalRateParameter rateParameter) {
         this(rateParameter.expression, rateParameter.id, rateParameter.name);
@@ -35,9 +35,9 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
 
     /**
      * Constructor
-     * @param expression
-     * @param id
-     * @param name
+     * @param expression of the rate parameter
+     * @param id of the rate parameter
+     * @param name of the rate parameter
      */
     public FunctionalRateParameter(String expression, String id, String name) {
         this.expression = expression;
@@ -95,8 +95,8 @@ public final class FunctionalRateParameter extends AbstractPetriNetPubSub implem
     /**
      * Accepts the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.RateParameterVisitor} or
      * {@link uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameterVisitor}
-     * @param visitor
-     * @throws PetriNetComponentException
+     * @param visitor to be accepted 
+     * @throws PetriNetComponentException if component not found or other logic error 
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {

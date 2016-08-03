@@ -31,8 +31,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     }
 
     /**
-     * Constructor
-     * @param places
+     * Constructor 
+     * @param places to marshal  
      */
     public PlaceAdapter(Map<String, Place> places) {
         this.places = places;
@@ -40,7 +40,7 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
 
     /**
      *
-     * @param adaptedPlace
+     * @param adaptedPlace to unmarshal
      * @return unmarshaled place
      */
     @Override
@@ -61,7 +61,7 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
 
     /**
      *
-     * @param place
+     * @param place to marshal
      * @return marshaled place
      */
     @Override
@@ -90,8 +90,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
     }
 
     /**
-     * @param weights
-     * @return comma seperated weights string
+     * @param weights to marshal
+     * @return comma separated weights string
      */
     private String weightToString(Map<String, Integer> weights) {
         return Joiner.on(",").withKeyValueSeparator(",").join(weights);
@@ -99,8 +99,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
 
     /**
      *
-     * @param value
-     * @return map from comma seperated weights string
+     * @param value to unmarshal
+     * @return map from comma separated weights string
      */
     public Map<String, Integer> stringToWeights(String value) {
         Map<String, Integer> tokenWeights = new HashMap<>();

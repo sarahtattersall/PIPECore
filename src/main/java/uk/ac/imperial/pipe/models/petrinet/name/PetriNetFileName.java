@@ -40,7 +40,7 @@ public final  class PetriNetFileName implements PetriNetName {
 
     /**
      * Visit a name
-     * @param visitor
+     * @param visitor to be visited 
      */
     @Override
     public void visit(NameVisitor visitor) {

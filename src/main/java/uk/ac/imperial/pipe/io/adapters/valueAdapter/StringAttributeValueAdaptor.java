@@ -16,7 +16,7 @@ public final class StringAttributeValueAdaptor
         extends XmlAdapter<StringAttributeValueAdaptor.AdaptedAttributeString, String> {
     /**
      *
-     * @param adaptedString
+     * @param adaptedString to unmarshal
      * @return unwrapped string
      */
     @Override
@@ -26,7 +26,7 @@ public final class StringAttributeValueAdaptor
 
     /**
      *
-     * @param s
+     * @param s  string to marshal
      * @return wrapped string
      */
     @Override

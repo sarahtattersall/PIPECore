@@ -24,7 +24,7 @@ public final class TokenSetIntegerAdapter
 
     /**
      * Constructor
-     * @param tokens
+     * @param tokens to marshal
      */
     public TokenSetIntegerAdapter(Map<String, Token> tokens) {
 
@@ -33,7 +33,7 @@ public final class TokenSetIntegerAdapter
 
     /**
      *
-     * @param adaptedTokenSet
+     * @param adaptedTokenSet to unmarshal
      * @return map of token to integer count
      */
     @Override
@@ -58,7 +58,7 @@ public final class TokenSetIntegerAdapter
 
     /**
      *
-     * @param tokenIntegerMap
+     * @param tokenIntegerMap to marshal
      * @return marshaled token counts
      */
     @Override

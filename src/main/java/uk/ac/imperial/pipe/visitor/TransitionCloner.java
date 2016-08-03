@@ -17,7 +17,7 @@ public final class TransitionCloner implements DiscreteTransitionVisitor, Discre
 
     /**
      * Clones a discrete transition
-     * @param transition
+     * @param transition to be visited
      */
     @Override
     public void visit(DiscreteTransition transition) {

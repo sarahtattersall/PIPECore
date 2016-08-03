@@ -51,7 +51,7 @@ public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Increments the token count of the given token
      *
-     * @param token
+     * @param token to be incremented 
      */
     void incrementTokenCount(String token);
 
@@ -66,7 +66,7 @@ public interface Place extends Connectable, PropertyChangeListener {
 
     /**
      * Decrements the count of the token by one in this place
-     * @param token
+     * @param token to be decremented
      */
     void decrementTokenCount(String token);
 
@@ -74,7 +74,7 @@ public interface Place extends Connectable, PropertyChangeListener {
      *
      * Removes all tokens with the given id from this place
      *
-     * @param token
+     * @param token whose count is to be zero
      */
     void removeAllTokens(String token);
 

@@ -88,7 +88,7 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      *
      * It the token id already exists it will get replaced.
      *
-     * @param tokenId
+     * @param tokenId to set weight for
      * @param weight weight for the token id
      */
     void setWeight(String tokenId, String weight);
@@ -126,13 +126,13 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
      *
      * Removes the given point from this arcs intermediate points
      *
-     * @param point
+     * @param point to be removed
      */
     void removeIntermediatePoint(ArcPoint point);
 
     /**
      *
-     * @param arcPoint
+     * @param arcPoint to evaluate
      * @return the point after the specified one in the path
      */
     ArcPoint getNextPoint(ArcPoint arcPoint);
@@ -155,8 +155,8 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
 
     /**
      *
-     * @param petriNet
-     * @param state
+     * @param petriNet to evaluate
+     * @param state of the Petri net
      * @return true if given the current state the arc can fire
      */
     //TODO: Don't pass in Petri net, get around this with better design
@@ -164,7 +164,7 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
 
     /**
      * Removes the weight associated with the token from this arc
-     * @param tokenId
+     * @param tokenId to remove weights for 
      */
     void removeAllTokenWeights(String tokenId);
 

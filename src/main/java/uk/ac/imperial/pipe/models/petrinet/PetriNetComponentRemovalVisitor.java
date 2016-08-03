@@ -20,8 +20,8 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the place from the Petri net
-     * @param place
-     * @throws PetriNetComponentException
+     * @param place to be removed
+     * @throws PetriNetComponentException if place does not exist in the Petri net 
      */
     @Override
     public void visit(Place place) throws PetriNetComponentException {
@@ -32,7 +32,7 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the transition from the Petri net
-     * @param transition
+     * @param transition to be removed
      */
     @Override
     public void visit(Transition transition) {
@@ -42,8 +42,8 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the token from the Petri net
-     * @param token
-     * @throws PetriNetComponentException
+     * @param token to be removed
+     * @throws PetriNetComponentException if component not found 
      */
     @Override
     public void visit(Token token) throws PetriNetComponentException {
@@ -52,7 +52,7 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the annotation from the Petri net
-     * @param annotation
+     * @param annotation to be removed
      */
     @Override
     public void visit(Annotation annotation) {
@@ -62,8 +62,8 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the functional rate paramter from the Petri net
-     * @param rate
-     * @throws InvalidRateException
+     * @param rate to be removed
+     * @throws InvalidRateException if rate is invalid
      */
     @Override
     public void visit(FunctionalRateParameter rate) throws InvalidRateException {
@@ -72,7 +72,7 @@ public final class PetriNetComponentRemovalVisitor
 
     /**
      * Remove the inbound arc from the Petri net
-     * @param inboundArc
+     * @param inboundArc to be removed
      */
     @Override
     public void visit(InboundArc inboundArc) {
@@ -82,7 +82,7 @@ public final class PetriNetComponentRemovalVisitor
     /**
      * Remove the outbound arc from the Petri net
      *
-     * @param outboundArc
+     * @param outboundArc to be removed
      */
     @Override
     public void visit(OutboundArc outboundArc) {

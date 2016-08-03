@@ -115,7 +115,7 @@ public class Layout {
     /**
      * Lays out the Petri net with a graph layout
      *
-     * @param petriNet
+     * @param petriNet to lay out
      * @param forceConstant    force constant by which the attractive forces are divided. A good default is 50.
      * @param minDistanceLimit minimum distance limit. A good default is 20.
      */

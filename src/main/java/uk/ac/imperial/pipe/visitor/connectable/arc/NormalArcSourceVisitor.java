@@ -27,7 +27,7 @@ public final class NormalArcSourceVisitor implements ArcSourceVisitor {
 
     /**
      * Can create normal arc from any place
-     * @param place
+     * @param place to be evaluated for normal arc creation
      */
     @Override
     public void visit(Place place) {
@@ -36,7 +36,7 @@ public final class NormalArcSourceVisitor implements ArcSourceVisitor {
 
     /**
      * Can create normal arc from any transition
-     * @param transition
+     * @param transition to be evaluated for normal arc creation
      */
     @Override
     public void visit(Transition transition) {

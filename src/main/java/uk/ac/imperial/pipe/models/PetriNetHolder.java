@@ -24,7 +24,7 @@ public final class PetriNetHolder {
 
     /**
      * Add the net to the end of the holder i.e. inserted in order
-     * @param net
+     * @param net to be added 
      */
     public void addNet(PetriNet net) {
         nets.add(net);
@@ -59,7 +59,7 @@ public final class PetriNetHolder {
 
     /**
      * Removes the petriNet from this holder
-     * @param petriNet
+     * @param petriNet to be removed 
      */
     public void remove(PetriNet petriNet) {
         nets.remove(petriNet);

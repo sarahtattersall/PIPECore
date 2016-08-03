@@ -24,7 +24,7 @@ public final class AToken implements DSLCreator<Token> {
     private Color color = Color.BLACK;
 
     /**
-     * Prvaite constructor
+     * Private constructor
      * @param name token id
      */
     private AToken(String name) { this.name = name; }
@@ -50,10 +50,10 @@ public final class AToken implements DSLCreator<Token> {
 
     /**
      *
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rateParameters with id of rateParameter
      * @return Token with specified id and color.
      */
     @Override
