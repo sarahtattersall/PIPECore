@@ -33,8 +33,8 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
 
     /**
      * Constructor
-     * @param transitions
-     * @param rateParameters
+     * @param transitions to marshal
+     * @param rateParameters to marshal
      */
     public TransitionAdapter(Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
 
@@ -44,7 +44,7 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
 
     /**
      *
-     * @param adaptedTransition
+     * @param adaptedTransition to unmarshal
      * @return unmarshaled transition
      */
     @Override
@@ -86,7 +86,7 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
 
     /**
      *
-     * @param transition
+     * @param transition to marshal
      * @return marshaled transition
      */
     @Override

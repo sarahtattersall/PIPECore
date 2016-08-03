@@ -146,6 +146,7 @@ public final class ClonePetriNet {
     /**
      * private constructor 
      * @param targetExecutablePetriNet to be refreshed from the PetriNets of its IncludeHierarchy
+     * @return  cloned Petri net
      */
     private ClonePetriNet(ExecutablePetriNet targetExecutablePetriNet) {
 		this.newPetriNet = targetExecutablePetriNet; 
@@ -235,7 +236,7 @@ public final class ClonePetriNet {
 
     /**
      * Clone a Petri net name
-     * @param name
+     * @param name of the Petri net 
      */
     private void visit(PetriNetName name) {
         if (name != null) {
@@ -470,7 +471,7 @@ public final class ClonePetriNet {
 
         /**
          * Clones a PetriNetFileName
-         * @param name
+         * @param name of the Petri net 
          */
         @Override
         public void visit(PetriNetFileName name) {

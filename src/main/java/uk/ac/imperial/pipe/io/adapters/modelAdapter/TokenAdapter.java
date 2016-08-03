@@ -25,7 +25,7 @@ public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
 
     /**
      * Constructor
-     * @param tokens
+     * @param tokens to marshal
      */
     public TokenAdapter(Map<String, Token> tokens) {
 
@@ -34,7 +34,7 @@ public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
 
     /**
      *
-     * @param adaptedToken
+     * @param adaptedToken to unmarshal
      * @return unmarshaled token
      */
     @Override
@@ -47,7 +47,7 @@ public final class TokenAdapter extends XmlAdapter<AdaptedToken, Token> {
 
     /**
      *
-     * @param token
+     * @param token to marshal
      * @return marshaled token
      */
     @Override

@@ -13,8 +13,8 @@ public class AnnotationAdapter extends XmlAdapter<AdaptedAnnotation, Annotation>
 
     /**
      *
-     * @param adaptedAnnotation
-     * @return unmarshaled annotation
+     * @param adaptedAnnotation to be unmarshalled
+     * @return unmarshalled annotation
      */
     @Override
     public final AnnotationImpl unmarshal(AdaptedAnnotation adaptedAnnotation) {
@@ -24,8 +24,8 @@ public class AnnotationAdapter extends XmlAdapter<AdaptedAnnotation, Annotation>
 
     /**
      *
-     * @param annotation
-     * @return marshaled annotation
+     * @param annotation to be marshalled
+     * @return marshalled annotation
      */
     @Override
     public final AdaptedAnnotation marshal(Annotation annotation) {

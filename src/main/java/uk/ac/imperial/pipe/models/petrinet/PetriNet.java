@@ -14,10 +14,7 @@ import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
-import uk.ac.imperial.pipe.parsers.EvalVisitor;
 import uk.ac.imperial.pipe.parsers.FunctionalResults;
-import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
-import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 
@@ -189,7 +186,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     @Override 
     public void addPlace(Place place) {
-//        if (!places.containsValue(place)) {
     	if (addComponentToMap(place, places)) {
             setInitialTokenCountsToZero(place);
             addAndNotifyListeners(place, places, NEW_PLACE_CHANGE_MESSAGE);
@@ -251,7 +247,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Adds the token to the Petri net
      *
-     * @param token
+     * @param token to be added 
      */
     @Override
     public void addToken(Token token) {
@@ -342,7 +338,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Adds the annotation to the Petri net
      *
-     * @param annotation
+     * @param annotation to be added 
      */
     @Override
     public void addAnnotation(Annotation annotation) {
@@ -392,10 +388,10 @@ public class PetriNet extends AbstractPetriNet {
 
     /**
      * Removes the rate parameter from the Petri net.
-     * <p/>
+     * <p>
      * Any transitions referencing this rate parameter will have their rates
      * set to the last value of the rate parameter
-     *
+     * </p>
      * @param parameter rate parameter to remove
      */
     public void removeRateParameter(RateParameter parameter) {
@@ -423,8 +419,8 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Add any Petri net component to this Petri net
      *
-     * @param component
-     * @throws PetriNetComponentException
+     * @param component to be added 
+     * @throws PetriNetComponentException if component already exists or other logic error 
      */
     public void add(PetriNetComponent component) throws PetriNetComponentException {
         component.accept(addVisitor);
@@ -434,7 +430,7 @@ public class PetriNet extends AbstractPetriNet {
      * Remove any Petri net component from the Petri net
      *
      * @param component component to remove
-     * @throws PetriNetComponentException
+     * @throws PetriNetComponentException if component does not exist in the Petri net 
      */
     public void remove(PetriNetComponent component) throws PetriNetComponentException {
         if (contains(component.getId())) {

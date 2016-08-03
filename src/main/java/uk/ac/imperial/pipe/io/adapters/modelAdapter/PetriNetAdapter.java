@@ -14,9 +14,9 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     /**
      *
-     * @param v
+     * @param v Petri net to be unmarshalled
      * @return unmarshaled Petri net
-     * @throws PetriNetComponentException
+     * @throws PetriNetComponentException if the Petri net structure is not valid
      */
     @Override
     public PetriNet unmarshal(AdaptedPetriNet v) throws PetriNetComponentException {
@@ -35,7 +35,7 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
 
     /**
      *
-     * @param v
+     * @param v to be marshalled
      * @return marshaled Petri net
      */
     @Override
@@ -55,9 +55,9 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
 
     /**
      * Adds components to the Petri net
-     * @param components
-     * @param petriNet
-     * @throws PetriNetComponentException
+     * @param components to add 
+     * @param petriNet to build 
+     * @throws PetriNetComponentException if the Petri net structure is not valid
      */
     private void addToPetriNet(Iterable<? extends PetriNetComponent> components, PetriNet petriNet)
             throws PetriNetComponentException {

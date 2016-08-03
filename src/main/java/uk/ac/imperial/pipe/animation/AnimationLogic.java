@@ -31,15 +31,15 @@ public interface AnimationLogic {
     /**
      * Calculates successor states of a given state
      *
-     * @param state
+     * @param state to be evaluated
      * @return successors of the given state
      */
     Map<TimedState, Collection<Transition>> getSuccessors(TimedState state);
 
     /**
      *
-     * @param state
-     * @param transition
+     * @param state to be evaluated
+     * @param transition to be fired
      * @return the successor state after firing the transition
      */
     TimedState getFiredState(TimedState state, Transition transition);

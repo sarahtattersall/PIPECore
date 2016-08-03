@@ -15,12 +15,12 @@ import java.util.Map;
 public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable, ? extends Connectable>> {
 
     /**
-     * Place id -> Place
+     * Place id of the Place
      */
     private final Map<String, Place> places;
 
     /**
-     * Transition id -> Transition
+     * Transition id of the Transition
      */
     private final Map<String, Transition> transitions;
 
@@ -35,8 +35,8 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      * Constructor
-     * @param places
-     * @param transitions
+     * @param places of the arcs to be adapted
+     * @param transitions of the arcs to be adapted 
      */
     public ArcAdapter(Map<String, Place> places, Map<String, Transition> transitions) {
         this.places = places;
@@ -45,7 +45,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      *
-     * @param adaptedArc
+     * @param adaptedArc to be unmarshalled 
      * @return unmarshaled arc
      */
     @Override
@@ -84,7 +84,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      *
-     * @param weights
+     * @param weights as strings 
      * @return marshaled arc
      */
     private Map<String, String> stringToWeights(String weights) {
@@ -110,8 +110,8 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
      * Sets the arc points in the arc based on the adapted.
      * Loses the source and end locations to just provide intermediate pints
      *
-     * @param arc
-     * @param adapted
+     * @param arc whose points are to be set
+     * @param adapted arc
      */
     private void setRealArcPoints(Arc<? extends Connectable, ? extends Connectable> arc, AdaptedArc adapted) {
 
@@ -130,7 +130,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      *
-     * @param arc
+     * @param arc to be marshalled
      * @return marshaled arc
      */
     @Override
@@ -147,8 +147,8 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
 
     /**
      *
-     * @param weights
-     * @return comma seperated weights
+     * @param weights to convert to strings
+     * @return comma separated weights
      */
     private String weightToString(Map<String, String> weights) {
         return Joiner.on(",").withKeyValueSeparator(",").join(weights);

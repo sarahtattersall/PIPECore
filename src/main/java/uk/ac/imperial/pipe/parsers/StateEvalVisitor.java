@@ -23,8 +23,8 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
 
     /**
      * Constructor
-     * @param executablePetriNet
-     * @param state
+     * @param executablePetriNet to be visited
+     * @param state of the Petri net
      */
     public StateEvalVisitor(ExecutablePetriNet executablePetriNet, State state) {
     	this.executablePetriNet = executablePetriNet; 
@@ -105,9 +105,9 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
 
     /**
      *
-     * @param id
+     * @param id of the place 
      * @return place in Petri net with the given id
-     * @throws PetriNetComponentNotFoundException
+     * @throws PetriNetComponentNotFoundException if the place is not found  
      */
     public Place getPlace(String id) throws PetriNetComponentNotFoundException {
         return executablePetriNet.getComponent(id, Place.class);

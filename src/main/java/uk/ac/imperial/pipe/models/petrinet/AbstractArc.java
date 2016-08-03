@@ -39,7 +39,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Map of Token to corresponding weights
-     * Weights can be functional e.g '> 5'
+     * Weights can be functional e.g {@code'> 5'}
      */
     protected Map<String, String> tokenWeights = new HashMap<>();
 
@@ -67,11 +67,11 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
 
     /**
-     * Abstract arc constructor sets arc to <source id> TO <target id>
-     * @param source
-     * @param target
-     * @param tokenWeights
-     * @param type
+     * Abstract arc constructor sets arc to {@code<source id> TO <target id>}
+     * @param source connectable
+     * @param target connectable
+     * @param tokenWeights for this arc
+     * @param type of arc
      */
     public AbstractArc(S source, T target, Map<String, String> tokenWeights, ArcType type) {
         this.source = source;
@@ -243,7 +243,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      *
-     * @param token
+     * @param token to evaluate 
      * @return the functional expression for a single token which is equivalent to that tokens weight on the arc
      */
     @Override
@@ -260,8 +260,8 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
      * Sets the weight of the arc to the token id and new weight.
      * Overwrites any old token weight for the specified token id
      *
-     * @param tokenId
-     * @param weight
+     * @param tokenId to set weight for
+     * @param weight to assign
      */
     @Override
     public void setWeight(String tokenId, String weight) {
@@ -298,7 +298,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Add intermediate points to the arc
-     * @param points
+     * @param points to be added 
      */
     @Override
     public void addIntermediatePoints(Iterable<ArcPoint> points) {
@@ -310,7 +310,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     /**
      * Add an intermediate point to the arc
      *
-     * @param point
+     * @param point to be added
      */
     @Override
     public void addIntermediatePoint(ArcPoint point) {
@@ -345,7 +345,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Remove the intermediate arc point
-     * @param point
+     * @param point to be removed
      */
     @Override
     public void removeIntermediatePoint(ArcPoint point) {
@@ -358,7 +358,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      *
-     * @param arcPoint
+     * @param arcPoint to evaluate
      * @return the arcPoint following this one
      */
     @Override
@@ -463,7 +463,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Removes the weight associated with the token from this arc
-     * @param tokenId
+     * @param tokenId to remove weights for
      */
     @Override
     public void removeAllTokenWeights(String tokenId) {

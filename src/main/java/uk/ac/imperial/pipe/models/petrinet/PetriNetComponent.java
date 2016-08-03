@@ -27,15 +27,21 @@ public interface PetriNetComponent {
      * Visitor pattern, this is particularly useful when we do not know
      * the exact type of Component, we can visit them to perform actions
      *
-     * @param visitor
+     * @param visitor to be accepted
+     * @throws PetriNetComponentException if component not found or other logic error
      */
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException;
 
     /**
-     * @return objectId
+     * @return objectId of this component
+     * @return component Id
      */
     public String getId();
 
+	/**
+	 * 
+	 * @param id of the component
+	 */
     public void setId(String id);
 
     /**

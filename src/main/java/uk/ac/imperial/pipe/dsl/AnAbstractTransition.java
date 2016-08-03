@@ -62,10 +62,10 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
 
     /**
      *
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rate parameters with id of rateParameter
      * @return discrete transition
      */
     @Override
@@ -100,7 +100,7 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
 
     /**
      * Set the transition priority
-     * @param priority
+     * @param priority of the transition
      * @return builder for chaining
      */
     public T andPriority(int priority) {
@@ -129,6 +129,7 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
     /**
      * Added for readability e.g.
      * andASingle().server()
+     * @return builder for chaining
      */
     public T server() {
         return getInstance();
@@ -138,8 +139,8 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
 
     /**
      * Sets the location of the x, y locations
-     * @param x
-     * @param y
+     * @param x coordinate
+     * @param y coordinate
      * @return builder for chaining
      */
     public T locatedAt(int x, int y) {

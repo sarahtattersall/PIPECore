@@ -16,7 +16,7 @@ public final class PlaceCloner implements DiscretePlaceVisitor {
 
     /**
      * Clones a discrete place
-     * @param discretePlace
+     * @param discretePlace to be visited 
      */
     @Override
     public void visit(DiscretePlace discretePlace) {

@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public final class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter, Integer> {
     /**
      *
-     * @param intAdapter
+     * @param intAdapter to unmarshal
      * @return unwrapped int
      */
     @Override
@@ -18,7 +18,7 @@ public final class IntValueAdapter extends XmlAdapter<IntValueAdapter.IntAdapter
 
     /**
      *
-     * @param integer
+     * @param integer to marshal 
      * @return wrapped int
      */
     @Override

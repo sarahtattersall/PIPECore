@@ -61,9 +61,9 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Constructor
-     * @param petriNet
-     * @param components
-     * @param multipleNamer
+     * @param petriNet to be visited 
+     * @param components of the Petri net
+     * @param multipleNamer namer 
      */
     public PasteVisitor(PetriNet petriNet, Collection<PetriNetComponent> components, MultipleNamer multipleNamer) {
         this(petriNet, components, multipleNamer, 0, 0);
@@ -72,11 +72,11 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
     /**
      * Constructor
      *
-     * @param petriNet
+     * @param petriNet to be visited
      * @param components    components to paste
-     * @param multipleNamer
-     * @param xOffset
-     * @param yOffset
+     * @param multipleNamer namer
+     * @param xOffset coordinate
+     * @param yOffset coordinate 
      */
     public PasteVisitor(PetriNet petriNet, Collection<PetriNetComponent> components, MultipleNamer multipleNamer,
                         int xOffset, int yOffset) {
@@ -97,7 +97,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Visits a place cloning it
-     * @param place
+     * @param place to be visted
      */
     @Override
     public void visit(DiscretePlace place) {
@@ -112,7 +112,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Give the place a unique id
-     * @param place
+     * @param place id 
      */
     private void setId(Place place) {
         place.setId(multipleNamer.getPlaceName());
@@ -120,7 +120,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Gives the place a name
-     * @param place
+     * @param place name
      */
     private void setName(Place place) {
         place.setName(multipleNamer.getPlaceName());
@@ -128,7 +128,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Sets the offset of the connectable to its x, y + the offset
-     * @param connectable
+     * @param connectable offset 
      */
     private void setOffset(Connectable connectable) {
         connectable.setX(connectable.getX() + xOffset);
@@ -137,7 +137,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Visits a transition cloneing it and adding it to the Petri net
-     * @param transition
+     * @param transition to be visited
      */
     @Override
     public void visit(Transition transition) {
@@ -158,7 +158,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Gives the transition a unique id
-     * @param transition
+     * @param transition id 
      */
     private void setId(Transition transition) {
         transition.setId(multipleNamer.getTransitionName());
@@ -166,7 +166,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
     /**
      * Gives the transition a new name
-     * @param transition
+     * @param transition name
      */
     private void setName(Transition transition) {
         transition.setName(multipleNamer.getTransitionName());
@@ -175,7 +175,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
     /**
      * Visits the arc cloning it and sets its source/target either to a new cloned component if it
      * was in the original pasting components, or the old original component if not
-     * @param inboundArc
+     * @param inboundArc to be visited 
      */
     @Override
     public void visit(InboundArc inboundArc) {
@@ -225,7 +225,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
     /**
      * Visits the arc cloning it and sets its source/target either to a new cloned component if it
      * was in the original pasting components, or the old original component if not
-     * @param outboundArc
+     * @param outboundArc to be visited 
      */
     @Override
     public void visit(OutboundArc outboundArc) {

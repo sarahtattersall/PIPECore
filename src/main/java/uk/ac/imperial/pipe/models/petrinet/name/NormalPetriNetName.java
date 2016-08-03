@@ -51,7 +51,7 @@ public final class NormalPetriNetName implements PetriNetName {
 
     /**
      * Visitor method
-     * @param visitor
+     * @param visitor to be visited  
      */
     @Override
     public void visit(NameVisitor visitor) {

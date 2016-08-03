@@ -2,11 +2,12 @@ package uk.ac.imperial.pipe.models.petrinet.name;
 
 /**
  * Interface for the name of a Petri net.
- * <p/>
+ * <p>
  * It is an object rather than a String because this allows for easy
  * update if the name should change because
  * a) either the file is renamed
  * b) an unnamed Petri net is changed during save
+ * </p>
  */
 public interface PetriNetName {
     /**

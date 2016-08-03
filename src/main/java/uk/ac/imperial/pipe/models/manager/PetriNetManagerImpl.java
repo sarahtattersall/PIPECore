@@ -87,8 +87,9 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      * firing a change message to indicate a Petri net has been added
      *
      * @param file location of Petri net xml file
-     * @throws JAXBException
-     * @throws UnparsableException
+     * @throws JAXBException if Petri net cannot be unmarshalled
+     * @throws UnparsableException  if rate parameter expression cannot be parsed 
+     * @throws FileNotFoundException  if file not found
      */
     @Override
     public void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException {
@@ -102,8 +103,8 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      * Save the petri net to the output file
      * @param petriNet petri net to save
      * @param outFile file to save petri net to
-     * @throws JAXBException
-     * @throws IOException 
+     * @throws JAXBException if Petri net cannot be marshalled 
+     * @throws IOException if IO error while writing 
      */
     @Override
     public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException {
@@ -117,7 +118,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
     /**
      * Removes the petri net from the internal holder, firing a change message that it
      * has been deleted
-     * @param petriNet
+     * @param petriNet to be removed 
      */
     @Override
     public void remove(PetriNet petriNet) {

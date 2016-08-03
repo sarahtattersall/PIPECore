@@ -20,7 +20,7 @@ public final class ATimedTransition extends AnAbstractTransition<ATimedTransitio
 
     /**
      * Factory method for setting the transition id
-     * @param id
+     * @param id of the transition
      * @return builder for chaining
      */
     public static ATimedTransition withId(String id) {

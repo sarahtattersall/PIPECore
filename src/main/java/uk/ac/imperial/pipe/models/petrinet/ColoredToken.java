@@ -23,8 +23,8 @@ public class ColoredToken extends AbstractPetriNetPubSub implements Token {
 
     /**
      * Constructor
-     * @param id
-     * @param color
+     * @param id of the token
+     * @param color of the token
      */
     public ColoredToken(String id, Color color) {
         this.id = id;
@@ -33,7 +33,7 @@ public class ColoredToken extends AbstractPetriNetPubSub implements Token {
 
     /**
      * Copy constructor
-     * @param token
+     * @param token to be copied
      */
     public ColoredToken(Token token) {
         this.id = token.getId();
@@ -54,7 +54,7 @@ public class ColoredToken extends AbstractPetriNetPubSub implements Token {
      * Sets the token color, this should be unique to the other token colors
      * but is moderated by the user
      *
-     * @param color
+     * @param color of the token
      */
     @Override
     public void setColor(Color color) {
@@ -83,8 +83,8 @@ public class ColoredToken extends AbstractPetriNetPubSub implements Token {
 
     /**
      * accepts the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.TokenVisitor}
-     * @param visitor
-     * @throws PetriNetComponentException
+     * @param visitor to be accepted
+     * @throws PetriNetComponentException if the component does not exist or other logic error
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
