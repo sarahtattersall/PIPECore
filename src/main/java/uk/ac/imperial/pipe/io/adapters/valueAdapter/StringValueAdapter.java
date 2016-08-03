@@ -5,11 +5,11 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 /**
  * Used for elements which need a value field in their element
  * E.g.
- * {@code<name>}
- * {@code<value>}
+ * {@code <name>}
+ * {@code <value>}
  * value goes here
- * {@code</value>}
- * {@code</name>}
+ * {@code </value>}
+ * {@code </name>}
  */
 public final class StringValueAdapter extends XmlAdapter<StringValueAdapter.AdaptedString, String> {
     /**
