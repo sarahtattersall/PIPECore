@@ -351,6 +351,7 @@ public class PetriNet {
      * Petri net
      *
      * @param place to remove from Petri net
+     * @throws PetriNetComponentException if component does not exist in the Petri net
      */
     public void removePlace(Place place) throws PetriNetComponentException {
         Collection<String> components = getComponentsReferencingId(place.getId());
@@ -414,7 +415,7 @@ public class PetriNet {
     }
 
     /**
-     * @param place
+     * @param place for which outbound arcs are to be retrieved 
      * @return arcs that are outbound from place
      */
     public Collection<InboundArc> outboundArcs(Place place) {
@@ -554,7 +555,7 @@ public class PetriNet {
     /**
      * Adds the token to the Petri net
      *
-     * @param token
+     * @param token to be added 
      */
     public void addToken(Token token) {
         if (!tokens.containsValue(token)) {
@@ -638,7 +639,7 @@ public class PetriNet {
     /**
      * Adds the annotation to the Petri net
      *
-     * @param annotation
+     * @param annotation to be added 
      */
     public void addAnnotation(Annotation annotation) {
         if (!annotations.containsKey(annotation.getId())) {
@@ -696,10 +697,10 @@ public class PetriNet {
 
     /**
      * Removes the rate parameter from the Petri net.
-     * <p/>
+     * <p>
      * Any transitions referencing this rate parameter will have their rates
      * set to the last value of the rate parameter
-     *
+     * </p>
      * @param parameter rate parameter to remove
      */
     public void removeRateParameter(RateParameter parameter) {
@@ -734,8 +735,8 @@ public class PetriNet {
     /**
      * Add any Petri net component to this Petri net
      *
-     * @param component
-     * @throws PetriNetComponentException
+     * @param component to be added 
+     * @throws PetriNetComponentException if component already exists or other logic error 
      */
     public void add(PetriNetComponent component) throws PetriNetComponentException {
         component.accept(addVisitor);
@@ -745,7 +746,7 @@ public class PetriNet {
      * Remove any Petri net component from the Petri net
      *
      * @param component component to remove
-     * @throws PetriNetComponentException
+     * @throws PetriNetComponentException if component does not exist in the Petri net 
      */
     public void remove(PetriNetComponent component) throws PetriNetComponentException {
         if (contains(component.getId())) {
@@ -761,7 +762,7 @@ public class PetriNet {
     }
 
     /**
-     * @param id
+     * @param id of the component
      * @return true if any component in the Petri net has this id
      */
     public boolean containsComponent(String id) {
@@ -977,7 +978,7 @@ public class PetriNet {
 
     /**
      *
-     * @param id
+     * @param id of the component
      * @return true if a component with the given id exists in the Petri net
      */
     public boolean contains(String id) {

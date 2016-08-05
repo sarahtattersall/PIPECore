@@ -38,12 +38,16 @@ public interface PetriNetManager {
     /**
      * Returns the last Petri net that it holds, this will be the most recently created
      * Petri net (that has not been deleted)
+     * @return {@link PetriNet} last Petri net that was added 
      */
     PetriNet getLastNet();
 
     /**
      * Creates Petri net by reading in and parsing the contents of the file
      * @param file location of Petri net xml file
+     * @throws JAXBException if error during unmarshalling
+     * @throws UnparsableException if rate parameter expression cannot be parsed 
+     * @throws FileNotFoundException if file not found
      */
     void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException;
 
@@ -53,14 +57,15 @@ public interface PetriNetManager {
      *
      * @param petriNet petri net to save
      * @param outFile file to save petri net to
-     * @throws IOException 
+     * @throws IOException if IO error while writing 
+     * @throws JAXBException if error during marshalling
      */
     //TODO: SHOULD REALLY TELL IT TO SAVE ONE OF ITS OWN PETRI NETS RATHER THAN PASSING IT IN
     void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException;
 
     /**
      * Remove this Petri net from storage
-     * @param petriNet
+     * @param petriNet to be removed 
      */
     void remove(PetriNet petriNet);
 }

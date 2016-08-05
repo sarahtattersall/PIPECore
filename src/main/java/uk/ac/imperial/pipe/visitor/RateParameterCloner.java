@@ -15,7 +15,7 @@ public final class RateParameterCloner implements FunctionalRateParameterVisitor
 
     /**
      * Clones a functional rate paramter
-     * @param rateParameter
+     * @param rateParameter to be visited 
      */
     @Override
     public void visit(FunctionalRateParameter rateParameter) {

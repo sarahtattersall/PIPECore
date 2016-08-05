@@ -27,7 +27,7 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
 
     /**
      * Private constructor
-     * @param id
+     * @param id of the rate parameter
      */
     private ARateParameter(String id) {this.id = id;}
 
@@ -42,7 +42,7 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
 
     /**
      * Functional expression to add to the rate parameter on creation
-     * @param expression
+     * @param expression to add 
      * @return builder for chaining
      */
     public ARateParameter andExpression(String expression) {
@@ -53,10 +53,10 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
 
     /**
      *
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rateParameters with id of rateParameter
      * @return FunctionalRateParameter
      */
     @Override

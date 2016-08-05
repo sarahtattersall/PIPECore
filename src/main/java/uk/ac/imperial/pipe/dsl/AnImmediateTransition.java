@@ -20,7 +20,7 @@ public final class AnImmediateTransition extends AnAbstractTransition<AnImmediat
     }
     /**
      * Factory method for setting the transition id
-     * @param id
+     * @param id of the transition
      * @return builder for chaining
      */
     public static AnImmediateTransition withId(String id) {

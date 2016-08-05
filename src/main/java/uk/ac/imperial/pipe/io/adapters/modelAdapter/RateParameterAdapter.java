@@ -26,7 +26,7 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
 
     /**
      * Constructor
-     * @param rateParameters
+     * @param rateParameters to marshal
      */
     public RateParameterAdapter(Map<String, FunctionalRateParameter> rateParameters) {
 
@@ -35,7 +35,7 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
 
     /**
      *
-     * @param adaptedRateParameter
+     * @param adaptedRateParameter to unmarshal
      * @return unmarshaled rate parameter
     */
     @Override
@@ -47,7 +47,7 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
 
     /**
      *
-     * @param rateParameter
+     * @param rateParameter to marshal
      * @return marshaled rate parameter
      */
     @Override

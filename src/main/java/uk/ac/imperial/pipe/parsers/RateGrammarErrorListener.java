@@ -20,12 +20,12 @@ public final class RateGrammarErrorListener extends BaseErrorListener {
 
     /**
      * Registers a syntax error in this classes collection of errors
-     * @param recognizer
-     * @param offendingSymbol
-     * @param line
-     * @param charPositionInLine
-     * @param msg
-     * @param e
+     * @param recognizer of syntax error
+     * @param offendingSymbol of syntax error
+     * @param line of syntax error
+     * @param charPositionInLine of syntax error
+     * @param msg of syntax error
+     * @param e exception of syntax error
      */
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,

@@ -29,6 +29,9 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	@Override
 	public boolean handleEvent(ValidationEvent event) {
 		this.event = event;
+		// ValidationEventHandler says we must exit on fatal error
+		if (event.getSeverity() == event.FATAL_ERROR) return false;
+		
 		boolean unexpectedElement = saveAndCheckUnexpectedElement(event);
 		if ((unexpectedElement) && (!continueProcessing)) {
 			return true;  // continue only if saw unexpected element 

@@ -50,7 +50,7 @@ public final class APlace implements DSLCreator<Place> {
     /**
      *
      * Factory for the place
-     * @param id
+     * @param id of the place
      * @return builder for chaining
      */
     public static APlace withId(String id) {
@@ -59,7 +59,7 @@ public final class APlace implements DSLCreator<Place> {
 
     /**
      * Sets the place capacity
-     * @param capacity
+     * @param capacity of the place
      * @return builder for chaining
      */
     public APlace andCapacity(int capacity) {
@@ -69,8 +69,8 @@ public final class APlace implements DSLCreator<Place> {
 
     /**
      * Sets the places token count for the specified type of tokens
-     * @param count
-     * @param tokenId
+     * @param count for token
+     * @param tokenId of the token
      * @return builder for chaining
      */
     public APlace containing(int count, String tokenId) {
@@ -81,6 +81,7 @@ public final class APlace implements DSLCreator<Place> {
     /**
      * Added for readability
      * E.g. containing(5, "Default).tokens()
+     * @return builder for chaining
      */
     public APlace tokens() {
         return this;
@@ -89,6 +90,7 @@ public final class APlace implements DSLCreator<Place> {
     /**
      * Added for readability
      * E.g. containing(1, "Default).token()
+     * @return builder for chaining
      */
     public APlace token() {
         return this;
@@ -98,10 +100,10 @@ public final class APlace implements DSLCreator<Place> {
      *
      * Creates a discrete place
      *
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rateParameters with id of rateParameter
      * @return created place
      */
     @Override
@@ -133,8 +135,8 @@ public final class APlace implements DSLCreator<Place> {
 
     /**
      * Set the place net x, y locations
-     * @param x
-     * @param y
+     * @param x coordinate
+     * @param y coordinate
      * @return builder for chaining
      */
     public APlace locatedAt(int x, int y) {

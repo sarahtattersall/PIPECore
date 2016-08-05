@@ -30,7 +30,7 @@ public final class NameChangeListener implements PropertyChangeListener {
      *
      * It removes the old name and adds the new one
      *
-     * @param evt
+     * @param evt event to process 
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

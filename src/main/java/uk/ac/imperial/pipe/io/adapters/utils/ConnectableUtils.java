@@ -4,7 +4,7 @@ import uk.ac.imperial.pipe.io.adapters.model.*;
 import uk.ac.imperial.pipe.models.petrinet.Connectable;
 
 /**
- * Utilitie methods used when marshalling connectable items.
+ * Utility methods used when marshalling connectable items.
  * Primarily useful because PNML requires very verbose formatting and thus
  * avoids code duplication in marshal adapters.
  */
@@ -19,8 +19,8 @@ public final class ConnectableUtils {
     /**
      * Sets adaptedConnectable name based on the connectable name
      *
-     * @param connectable
-     * @param adaptedConnectable
+     * @param connectable to marshal
+     * @param adaptedConnectable to marshal
      */
     public static void setAdaptedName(Connectable connectable, AdaptedConnectable adaptedConnectable) {
         NameDetails details = new NameDetails();
@@ -37,8 +37,8 @@ public final class ConnectableUtils {
 
     /**
      * Set the position of the adapted connectable from the given connectable
-     * @param connectable
-     * @param adaptedConnectable
+     * @param connectable to marshal
+     * @param adaptedConnectable to marshal
      */
     public static void setPosition(Connectable connectable, AdaptedConnectable adaptedConnectable) {
         PositionGraphics positionGraphics = new PositionGraphics();
@@ -52,8 +52,8 @@ public final class ConnectableUtils {
     /**
      * Sets the connectables name offset based on the adapted connectable
      *
-     * @param connectable
-     * @param adaptedConnectable
+     * @param connectable to unmarshal
+     * @param adaptedConnectable to unmarshal
      */
     public static void setConntactableNameOffset(Connectable connectable, AdaptedConnectable adaptedConnectable) {
         NameDetails nameDetails = adaptedConnectable.getName();
@@ -67,8 +67,8 @@ public final class ConnectableUtils {
     /**
      * Sets the connectables position based on the adapted connectable
      *
-     * @param connectable
-     * @param adaptedConnectable
+     * @param connectable to unmarshal
+     * @param adaptedConnectable to unmarshal
      */
     public static void setConnectablePosition(Connectable connectable, AdaptedConnectable adaptedConnectable) {
         connectable.setX((int)adaptedConnectable.getGraphics().point.getX());
