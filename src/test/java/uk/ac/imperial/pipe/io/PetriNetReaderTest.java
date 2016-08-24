@@ -19,8 +19,11 @@ import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.annotation.XmlType;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.PetriNetAdapter;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.TestingThrowsPetriNetAdapter;
@@ -47,6 +50,10 @@ public class PetriNetReaderTest {
     private static final String RED_TOKEN = "Red";
     PetriNetReader reader;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    
     @Before
     public void setUp() throws JAXBException {
         reader = new PetriNetIOImpl();  
@@ -288,121 +295,18 @@ public class PetriNetReaderTest {
                 tuple("rate1",  "#(P0)"));
     }
     @Test
-    public void messagePrintedAndThrowsForFirstNonUnexpectedElementError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	reader = new TestingThrowsPetriNetIOImpl(false, true);  // true false 
-    	try {
-    		@SuppressWarnings("unused")
-    		PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
-    	} catch (UnmarshalException e) {
-    		assertEquals("java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.", e.getMessage()); 
-    	}
-    	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
-    	assertEquals(2, handler.getFormattedEvents().size());
-    	assertEquals("unexpected element message saved, but doesn't throw",true, handler.getFormattedEvents().get(0).unexpected); 
-    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
-    	checkValidationMessage(handler);
-    	assertEquals("second error not unexpected element, so throws",false, handler.getFormattedEvents().get(1).unexpected); 
-    	assertEquals("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
-    			"Message: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.\n" +
-    			"Object: null\n" +
-    			"URL: null\n" +
-    			"Node: null\n" +
-    			"Line: 6\n" +
-    			"Column: 11\n" +
-    			"Linked exception: java.lang.RuntimeException: TestingThrowsPetriNetAdapter exception.", handler.getFormattedEvents().get(1).formattedEvent);
-    	assertTrue(handler.printMessage(handler.getFormattedEvents().get(1)));
-    }
-    @Test
     public void readsTokens() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
     	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getTwoTokenFile()));
     	Collection<Token> tokens = petriNet.getTokens();
     	assertEquals(2,tokens.size());
     }
     @Test
-    // fails
-    public void noMessagePrintedAndDoesntThrowWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	reader = new TestingPetriNetIOImpl(true, true);   
-//    	reader = new PetriNetIOImpl(true, true);   
-    	@SuppressWarnings("unused")
-    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
-    	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
-    	assertEquals(true, handler.getFormattedEvents().get(0).unexpected); 
-    	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
-    }
-    
-    @Test
-    // fails
-    public void messagePrintedButDoesntThrowWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	reader = new TestingPetriNetIOImpl(false, false); 
-    	checkPrintedAndDoesntThrowWhenUnexpectedElement();
-    }
-    @Test
-    public void messagePrintedWithoutThrowingWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-        reader = new TestingPetriNetIOImpl(true, false); 
-        checkPrintedAndDoesntThrowWhenUnexpectedElement();
-    }
-
-	protected void checkPrintedAndDoesntThrowWhenUnexpectedElement()
-			throws JAXBException, FileNotFoundException {
-		@SuppressWarnings("unused")
-		PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
-        PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
-    	checkValidationMessage(handler);
-    	assertTrue(handler.printMessage(handler.getFormattedEvents().get(0)));
-	}
-	private void checkValidationMessage(PetriNetValidationEventHandler handler) {
-		String message = handler.getFormattedEvents().get(0).formattedEvent;  
-		assertTrue(message.startsWith("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: \n" +
-    			"Message: unexpected element (uri:\"\", local:\"blah\"). Expected elements are "));
-		assertTrue(message.endsWith(				
-				"Object: null\n" +
-				"URL: null\n" +
-				"Node: null\n" +
-				"Line: 4\n" +
-				"Column: 16\n" +
-				"Linked exception: null"));
-		// the order of tags appears arbitrary between Java 7 & 8, 
-		// and neither order follows @XmlType(propOrder ...) as specified in AdaptedPetriNet
-		String[] tags = new String[]{"arc","definition","place","transition","token","labels" };
-		for (int i = 0; i < tags.length; i++) {
-			assertFalse("tag not found: "+tags[i],(message.indexOf(tags[i]) == -1));
-		}
-		assertEquals("tags may have been added or removed",334,message.length());
-	}
-    private class TestingPetriNetIOImpl extends PetriNetIOImpl {
-
-		public TestingPetriNetIOImpl(boolean continueProcessing,
-				boolean suppressUnexpectedElementMessages) throws JAXBException {
-			super(continueProcessing, suppressUnexpectedElementMessages);
-	    	petriNetValidationEventHandler = new TestingPetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages); 
-		}
-		@Override
-		protected void initialiseUnmarshaller() throws JAXBException {
-			super.initialiseUnmarshaller();
-		}
-    }
-    private class TestingThrowsPetriNetIOImpl extends TestingPetriNetIOImpl {
-    	
-    	public TestingThrowsPetriNetIOImpl(boolean continueProcessing,
-    			boolean suppressUnexpectedElementMessages) throws JAXBException {
-    		super(continueProcessing, suppressUnexpectedElementMessages);
-    		petriNetValidationEventHandler = new TestingPetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages); 
-    	}
-    	@Override
-    	protected void initialiseUnmarshaller() throws JAXBException {
-    		super.initialiseUnmarshaller();
-    		getUnmarshaller().setAdapter(PetriNetAdapter.class, new TestingThrowsPetriNetAdapter()); 
-    	}
-    }
-    private class TestingPetriNetValidationEventHandler extends PetriNetValidationEventHandler {
-
-		public TestingPetriNetValidationEventHandler(
-				boolean continueProcessing,
-				boolean suppressUnexpectedElementMessages) {
-			super(continueProcessing, suppressUnexpectedElementMessages);
-		}
-    	@Override
-    	public void printMessages() {
-    	}
+    public void throwsWhenArcReferencesNonexistentPlace() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+    	String path = FileUtils.fileLocation(XMLUtils.getArcWithoutPlaceFile());  
+    	expectedException.expect(JAXBException.class);
+    	expectedException.expectMessage("PetriNetValidationEventHandler error attempting to build Petri net from file "+path+
+    			": uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException:  in uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter: " +
+    			"Arc 'P1 TO T0' references place P1 but P1 does not exist in file.");  
+    	reader.read(path);
     }
 }

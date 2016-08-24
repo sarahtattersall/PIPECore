@@ -2,7 +2,9 @@ package uk.ac.imperial.pipe.io;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
@@ -29,6 +31,9 @@ public class IncludeHierarchyReaderTest {
 
     IncludeHierarchyReader reader;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+    
     @Before
     public void setUp() throws JAXBException {
         reader = new IncludeHierarchyIOImpl();
@@ -128,6 +133,18 @@ public class IncludeHierarchyReaderTest {
     	assertEquals(2, netc.getArcs().size()); 
     	assertEquals(225, netc.getComponent("P0", Place.class).getX()); 
     }
+    @Test
+    public void throwsWhenIncludedPetriNetHasAnError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException, IncludeException {
+    	String path = FileUtils.fileLocation(XMLUtils.getIncludeWithInvalidPetriNet());  
+    	String includedPath = FileUtils.fileLocation(XMLUtils.getArcWithoutPlaceFile());  
+    	expectedException.expect(JAXBException.class);
+    	expectedException.expectMessage("PetriNetValidationEventHandler error attempting to build Petri net from file "+includedPath+
+    			": uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException:  in uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter: " +
+    			"Arc 'P1 TO T0' references place P1 but P1 does not exist in file.");  
+    	reader.read(path);
+    }
+    //TODO have filename in the eventhandler track the current file
+    //TODO have constructor set flags
     private void deleteFile(String filename) {
     	File file = new File(filename); 
     	if (file.exists()) file.delete(); 

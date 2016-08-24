@@ -1,19 +1,19 @@
 package uk.ac.imperial.pipe.io.adapters.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import uk.ac.imperial.pipe.io.IncludeHierarchyBuilder;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapter;
-import uk.ac.imperial.pipe.io.adapters.valueAdapter.ListWrapperAdapter;
 import uk.ac.imperial.pipe.io.adapters.valueAdapter.StringValueAdapter;
 
 /**
@@ -147,21 +147,25 @@ public class AdaptedIncludeHierarchyBuilder  {
 	}
 
 	@XmlAccessorType(XmlAccessType.FIELD)
-	public static class Includes {
+	public  class Includes {
 		
 //		@XmlElementRef(name = "include")  fails
 	    @XmlJavaTypeAdapter(IncludeHierarchyBuilderAdapter.class)
 	    @XmlElement(name = "include")
-	    private List<IncludeHierarchyBuilder> include = new ArrayList<>();
+	    private Collection<IncludeHierarchyBuilder> include;
 
 	    @XmlElement
 	    private String thing; 
 	    
-	    public final List<IncludeHierarchyBuilder> getInclude() {
+	    public final Collection<IncludeHierarchyBuilder> getInclude() {
+	    	if (include == null) {
+	    		include = new ArrayList<IncludeHierarchyBuilder>();
+//	    		include = new TreeSet<IncludeHierarchyBuilder>(new IncludeHierarchyBuilderComparator());
+	    	}
 	    	return include;
 	    }
 	    
-	    public final void setInclude(List<IncludeHierarchyBuilder> include) {
+	    public final void setInclude(Collection<IncludeHierarchyBuilder> include) {
 	    	this.include = include;
 	    }
 

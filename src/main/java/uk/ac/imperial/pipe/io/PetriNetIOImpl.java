@@ -139,14 +139,17 @@ public class PetriNetIOImpl implements PetriNetIO {
     @Override
     public PetriNet read(String path) throws JAXBException, FileNotFoundException {
         initialiseUnmarshaller();
-        getUnmarshaller().setEventHandler(getEventHandler()); 
+        getUnmarshaller().setEventHandler(getEventHandler());
+        getEventHandler().setFilename(path); 
         PetriNetHolder holder = null; 
         try {
         	holder = (PetriNetHolder) getUnmarshaller().unmarshal(new FileReader(path));
         	getEventHandler().printMessages(); 
 		} catch (JAXBException e) {
-			getEventHandler().printMessages(); 
-			throw e;  
+//			getEventHandler().printMessages(); 
+//			e.printStackTrace(); 
+			throw new JAXBException(getEventHandler().getMessage());  
+//			throw e;  
 		} 
         PetriNet petriNet = holder.getNet(0);
         if (petriNet.getTokens().isEmpty()) {

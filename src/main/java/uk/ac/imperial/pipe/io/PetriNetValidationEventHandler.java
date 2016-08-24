@@ -10,15 +10,21 @@ import javax.xml.bind.ValidationEventLocator;
 
 public class PetriNetValidationEventHandler implements ValidationEventHandler {
 
+	private static final String FROM_FILE = " from file ";
+	private static final String PETRI_NET_VALIDATION_EVENT_HANDLER_ERROR_ATTEMPTING_TO_BUILD = "PetriNetValidationEventHandler error attempting to build ";
+	private static final String UNEXPECTED_ELEMENT = "unexpected element";
 	private boolean continueProcessing;
 	private ValidationEvent event;
 	private List<FormattedEvent> formattedEvents;
 	private boolean suppressUnexpectedElementMessages;
+	private String filename = "";
+	private XmlFileEnum xmlFileType;
 
 	public PetriNetValidationEventHandler(boolean continueProcessing, boolean suppressUnexpectedElementMessages) {
 		this.continueProcessing = continueProcessing; 
 		this.suppressUnexpectedElementMessages = suppressUnexpectedElementMessages; 
 		formattedEvents = new ArrayList<>();  
+		xmlFileType = XmlFileEnum.PETRI_NET; 
 	}
 
 	public PetriNetValidationEventHandler() {
@@ -46,6 +52,20 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 			}
 		}
 	}
+	public String getMessage() {
+		String message = ""; 
+		for (FormattedEvent event : formattedEvents) {
+			if (printMessage(event)) {
+				if (event.formattedMessage.equalsIgnoreCase("")) {
+					message = event.formattedEvent;
+				} else {
+					message = event.formattedMessage;
+				}
+				break; 
+			}
+		}
+		return message;
+	}
 
 	protected boolean printMessage(FormattedEvent event) {
 		if (!suppressUnexpectedElementMessages) {
@@ -58,17 +78,38 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	}
 
 	private boolean saveAndCheckUnexpectedElement(ValidationEvent event) {
-		if ((event.getLinkedException() == null) && (event.getMessage().startsWith("unexpected element"))) {
-			formattedEvents.add(new FormattedEvent(true, printEvent())); 
+		if ((event.getLinkedException() == null) && (event.getMessage().startsWith(UNEXPECTED_ELEMENT))) {
+			formattedEvents.add(new FormattedEvent(true, formatEvent(), formatMessage())); 
 			return true;
 		}
 		else {
-			formattedEvents.add(new FormattedEvent(false, printEvent())); 
+			formattedEvents.add(new FormattedEvent(false, formatEvent(), formatMessage())); 
 			return false;
 		}
 	}
 
-	public String printEvent() {
+	private String formatMessage() {
+		String message = "";
+		if (event.getLinkedException() != null) {
+			message = PETRI_NET_VALIDATION_EVENT_HANDLER_ERROR_ATTEMPTING_TO_BUILD+xmlFileType+FROM_FILE+
+					filename+": "+event.getLinkedException().getMessage(); 
+			
+		}
+		return message; 
+	}
+
+	private String getAllEvents() {
+		StringBuffer sb = new StringBuffer();
+		sb.append(""); 
+		for (FormattedEvent event : formattedEvents) {
+			if (printMessage(event)) {
+				sb.append(event.formattedEvent); 
+			}
+		}		
+		return sb.toString();
+	}
+
+	public String formatEvent() {
 		ValidationEventLocator locator = event.getLocator(); 
 		StringBuffer sb = new StringBuffer(); 
 		sb.append("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: "); 
@@ -96,11 +137,22 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	protected class FormattedEvent {
 		public boolean unexpected; 
 		public String formattedEvent; 
+		public String formattedMessage; 
 		
-		public FormattedEvent(boolean unexpected, String formattedEvent) {
+		public FormattedEvent(boolean unexpected, String formattedEvent, String formattedMessage) {
 			this.unexpected = unexpected; 
 			this.formattedEvent = formattedEvent; 
+			this.formattedMessage = formattedMessage; 
 		}
 		
 	}
+
+	public void setFilename(String filename) {
+		this.filename = filename; 
+	}
+
+	public final void setXmlFileType(XmlFileEnum xmlFileType) {
+		this.xmlFileType = xmlFileType;
+	}
+
 }

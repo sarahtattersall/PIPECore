@@ -1,13 +1,27 @@
 package uk.ac.imperial.pipe.io.adapters.model;
 
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.*;
-import uk.ac.imperial.pipe.models.petrinet.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import java.util.Collection;
+
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.AnnotationAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.PlaceAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.RateParameterAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TokenAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TransitionAdapter;
+import uk.ac.imperial.pipe.models.petrinet.Annotation;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.RateParameter;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
  * Adapted Petri net, whose XmlElement name represents the name given to them in PNML.
@@ -49,7 +63,7 @@ public class AdaptedPetriNet {
      */
     @XmlElement(name = "place")
     @XmlJavaTypeAdapter(PlaceAdapter.class)
-    public Collection<Place> places;
+    public Collection<Place> places = new TreeSet<Place>(new PlaceComparator());
 
     /**
      * Petri net transitions
@@ -66,4 +80,14 @@ public class AdaptedPetriNet {
     public Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
 
 
+    private class PlaceComparator implements Comparator<Place> {
+    	
+    	public PlaceComparator() {
+		}
+    	
+    	@Override
+    	public int compare(Place place1, Place place2) {
+    		return place1.getId().compareTo(place2.getId());
+    	}
+    }
 }

@@ -59,7 +59,7 @@ public final class IncludeHierarchyBuilderAdapter extends XmlAdapter<AdaptedIncl
 		adapted.setName(v.getName());
 		adapted.setNetLocation(v.getNetLocation()); 
 //		adapted.setBuilders(v.getBuilders()); 
-		AdaptedIncludeHierarchyBuilder.Includes includes = new AdaptedIncludeHierarchyBuilder.Includes(); 
+//		AdaptedIncludeHierarchyBuilder.Includes includes = new AdaptedIncludeHierarchyBuilder.Includes(); 
 //		includes.setInclude(v.getIncludeHierarchies());
 //		includes.setThing(v.getThing());
 //		adapted.setIncludes(includes); 

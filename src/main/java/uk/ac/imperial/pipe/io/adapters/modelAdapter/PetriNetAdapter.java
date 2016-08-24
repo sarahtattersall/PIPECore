@@ -4,6 +4,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.io.adapters.model.AdaptedPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -47,7 +48,10 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
         petriNet.tokens = v.getTokens();
         petriNet.annotations = v.getAnnotations();
         petriNet.rateParameters = v.getRateParameters();
-        petriNet.places = v.getPlaces();
+        for (Place place : v.getPlaces()) {
+			petriNet.places.add(place); 
+		}
+//        petriNet.places = v.getPlaces();
         petriNet.transitions = v.getTransitions();
         petriNet.arcs = v.getArcs();
         return petriNet;

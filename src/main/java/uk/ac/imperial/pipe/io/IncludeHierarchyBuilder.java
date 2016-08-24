@@ -3,7 +3,8 @@ package uk.ac.imperial.pipe.io;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,6 +14,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.io.adapters.model.IncludeHierarchyBuilderComparator;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
@@ -24,7 +26,7 @@ public class IncludeHierarchyBuilder {
 	@XmlAttribute
 	private String netLocation;
 	@XmlElement(name = "include")
-	private List<IncludeHierarchyBuilder> includeHierarchyBuilder = new ArrayList<>(); 
+	private Collection<IncludeHierarchyBuilder> includeHierarchyBuilder; 
 	
 	public IncludeHierarchyBuilder() {
 	}
@@ -33,7 +35,7 @@ public class IncludeHierarchyBuilder {
 		this.name = include.getName(); 
 		this.netLocation = include.getPetriNetLocation();
 		for (IncludeHierarchy childInclude : include.includeMap().values()) {
-			includeHierarchyBuilder.add(new IncludeHierarchyBuilder(childInclude)); 
+			getIncludeHierarchyBuilder().add(new IncludeHierarchyBuilder(childInclude)); 
 		}
 	}
 	public IncludeHierarchy buildIncludes(IncludeHierarchy parent) throws JAXBException, FileNotFoundException, IncludeException {
@@ -76,12 +78,21 @@ public class IncludeHierarchyBuilder {
 	public final void setNetLocation(String netLocation) {
 		this.netLocation = netLocation;
 	}
-	public final List<IncludeHierarchyBuilder> getIncludeHierarchyBuilder() {
+	public final Collection<IncludeHierarchyBuilder> getIncludeHierarchyBuilder() {
+	    	if (includeHierarchyBuilder == null) {
+//	    		includeHierarchyBuilder = new ArrayList<IncludeHierarchyBuilder>();
+	    		includeHierarchyBuilder = new TreeSet<IncludeHierarchyBuilder>(new IncludeHierarchyBuilderComparator());
+	    	}
+
 		return includeHierarchyBuilder;
 	}
 	public final void setIncludeHierarchyBuilder(
-			List<IncludeHierarchyBuilder> includeHierarchyBuilder) {
+			Collection<IncludeHierarchyBuilder> includeHierarchyBuilder) {
 		this.includeHierarchyBuilder = includeHierarchyBuilder;
 	}
-	
+	@Override
+	public boolean equals(Object obj) {
+		//TODO test and guard 
+		return ((IncludeHierarchyBuilder) obj).getName().equals(name);  
+	}
 }
