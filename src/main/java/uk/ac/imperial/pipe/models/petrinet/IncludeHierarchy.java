@@ -39,7 +39,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
  * in the tabs of the corresponding included Petri net. 
  */
 
-public class IncludeHierarchy  {
+public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 
 	public static final String INCLUDE_NAME_NOT_FOUND_AT_LEVEL = "Include name not found at level ";
 	public static final String INCLUDE_NAME_MAY_NOT_BE_BLANK_OR_NULL = "Include name may not be blank or null";
@@ -541,6 +541,11 @@ public class IncludeHierarchy  {
 
 	public void setPetriNetLocation(String petriNetLocation) {
 		this.petriNetLocation = petriNetLocation;
+	}
+
+	@Override
+	public int compareTo(IncludeHierarchy include) {
+		return this.getName().compareTo(include.getName());
 	}
 
 

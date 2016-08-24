@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -17,6 +19,7 @@ import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapter;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
+import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
 import uk.ac.imperial.pipe.models.petrinet.Result;
@@ -29,6 +32,14 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
      */
     private final JAXBContext context;
 	private IncludeHierarchyHolder holder;
+
+    /**
+     * PetriNetValidationEventHandler used to process validation events 
+     * Defaults to stopping processing in the event of a failure, but can be overridden to continue
+     * (should only continue when testing)
+     */
+    protected PetriNetValidationEventHandler petriNetValidationEventHandler;
+	
 	private IncludeHierarchyBuilder builder;
     /**
      * Constructor that sets the context to the {@link uk.ac.imperial.pipe.models.PetriNetHolder}
@@ -37,7 +48,13 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
      */
     public IncludeHierarchyIOImpl() throws JAXBException {
         context = JAXBContext.newInstance(IncludeHierarchyBuilder.class);
-//        context = JAXBContext.newInstance(IncludeHierarchyHolder.class, ListWrapper.class);
+    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(false, true);
+//    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages);
+    	// setting log level to FINEST to force continued reporting of errors; otherwise, suppressed 
+    	// after 10 errors in static field, generating unpredictable test side effects, under Java 1.8
+    	// https://java.net/projects/jaxb/lists/commits/archive/2013-08/message/4
+    	// https://java.net/projects/jaxb/lists/users/archive/2015-11/message/6
+    	Logger.getLogger("com.sun.xml.internal.bind").setLevel(Level.FINEST);
     }
 
 	
@@ -52,13 +69,25 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	@Override
 	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException{
 		Unmarshaller um = context.createUnmarshaller();
-		builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
+	    um.setEventHandler(getEventHandler());
+	    getEventHandler().setFilename(fileLocation); 
+	    try {
+	    	builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
+	    	getEventHandler().printMessages(); 
+		} catch (JAXBException e) {
+	//		getEventHandler().printMessages(); 
+	//		e.printStackTrace(); 
+			throw new JAXBException(getEventHandler().getMessage());  
+	//		throw e;  
+		} 
 		IncludeHierarchy include = builder.buildIncludes(null);  // root include has no parent
 		Result<InterfacePlaceAction> result = include.all(new UpdateMergeInterfaceStatusCommand());
 		if (result.hasResult()) throw new IncludeException(result.getAllMessages()); 
 		return include; 
 	}
 
+//    PetriNetHolder holder = null; 
+//
 
 	@Override
 	public IncludeHierarchyHolder getIncludeHierarchyHolder() {
@@ -91,5 +120,16 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	public final IncludeHierarchyBuilder getBuilder() {
 		return builder;
 	}
+
+	/**
+	 * Gets the PetriNetValidationEventHandler, which accumulates any errors encountered during 
+	 * JAXB processing of PNML files 
+	 *
+	 * @return petriNetValidationEventHandler 
+	 */
+	protected PetriNetValidationEventHandler getEventHandler() {
+		return petriNetValidationEventHandler;
+	}
+
 
 }

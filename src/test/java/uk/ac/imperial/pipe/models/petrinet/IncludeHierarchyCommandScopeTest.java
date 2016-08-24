@@ -47,6 +47,7 @@ public class IncludeHierarchyCommandScopeTest {
 	public void scopeInvokesCommandAgainstIncludeHierarchyParents() throws Exception {
 		parentsScope.execute(command); 
 		verify(mockHierarchy).parents(any(IncludeHierarchyCommand.class)); 
+//		verify(mockHierarchy).parents(any()); // JDK 1.8
 	}
 	@SuppressWarnings("unchecked")
 	@Test
@@ -54,17 +55,21 @@ public class IncludeHierarchyCommandScopeTest {
 		parentsSiblingsScope.execute(command); 
 		verify(mockHierarchy).parents(any(IncludeHierarchyCommand.class)); 
 		verify(mockHierarchy).siblings(any(IncludeHierarchyCommand.class)); 
+//		verify(mockHierarchy).parents(any()); // JDK 1.8
+//		verify(mockHierarchy).siblings(any()); 
 	}
 	@SuppressWarnings("unchecked")
 	@Test
 	public void scopeInvokesCommandAgainstEntireInclude() throws Exception {
 		allScope.execute(command); 
 		verify(mockHierarchy).all(any(IncludeHierarchyCommand.class)); 
+//		verify(mockHierarchy).all(any()); 
 	}
 	@SuppressWarnings("unchecked")
 	@Test
 	public void scopeInvokesCommandAgainstImmediateParentOnly() throws Exception {
 		parentScope.execute(command); 
 		verify(mockHierarchy).parent(any(IncludeHierarchyCommand.class)); 
+//		verify(mockHierarchy).parent(any()); 
 	}
 }

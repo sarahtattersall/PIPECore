@@ -73,6 +73,8 @@ public class IncludeHierarchyWriterTest extends XMLTestCase {
         String expected = XMLUtils.readFile(expectedPath, Charset.defaultCharset());
 
         String actual = stringWriter.toString();
+//        System.out.println("expected "+expected);
+//        System.out.println("actual "+actual);
         assertXMLEqual(expected, actual);
     }
 

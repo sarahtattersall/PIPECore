@@ -1,19 +1,26 @@
 package uk.ac.imperial.pipe.io.adapters.modelAdapter;
 
-import com.google.common.base.Joiner;
-import uk.ac.imperial.pipe.io.adapters.model.AdaptedArc;
-import uk.ac.imperial.pipe.models.petrinet.*;
-
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.io.adapters.model.AdaptedArc;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+
+import com.google.common.base.Joiner;
 
 /**
  * Adapts arcs for writing to PNML.
  */
 public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable, ? extends Connectable>> {
-
+	
     /**
      * Place id of the Place
      */
@@ -47,40 +54,29 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
      *
      * @param adaptedArc to be unmarshalled 
      * @return unmarshaled arc
+     * @throws PetriNetComponentException 
      */
     @Override
-    public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc)  {
+    public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc) throws PetriNetComponentException {
         Arc<? extends Connectable, ? extends Connectable> arc;
+        String arcId = adaptedArc.getId(); 
         String source = adaptedArc.getSource();
         String target = adaptedArc.getTarget();
+        boolean normalArc = true; 
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
         
         if (adaptedArc.getType().equals("inhibitor")) {
-            Place place = places.get(source);
-            Transition transition = transitions.get(target);
-            arc = new InboundInhibitorArc(place, transition);
-        } else if (adaptedArc.getType().equals("test")) {
-        	Place place = places.get(source);
-            Transition transition = transitions.get(target);
-            arc = new InboundTestArc(place, transition);
-        } else {
-            if (places.containsKey(source)) {
-                Place place = places.get(source);
-                Transition transition = transitions.get(target);
-                arc = new InboundNormalArc(place, transition, weights);
-            } else {
-                Place place = places.get(target);
-                Transition transition = transitions.get(source);
-                arc = new OutboundNormalArc(transition, place, weights);
-            }
+        	normalArc = false; 
         }
-        arc.setId(adaptedArc.getId());
+        ArcEndpointsValidator aev = new ArcEndpointsValidator(source, target, arcId, places, transitions, normalArc, weights);
+        arc = aev.createArc(); 
         //TODO:
         arc.setTagged(false);
 
         setRealArcPoints(arc, adaptedArc);
         return arc;
     }
+
 
     /**
      *
