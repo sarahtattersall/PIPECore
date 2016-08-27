@@ -22,7 +22,7 @@ public class InboundInhibitorArc extends InboundArc {
     /**
      * Analyses the state to see if the arcs source has no tokens
      *
-     * @param petriNet to be evaluated
+     * @param executablePetriNet to be evaluated
      * @param state of the Petri net 
      * @return true if the arc can fire
      */

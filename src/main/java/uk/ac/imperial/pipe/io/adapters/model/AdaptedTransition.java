@@ -237,7 +237,7 @@ public class AdaptedTransition extends AdaptedConnectable {
 
 		/**
 		 *
-		 * @param className Name of the class to be invoked
+		 * @param externalClass Name of the class to be invoked
 		 */
 		public void setExternalClass(String externalClass) {
 			this.externalClass = externalClass;

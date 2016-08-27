@@ -18,54 +18,38 @@ public final class IncludeHierarchyBuilderAdapter extends XmlAdapter<AdaptedIncl
 		first = true; 
 	}
     /**
-     *
-     * @param v
+     * @param adaptedBuilder to unmarshal 
      * @return unmarshaled IncludeHierarchyBuilder
+     * @throws Exception if the includeHierarchyBuilder could not be unmarshalled
      */
 	@Override
-	public IncludeHierarchyBuilder unmarshal(AdaptedIncludeHierarchyBuilder v)
+	public IncludeHierarchyBuilder unmarshal(AdaptedIncludeHierarchyBuilder adaptedBuilder)
 			throws Exception {
 		if (first) {
-			builder = buildBuilder(v); 
+			builder = buildBuilder(adaptedBuilder); 
 			first = false;
 		}
-//		else builder.getIncludeHierarchies().add(buildBuilder(v)); 
 		return builder;
 	}
 	protected IncludeHierarchyBuilder buildBuilder(
-			AdaptedIncludeHierarchyBuilder v) {
+			AdaptedIncludeHierarchyBuilder adaptedBuilder) {
 		IncludeHierarchyBuilder builder = new IncludeHierarchyBuilder(); 
-		builder.setName(v.getName()); 
-		builder.setNetLocation(v.getNetLocation());
-//		builder.setBuilders(v.getBuilders()); 
-//		builder.setIncludeHierarchies(v.getIncludes().getInclude());
-//		builder.setRates(v.getRates());
-//		builder.setGrates(v.getGrates());
-//		builder.setThing(v.getIncludes().getThing()); 
-//		for (IncludeHierarchyBuilder abuilder : v.getBuilders()) {
-//			builder.getBuilders().add(abuilder); 
-//		}
+		builder.setName(adaptedBuilder.getName()); 
+		builder.setNetLocation(adaptedBuilder.getNetLocation());
 		return builder;
 	}
 	/**
 	 *
-	 * @param v
-	 * @return marshaled IncludeHierarchyBuilder
+	 * @param includeHierarchyBuilder to marshal
+	 * @return marshaled AdaptedIncludeHierarchyBuilder
+	 * @throws Exception if the includeHierarchyBuilder could not be marshalled
 	 */
 	@Override
-	public AdaptedIncludeHierarchyBuilder marshal(IncludeHierarchyBuilder v)
+	public AdaptedIncludeHierarchyBuilder marshal(IncludeHierarchyBuilder includeHierarchyBuilder)
 			throws Exception {
 		AdaptedIncludeHierarchyBuilder adapted = new AdaptedIncludeHierarchyBuilder(); 
-		adapted.setName(v.getName());
-		adapted.setNetLocation(v.getNetLocation()); 
-//		adapted.setBuilders(v.getBuilders()); 
-//		AdaptedIncludeHierarchyBuilder.Includes includes = new AdaptedIncludeHierarchyBuilder.Includes(); 
-//		includes.setInclude(v.getIncludeHierarchies());
-//		includes.setThing(v.getThing());
-//		adapted.setIncludes(includes); 
-//		adapted.setRates(v.getRates());
-//		adapted.setGrates(v.getGrates());
-//		adapted.getIncludes().setThing(v.getThing());
+		adapted.setName(includeHierarchyBuilder.getName());
+		adapted.setNetLocation(includeHierarchyBuilder.getNetLocation()); 
 		return adapted;
 	}
 

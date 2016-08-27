@@ -28,11 +28,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     public static final String NEW_ANNOTATION_CHANGE_MESSAGE = "newAnnotation";
 
-//    /**
-//     * Message fired when a place is deleted from the Petri net
-//     */
-//    public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
-
     /**
      * Message fired when a transition is deleted from the Petri net
      */
@@ -456,7 +451,7 @@ public class PetriNet extends AbstractPetriNet {
 
    /**
     *
-    * @param id
+    * @param id of component
     * @return true if a component with the given id exists in the Petri net
     */
    public boolean contains(String id) {

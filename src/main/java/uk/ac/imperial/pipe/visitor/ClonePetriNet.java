@@ -103,7 +103,7 @@ public final class ClonePetriNet {
 
 	/**
 	 *
-	 * @param petriNet
+	 * @param petriNet to be cloned
 	 * @return  cloned Petri net
 	 */
 	public static PetriNet clone(PetriNet petriNet) {
@@ -126,9 +126,10 @@ public final class ClonePetriNet {
 	 * </ul>
 	 * <p>
 	 * As each element is cloned, it is assigned an ID that is unique in the ExecutablePetriNet, using the prefix logic of {@link IncludeHierarchy}
-	 * <p>
+	 * </p><p>
 	 * Each {@link Place} in the source {@link PetriNet} will listen for changes to the token counts in the corresponding Place in the refreshed ExecutablePetriNet.
-	 * @param targetExecutablePetriNet
+	 * </p>
+	 * @param targetExecutablePetriNet to be refreshed 
 	 */
 	public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
 		cloneInstance = new ClonePetriNet(targetExecutablePetriNet);
@@ -369,12 +370,6 @@ public final class ClonePetriNet {
         }
         newPetriNet.addArc(newArc);
     }
-//	private void printArc(String comment, Arc arc) {
-//		Connectable source = arc.getSource(); 
-//		Connectable target = arc.getTarget(); 
-//		System.out.println(comment+arc.getId()+" source: "+source.getClass().getName()+": "+source.getId()+" target: "+
-//				target.getClass().getName()+": "+target.getId());
-//	}
 	protected InboundArc buildInboundArc(InboundArc arc, Place source, Transition target) {
         InboundArc newArc;
         switch (arc.getType()) {
@@ -417,7 +412,8 @@ public final class ClonePetriNet {
      * fully qualified name from the {@link IncludeHierarchy} being currently processed.  
      * <p>
      * This method is used as part of the process of refreshing an {@link ExecutablePetriNet}:  {@link #refreshFromIncludeHierarchy(ExecutablePetriNet)}
-     * @param component
+     * </p>
+     * @param component to be prefixed 
      */
     private void prefixIdWithQualifiedName(PetriNetComponent component) {
     	component.setId(currentIncludeHierarchy.
@@ -445,20 +441,6 @@ public final class ClonePetriNet {
 		}
 		
 	}
-//	private void convertInterfacePlaceArcsToUseOriginalPlaces() {
-//		Place oldPlace = null;
-//		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
-//			if (entry.getValue() instanceof InterfacePlace) {
-//				try {
-//					oldPlace = newPetriNet.getComponent(entry.getKey(), Place.class);
-//				} catch (PetriNetComponentNotFoundException e) {
-//					e.printStackTrace();
-//				} 
-//				newPetriNet.convertArcsToUseNewPlace(oldPlace, entry.getValue());
-//			}
-//		}
-//	}
-
 
     /**
      * Used to clone a name into the new Petri net

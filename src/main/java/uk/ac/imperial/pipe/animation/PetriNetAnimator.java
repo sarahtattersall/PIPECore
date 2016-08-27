@@ -146,7 +146,7 @@ public final class PetriNetAnimator implements Animator {
 	/**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to use for pseudo-random operations
 	 */
 	@Override
 	public void setRandom(Random random) {

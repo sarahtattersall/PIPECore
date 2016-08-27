@@ -155,7 +155,7 @@ public interface Arc<S extends Connectable, T extends Connectable> extends Petri
 
     /**
      *
-     * @param petriNet to evaluate
+     * @param executablePetriNet to evaluate
      * @param state of the Petri net
      * @return true if given the current state the arc can fire
      */

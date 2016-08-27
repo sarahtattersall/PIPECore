@@ -23,7 +23,7 @@ public class OutboundNormalArc extends OutboundArc {
 
     /**
      *
-     * @param petriNet to be evaluated 
+     * @param executablePetriNet to be evaluated 
      * @param state of the Petri net
      * @return true if there is no capacity restriction on the target or firing will
      *         not cause capacity overflow

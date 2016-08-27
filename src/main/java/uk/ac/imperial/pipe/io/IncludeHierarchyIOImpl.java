@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
@@ -44,7 +45,7 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
     /**
      * Constructor that sets the context to the {@link uk.ac.imperial.pipe.models.PetriNetHolder}
      *
-     * @throws JAXBException
+     * @throws JAXBException if the JAXBContext could not be created
      */
     public IncludeHierarchyIOImpl() throws JAXBException {
         context = JAXBContext.newInstance(IncludeHierarchyBuilder.class);
@@ -61,9 +62,12 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
     /**
      * Reads a Petri net from the given path
      *
-     * @param path xml path containing a PNML representation of a Petri net
-     * @return read Petri net
-     * @throws IncludeException 
+     * @param fileLocation xml path containing a PNML representation of a Petri net
+     * @return include hierarchy read from the xml path
+     * @throws FileNotFoundException  if file not found
+     * @throws JAXBException if errors occur during unmarshaling
+     * @throws IncludeException if the include hierarchy is incorrectly structured 
+ 
      */
 	
 	@Override
@@ -96,8 +100,8 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
     /**
      * Writes the IncludeHierarchyBuilder to the given stream
      *
-     * @param stream
-     * @param IncludeHierarchyBuilder
+     * @param stream to write to
+     * @param builder IncludeHierarchyBuilder to be written
      */
 	@Override
 	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException {
@@ -109,8 +113,8 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	/**
 	 * Writes the IncludeHierarchyBuilder to the given path
 	 *
-	 * @param path
-	 * @param IncludeHierarchyBuilder
+	 * @param path to write to
+	 * @param builder IncludeHierarchyBuilder to be written
 	 */
 	@Override
 	public void writeTo(String path, IncludeHierarchyBuilder builder) throws JAXBException, IOException {
@@ -125,7 +129,8 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	 * Gets the PetriNetValidationEventHandler, which accumulates any errors encountered during 
 	 * JAXB processing of PNML files 
 	 *
-	 * @return petriNetValidationEventHandler 
+	 * @return petriNetValidationEventHandler to handle any validation events that occur
+	 * @see ValidationEvent
 	 */
 	protected PetriNetValidationEventHandler getEventHandler() {
 		return petriNetValidationEventHandler;

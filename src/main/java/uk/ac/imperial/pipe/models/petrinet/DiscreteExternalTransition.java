@@ -53,7 +53,7 @@ public class DiscreteExternalTransition extends AbstractTransition implements Tr
 	/**
      * visits the visitor of it is a {@link uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor} or a
      * {@link uk.ac.imperial.pipe.models.petrinet.TransitionVisitor}.
-     * @param visitor
+     * @param visitor to use for cloning this transition
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
