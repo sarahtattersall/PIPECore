@@ -16,7 +16,7 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     /**
      * Constructor for evaluating expressions that contain petri net 
      * components, i.e places
-     * @param petriNet for this visitor 
+     * @param abstractPetriNet for this visitor 
      */
     public EvalVisitor(AbstractPetriNet abstractPetriNet) {
         this.abstractPetriNet = abstractPetriNet;

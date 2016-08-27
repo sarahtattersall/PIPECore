@@ -20,8 +20,8 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
 	
     /**
      *
-     * @param adaptedPlaceStatus
-     * @return unmarshaled PlaceStatus
+     * @param adaptedPlaceStatus to be unmarshaled
+     * @return unmarshaled PlaceStatus 
      */
     @Override
     public PlaceStatus unmarshal(AdaptedPlaceStatus adaptedPlaceStatus) {
@@ -36,7 +36,7 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
     }
     /**
      *
-     * @param place status
+     * @param placeStatus to be marshaled
      * @return marshaled place status
      */
     @Override

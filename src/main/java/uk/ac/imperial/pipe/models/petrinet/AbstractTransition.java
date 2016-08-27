@@ -65,6 +65,13 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	public AbstractTransition(AbstractConnectable connectable) {
 		super(connectable);
 	}
+	/**
+	 * invoked whenever a transition fires
+	 * @param executablePetriNet in which this transition exists
+	 * @param state of the petri Net
+	 * @param builder of states
+	 * @return builder of states 
+	 */
 	public HashedStateBuilder fire(ExecutablePetriNet executablePetriNet, State state,
 			HashedStateBuilder builder) {
 		//TODO instance of EPN should not be initialized here; move to setExecut.... or constructor
@@ -113,8 +120,8 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
      * from it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight current tokens in the connected place
+     * @param arcWeight weight of the arc
      * @return subtracted weight
      */
     protected int subtractWeight(int currentWeight, int arcWeight) {
@@ -128,8 +135,8 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
      * Treats Integer.MAX_VALUE as infinity and so will not add the weight
      * to it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight current tokens in the connected place
+     * @param arcWeight weight of the arc
      * @return added weight
      */
     protected int addWeight(int currentWeight, int arcWeight) {
@@ -141,6 +148,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
     /**
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
+     * @param executablePetriNet to evaluate
      * @return the evaluated weight for the given state
      */
     protected double getArcWeight(ExecutablePetriNet executablePetriNet, State state, String weight) {
@@ -154,7 +162,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	/**
 	 *
-	 * @return true
+	 * @return true as a transition is always an end point
 	 */
 	@Override
 	public boolean isEndPoint() {
@@ -175,7 +183,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	/**
 	 *
-	 * @param priority the priority of this transition. Must be > 0.
+	 * @param priority the priority of this transition. Must be &gt; 0.
 	 */
 	@Override
 	public void setPriority(int priority) {
@@ -204,9 +212,9 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	/**
 	 * Evaluate the transitions rate against the given state
-	 * <p/>
+	 * <p>
 	 * If an infinite server the transition will return its rate * enabling degree
-	 *
+	 * </p>
 	 * @return actual evaluated rate of the Petri net
 	 */
 	@Override
@@ -267,9 +275,9 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	/**
 	 * A Transition is enabled if all its input places are marked with at least one token
 	 * This method calculates the minimum number of tokens needed in order for a transition to be enabled
-	 * <p/>
+	 * <p>
 	 * The enabling degree is the number of times that a transition is enabled
-	 *
+	 * </p>
 	 * @param state state of the petri net
 	 * @param arcWeights evaluated arc weights for the given state
 	 * @return number of times this transition is enabled for the given state
@@ -335,7 +343,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	/**
 	 *
-	 * @param infiniteServer true => infite server, false => single server
+	 * @param infiniteServer true =&gt; infinite server, false =&gt; single server
 	 */
 	@Override
 	public void setInfiniteServer(boolean infiniteServer) {
@@ -355,7 +363,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 	/**
 	 *
-	 * @param timed true => timed, false => immediate
+	 * @param timed true =&gt; timed, false =&gt; immediate
 	 */
 	@Override
 	public void setTimed(boolean timed) {

@@ -436,7 +436,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      *
      * Generates TOKEN_CHANGE_MIRROR_MESSAGE to inform non-Place listeners that tokens have been updated (e.g., PlaceView)
      * 
-     * @param event 
+     * @param event for the property change 
      */
 	@SuppressWarnings("unchecked")
 	@Override

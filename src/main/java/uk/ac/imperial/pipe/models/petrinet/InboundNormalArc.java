@@ -22,7 +22,7 @@ public class InboundNormalArc extends InboundArc {
 
     /**
      *
-     * @param petriNet to be evaluated 
+     * @param executablePetriNet to be evaluated 
      * @param state current state of the Petri net
      * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
      *         false otherwise, or if counts for all the tokens on the arc are zero. 

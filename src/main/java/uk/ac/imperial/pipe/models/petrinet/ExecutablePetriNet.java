@@ -28,11 +28,11 @@ import com.google.common.collect.HashMultimap;
  * If the Petri net is a composite Petri net, each import statement has been replaced with the components 
  * that comprise the imported Petri net, resulting in a single Petri net, 
  * with corresponding collections of all the constituent components.  
- * <p>
+ * </p><p>
  * If this executable Petri net is animated, the markings that result from firing 
  * enabled transitions will be populated in the affected places.  
  * If the affected places are components in an imported Petri net, the markings in the updated places in the 
- * executable Petri net are mirrored to the corresponding imported Petri net.
+ * executable Petri net are mirrored to the corresponding imported Petri net. </p>
  */
 // * In the PIPE 5.0 gui, each imported Petri net is displayed in its own tab, and may be edited and persisted separately.  
 // * Expanded Petri nets are not visible in the gui; their updated markings are visible in the tabs of the corresponding imported Petri net. 
@@ -77,15 +77,15 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
 	/**
 	 * This will cause the executable Petri net to be immediately re-built from the underlying 
-	 * source Petri net, using {@link uk.ac.imperial.pipe.visitor.ClonePetriNet.clone(PetriNet)} 
+	 * source Petri net, using {@link uk.ac.imperial.pipe.visitor.ClonePetriNet} 
 	 * Assumes that {@link #refreshRequired() refreshRequired} has been called since the last refresh.  
 	 * <p>
 	 * In addition to cloning the source Petri net, a listener is added for each place in the 
 	 * source Petri net to update its token counts whenever they 
 	 * change in the executable Petri net.
-	 * <p>
+	 * </p><p>
 	 * Finally, a representation of the marking of this executable Petri net is saved 
-	 * as a {@link uk.ac.imperial.state.State}.  This can be retrieved with {@link getState()}
+	 * as a {@link uk.ac.imperial.state.State}.  This can be retrieved with {@link #getState()}</p>
 	 */
 	public void refresh() {
 		if (isRefreshRequired()) {
@@ -134,7 +134,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * Used when the structure of the underlying source Petri net has 
 	 * changed, although most changes are detected automatically.  
 	 * <p>
-	 * The refresh is done lazily, when the next "get" request is received. 
+	 * The refresh is done lazily, when the next "get" request is received. </p>
 	 */
 	public void refreshRequired() {
 		refreshRequired = true; 
@@ -151,11 +151,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
     /**
     * Supports calculating State independently of this executable petri net, 
-    * and then applying an updated State later {@see setState(State state)}
-    *
+    * and then applying an updated State later
+    * @see #setState
     * @return the State of the executable Petri net.
     */
-
 	public State getState() {
 		refresh(); 
 		return state;
@@ -174,8 +173,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * <p>
 	 * Note that if the structure of the underlying source Petri net has changed since 
 	 * this state was originally saved, the results are undefined. 
-	 * <p>
-	 * @param state 
+	 * </p>
+	 * @param state the updated state
 	 */
 	public void setState(State state) {
 		refreshRequired(); 
@@ -195,7 +194,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refreshRequired = true; 
 	}
 	/**
-	 * @param String functional expression
+	 * @param expression to evaluate
 	 * @return double result of the evaluation of the expression against the current state of 
 	 * this executable petri net, or -1.0 if the expression is not valid. 
 	 */
@@ -203,11 +202,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return evaluateExpression(getState(), expression);
 	}
 	/**
-	 * @param State representing a possible marking of the places in this executable Petri net.  
 	 * <i>Note that the expression is evaluated against the given state, 
 	 * not the current state.  If evaluation against the current state is needed, 
 	 * invoke {@link #evaluateExpressionAgainstCurrentState(String)}</i>.  
-	 * @param String functional expression
+	 * @param state representing a possible marking of the places in this executable Petri net.  
+	 * @param expression to evaluate
 	 * @return double result of the evaluation of the expression against the given state, 
 	 * or -1.0 if the expression is not valid. 
 	 */

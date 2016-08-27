@@ -53,8 +53,8 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     /**
      *
      * @param adaptedArc to be unmarshalled 
-     * @return unmarshaled arc
-     * @throws PetriNetComponentException 
+     * @return unmarshalled arc
+     * @throws PetriNetComponentException if an endpoint is missing or the arc would not be valid
      */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc) throws PetriNetComponentException {
@@ -81,7 +81,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     /**
      *
      * @param weights as strings 
-     * @return marshaled arc
+     * @return marshalled arc
      */
     private Map<String, String> stringToWeights(String weights) {
         Map<String, String> tokenWeights = new HashMap<>();
@@ -127,7 +127,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
     /**
      *
      * @param arc to be marshalled
-     * @return marshaled arc
+     * @return marshalled arc
      */
     @Override
     public AdaptedArc marshal(Arc<? extends Connectable, ? extends Connectable> arc) {
@@ -154,8 +154,8 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
      * Sets the arc points in adapted based on the arc.
      * Needs to save the source and end locations to be PNML compliant in this
      *
-     * @param arc
-     * @param adapted
+     * @param arc to be adapted
+     * @param adapted arc
      */
     private void setArcPoints(Arc<? extends Connectable, ? extends Connectable> arc, AdaptedArc adapted) {
 
