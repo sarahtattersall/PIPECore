@@ -12,9 +12,9 @@ import uk.ac.imperial.state.State;
 public class InboundNormalArc extends InboundArc {
     /**
      * Constructor
-     * @param source
-     * @param target
-     * @param tokenWeights
+     * @param source connectable of the arc
+     * @param target connectable of the arc
+     * @param tokenWeights of the arc 
      */
     public InboundNormalArc(Place source, Transition target, Map<String, String> tokenWeights) {
         super(source, target, tokenWeights, ArcType.NORMAL);
@@ -22,14 +22,18 @@ public class InboundNormalArc extends InboundArc {
 
     /**
      *
-     * @param petriNet
+     * @param executablePetriNet to be evaluated 
      * @param state current state of the Petri net
      * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
+     *         false otherwise, or if counts for all the tokens on the arc are zero. 
      */
     @Override
     public final boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
         Place place = getSource();
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
+        if (allTokenCountsAreZero(tokenCounts)) {
+        	return false;
+        }
         Map<String, String> tokenWeights = getTokenWeights();
         double tokenWeight = 0; 
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
@@ -40,12 +44,20 @@ public class InboundNormalArc extends InboundArc {
             }
             String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
-            //TODO test:  currentCount = -1 can't mean that the arc can fire
-//            if ((currentCount < tokenWeight) && (currentCount != -1)) {
-            if ((currentCount < tokenWeight) || (currentCount == 0)) {
+            if (currentCount < tokenWeight) {  
                 return false;
             }
         }
         return true;
     }
+
+	private boolean allTokenCountsAreZero(Map<String, Integer> tokenCounts) {
+		boolean allCountsAreZero = true;
+		for (Integer count : tokenCounts.values()) {
+			if (count > 0) {
+				allCountsAreZero = false; 
+			}
+		}
+		return allCountsAreZero;
+	}
 }

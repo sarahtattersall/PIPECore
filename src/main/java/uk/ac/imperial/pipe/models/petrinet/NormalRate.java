@@ -11,7 +11,7 @@ public final class NormalRate implements Rate {
 
     /**
      * Constructor
-     * @param rate
+     * @param rate string to be converted to NormalRate
      */
     public NormalRate(String rate) {
         this.rate = rate;

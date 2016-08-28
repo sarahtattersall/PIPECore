@@ -53,7 +53,7 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
 
     /**
      *
-     * @param name
+     * @param name to check for duplicates 
      * @return true if this name has not already been used
      */
     @Override

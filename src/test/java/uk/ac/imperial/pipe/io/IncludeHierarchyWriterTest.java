@@ -1,7 +1,5 @@
 package uk.ac.imperial.pipe.io;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 
@@ -11,7 +9,6 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
-import org.xml.sax.SAXException;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
@@ -57,26 +54,27 @@ public class IncludeHierarchyWriterTest extends XMLTestCase {
     
      
     public void testMarshalsSingleIncludeHierarchy() throws Exception {
-    	checkIncludeReadWriteMatches(FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFile()));
+    	checkIncludeReadWriteMatches(XMLUtils.getSingleIncludeHierarchyFile());
     }
     public void testMarshalsMultipleIncludeHierarchies() throws Exception {
-    	checkIncludeReadWriteMatches(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile()));
+    	checkIncludeReadWriteMatches(XMLUtils.getMultipleIncludeHierarchyFile());
     }
     
-	protected void checkIncludeReadWriteMatches(String includeXmlLocation) throws JAXBException,
-			FileNotFoundException, IncludeException, IOException, SAXException {
-		IncludeHierarchy include = reader.read(includeXmlLocation);
+	protected void checkIncludeReadWriteMatches(String includeXmlLocation) throws Exception {
+		IncludeHierarchy include = reader.read(FileUtils.fileLocation(includeXmlLocation));
         assertResultsEqual(includeXmlLocation, include);
 	}
 
     private void assertResultsEqual(String expectedPath, IncludeHierarchy include )
-            throws IOException, SAXException, JAXBException {
+            throws Exception {
         StringWriter stringWriter = new StringWriter();
         writer.writeTo(stringWriter, new IncludeHierarchyBuilder(include));
 
         String expected = XMLUtils.readFile(expectedPath, Charset.defaultCharset());
 
         String actual = stringWriter.toString();
+//        System.out.println("expected "+expected);
+//        System.out.println("actual "+actual);
         assertXMLEqual(expected, actual);
     }
 

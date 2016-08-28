@@ -9,7 +9,7 @@ public class BooleanValueAdapter extends XmlAdapter<BooleanValueAdapter.AdaptedB
 
     /**
      *
-     * @param adaptedBoolean
+     * @param adaptedBoolean to unmarshal
      * @return unwrapped boolean
      */
     @Override
@@ -19,7 +19,7 @@ public class BooleanValueAdapter extends XmlAdapter<BooleanValueAdapter.AdaptedB
 
     /**
      *
-     * @param aBoolean
+     * @param aBoolean to marshal
      * @return wrapped boolean
      */
     @Override

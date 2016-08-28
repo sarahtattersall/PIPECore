@@ -28,8 +28,8 @@ public final class FunctionalResults<T extends Number> {
 
     /**
      * Constructor for results which contain no errors
-     * @param result
-     * @param components
+     * @param result without error
+     * @param components without error 
      */
     public FunctionalResults(T result, Set<String> components) {
         this(result, new LinkedList<String>(), components);
@@ -37,9 +37,9 @@ public final class FunctionalResults<T extends Number> {
 
     /**
      * Constructor for results which contain errors
-     * @param result
-     * @param errors
-     * @param components
+     * @param result with errors
+     * @param errors found
+     * @param components with errors 
      */
     public FunctionalResults(T result, List<String> errors, Set<String> components) {
         this.result = result;

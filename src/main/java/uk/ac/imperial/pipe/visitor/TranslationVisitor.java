@@ -37,7 +37,7 @@ public final class TranslationVisitor
     /**
      * Moves the place by the translation vector amount
      *
-     * @param place
+     * @param place to be moved 
      */
     @Override
     public void visit(Place place) {
@@ -49,7 +49,7 @@ public final class TranslationVisitor
     /**
      * Moves the transition by the translation vector amount
      *
-     * @param transition
+     * @param transition to be moved 
      */
     @Override
     public void visit(Transition transition) {
@@ -61,7 +61,7 @@ public final class TranslationVisitor
     /**
      * Moves the arc point by the translation vector amount
      *
-     * @param arcPoint
+     * @param arcPoint to be moved
      */
     @Override
     public void visit(ArcPoint arcPoint) {
@@ -73,7 +73,7 @@ public final class TranslationVisitor
     /**
      * Moves the annotation by the translation vector amount
      *
-     * @param annotation
+     * @param annotation to be moved
      */
     @Override
     public void visit(Annotation annotation) {
@@ -84,7 +84,7 @@ public final class TranslationVisitor
     /**
      * Moves arc points in the arc by the translate vector amount
      *
-     * @param inboundArc
+     * @param inboundArc to be moved
      */
     @Override
     public void visit(InboundArc inboundArc) {
@@ -94,7 +94,7 @@ public final class TranslationVisitor
     /**
      * Moves arc points in the arc by the translate vector amount
      *
-     * @param outboundArc
+     * @param outboundArc to be moved
      */
     @Override
     public void visit(OutboundArc outboundArc) {
@@ -104,9 +104,9 @@ public final class TranslationVisitor
 
     /**
      * Visits an arc moving its arc points by the translate vector amount
-     * @param arc
-     * @param <T>
-     * @param <S>
+     * @param arc to be moved
+     * @param <T> connectable to be moved
+     * @param <S> connectable to be moved
      */
     private <T extends Connectable, S extends Connectable> void visitArc(Arc<S, T> arc) {
         if (selected.contains(arc.getSource()) && selected.contains(arc.getTarget())) {

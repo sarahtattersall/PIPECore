@@ -14,8 +14,9 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     private AbstractPetriNet abstractPetriNet;
 
     /**
-     * Constructor for evaluating expressions that contain petri
-     * net components, i.e places
+     * Constructor for evaluating expressions that contain petri net 
+     * components, i.e places
+     * @param abstractPetriNet for this visitor 
      */
     public EvalVisitor(AbstractPetriNet abstractPetriNet) {
         this.abstractPetriNet = abstractPetriNet;
@@ -95,9 +96,9 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
     }
     /**
      *
-     * @param id
+     * @param id of the place
      * @return place for id
-     * @throws PetriNetComponentNotFoundException
+     * @throws PetriNetComponentNotFoundException if place is not found in the Petri net
      */
 	public Place getPlace(String id) throws PetriNetComponentNotFoundException {
 		return abstractPetriNet.getComponent(id, Place.class);

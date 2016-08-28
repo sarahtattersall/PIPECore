@@ -41,8 +41,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Constructor
-     * @param id
-     * @param name
+     * @param id of the place
+     * @param name of the place
      */
     public DiscretePlace(String id, String name) {
         super(id, name);
@@ -51,7 +51,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Constructor that sets the Place's name to its id
-     * @param id
+     * @param id of the place
      */
     public DiscretePlace(String id) {
         this(id, id);
@@ -59,7 +59,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Copy constructor
-     * @param place
+     * @param place to be copied
      */
     public DiscretePlace(DiscretePlace place) {
         super(place);
@@ -90,8 +90,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     /**
      * Accept the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.PlaceVisitor}
      * or a {@link uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor}
-     * @param visitor
-     * @throws PetriNetComponentException
+     * @param visitor to be accepted
+     * @throws PetriNetComponentException if the component is not found or other logic error 
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
@@ -159,7 +159,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      *
-     * @return token id's -> count  i.e. the number of each type of token in this place
+     * @return token id's -&gt; count  i.e. the number of each type of token in this place
      */
     @Override
     public Map<String, Integer> getTokenCounts() {
@@ -171,7 +171,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      * Sets the places token counts to those specified. Cannot exceed the capacity
      *
      * This overrides any previous token counts.
-     * @param tokenCounts
+     * @param tokenCounts to be set
      */
     @Override
     public void setTokenCounts(Map<String, Integer> tokenCounts) {
@@ -215,7 +215,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     /**
      * Increments the token count of the given token
      *
-     * @param token
+     * @param token to be incremented
      */
     @Override
     public void incrementTokenCount(String token) {
@@ -237,8 +237,8 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Modifies the token count of the specified token
-     * @param token
-     * @param count
+     * @param token to be modified
+     * @param count to be set 
      */
     @Override
     public void setTokenCount(String token, int count) {
@@ -265,7 +265,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      *
-     * @param token
+     * @param token for which count is returned
      * @return number of tokens stored in this place for the token specified
      */
     @Override
@@ -278,7 +278,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      * Decrements the count of the token by one in this place
-     * @param token
+     * @param token to be decremented
      */
     @Override
     public void decrementTokenCount(String token) {
@@ -368,14 +368,14 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     /**
      * Since Place is a circle, performs basic trigonometry
      * based on the angle that the other object is from
-     * <p/>
-     * Note (0,0) is top left corner of grid.  -------> x
+     * <p>
+     * Note (0,0) is top left corner of grid.  -------&gt; x
      * |
      * |
      * |
      * y V
-     *
-     * @return
+     * </p>
+     * @return point where arc attaches to this place
      */
     @Override
     public Point2D.Double getArcEdgePoint(double angle) {
@@ -393,7 +393,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      *
-     * @return true
+     * @return true 
      */
     @Override
     public boolean isEndPoint() {
@@ -405,7 +405,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      *
      * Removes all tokens with the given id from this place
      *
-     * @param token
+     * @param token for which count is to be zero 
      */
     @Override
     public void removeAllTokens(String token) {
@@ -436,7 +436,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      *
      * Generates TOKEN_CHANGE_MIRROR_MESSAGE to inform non-Place listeners that tokens have been updated (e.g., PlaceView)
      * 
-     * @param event 
+     * @param event for the property change 
      */
 	@SuppressWarnings("unchecked")
 	@Override

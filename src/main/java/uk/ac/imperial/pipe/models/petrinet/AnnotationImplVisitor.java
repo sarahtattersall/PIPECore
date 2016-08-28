@@ -9,7 +9,7 @@ public interface AnnotationImplVisitor extends PetriNetComponentVisitor {
     /**
      * Visit the concrete implementation of an annotation
      *
-     * @param annotation
+     * @param annotation to be visited 
      */
     void visit(AnnotationImpl annotation);
 }

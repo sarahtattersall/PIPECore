@@ -11,7 +11,7 @@ public final class PointAdapter extends XmlAdapter<PointAdapter.AdaptedPoint, Po
 
     /**
      *
-     * @param adaptedPoint
+     * @param adaptedPoint to unmarshal
      * @return unmarshaled point
      */
     @Override
@@ -21,7 +21,7 @@ public final class PointAdapter extends XmlAdapter<PointAdapter.AdaptedPoint, Po
 
     /**
      *
-     * @param point2D
+     * @param point2D to marshal
      * @return marshaled poinmt
      */
     @Override

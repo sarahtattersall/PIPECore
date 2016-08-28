@@ -665,6 +665,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		tokenweights.put("Default", "1"); 
 		OutboundArc arcOut = new OutboundNormalArc(aT0, aIP0, tokenweights);
 		net3.add(arcOut); 
+		assertEquals(3, net3.getPlaces().size()); 
 		writeFiles(net3, net4, includes, includeb); 
 		return net3;
 	}

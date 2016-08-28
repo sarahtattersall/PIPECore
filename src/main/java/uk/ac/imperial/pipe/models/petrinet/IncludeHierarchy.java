@@ -15,7 +15,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
  * An included composite Petri net forms the root of its own sub-tree.
  * A composite Petri net may not be imported recursively, either directly or indirectly.     
  * <p>
- * A composite Petri net behaves differently depending on its status:
+ * A composite Petri net behaves differently depending on its status:</p>
  * <ul>
  * <li>editable:  only the components that have been added or modified in this Petri net are accessible.  
  * Components of included Petri nets are not accessible.  
@@ -23,7 +23,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
  * as well as XML for the statements that include other Petri nets.  
  * In this status, components may be added, modified or removed, and markings may be manually modified.  
  * <li>executable:  all the components for the root level and for all included Petri nets are accessible, 
- * as part of an executable Petri net (@see uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet).  
+ * as part of an executable Petri net.  
  * An executable Petri net is one where all include statements have been replaced with the components 
  * that comprise the included Petri net, resulting in a single Petri net.  
  * In this status:  the Petri net may be animated or analyzed by a module, 
@@ -31,15 +31,16 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
  * When the affected places are components in an included Petri net, the markings in the updated places 
  * in the expanded Petri net are mirrored to the corresponding included Petri net.
  * </ul>
- * As of PIPE 5.0, single Petri nets behave identically regardless of their status. 
  * <p>
- * In the PIPE 5.0 gui, each included Petri net is displayed in its own tab, 
+ * As of PIPE 6.0, single Petri nets behave identically regardless of their status. 
+ * In the PIPE 6.0 gui, each included Petri net is displayed in its own tab, 
  * and may be edited and persisted separately.  
  * Expanded Petri nets are not visible in the gui; their updated markings are visible 
- * in the tabs of the corresponding included Petri net. 
+ * in the tabs of the corresponding included Petri net. </p>
+ * @see uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet 
  */
 
-public class IncludeHierarchy  {
+public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 
 	public static final String INCLUDE_NAME_NOT_FOUND_AT_LEVEL = "Include name not found at level ";
 	public static final String INCLUDE_NAME_MAY_NOT_BE_BLANK_OR_NULL = "Include name may not be blank or null";
@@ -157,9 +158,9 @@ public class IncludeHierarchy  {
 	}
 	/**
 	 * Returns the IncludeHierarchy, if it exists, with the specified name that is the immediate child of this include hierarchy
-	 * @param includeName
-	 * @return
-	 * @throws IncludeException 
+	 * @param includeName of the hierarchy to be retrieved at the child level of the current include hierarchy
+	 * @return include hierarchy with the requested include name
+	 * @throws IncludeException if the include hierarchy does not exist at this level
 	 */
 	public IncludeHierarchy getChildInclude(String includeName) throws IncludeException {
 		IncludeHierarchy child = includeMap.get(includeName); 
@@ -172,9 +173,9 @@ public class IncludeHierarchy  {
 	 * Returns the IncludeHierarchy whose uniqueName matches the parameter, from the set that includes this IncludeHierarchy and all of its children.  
 	 * If executed against the root IncludeHierarchy, this searches all includes in the IncludeHierarchy.  
 	 * <p>Throws RuntimeException if no includes are found with a matching unique name.       
-	 * @param uniqueName
-	 * @return
-	 * @throws IncludeException 
+	 * @param uniqueName of the hierarchy to be retrieved, from anywhere in the entire include hierarchy
+	 * @return include hierarchy with the requested include name
+	 * @throws IncludeException if the include hierarchy does not exist at any level
 	 */
 	public IncludeHierarchy getInclude(String uniqueName) throws IncludeException {
 		IncludeHierarchy include = includeMapAll.get(uniqueName); 
@@ -255,9 +256,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * </ul>
 	 * 
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> parents(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
@@ -280,9 +281,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * </ul>
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> parent(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
@@ -302,9 +303,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * </ul>
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> children(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
@@ -326,9 +327,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * </ul>
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> siblings(IncludeHierarchyCommand<T> command)  {
 		Result<T> result = command.getResult(); 
@@ -355,9 +356,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * <li>To execute the command for all includes in the hierarchy, use {@link #all(IncludeHierarchyCommand)}
 	 * </ul>
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> self(IncludeHierarchyCommand<T> command)  {
 		return command.execute(this); 
@@ -373,9 +374,9 @@ public class IncludeHierarchy  {
 	 * <li>To execute the command only for this include hierarchy, use {@link #self(IncludeHierarchyCommand)}
 	 * <li>To execute the command for siblings under the immediate parent, use {@link #siblings(IncludeHierarchyCommand)}
 	 * </ul>
-	 * @param command
+	 * @param command to be executed
+	 * @param <T> type of the result detail to be returned in the event of errors
 	 * @return Result accumulated results encountered when the command was executed at each level
-	 * @throws IncludeException 
 	 */
 	public <T> Result<T> all(IncludeHierarchyCommand<T> command) {
 		Result<T> result = command.getResult(); 
@@ -395,7 +396,6 @@ public class IncludeHierarchy  {
 		iterator = new IncludeIterator(this);
 		return iterator; 
 	}
-
 
 	public IncludeHierarchy getRoot() {
 		return root; 
@@ -541,6 +541,11 @@ public class IncludeHierarchy  {
 
 	public void setPetriNetLocation(String petriNetLocation) {
 		this.petriNetLocation = petriNetLocation;
+	}
+
+	@Override
+	public int compareTo(IncludeHierarchy include) {
+		return this.getName().compareTo(include.getName());
 	}
 
 

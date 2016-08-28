@@ -12,11 +12,11 @@ public interface IncludeHierarchyReader  {
 
     /**
      * Read an include hierarchy from the given path
-     * @param path this path must point to an xml file that contains an include hierarchy
-     * @return include hierarchy
-     * @throws FileNotFoundException 
-     * @throws javax.xml.bind.JAXBException, FileNotFoundException
-     * @throws IncludeException 
+     * @param fileLocation this path must point to an xml file that contains an include hierarchy
+     * @return include hierarchy created from the xml file
+     * @throws FileNotFoundException  if file not found
+     * @throws JAXBException if errors occur during unmarshaling
+     * @throws IncludeException if the include hierarchy is incorrectly structured 
      */
 
 	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException;

@@ -10,9 +10,9 @@ public class TransitionNamer extends ComponentNamer {
 
     /**
      *
-     * Constructor initialises the unique name for the transitions to be in the format "T <number>"
+     * Constructor initialises the unique name for the transitions to be in the format "T {@code <number>}"
      *
-     * @param petriNet
+     * @param petriNet of the transitions to be named 
      */
     public TransitionNamer(PetriNet petriNet) {
         super(petriNet, "T", PetriNet.NEW_TRANSITION_CHANGE_MESSAGE, PetriNet.DELETE_TRANSITION_CHANGE_MESSAGE);

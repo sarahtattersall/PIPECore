@@ -58,9 +58,9 @@ public class IncludeIteratorTest {
 	}
 	@Test
 	public void buildsListOfIncludesThroughWhichToIterate() throws Exception {
-		includes.include(net2, "two"); 
-		includes.include(net3, "three").include(net4, "four").include(net5, "five");
-		includes.getChildInclude("three").getChildInclude("four").include(net6, "six");
+		includes.include(net2, "2two"); 
+		includes.include(net3, "3three").include(net4, "four").include(net5, "five");
+		includes.getChildInclude("3three").getChildInclude("four").include(net6, "six");
 		// one ("top")
 		//    two
 		//    three
@@ -77,9 +77,9 @@ public class IncludeIteratorTest {
 		assertEquals("net6",iterator.next().getPetriNet().getName().getName()); 
 		// another flavor
 		includes = new IncludeHierarchy(net1, "top"); 
-		includes.include(net2, "two").include(net3, "three").include(net4, "four");; 
-		includes.getChildInclude("two").include(net5, "five"); 
-		includes.include(net6, "six"); 
+		includes.include(net2, "2two").include(net3, "three").include(net4, "four");; 
+		includes.getChildInclude("2two").include(net5, "five"); 
+		includes.include(net6, "6six"); 
 		// one ("top")
 		//    two
 		//       five

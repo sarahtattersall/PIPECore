@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.dsl;
 import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
 import uk.ac.imperial.pipe.models.petrinet.Token;
@@ -49,7 +50,7 @@ public final class AnInhibitorArc implements DSLCreator<Arc<? extends Connectabl
     /**
      * Required target for an arc
      *
-     * @param target
+     * @param target place or transition for the arc
      * @return builder
      */
     public AnInhibitorArc andTarget(String target) {
@@ -59,10 +60,10 @@ public final class AnInhibitorArc implements DSLCreator<Arc<? extends Connectabl
 
 
     /**
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id of Token
+     * @param places map of created places with id of Connectable
+     * @param transitions map of created transitions with id of Transition
+     * @param rateParameters map of created rateParameters with id of rateParameter
      * @return inhibitor arc
      */
     @Override

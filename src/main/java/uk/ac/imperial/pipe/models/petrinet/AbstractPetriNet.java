@@ -2,7 +2,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -46,31 +45,31 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
     public static final String DELETE_PLACE_CHANGE_MESSAGE = "deletePlace";
 
 	/**
-	 * Maps transition id -> transition
+	 * Maps transition id -&gt; transition
 	 */
 	protected  Map<String, Transition> transitions = new HashMap<>();
 	/**
-	 * Maps place id -> place
+	 * Maps place id -&gt; place
 	 */
 	protected  Map<String, Place> places = new HashMap<>();
 	/**
-	 * Maps token id -> token
+	 * Maps token id -&gt; token
 	 */
 	protected  Map<String, Token> tokens = new HashMap<>();
 	/**
-	 * Maps inbound arc id -> inbound arc
+	 * Maps inbound arc id -&gt; inbound arc
 	 */
 	protected  Map<String, InboundArc> inboundArcs = new HashMap<>();
 	/**
-	 * Maps outbound arc id -> outbound arc
+	 * Maps outbound arc id -&gt; outbound arc
 	 */
 	protected  Map<String, OutboundArc> outboundArcs = new HashMap<>();
 	/**
-	 * Maps rate paramter id -> rate paramter
+	 * Maps rate paramter id -&gt; rate parameter
 	 */
 	protected  Map<String, RateParameter> rateParameters = new HashMap<>();
 	/**
-	 * Maps annotation id -> annotation
+	 * Maps annotation id -&gt; annotation
 	 */
 	protected  Map<String, Annotation> annotations = new HashMap<>();
 	/**
@@ -87,11 +86,11 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	 */
 	protected PetriNetName petriNetName;
 	/**
-	 *  Maps transition id -> outbound arcs out of the transition
+	 *  Maps transition id -&gt; outbound arcs out of the transition
 	 */
 	protected Multimap<String, OutboundArc> transitionOutboundArcs = HashMultimap.create();
 	/**
-	 * Maps transition id -> inbound arcs into the transition
+	 * Maps transition id -&gt; inbound arcs into the transition
 	 */
 	protected Multimap<String, InboundArc> transitionInboundArcs = HashMultimap.create();
 	
@@ -286,7 +285,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	/**
 	 * Adds the annotation to the Petri net
 	 *
-	 * @param annotation
+	 * @param annotation to be added
 	 */
 	public abstract void addAnnotation(Annotation annotation); 
 
@@ -334,7 +333,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	/**
 	 * Adds the token to the Petri net
 	 *
-	 * @param token
+	 * @param token to be added 
 	 */
 	public abstract void addToken(Token token);
 	/**
@@ -381,7 +380,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	}
 
 	/**
-	 * @param id
+	 * @param id of the component
 	 * @return true if any component in the Petri net has this id
 	 */
 	public boolean containsComponent(String id) {
@@ -393,7 +392,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	    return false;
 	}
 	/**
-	 * @param place
+	 * @param place to be evaluated 
 	 * @return arcs that are outbound from place
 	 */
 	public Collection<InboundArc> outboundArcs(Place place) {
@@ -406,7 +405,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	    return outbound;
 	}
 	/**
-	 * @param place
+	 * @param place to be evaluated
 	 * @return arcs that are inbound to place
 	 */
 	public Collection<OutboundArc> inboundArcs(Place place) {
@@ -436,20 +435,43 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
         outboundArcs.remove(arc.getId());
         transitionOutboundArcs.remove(arc.getSource().getId(), arc);
 	}
+	
+	/**
+	 * replaces oldPlace with newPlace in all arcs 
+	 * @param oldPlace to be replaced
+	 * @param newPlace to be used for all arcs
+	 */
 	public void convertArcsToUseNewPlace(Place oldPlace, Place newPlace) {
 		convertInboundArcsToUseNewPlace(oldPlace, newPlace);
 		convertOutboundArcsToUseNewPlace(oldPlace, newPlace); 
 	}
+	/**
+	 * replaces oldPlace with newPlace in all inbound arcs 
+	 * @param oldPlace to be replaced
+	 * @param newPlace to be used for all inbound arcs
+	 */
 	public void convertInboundArcsToUseNewPlace(Place oldPlace, Place newPlace) {
 		for (InboundArc arc : outboundArcs(oldPlace)) {
 			arc.setSource(newPlace); 
 		}
 	}
+	/**
+	 * replaces oldPlace with newPlace in all outbound arcs 
+	 * @param oldPlace to be replaced
+	 * @param newPlace to be used for all outbound arcs
+	 */
 	public void convertOutboundArcsToUseNewPlace(Place oldPlace, Place newPlace) {
 		for (OutboundArc arc : inboundArcs(oldPlace)) {
 			arc.setTarget(newPlace); 
 		}
 	}
+	
+	/**
+	 * replaces an old place with a new place everywhere it is referenced in the petri Net 
+	 * @param oldPlace to be replaced
+	 * @param newPlace to replace oldPlace
+	 * @throws PetriNetComponentException if the place is not found or the replacement encounters a logic error
+	 */
 	//TODO may not be needed once PlaceStatus replaces InterfacePlace
 	public void replacePlace(Place oldPlace, Place newPlace) throws PetriNetComponentException {
 		convertArcsToUseNewPlace(oldPlace, newPlace); 
@@ -463,6 +485,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
      * Petri net
      *
      * @param place to remove from Petri net
+     * @throws PetriNetComponentException if the place is not found or the replacement encounters a logic error
      */
     public void removePlace(Place place) throws PetriNetComponentException {
     	verifyPlaceNotInUseInInterface(place);
@@ -494,7 +517,7 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	}
 
 	/**
-    *
+    * finds all petri Net components that reference a given component Id 
     * @param componentId component id to find
     * @return all components ids whose functional expression references the componentId
     */
@@ -522,19 +545,19 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
    }
 
 	/**
-    *
-    * @param expr
-    * @param id
+    * determines if a rate expression references a given component Id
+    * @param expression to be evaluated
+    * @param id to check for references
     * @return true if the component id is referenced in the functional expression
     */
-   protected boolean referencesId(String expr, String id) {
-       Collection<String> components = getComponents(expr);
+   protected boolean referencesId(String expression, String id) {
+       Collection<String> components = getComponents(expression);
        return components.contains(id);
    }
 
    /**
-    *
-    * @param expression
+    * generated a collection of the Ids of all components referenced by the expression
+    * @param expression to be evaluated
     * @return a list of components that the expression references
     */
    protected Collection<String> getComponents(String expression) {
@@ -545,16 +568,16 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	/**
      * Parse the functional expression via the under lying Petri net state
      *
-     * @param expr functional expression which conforms to the rate grammar
+     * @param expression functional expression which conforms to the rate grammar
      * @return parsed expression
      */
-    public FunctionalResults<Double> parseExpression(String expr) {
-        return functionalWeightParser.evaluateExpression(expr);
+    public FunctionalResults<Double> parseExpression(String expression) {
+        return functionalWeightParser.evaluateExpression(expression);
     }
 
 	  /**
      * Listener for changing a components name in the set it is referenced by
-     * @param <T>
+     * @param <T> the petri net component type whose name might change
      */
     protected static class NameChangeListener<T extends PetriNetComponent> implements PropertyChangeListener {
         /**
@@ -569,8 +592,8 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 
         /**
          * Constructor
-         * @param component
-         * @param componentMap
+         * @param component to be listened for 
+         * @param componentMap map in which the component is stored
          */
         public NameChangeListener(T component, Map<String, T> componentMap) {
             this.component = component;
@@ -579,14 +602,14 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 
         /**
          * If the name/id of the component changes then it is updated in the component map.
-         * That is the old key is removed and the component is re-added with the new name.
-         * @param evt
+         * The old key is removed and the component is re-added with the new name.
+         * @param event documenting the property change 
          */
         @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
-                String oldId = (String) evt.getOldValue();
-                String newId = (String) evt.getNewValue();
+        public void propertyChange(PropertyChangeEvent event) {
+            if (event.getPropertyName().equals(PetriNetComponent.ID_CHANGE_MESSAGE)) {
+                String oldId = (String) event.getOldValue();
+                String newId = (String) event.getNewValue();
                 componentMap.remove(oldId);
                 componentMap.put(newId, component);
             }

@@ -12,8 +12,8 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
 
     /**
      * Constructor with default rate and priority
-     * @param id
-     * @param name
+     * @param id of the transition
+     * @param name of the transition
      */
     public DiscreteTransition(String id, String name) {
         super(id, name);
@@ -21,7 +21,7 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
 
     /**
      * Constructor that sets the default rate priority and the name of the transition to its id
-     * @param id
+     * @param id of the transition
      */
     public DiscreteTransition(String id) {
         super(id, id);
@@ -29,10 +29,10 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
 
     /**
      * Constructor with the specified rate and priority
-     * @param id
-     * @param name
-     * @param rate
-     * @param priority
+     * @param id of the transition
+     * @param name of the transition
+     * @param rate of the transition
+     * @param priority of the transition
      */
     public DiscreteTransition(String id, String name, Rate rate, int priority) {
         super(id, name);
@@ -42,7 +42,7 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
 
     /**
      * Copy constructor
-     * @param transition
+     * @param transition to be copied
      */
     public DiscreteTransition(DiscreteTransition transition) {
         super(transition);
@@ -56,7 +56,7 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
     /**
      * visits the visitor of it is a {@link uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor} or a
      * {@link uk.ac.imperial.pipe.models.petrinet.TransitionVisitor}.
-     * @param visitor
+     * @param visitor to be accepted 
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {

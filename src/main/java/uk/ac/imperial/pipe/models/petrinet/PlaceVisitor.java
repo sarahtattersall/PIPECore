@@ -9,8 +9,8 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 public interface PlaceVisitor extends PetriNetComponentVisitor {
     /**
      * Visit the place
-     * @param place
-     * @throws PetriNetComponentException
+     * @param place to be added 
+     * @throws PetriNetComponentException if component already exists or other logic error 
      */
     void visit(Place place) throws PetriNetComponentException;
 }
