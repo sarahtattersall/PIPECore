@@ -179,7 +179,7 @@ public class HashedTimedState extends TimedState {
      * put in the timing queue = when time is advanced they can get activated when 
      * the delay is gone.
      * 
-     * @param state  petri net state to evaluate weight against
+     * @param enabledTransitions to add to the timing queue
      */
     public void registerEnabledTimedTransitions(Set<Transition> enabledTransitions) {
     	//Set<Transition> enabledTransitions = getEnabledTimedTransitions(timedState.getState());

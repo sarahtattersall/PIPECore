@@ -79,7 +79,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 	 * Only if there are none, current timed transitions are used.
 	 * 
 	 * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimedState)}
-     * @param state Must be a valid state for the Petri net this class represents
+     * @param timedState Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
 //TODO: I propose to make this method private (at least from the interface)
@@ -97,7 +97,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     }
     /**
      * Replaces getEnabledTransitions; intended for internal use and testing
-     * @param timedState
+     * @param timedState to evaluate
      * @return enabled immediate transitions, if any; else enabled timed transitions 
      */
 	protected Set<Transition> getEnabledImmediateOrTimedTransitions(
@@ -127,12 +127,12 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 	
     /**
     *
-    * @return a random transition which is enabled given the Petri nets current state.
     * 
     * First, is looking for all immediate transitions.
 	* Only if there are none, current timed transitions are used.
 	* 
-    * @param state Must be a valid state for the Petri net this class represents
+    * @param timedState Must be a valid state for the Petri net this class represents
+    * @return a random transition which is enabled given the Petri nets current state.
     */
    @Override
    public Transition getRandomEnabledTransition(TimedState timedState) {
@@ -183,7 +183,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 	}*/
 
     /**
-     * @param state to be evaluated
+     * @param timedState to be evaluated
      * @return all successors of this state
      */
     @Override
@@ -223,7 +223,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
      * #(P0) to refer to the number of tokens before firing. </p>
      *
-     * @param state to be evaluated
+     * @param timedState to be evaluated
      * @param transition  to be fired 
      * @return Map of places whose token counts differ from those in the initial state
      */
@@ -298,6 +298,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     /**
      * Computes transitions which need to be disabled because they are no longer enabled and
      * those that need to be enabled because they have been newly enabled.
+     * @param state from which to update transitions
      */
     protected void updateAffectedTransitionsStatus(TimedState state) {
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
@@ -313,7 +314,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
     
     
     /**
-     * @param state  petri net state to evaluate weight against
+     * @param timedState  petri net state to evaluate weight against
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
@@ -353,9 +354,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         return enabledTransitions;
     }
 */    
-    /**
-     * @return all the currently enabled timed transitions in the petri net
-     */
     //TODO make public and add to interface if getRandomEnabledTransition is insufficient
 /*    protected Set<Transition> getEnabledTimedTransitions(State state) {
 
@@ -368,15 +366,15 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
         return enabledTransitions;
     }
 */
-    /**
-     * Works out if an transition is enabled. This means that it checks if
-     * a) places connected by an incoming arc to this transition have enough tokens to fire
-     * b) places connected by an outgoing arc to this transition have enough space to fit the
-     * new tokens (that is enough capacity).
-     *
-     * @param transition to see if it is enabled
-     * @return true if transition is enabled
-     */
+//    /**
+//     * Works out if an transition is enabled. This means that it checks if
+//     * a) places connected by an incoming arc to this transition have enough tokens to fire
+//     * b) places connected by an outgoing arc to this transition have enough space to fit the
+//     * new tokens (that is enough capacity).
+//     *
+//     * @param transition to see if it is enabled
+//     * @return true if transition is enabled
+//     */
 /*    private boolean isEnabled(Transition transition, State state) {
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
             if (!arc.canFire(executablePetriNet, state)) {
@@ -414,10 +412,10 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 
     /**
      * Performs in place removal transitions whose priority is less than the specified value
-     * <p/>
+     * <p>
      * Note we must use an iterator in order to ensure save removal
      * whilst looping
-     *
+     * </p>
      * @param priority    minimum priority of transitions allowed to remain in the Collection
      * @param transitions to remove if their priority is less than the specified value
      */
@@ -440,7 +438,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
 	/**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to use for pseudo-random operations
 	 */
 	public void setRandom(Random random) {
 		this.random = random;

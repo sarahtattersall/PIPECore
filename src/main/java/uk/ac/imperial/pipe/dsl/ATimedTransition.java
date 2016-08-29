@@ -62,7 +62,7 @@ public final class ATimedTransition extends AnAbstractTransition<ATimedTransitio
     }
     /**
      * Sets the delay in milliseconds
-     * @param delay
+     * @param delay in milliseconds
      * @return builder for chaining
      */
 	public ATimedTransition andDelay(int delay) {

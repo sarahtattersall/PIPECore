@@ -58,7 +58,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate 
      * {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize 
      * the structure of the two Petri nets.
-	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
+	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors.
+	 * @param initTime initial time  
 	 */
 	
 	public ExecutablePetriNet(PetriNet petriNet, long initTime) {
@@ -302,6 +303,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	/**
 	 * Fire a specific transition for the given TimedState.
+	 * @param transition to fire
+	 * @param timedState to evaluate for firing
 	 */
 	public void fireTransition(Transition transition, TimedState timedState) {
 		//TODO: Clean up - should the timedState be copied first to the network
@@ -385,8 +388,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
      * from it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight token count to subtract from 
+     * @param arcWeight to subtract
      * @return subtracted weight
      */
     protected int subtractWeight(int currentWeight, int arcWeight) {
@@ -400,8 +403,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * Treats Integer.MAX_VALUE as infinity and so will not add the weight
      * to it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight token count to subtract from 
+     * @param arcWeight to subtract
      * @return added weight
      */
     protected int addWeight(int currentWeight, int arcWeight) {
@@ -411,7 +414,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         return currentWeight + arcWeight;
     }
     /** MOVED FROM ABSTRACT TRANSITION
-     * @param state  petri net state to evaluate weight against
+     * @param timedState  petri net state to evaluate weight against
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */

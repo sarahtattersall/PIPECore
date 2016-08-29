@@ -37,8 +37,8 @@ public final class ATestArc implements DSLCreator<Arc<? extends Connectable, ? e
 
     /**
      * Factory constructor
-     * @param source arc source
-     * @return builder
+     * @param source of the arc
+     * @return builder for chaining
      */
     public static ATestArc withSource(String source) {
         ATestArc aTestArc = new ATestArc();
@@ -49,8 +49,8 @@ public final class ATestArc implements DSLCreator<Arc<? extends Connectable, ? e
     /**
      * Required target for an arc
      *
-     * @param target
-     * @return builder
+     * @param target of the arc
+     * @return builder for chaining
      */
     public ATestArc andTarget(String target) {
         this.target = target;
@@ -59,11 +59,11 @@ public final class ATestArc implements DSLCreator<Arc<? extends Connectable, ? e
 
 
     /**
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
-     * @return inhibitor arc
+     * @param tokens map of created tokens with id -&gt; Token
+     * @param places map of created places with id -&gt; Connectable
+     * @param transitions map of created transitions with id -&gt; Transition
+     * @param rateParameters map of created rate parameters with id -&gt; FunctionalRateParameter 
+     * @return inbound test arc
      */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
