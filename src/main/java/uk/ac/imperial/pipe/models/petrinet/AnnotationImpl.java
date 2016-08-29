@@ -111,12 +111,12 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
 
     /**
      * Constructor
-     * @param x
-     * @param y
-     * @param text
-     * @param width
-     * @param height
-     * @param border
+     * @param x coordinate
+     * @param y coordinate
+     * @param text of the annotation
+     * @param width of the annotation
+     * @param height of the annotation
+     * @param border of the annotation
      */
     public AnnotationImpl(int x, int y, String text, int width, int height, boolean border) {
         this.border = border;
@@ -129,7 +129,7 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
 
     /**
      * Setting border to true implies the annotation should be displayed with a boreder
-     * @param border
+     * @param border of the annotation
      */
     public final void setBorder(boolean border) {
         this.border = border;
@@ -258,7 +258,7 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
 
     /**
      * Accept visitor if its an annotation visitor
-     * @param visitor
+     * @param visitor to be accepted
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {

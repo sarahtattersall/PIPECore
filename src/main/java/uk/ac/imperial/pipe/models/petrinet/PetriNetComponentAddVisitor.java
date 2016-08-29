@@ -20,7 +20,7 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Add a place to the Petri net
-     * @param place
+     * @param place to be added
      */
     @Override
     public void visit(Place place) {
@@ -29,7 +29,7 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Add a transition to the Petri net
-     * @param transition
+     * @param transition to be added
      */
     @Override
     public void visit(Transition transition) {
@@ -39,7 +39,7 @@ public final class PetriNetComponentAddVisitor
     /**
      *
      * Adds the token to the Petri net
-     * @param token
+     * @param token to be added 
      */
     @Override
     public void visit(Token token) {
@@ -48,7 +48,7 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Adds the annotation to the Petri net
-     * @param annotation
+     * @param annotation to be added 
      */
     @Override
     public void visit(Annotation annotation) {
@@ -57,8 +57,8 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Adds the rate paramter to the Petri net
-     * @param rate
-     * @throws InvalidRateException
+     * @param rate to be added 
+     * @throws InvalidRateException if the rate cannot be added 
      */
     @Override
     public void visit(FunctionalRateParameter rate) throws InvalidRateException {
@@ -67,7 +67,7 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Adds the inbound arc to the Petri net
-     * @param inboundArc
+     * @param inboundArc to be added
      */
     @Override
     public void visit(InboundArc inboundArc) {
@@ -76,7 +76,7 @@ public final class PetriNetComponentAddVisitor
 
     /**
      * Adds the outbound arc to the Petri net
-     * @param outboundArc
+     * @param outboundArc to be added
      */
     @Override
     public void visit(OutboundArc outboundArc) {

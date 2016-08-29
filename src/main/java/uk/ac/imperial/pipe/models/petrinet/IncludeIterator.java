@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Stack;
+import java.util.TreeSet;
 
 
 public class IncludeIterator implements Iterator<IncludeHierarchy> {
@@ -43,7 +44,7 @@ public class IncludeIterator implements Iterator<IncludeHierarchy> {
 		return include;
 	}
 	private void pushIteratorForOneLevel(IncludeHierarchy includeHierarchy) {
-		Collection<IncludeHierarchy> hierarchies = includeHierarchy.includeMap().values();
+		Collection<IncludeHierarchy> hierarchies = new TreeSet<IncludeHierarchy>(includeHierarchy.includeMap().values());
 		Iterator<IncludeHierarchy> it = hierarchies.iterator(); 
 		if (it.hasNext()) {
 			stackIterator.push(it);

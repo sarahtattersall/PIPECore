@@ -29,7 +29,8 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
     /**
      * Parses Transition Rates to determine their value and
      * the components they reference.
-     *
+     * @param evalVisitor visitor to perform parsing 
+     * @param abstractPetriNet to be parsed 
      */
     public PetriNetWeightParser(RateGrammarBaseVisitor<Double> evalVisitor, AbstractPetriNet abstractPetriNet) {
         this.evalVisitor = evalVisitor;
@@ -39,7 +40,7 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
 	/**
      *
-     * @param parseTree
+     * @param parseTree to evaluate
      * @return components referenced by the functional expression that is being parsed
      */
     //TODO: Use memoization
@@ -53,7 +54,7 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
 
     /**
-     *
+     * @param components to be evaluated
      * @return true if all referenced components in expression
      * are valid in the Petri net
      */

@@ -9,6 +9,7 @@ import uk.ac.imperial.pipe.visitor.TransitionCloner;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -216,7 +217,7 @@ public final class Expander {
         StringBuilder newNameBuilder = new StringBuilder(place.getName());
         int placeTokenCount = 0;
         int arcWeight = 0;
-        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+        for (Map.Entry<String, String> entry : (new TreeMap<String,String>(arc.getTokenWeights()).entrySet())) {
             String token = entry.getKey();
             String weight = entry.getValue();
             //TODO: THIS IS ASSUMING IT ISN'T FUNCTIONAL :/

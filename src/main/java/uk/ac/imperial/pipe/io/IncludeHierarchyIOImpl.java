@@ -6,17 +6,21 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.ValidationEvent;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapter;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
+import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
 import uk.ac.imperial.pipe.models.petrinet.Result;
@@ -29,36 +33,65 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
      */
     private final JAXBContext context;
 	private IncludeHierarchyHolder holder;
+
+    /**
+     * PetriNetValidationEventHandler used to process validation events 
+     * Defaults to stopping processing in the event of a failure, but can be overridden to continue
+     * (should only continue when testing)
+     */
+    protected PetriNetValidationEventHandler petriNetValidationEventHandler;
+	
 	private IncludeHierarchyBuilder builder;
     /**
      * Constructor that sets the context to the {@link uk.ac.imperial.pipe.models.PetriNetHolder}
      *
-     * @throws JAXBException
+     * @throws JAXBException if the JAXBContext could not be created
      */
     public IncludeHierarchyIOImpl() throws JAXBException {
         context = JAXBContext.newInstance(IncludeHierarchyBuilder.class);
-//        context = JAXBContext.newInstance(IncludeHierarchyHolder.class, ListWrapper.class);
+    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(false, true);
+//    	petriNetValidationEventHandler = new PetriNetValidationEventHandler(continueProcessing, suppressUnexpectedElementMessages);
+    	// setting log level to FINEST to force continued reporting of errors; otherwise, suppressed 
+    	// after 10 errors in static field, generating unpredictable test side effects, under Java 1.8
+    	// https://java.net/projects/jaxb/lists/commits/archive/2013-08/message/4
+    	// https://java.net/projects/jaxb/lists/users/archive/2015-11/message/6
+    	Logger.getLogger("com.sun.xml.internal.bind").setLevel(Level.FINEST);
     }
 
 	
     /**
      * Reads a Petri net from the given path
      *
-     * @param path xml path containing a PNML representation of a Petri net
-     * @return read Petri net
-     * @throws IncludeException 
+     * @param fileLocation xml path containing a PNML representation of a Petri net
+     * @return include hierarchy read from the xml path
+     * @throws FileNotFoundException  if file not found
+     * @throws JAXBException if errors occur during unmarshaling
+     * @throws IncludeException if the include hierarchy is incorrectly structured 
+ 
      */
 	
 	@Override
 	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException{
 		Unmarshaller um = context.createUnmarshaller();
-		builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
+	    um.setEventHandler(getEventHandler());
+	    getEventHandler().setFilename(fileLocation); 
+	    try {
+	    	builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
+	    	getEventHandler().printMessages(); 
+		} catch (JAXBException e) {
+	//		getEventHandler().printMessages(); 
+	//		e.printStackTrace(); 
+			throw new JAXBException(getEventHandler().getMessage());  
+	//		throw e;  
+		} 
 		IncludeHierarchy include = builder.buildIncludes(null);  // root include has no parent
 		Result<InterfacePlaceAction> result = include.all(new UpdateMergeInterfaceStatusCommand());
 		if (result.hasResult()) throw new IncludeException(result.getAllMessages()); 
 		return include; 
 	}
 
+//    PetriNetHolder holder = null; 
+//
 
 	@Override
 	public IncludeHierarchyHolder getIncludeHierarchyHolder() {
@@ -67,8 +100,8 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
     /**
      * Writes the IncludeHierarchyBuilder to the given stream
      *
-     * @param stream
-     * @param IncludeHierarchyBuilder
+     * @param stream to write to
+     * @param builder IncludeHierarchyBuilder to be written
      */
 	@Override
 	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException {
@@ -80,8 +113,8 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	/**
 	 * Writes the IncludeHierarchyBuilder to the given path
 	 *
-	 * @param path
-	 * @param IncludeHierarchyBuilder
+	 * @param path to write to
+	 * @param builder IncludeHierarchyBuilder to be written
 	 */
 	@Override
 	public void writeTo(String path, IncludeHierarchyBuilder builder) throws JAXBException, IOException {
@@ -91,5 +124,17 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	public final IncludeHierarchyBuilder getBuilder() {
 		return builder;
 	}
+
+	/**
+	 * Gets the PetriNetValidationEventHandler, which accumulates any errors encountered during 
+	 * JAXB processing of PNML files 
+	 *
+	 * @return petriNetValidationEventHandler to handle any validation events that occur
+	 * @see ValidationEvent
+	 */
+	protected PetriNetValidationEventHandler getEventHandler() {
+		return petriNetValidationEventHandler;
+	}
+
 
 }

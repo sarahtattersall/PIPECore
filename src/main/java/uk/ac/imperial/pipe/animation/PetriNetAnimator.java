@@ -1,8 +1,5 @@
 package uk.ac.imperial.pipe.animation;
 
-import java.util.HashSet;
-
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -51,7 +48,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void saveState() {
-    	savedState = executablePetriNet.getTimedState();
+    	savedState = executablePetriNet.getTimedState().makeCopy();
     }
 
     /**
@@ -85,12 +82,6 @@ public final class PetriNetAnimator implements Animator {
         return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
     }
 
-    /**
-     *
-     * Fires the transition if it is enabled in the Petri net for the current underlying state
-     *
-     * @param transition transition to fire
-     */
     //TODO move state logic to Executable PN
    /* @Override
     public void fireTransition(Transition transition, TimedState timedState) {
@@ -156,7 +147,7 @@ public final class PetriNetAnimator implements Animator {
      * Fire all currently enabled immediate transitions
      * and afterwards the enabled timed transitions which are due to fire.
      * 
-     * @param TimedState timedState
+     * @param timedState to drive transition firing
      */
     public void fireAllCurrentEnabledTransitions(TimedState timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
@@ -176,7 +167,8 @@ public final class PetriNetAnimator implements Animator {
      * Fire a single enabled transition (immediate - or a timed one which is due when
      * there is no immediate transition left).
      * 
-     * @param TimedState timedState
+     * @param timedState to drive firing of single transition
+     * @return true if a transition was fired, false if there were no enabled transitions
      */
     public boolean fireOneEnabledTransition(TimedState timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
@@ -202,6 +194,8 @@ public final class PetriNetAnimator implements Animator {
      * Advance current time of the Petri Network.
      * Fire all immediate transitions and afterwards step through time
      * always firing the timed transitions that become due to fire.
+     * @param timedState to evaluate
+     * @param newTime advance to new time 
      */
     public void advanceNetToTime(TimedState timedState, long newTime) {
     	if (newTime > timedState.getCurrentTime() ) {
@@ -251,6 +245,11 @@ public final class PetriNetAnimator implements Animator {
     }
     
     
+    /**
+     * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
+     * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
+     * @param random to use for pseudo-random operations
+     */
     @Override
     public void setRandom(Random random) {
 		animationLogic.setRandom(random);

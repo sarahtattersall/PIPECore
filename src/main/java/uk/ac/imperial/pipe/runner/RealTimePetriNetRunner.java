@@ -77,6 +77,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 
 	/**
 	 * Run the ExecutablePetriNet for a given duration in real time.
+	 * @param duration to execute
 	 */
 	public void stepPetriNetSynchronized(int duration) {
 		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
@@ -137,6 +138,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	 * Get the semaphore that controls access to the PN structure:
 	 * Places and transitions are only allowed to change when the Runner is not actively
 	 * changing the state of the network.
+	 * @return semaphore to control access to the Petri net structure 
 	 */
 	public static Semaphore getPetriNetRunnerSemaphore(){
 		return semaphore;

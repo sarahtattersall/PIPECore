@@ -69,9 +69,10 @@ public interface Transition extends Connectable {
 
     /**
      * Evaluate the transitions rate against the given state
-     * <p/>
+     * <p>
      * If an infinite server the transition will return its rate * enabling degree
-     *
+     * </p>
+     * @param executablePetriNet to be evaluated 
      * @return actual evaluated rate of the Petri net
      */
     Double getActualRate(ExecutablePetriNet executablePetriNet);
@@ -144,11 +145,11 @@ public interface Transition extends Connectable {
 	public void fire();
 	
 	/**
-	 * For {@link DiscreteTimedTransition}, specify the amount of time, in milliseconds, 
+	 * For a discrete timed transition {@link DiscreteTransition}, specify the amount of time, in milliseconds, 
 	 * that this transition will wait, once it's enabled, before firing.
 	 * Note that this is not deterministic; all that is guaranteed is that a minimum of delay milliseconds
 	 * will elapse; there is no fixed upper limit on the amount of elapsed time before firing.
-	 * @param delay
+	 * @param delay in milliseconds 
 	 */
     public void setDelay(int delay);
     

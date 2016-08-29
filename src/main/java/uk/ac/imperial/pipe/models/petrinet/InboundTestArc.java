@@ -12,8 +12,8 @@ import java.util.Map;
 public class InboundTestArc extends InboundArc {
     /**
      * Constructor
-     * @param source
-     * @param target
+     * @param source of the arc
+     * @param target of the arc
      */
     public InboundTestArc(Place source, Transition target) {
         super(source, target, new HashMap<String, String>(), ArcType.TEST);
@@ -22,8 +22,8 @@ public class InboundTestArc extends InboundArc {
     /**
      * Analyses the state to see if the arcs source has any tokens
      *
-     * @param petriNet
-     * @param state
+     * @param executablePetriNet to evaluate
+     * @param state to evaluate
      * @return true if the arc can fire
      */
 	@Override

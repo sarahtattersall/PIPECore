@@ -12,7 +12,7 @@ public interface UniqueNamer {
 
     /**
      *
-     * @param name
+     * @param name to be checked for duplicates 
      * @return true if name doesn't exist anywhere else in the {@link uk.ac.imperial.pipe.models.petrinet.PetriNetComponent}
      */
     boolean isUniqueName(String name);

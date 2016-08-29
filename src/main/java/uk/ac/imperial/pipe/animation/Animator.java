@@ -33,10 +33,10 @@ public interface Animator {
      * Finds all of the transitions which are enabled
      * If there are any immediate transitions then these take priority
      * and timed transactions are not counted as enabled
-     * <p/>
-     * It also disables any immediate transitions with a lower
-     * priority than the highest available priority.
-     * <p/>
+     * 
+     * <p> It also disables any immediate transitions with a lower
+     * priority than the highest available priority. </p>
+     * 
      *
      * @deprecated use {@link #getRandomEnabledTransition()}
      * 
@@ -49,12 +49,12 @@ public interface Animator {
     /**
      * Removes the relevant number tokens from places into the transition
      * Adds tokens to the places out of the transition according to the arc weight
-     * <p/>
-     * Handles functional weights e.g. removing all of a places tokens and adding them
+     * 
+     * <p> Handles functional weights e.g. removing all of a places tokens and adding them
      * to the receiving place by calculating all incidence matrices before setting any token counts
-     * <p/>
-     * Recalculates enabled transitions
-     *
+     * </p>
+     * <p>Recalculates enabled transitions
+     *</p>
      * @param transition transition to fire
      */
     void fireTransition(Transition transition);
@@ -73,7 +73,7 @@ public interface Animator {
     /**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to use for pseudo-random operations
 	 */
 	public void setRandom(Random random);
 	/**

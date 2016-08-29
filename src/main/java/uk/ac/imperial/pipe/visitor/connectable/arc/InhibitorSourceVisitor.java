@@ -24,7 +24,7 @@ public final class InhibitorSourceVisitor implements ArcSourceVisitor {
 
     /**
      * Inhibitor arcs can connect to places
-     * @param place
+     * @param place to be visited 
      */
     @Override
     public void visit(Place place) {
@@ -33,7 +33,7 @@ public final class InhibitorSourceVisitor implements ArcSourceVisitor {
 
     /**
      * Inhibitor arcs cannot connect to transitions
-     * @param transition
+     * @param transition to be visited 
      */
     @Override
     public void visit(Transition transition) {

@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.io;
 import java.awt.Color;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.HashMap;
@@ -19,7 +20,6 @@ import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
-import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.AnnotationImpl;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
@@ -120,7 +120,7 @@ public class PetriNetWriterTest extends XMLTestCase {
     	    "Message: TestingInvalidPetriNet threw an exception for testing"));
     }
     
-    public void testMarshalsPlace() throws IOException, SAXException, JAXBException {
+    public void testMarshalsPlace() throws Exception {
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("Red", new Color(255, 0, 0));
         Place place = new DiscretePlace("P0", "P0");
@@ -131,10 +131,9 @@ public class PetriNetWriterTest extends XMLTestCase {
         place.setTokenCount(token.getId(), 1);
         petriNet.addToken(token);
         petriNet.addPlace(place);
-
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlacePath()), petriNet);
+        assertResultsEqual(XMLUtils.getSinglePlacePath(), petriNet);
     }
-    public void testMarshalsPlaceWithHomeInterfaceStatus() throws IOException, SAXException, JAXBException {
+    public void testMarshalsPlaceWithHomeInterfaceStatus() throws Exception {
     	PetriNet petriNet = new PetriNet(new NormalPetriNetName("netb"));
     	Token token = new ColoredToken("Red", new Color(255, 0, 0));
     	Place place = new DiscretePlace("P0", "P0");
@@ -156,9 +155,9 @@ public class PetriNetWriterTest extends XMLTestCase {
     	petriNet.addToken(token);
     	petriNet.addPlace(place);
     	
-    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath()), petriNet);
+    	assertResultsEqual(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath(), petriNet);
     }
-    public void testMarshalsPlaceWithAwayInterfaceStatusAndOrdinaryPlace() throws IOException, SAXException, JAXBException {
+    public void testMarshalsPlaceWithAwayInterfaceStatusAndOrdinaryPlace() throws Exception {
     	PetriNet petriNet = new PetriNet();
     	Token token = new ColoredToken("Red", new Color(255, 0, 0));
     	Place place = new DiscretePlace("P0", "P0");
@@ -187,9 +186,9 @@ public class PetriNetWriterTest extends XMLTestCase {
     	petriNet.addPlace(place);
     	petriNet.addPlace(placebP0);
     	
-    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTwoPlacesOneWithAwayInterfaceStatusPath()), petriNet);
+    	assertResultsEqual(XMLUtils.getTwoPlacesOneWithAwayInterfaceStatusPath(), petriNet);
     }
-    public void testMarshalsPlaceWithAvailableInterfaceStatusAndOrdinaryPlace() throws IOException, SAXException, JAXBException {
+    public void testMarshalsPlaceWithAvailableInterfaceStatusAndOrdinaryPlace() throws Exception {
     	PetriNet petriNet = new PetriNet(new NormalPetriNetName("neta"));
     	Token token = new ColoredToken("Red", new Color(255, 0, 0));
     	Place place = new DiscretePlace("P0", "P0");
@@ -218,22 +217,25 @@ public class PetriNetWriterTest extends XMLTestCase {
     	petriNet.addPlace(place);
 //    	petriNet.addPlace(placebP0);
     	// An available place does not (yet) exist in the PN, so won't be persisted.  Only the ordinary place will be written
-    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getSinglePlaceWithAvailableInterfaceStatusPath()), petriNet);
+    	assertResultsEqual(XMLUtils.getSinglePlaceWithAvailableInterfaceStatusPath(), petriNet);
     }
 
     private void assertResultsEqual(String expectedPath, PetriNet petriNet)
-            throws IOException, SAXException, JAXBException {
+            throws IOException, SAXException, JAXBException, URISyntaxException {
         StringWriter stringWriter = new StringWriter();
         writer.writeTo(stringWriter, petriNet);
 
         String expected = XMLUtils.readFile(expectedPath, Charset.defaultCharset());
 
         String actual = stringWriter.toString();
+//        System.out.println("expected "+expected);
+//        System.out.println("actual "+actual);
+        
 //        System.out.println(actual );
         assertXMLEqual(expected, actual);
     }
 
-    public void testMarshalsTransition() throws IOException, SAXException, JAXBException {
+    public void testMarshalsTransition() throws Exception {
         PetriNet petriNet = new PetriNet();
         Transition transition = new DiscreteTransition("T0", "T0");
         transition.setX(375);
@@ -245,11 +247,11 @@ public class PetriNetWriterTest extends XMLTestCase {
         transition.setInfiniteServer(false);
         transition.setPriority(1);
         petriNet.addTransition(transition);
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionFile()), petriNet);
+        assertResultsEqual(XMLUtils.getTransitionFile(), petriNet);
     }
 
     public void testMarshalsTransitionWithRateParameter()
-            throws IOException, SAXException, InvalidRateException, JAXBException {
+            throws Exception {
         PetriNet petriNet = new PetriNet();
         FunctionalRateParameter rateParameter = new FunctionalRateParameter("6.0", "foo", "foo");
 
@@ -266,10 +268,9 @@ public class PetriNetWriterTest extends XMLTestCase {
         petriNet.addTransition(transition);
         petriNet.addRateParameter(rateParameter);
 
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTransitionRateParameterFile()), petriNet);
+        assertResultsEqual(XMLUtils.getTransitionRateParameterFile(), petriNet);
     }
-    public void testMarshalsExternalTransitionWithRateParameter()
-    		throws IOException, SAXException, InvalidRateException, JAXBException {
+    public void testMarshalsExternalTransitionWithRateParameter() throws Exception {
     	PetriNet petriNet = new PetriNet();
     	FunctionalRateParameter rateParameter = new FunctionalRateParameter("6.0", "foo", "foo");
     	
@@ -286,31 +287,31 @@ public class PetriNetWriterTest extends XMLTestCase {
     	petriNet.addTransition(transition);
     	petriNet.addRateParameter(rateParameter);
     	
-    	assertResultsEqual(FileUtils.fileLocation(XMLUtils.getExternalTransitionRateParameterFile()), petriNet);
+    	assertResultsEqual(XMLUtils.getExternalTransitionRateParameterFile(), petriNet);
     }
 
-    public void testMarshalsArc() throws IOException, SAXException, JAXBException, PetriNetComponentException {
+    public void testMarshalsArc() throws Exception {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").locatedAt(0, 0)).and(AnImmediateTransition.withId("T0").locatedAt(0, 0)).andFinally(
                 ANormalArc.withSource("P0").andTarget("T0").and("4", "Default").tokens());
 
 
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getNormalArcWithWeight()), petriNet);
+        assertResultsEqual(XMLUtils.getNormalArcWithWeight(), petriNet);
     }
 
 
-    public void testMarshalsToken() throws IOException, SAXException, PetriNetComponentException, JAXBException {
+    public void testMarshalsToken() throws Exception {
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("red", new Color(255, 0, 0));
         petriNet.add(token);
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getTokenFile()), petriNet);
+        assertResultsEqual(XMLUtils.getTokenFile(), petriNet);
     }
 
-    public void testMarshalsAnnotation() throws IOException, SAXException, JAXBException {
+    public void testMarshalsAnnotation() throws Exception {
         PetriNet petriNet = new PetriNet();
         AnnotationImpl annotation = new AnnotationImpl(93, 145, "#P12s", 48, 20, false);
         petriNet.addAnnotation(annotation);
-        assertResultsEqual(FileUtils.fileLocation(XMLUtils.getAnnotationFile()), petriNet);
+        assertResultsEqual(XMLUtils.getAnnotationFile(), petriNet);
     }
     private class InvalidPetriNet extends PetriNet {
     	@Override

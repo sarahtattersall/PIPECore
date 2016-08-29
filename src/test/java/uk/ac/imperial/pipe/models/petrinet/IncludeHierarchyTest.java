@@ -491,11 +491,12 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
     	includes.include(net2, "aunt"); 
     	includes.include(net2, "mom").include(net3, "me"); 
-    	includes.getChildInclude("mom").include(net4, "sis"); 
-    	includes.getChildInclude("mom").getChildInclude("sis").include(net6, "niece"); 
-    	includes.getChildInclude("mom").include(net5, "other-sis"); 
+    	includes.getChildInclude("mom").include(net4, "4sis"); 
+    	includes.getChildInclude("mom").getChildInclude("4sis").include(net6, "niece"); 
+    	includes.getChildInclude("mom").include(net5, "5other-sis"); 
     	Result<Object> result = includes.getChildInclude("mom").getChildInclude("me").siblings(command); 
     	assertEquals(2, result.getEntries().size());
+//    	System.out.println("commandExecutesForPeersButNotAuntsOrNieces"+result.getEntries().get(0).message);  
     	assertTrue(result.getEntries().get(0).message.endsWith("4")); 
     	assertTrue(result.getEntries().get(1).message.endsWith("5")); 
     }
@@ -525,6 +526,17 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertTrue(includes.getChildInclude("a").getChildInclude("b")
     			.getInterfacePlaceAccessScope() instanceof ParentsSiblingsCommandScope); 
 	}
+    //TODO implement equals and make consistent with this
+    @Test
+    public void twoIncludesSortByNameAlphabeticallyAsRequiredByIncludeIterator() throws Exception {
+		includes = new IncludeHierarchy(net1, "top");
+		IncludeHierarchy includeb = new IncludeHierarchy(net1, "bottom");
+		assertTrue(includes.compareTo(includeb) > 0); 
+		assertTrue(includeb.compareTo(includes) < 0); 
+		assertTrue(includeb.compareTo(includeb) == 0); 
+		
+    }
+    
 	private PetriNet createSimpleNet(int i) throws PetriNetComponentException {
 		PetriNet net = 
 				APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(

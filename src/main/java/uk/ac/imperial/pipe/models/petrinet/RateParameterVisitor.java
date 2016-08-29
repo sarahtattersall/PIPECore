@@ -9,8 +9,8 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 public interface RateParameterVisitor extends PetriNetComponentVisitor {
     /**
      * Visit a functional rate paramter
-     * @param rate
-     * @throws InvalidRateException
+     * @param rate to be added 
+     * @throws InvalidRateException if rate is invalid 
      */
     void visit(FunctionalRateParameter rate) throws InvalidRateException;
 }

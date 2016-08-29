@@ -8,7 +8,7 @@ public interface FileNameVisitor extends NameVisitor {
      *
      * Visit the Petri net file name
      *
-     * @param name
+     * @param name to be visited 
      */
     void visit(PetriNetFileName name);
 }

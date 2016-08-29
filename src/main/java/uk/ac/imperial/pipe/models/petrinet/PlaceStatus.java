@@ -31,7 +31,7 @@ public interface PlaceStatus {
 	public Place getPlace();
 	/**
 	 * Used in XML marshalling
-	 * @param place
+	 * @param place to be marshalled 
 	 */
 	public void setPlace(Place place);
 

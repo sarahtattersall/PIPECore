@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.io;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -38,6 +39,9 @@ public class XMLUtils {
     public static String getNormalArcWithWeight() {
         return "/xml/arc/normalArcWithWeight.xml";
     }
+	public static String getArcWithoutPlaceFile() {
+		return "/xml/arc/arcWithoutPlace.xml";
+	}
 
 
     public static String getTransitionFile() {
@@ -105,14 +109,18 @@ public class XMLUtils {
 	public static String getMultipleIncludeHierarchyWithInterfaceStatusFile() {
 		return "/xml/include/multipleIncludesWithInterfaceStatus.xml";
 	}
+	public static String getIncludeWithInvalidPetriNet() {
+		return "/xml/include/includeWithInvalidPetriNet.xml";
+	}	
 	
 	
-	
-	public static String readFile(String path, Charset encoding)
-			throws IOException
-			{
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
-			}
+    public static String readFile(String path, Charset encoding)
+            throws IOException, URISyntaxException
+    {
+    	byte[] encoded = Files.readAllBytes(Paths.get(XMLUtils.class.getResource(path).toURI()));
+        return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+    }
+
+
 
 }

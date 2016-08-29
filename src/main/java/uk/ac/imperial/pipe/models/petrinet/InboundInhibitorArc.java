@@ -12,8 +12,8 @@ import java.util.Map;
 public class InboundInhibitorArc extends InboundArc {
     /**
      * Constructor
-     * @param source
-     * @param target
+     * @param source connectable of the arc
+     * @param target connectable of the arc
      */
     public InboundInhibitorArc(Place source, Transition target) {
         super(source, target, new HashMap<String, String>(), ArcType.INHIBITOR);
@@ -22,8 +22,8 @@ public class InboundInhibitorArc extends InboundArc {
     /**
      * Analyses the state to see if the arcs source has no tokens
      *
-     * @param petriNet
-     * @param state
+     * @param executablePetriNet to be evaluated
+     * @param state of the Petri net 
      * @return true if the arc can fire
      */
 	@Override

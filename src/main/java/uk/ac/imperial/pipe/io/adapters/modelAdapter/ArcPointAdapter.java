@@ -12,7 +12,7 @@ import java.awt.geom.Point2D;
 public class ArcPointAdapter extends XmlAdapter<AdaptedArcPoint, ArcPoint> {
     /**
      *
-     * @param adaptedArcPoint
+     * @param adaptedArcPoint to be unmarshalled
      * @return unmarshalled arc point
      */
     @Override
@@ -23,7 +23,7 @@ public class ArcPointAdapter extends XmlAdapter<AdaptedArcPoint, ArcPoint> {
 
     /**
      *
-     * @param arcPoint
+     * @param arcPoint to be marshalled 
      * @return marshalled arc point
      */
     @Override

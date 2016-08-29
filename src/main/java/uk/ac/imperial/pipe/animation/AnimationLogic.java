@@ -24,6 +24,7 @@ public interface AnimationLogic {
     Set<Transition> getEnabledTransitions(TimedState state);
 	
     /**
+     * @param state to evaluate 
      * @return a random transition that can fire
      */
     Transition getRandomEnabledTransition(TimedState state);
@@ -31,15 +32,15 @@ public interface AnimationLogic {
     /**
      * Calculates successor states of a given state
      *
-     * @param state
+     * @param state to be evaluated
      * @return successors of the given state
      */
     Map<TimedState, Collection<Transition>> getSuccessors(TimedState state);
 
     /**
      *
-     * @param state
-     * @param transition
+     * @param state to be evaluated
+     * @param transition to be fired
      * @return the successor state after firing the transition
      */
     TimedState getFiredState(TimedState state, Transition transition);
@@ -62,7 +63,7 @@ public interface AnimationLogic {
     /**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to use for pseudo-random operations
 	 */
 	public void setRandom(Random random);
 	/**
