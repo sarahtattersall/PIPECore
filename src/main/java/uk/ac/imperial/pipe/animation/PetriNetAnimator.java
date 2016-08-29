@@ -1,8 +1,5 @@
 package uk.ac.imperial.pipe.animation;
 
-import java.util.HashSet;
-
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
@@ -51,7 +48,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void saveState() {
-    	savedState = executablePetriNet.getTimedState();
+    	savedState = executablePetriNet.getTimedState().makeCopy();
     }
 
     /**
