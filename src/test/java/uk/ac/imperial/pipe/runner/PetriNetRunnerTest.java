@@ -229,15 +229,21 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	assertEquals(7, events); 
     }
     @Test
-    public void throwsIfNullPetriNetOrPetriNetNotFound() throws Exception {
+    public void throwsIfNullPetriNet() throws Exception {
     	expectedException.expect(IllegalArgumentException.class);
-    	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: null");
+    	expectedException.expectMessage(PetriNetRunner.PETRI_NET_TO_EXECUTE_IS_NULL);
     	PetriNet net = null; 
     	runner = new PetriNetRunner(net); 
-    	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: nonexistentNet");
+    }
+    @Test
+    public void throwsIfPetriNetNotFound() throws Exception {
+    	expectedException.expect(IllegalArgumentException.class);
+    	expectedException.expectMessage(PetriNetRunner.PETRI_NET_RUNNER+PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+    			PetriNetIOImpl.FILE_NOT_FOUND);
     	String[] args = new String[]{"nonexistentNet","","",""}; 
     	PetriNetRunner.main(args);
     }
+    //TODO more tests of invalid files
     @Test
 	public void commandLinePrintsUsageIfGivenInsufficientArguments() throws Exception {
     	PetriNetRunner.setPrintStreamForTesting(print);

@@ -28,8 +28,10 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.io.FileUtils;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
+import uk.ac.imperial.pipe.io.PetriNetFileException;
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetReader;
+import uk.ac.imperial.pipe.io.XmlFileEnum;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNetPubSub;
 import uk.ac.imperial.pipe.models.petrinet.DiscreteExternalTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -43,10 +45,11 @@ import uk.ac.imperial.state.State;
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
 	private static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
-	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
-	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
-	private static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = "PetriNetRunner:  PetriNet XML could not be parsed successfully: ";
-	private static final String INCLUDE_HIERARCHY_EXCEPTION = "PetriNetRunner:  Error attempting to build include hierarchy: ";
+	protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
+	protected static final String PETRI_NET_RUNNER = "PetriNetRunner:  ";
+	protected static final String PETRI_NET_TO_EXECUTE_IS_NULL = PETRI_NET_RUNNER+"PetriNet to execute is null: ";
+	protected static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = PETRI_NET_RUNNER+"PetriNet XML could not be parsed successfully: ";
+	protected static final String INCLUDE_HIERARCHY_EXCEPTION = PETRI_NET_RUNNER+"Error attempting to build include hierarchy: ";
 	public static final String EXECUTION_STARTED = "execution started";
 	public static final String UPDATED_STATE = "state updated";
 	public static final String EXECUTION_COMPLETED = "execution complete";
@@ -67,7 +70,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	private Map<String, Object> transitionContextMap;
 
 	public PetriNetRunner(PetriNet petriNet) {
-		if (petriNet == null) throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+"null");
+		if (petriNet == null) throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL+"null");
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
 		executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this); 
 		round = 0; 
@@ -121,7 +124,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			}
 		}
 		if (!found) {
-			throw new InterfaceException(PETRI_NET_RUNNER+MARK_PLACE+": requested token does not exist in executable Petri net: "+requestedToken); 
+			throw new InterfaceException(PETRI_NET_RUNNER_DOT+MARK_PLACE+": requested token does not exist in executable Petri net: "+requestedToken); 
 		}
 	}
 	@Override
@@ -138,10 +141,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		try {
 			Place place = executablePetriNet.getComponent(placeId, Place.class);
 			if (!place.getStatus().isExternal()) {
-				throw new InterfaceException(PETRI_NET_RUNNER+location+": requested place is not externally accessible: "+placeId); 
+				throw new InterfaceException(PETRI_NET_RUNNER_DOT+location+": requested place is not externally accessible: "+placeId); 
 			}
 		} catch (PetriNetComponentNotFoundException e) {
-			throw new InterfaceException(PETRI_NET_RUNNER+location+": requested place does not exist in executable Petri net: "+placeId); 
+			throw new InterfaceException(PETRI_NET_RUNNER_DOT+location+": requested place does not exist in executable Petri net: "+placeId); 
 		} 
 	}
 	@Override
@@ -306,28 +309,32 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	}
 
 	public static PetriNet getPetriNet(String petriNetName) {
-		PetriNet net = null;  
+		PetriNet net = null;
+		XmlFileEnum xmlFileEnum = determineFileType(petriNetName);
 		try {
-			net = readFileAsIncludeHierarchy(petriNetName); 
-		} catch (JAXBException e) {
-	        try {
-	        	net = readFileAsSinglePetriNet(petriNetName);
-			} catch (FileNotFoundException e1) {
-				e1.printStackTrace();
-				throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
-			} catch (JAXBException e1) {
-				e1.printStackTrace();
-				throw new IllegalArgumentException(PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_+petriNetName); 
+			switch (xmlFileEnum) {
+			case PETRI_NET:
+					net = readFileAsSinglePetriNet(petriNetName);
+				break;
+			case INCLUDE_HIERARCHY:
+					net = readFileAsIncludeHierarchy(petriNetName);
+				break;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException(PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND+petriNetName); 
-		} catch (IncludeException e) {
-			//TODO test 
-			e.printStackTrace();
-			throw new IllegalArgumentException(INCLUDE_HIERARCHY_EXCEPTION+petriNetName); 
-		}
+		} catch (Exception e) {
+			throw new IllegalArgumentException(PETRI_NET_RUNNER+e.getMessage()); 
+		} 
 		return net;
+	}
+	protected static XmlFileEnum determineFileType(String petriNetName) {
+		PetriNetReader reader;
+		XmlFileEnum xmlFileEnum = null;
+		try {
+			reader = new PetriNetIOImpl();
+			xmlFileEnum = reader.determineFileType(petriNetName); 
+		} catch (Exception e) {
+			throw new IllegalArgumentException(PETRI_NET_RUNNER+e.getMessage());
+		}
+		return xmlFileEnum; 
 	}
 	protected static PetriNet readFileAsIncludeHierarchy(String petriNetName)
 			throws JAXBException, FileNotFoundException, IncludeException {

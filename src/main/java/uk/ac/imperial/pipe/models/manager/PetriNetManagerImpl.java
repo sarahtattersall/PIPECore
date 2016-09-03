@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.models.manager;
 
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetReader;
+import uk.ac.imperial.pipe.io.PetriNetWriter;
 import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
 import uk.ac.imperial.pipe.models.petrinet.Token;
@@ -108,8 +109,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      */
     @Override
     public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException {
-
-        uk.ac.imperial.pipe.io.PetriNetWriter writer = new PetriNetIOImpl();
+        PetriNetWriter writer = new PetriNetIOImpl();
         writer.writeTo(outFile.getAbsolutePath(), petriNet);
         petriNetNamer.deRegisterPetriNet(petriNet);
         namePetriNetFromFile(petriNet, outFile);

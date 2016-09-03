@@ -16,6 +16,15 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter;
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.PlaceAdapter;
@@ -34,9 +43,16 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 /**
  * Petri net IO implementation that writes and reads a Petri net using JAXB
  */
-public class PetriNetIOImpl implements PetriNetIO {
+public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
 
-    /**
+    public static final String FILE_IS_NOT_IN_XML_FORMAT = "File is not in XML format: ";
+    public static final String PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE = "PetriNetIOImpl.determineFileType: ";
+    public static final String XML_NOT_PNML_NOR_INCLUDE_FORMAT = "XML file highest level tags must be either 'pnml' or 'include': ";
+    public static final String FILE_NOT_FOUND = "File not found: ";
+	private static final String PNML = "/pnml";
+	private static final String INCLUDE = "/include";
+
+	/**
      * JAXB context initialised in constructor
      */
     private final JAXBContext context;
@@ -135,6 +151,8 @@ public class PetriNetIOImpl implements PetriNetIO {
      *
      * @param path xml path containing a PNML representation of a Petri net
      * @return read Petri net
+     * @throws JAXBException if the XML cannot be parsed
+     * @throws FileNotFoundException if the file does not exist  
      */
     @Override
     public PetriNet read(String path) throws JAXBException, FileNotFoundException {
@@ -143,7 +161,7 @@ public class PetriNetIOImpl implements PetriNetIO {
         getEventHandler().setFilename(path); 
         PetriNetHolder holder = null; 
         try {
-        	holder = (PetriNetHolder) getUnmarshaller().unmarshal(new FileReader(path));
+        	holder = (PetriNetHolder) getUnmarshaller().unmarshal(getReaderFromPath(path));
         	getEventHandler().printMessages(); 
 		} catch (JAXBException e) {
 //			getEventHandler().printMessages(); 
@@ -158,6 +176,11 @@ public class PetriNetIOImpl implements PetriNetIO {
         }
         return petriNet;
     }
+
+	protected FileReader getReaderFromPath(String path)
+			throws FileNotFoundException {
+		return new FileReader(path);
+	}
 
     /**
      * initialize unmarshaller with the correct adapters needed
@@ -193,5 +216,59 @@ public class PetriNetIOImpl implements PetriNetIO {
 	protected final Unmarshaller getUnmarshaller() {
 		return unmarshaller;
 	}
+    
+	
+    /**
+     * Searches XML retrieved from the file location for presence of tags identifying the type of 
+     * the file:  <code>pnml</code> for a Petri net, or <code>include</code> for an include hierarchy 
+     * @param path to an xml file to evaluate
+     * @return xmlFileEnum for Petri net or include hierarchy, or null if neither
+     * @throws PetriNetFileException if the file does not exist, or is not valid XML, 
+     * or whose highest level tags are not <code>pnml</code> or <code>include</code>   
+     */
+	@Override
+	public XmlFileEnum determineFileType(String path) throws PetriNetFileException {
+		XmlFileEnum xmlFileEnum = null; 
+        NodeList nodes = testForXmlTag(path, PNML);
+        if (nodes.getLength() > 0) {
+        	xmlFileEnum = XmlFileEnum.PETRI_NET; 
+        } else {
+        	nodes = testForXmlTag(path, INCLUDE);
+            if (nodes.getLength() > 0) {
+            	xmlFileEnum = XmlFileEnum.INCLUDE_HIERARCHY;
+            } else {
+            	throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+            			XML_NOT_PNML_NOR_INCLUDE_FORMAT+path);
+            }
+        }
+		return xmlFileEnum;
+	}
 
+	protected NodeList testForXmlTag(String path, String xpathExpression) throws PetriNetFileException {
+		XPath xpath = XPathFactory.newInstance().newXPath();
+		NodeList nodes = null; 
+		try {
+        	InputSource inputSource =  new InputSource(getReaderFromPath(path));
+			nodes = (NodeList) xpath.evaluate(xpathExpression, inputSource, XPathConstants.NODESET);
+		} catch (FileNotFoundException ef) {
+			throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+FILE_NOT_FOUND+path);
+		}
+		catch (Exception e) {
+			//TODO logger.debug...
+			throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+FILE_IS_NOT_IN_XML_FORMAT+path);
+		}
+		return nodes; 
+	}
+
+	@Override
+	public void warning(SAXParseException exception) throws SAXException {
+	}
+
+	@Override
+	public void error(SAXParseException exception) throws SAXException {
+	}
+
+	@Override
+	public void fatalError(SAXParseException exception) throws SAXException {
+	}
 }

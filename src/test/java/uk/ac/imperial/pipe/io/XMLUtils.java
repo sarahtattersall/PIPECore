@@ -88,7 +88,6 @@ public class XMLUtils {
     	return "/xml/place/twoPlacesOneWithAwayInterfaceStatus.xml";
     }
 
-
 	public static String getExternalTransitionFile() {
 		return "/xml/transition/singleExternalTransition.xml";
 	}
@@ -112,9 +111,20 @@ public class XMLUtils {
 	public static String getIncludeWithInvalidPetriNet() {
 		return "/xml/include/includeWithInvalidPetriNet.xml";
 	}	
-	
-	
-    public static String readFile(String path, Charset encoding)
+	public static String getSimplePetriNet() {
+		return "/xml/simpleNet.xml";
+	}	
+	public static String getUnknownXml() {
+		return "/xml/unknownXml.xml";
+	}	
+	public static String getInvalidXml() {
+		return "/xml/invalidXml.xml";
+	}	
+	public static String getNonExistentFile() {
+		return "/xml/nonExistentFile.xml";
+	}	
+
+	public static String readFile(String path, Charset encoding)
             throws IOException, URISyntaxException
     {
     	byte[] encoded = Files.readAllBytes(Paths.get(XMLUtils.class.getResource(path).toURI()));

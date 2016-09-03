@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.manager;
 
+import uk.ac.imperial.pipe.io.XmlFileEnum;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.UnparsableException;
 
@@ -68,4 +69,5 @@ public interface PetriNetManager {
      * @param petriNet to be removed 
      */
     void remove(PetriNet petriNet);
+
 }
