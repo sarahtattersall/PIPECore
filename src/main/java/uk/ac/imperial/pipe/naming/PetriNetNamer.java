@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.naming;
 
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 
 /**
@@ -26,6 +27,16 @@ public final class PetriNetNamer extends AbstractUniqueNamer {
 
     /**
      *
+     * Registers the minimally unique include name in the system
+     *
+     * @param include hierarchy from which minimally unique name will be taken
+     */
+    public void registerIncludeName(IncludeHierarchy include) {
+    	names.add(include.getUniqueName());
+    }
+
+    /**
+     *
      * Removes the petri net name from the system
      *
      * @param petriNet existing petri net whose name can be reused
@@ -33,4 +44,15 @@ public final class PetriNetNamer extends AbstractUniqueNamer {
     public void deRegisterPetriNet(PetriNet petriNet) {
         names.remove(petriNet.getNameValue());
     }
+
+    /**
+     *
+     * Removes the minimally unique include name from the system
+     *
+     * @param include hierarchy from which minimally unique name can be reused
+     */
+    public void deRegisterIncludeName(IncludeHierarchy include) {
+    	names.remove(include.getUniqueName());
+    }
+
 }

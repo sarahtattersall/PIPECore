@@ -98,9 +98,6 @@ public class XMLUtils {
 	public static String getSingleIncludeHierarchyFileReadyToFire() {
 		return "/xml/include/singleIncludeReadyToFire.xml";
 	}
-	public static String getSingleMIncludeHierarchyFile() {
-		return "/xml/include/singleTestInclude.xml";
-	}
 
 	public static String getMultipleIncludeHierarchyFile() {
 		return "/xml/include/multipleIncludes.xml";

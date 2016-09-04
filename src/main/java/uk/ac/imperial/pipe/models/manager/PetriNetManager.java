@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.manager;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.io.PetriNetFileException;
 import uk.ac.imperial.pipe.io.XmlFileEnum;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.parsers.UnparsableException;
@@ -44,13 +46,20 @@ public interface PetriNetManager {
     PetriNet getLastNet();
 
     /**
-     * Creates Petri net by reading in and parsing the contents of the file
-     * @param file location of Petri net xml file
+     * Creates one or more Petri nets by reading in and parsing the contents of the file
+     * If the file is in PNML format, a single Petri net is created with a name corresponding to the 
+     * file name, without its suffix.  If the file is in include 
+     * format, one or more Petri nets are created, corresponding to each level of the include hierarchy.
+     * The names of the Petri nets are the minimally unique include names. 
+     * @param file location of xml file
      * @throws JAXBException if error during unmarshalling
      * @throws UnparsableException if rate parameter expression cannot be parsed 
-     * @throws FileNotFoundException if file not found
+     * @throws PetriNetFileException if the file does not exist, or is not valid XML, 
+     * or whose highest level tags are not <code>pnml</code> or <code>include</code>   
+     * @throws IncludeException if errors are encountered building an include hierarchy 
+     * @throws FileNotFoundException if one of the referenced files does not exist 
      */
-    void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException;
+    void createFromFile(File file) throws JAXBException, UnparsableException, PetriNetFileException, IncludeException, FileNotFoundException;
 
     /**
      *

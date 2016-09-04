@@ -254,7 +254,7 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
 			throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+FILE_NOT_FOUND+path);
 		}
 		catch (Exception e) {
-			//TODO logger.debug...
+			//TODO logger.debug...likely error is SAXParseException, with: [Fatal Error] :1:1: Content is not allowed in prolog.
 			throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+FILE_IS_NOT_IN_XML_FORMAT+path);
 		}
 		return nodes; 
