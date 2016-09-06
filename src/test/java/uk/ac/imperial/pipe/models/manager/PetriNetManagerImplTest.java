@@ -73,17 +73,14 @@ public class PetriNetManagerImplTest {
         verify(listener).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_PETRI_NET_MESSAGE)));
 	}
     @Test
-    public void createsMultiplePetriNetsFromMultipleIncludeFileNamedWithIncludeName() throws Exception {
+    public void createsMultipleIncludeHierarchiesFromMultipleIncludeFileNamedWithIncludeName() throws Exception {
     	PetriNetManagerImpl managerImpl = (PetriNetManagerImpl) manager;
-    	assertTrue(managerImpl.petriNetNamer.isUniqueName("a")); 
-    	assertTrue(managerImpl.petriNetNamer.isUniqueName("b")); 
-    	assertTrue(managerImpl.petriNetNamer.isUniqueName("c")); 
-    	assertTrue(managerImpl.petriNetNamer.isUniqueName("bb")); 
+    	assertTrue("name not in use yet",managerImpl.petriNetNamer.isUniqueName("a")); 
     	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("a")); 
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("b")); 
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("c")); 
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("bb")); 
-    	verify(listener, times(4)).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_PETRI_NET_MESSAGE)));
+    	verify(listener, times(4)).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_INCLUDE_HIERARCHY_MESSAGE)));
     }
 }

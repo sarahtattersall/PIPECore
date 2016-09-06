@@ -39,9 +39,19 @@ public final class PetriNetManagerImpl implements PetriNetManager {
     public static final String NEW_PETRI_NET_MESSAGE = "New Petri net!";
 
     /**
-     * Message fired when when you remove the Petri net from the manager
+     * Message fired when the Petri net is removed from the manager
      */
     public static final String REMOVE_PETRI_NET_MESSAGE = "Removed Petri net";
+
+    /**
+     * Message fired to listeners when a new include hierarchy is created
+     */
+	public static final String NEW_INCLUDE_HIERARCHY_MESSAGE = "New include hieararchy";
+
+    /**
+     * Message fired when the include hierarchy is removed from the manager
+     */
+	public static final String REMOVE_INCLUDE_HIERARCHY_MESSAGE = "Removed include hierarchy";
 
     /**
      * Responsible for creating unique names for Petri nets
@@ -114,7 +124,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
         XmlFileEnum xmlFileEnum = petriNetIO.determineFileType(filePath);
         switch (xmlFileEnum) {
 		case PETRI_NET:
-			createSinglePetriNet(file, petriNetIO);
+			createSinglePetriNetAndNotify(file, petriNetIO);
 			break;
 		case INCLUDE_HIERARCHY:
 			createPetriNetsFromIncludeHierarchy(filePath); 
@@ -130,17 +140,17 @@ public final class PetriNetManagerImpl implements PetriNetManager {
 		IncludeHierarchy includes = includeHierarchyIO.read(filePath);
 		IncludeIterator it = includes.iterator(); 
 		while (it.hasNext()) {
-			createPetriNetFromInclude(it.next()); 
+			createIncludeHierarchyAndNotify(it.next()); 
 		}
 	}
 
-	private void createPetriNetFromInclude(IncludeHierarchy include) {
+	private void createIncludeHierarchyAndNotify(IncludeHierarchy include) {
         petriNetNamer.registerIncludeName(include);
-        changeSupport.firePropertyChange(NEW_PETRI_NET_MESSAGE, null, include.getPetriNet());
+        changeSupport.firePropertyChange(NEW_INCLUDE_HIERARCHY_MESSAGE, null, include);
 	}
 
 
-	protected void createSinglePetriNet(File file, PetriNetReader petriNetIO)
+	protected void createSinglePetriNetAndNotify(File file, PetriNetReader petriNetIO)
 			throws JAXBException, FileNotFoundException {
 		PetriNet petriNet = petriNetIO.read(file.getAbsolutePath());
         namePetriNetFromFile(petriNet, file);

@@ -17,14 +17,10 @@ import javax.xml.bind.ValidationEvent;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapter;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
-import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
 import uk.ac.imperial.pipe.models.petrinet.Result;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 
 public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 
