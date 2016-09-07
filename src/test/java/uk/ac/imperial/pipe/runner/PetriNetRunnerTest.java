@@ -229,15 +229,21 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     	assertEquals(7, events); 
     }
     @Test
-    public void throwsIfNullPetriNetOrPetriNetNotFound() throws Exception {
+    public void throwsIfNullPetriNet() throws Exception {
     	expectedException.expect(IllegalArgumentException.class);
-    	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: null");
+    	expectedException.expectMessage(PetriNetRunner.PETRI_NET_TO_EXECUTE_IS_NULL);
     	PetriNet net = null; 
     	runner = new PetriNetRunner(net); 
-    	expectedException.expectMessage("PetriNetRunner:  PetriNet to execute is null or not found: nonexistentNet");
+    }
+    @Test
+    public void throwsIfPetriNetNotFound() throws Exception {
+    	expectedException.expect(IllegalArgumentException.class);
+    	expectedException.expectMessage(PetriNetRunner.PETRI_NET_RUNNER+PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+    			PetriNetIOImpl.FILE_NOT_FOUND);
     	String[] args = new String[]{"nonexistentNet","","",""}; 
     	PetriNetRunner.main(args);
     }
+    //TODO more tests of invalid files
     @Test
 	public void commandLinePrintsUsageIfGivenInsufficientArguments() throws Exception {
     	PetriNetRunner.setPrintStreamForTesting(print);
@@ -295,10 +301,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void commandLineRunsForInterfacePlaces() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
-		String[] args = new String[]{"src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml","firingReport.csv","5","123456"}; 
+    	File includeFile = FileUtils.copyToWorkingDirectory(XMLUtils.getTwoNetsOneInterfaceStatus());  
+		String[] args = new String[]{includeFile.getName(),"firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-		assertEquals("PetriNetRunner:  executing src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  executing twoNetsOneInterfaceStatus.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
@@ -389,8 +396,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         deleteFile("net3.xml");
         deleteFile("net4.xml");
         deleteFile("include.xml");
+        deleteFile("twoNetsOneInterfaceStatus.xml");
+        deleteFile("firingReport.csv");
+//    	
+
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file
-		if (file.exists()) file.delete(); // comment to view file
+//		if (file.exists()) file.delete(); // comment to view file
 	}
 	//TODO execution message changes appropriately for firing limit and seed values
     //TODO runsNetsWithMultipleColors

@@ -8,14 +8,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.io.FileUtils;
+import uk.ac.imperial.pipe.io.XMLUtils;
+import uk.ac.imperial.pipe.io.XmlFileEnum;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import utils.PropertyChangeUtils;
 
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -56,7 +64,23 @@ public class PetriNetManagerImplTest {
         expectedException.expectMessage("No Petri nets stored in the manager");
         manager.getLastNet();
     }
-
-
-
+    @Test
+	public void createsSinglePetriNetFromPnmlFile() throws Exception {
+    	PetriNetManagerImpl managerImpl = (PetriNetManagerImpl) manager;
+    	assertTrue(managerImpl.petriNetNamer.isUniqueName("simpleNet")); 
+    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getSimplePetriNet())));
+    	assertFalse(managerImpl.petriNetNamer.isUniqueName("simpleNet")); 
+        verify(listener).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_PETRI_NET_MESSAGE)));
+	}
+    @Test
+    public void createsMultipleIncludeHierarchiesFromMultipleIncludeFileNamedWithIncludeName() throws Exception {
+    	PetriNetManagerImpl managerImpl = (PetriNetManagerImpl) manager;
+    	assertTrue("name not in use yet",managerImpl.petriNetNamer.isUniqueName("a")); 
+    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
+    	assertFalse(managerImpl.petriNetNamer.isUniqueName("a")); 
+    	assertFalse(managerImpl.petriNetNamer.isUniqueName("b")); 
+    	assertFalse(managerImpl.petriNetNamer.isUniqueName("c")); 
+    	assertFalse(managerImpl.petriNetNamer.isUniqueName("bb")); 
+    	verify(listener, times(4)).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_INCLUDE_HIERARCHY_MESSAGE)));
+    }
 }

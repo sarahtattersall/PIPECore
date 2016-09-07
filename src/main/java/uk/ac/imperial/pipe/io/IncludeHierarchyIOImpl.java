@@ -17,14 +17,10 @@ import javax.xml.bind.ValidationEvent;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapter;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
-import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
 import uk.ac.imperial.pipe.models.petrinet.Result;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.ListWrapper;
 
 public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 
@@ -74,24 +70,22 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException{
 		Unmarshaller um = context.createUnmarshaller();
 	    um.setEventHandler(getEventHandler());
-	    getEventHandler().setFilename(fileLocation); 
+	    getEventHandler().setFilename(fileLocation);
+//	    fileLocation = FileUtils.fileLocation(fileLocation);
 	    try {
 	    	builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
 	    	getEventHandler().printMessages(); 
 		} catch (JAXBException e) {
-	//		getEventHandler().printMessages(); 
-	//		e.printStackTrace(); 
 			throw new JAXBException(getEventHandler().getMessage());  
-	//		throw e;  
 		} 
+	    File rootFile = new File(fileLocation);
+	    builder.setRootLocation(rootFile.getAbsoluteFile().getParent()); 
+	    
 		IncludeHierarchy include = builder.buildIncludes(null);  // root include has no parent
 		Result<InterfacePlaceAction> result = include.all(new UpdateMergeInterfaceStatusCommand());
 		if (result.hasResult()) throw new IncludeException(result.getAllMessages()); 
 		return include; 
 	}
-
-//    PetriNetHolder holder = null; 
-//
 
 	@Override
 	public IncludeHierarchyHolder getIncludeHierarchyHolder() {

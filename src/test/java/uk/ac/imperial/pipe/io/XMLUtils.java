@@ -88,7 +88,6 @@ public class XMLUtils {
     	return "/xml/place/twoPlacesOneWithAwayInterfaceStatus.xml";
     }
 
-
 	public static String getExternalTransitionFile() {
 		return "/xml/transition/singleExternalTransition.xml";
 	}
@@ -99,12 +98,12 @@ public class XMLUtils {
 	public static String getSingleIncludeHierarchyFileReadyToFire() {
 		return "/xml/include/singleIncludeReadyToFire.xml";
 	}
-	public static String getSingleMIncludeHierarchyFile() {
-		return "/xml/include/singleTestInclude.xml";
-	}
 
 	public static String getMultipleIncludeHierarchyFile() {
 		return "/xml/include/multipleIncludes.xml";
+	}
+	public static String getMultipleIncludeHierarchyFileWithRelativeLocations() {
+		return "/multipleIncludesRelativeLocations.xml";
 	}
 	public static String getMultipleIncludeHierarchyWithInterfaceStatusFile() {
 		return "/xml/include/multipleIncludesWithInterfaceStatus.xml";
@@ -112,9 +111,29 @@ public class XMLUtils {
 	public static String getIncludeWithInvalidPetriNet() {
 		return "/xml/include/includeWithInvalidPetriNet.xml";
 	}	
-	
-	
-    public static String readFile(String path, Charset encoding)
+	public static String getTwoNetsOneInterfaceStatus() {
+		return "/xml/include/twoNetsOneInterfaceStatus.xml";
+	}	
+	public static String getSimplePetriNet() {
+		return "/xml/simpleNet.xml";
+	}	
+	public static String getPetriNet() {
+		return "/xml/petriNet.xml";
+	}	
+	public static String getGeneralizedStochasticPetriNet() {
+		return "/xml/gspn1.xml";
+	}	
+	public static String getUnknownXml() {
+		return "/xml/unknownXml.xml";
+	}	
+	public static String getInvalidXml() {
+		return "/xml/invalidXml.xml";
+	}	
+	public static String getNonExistentFile() {
+		return "/xml/nonExistentFile.xml";
+	}	
+
+	public static String readFile(String path, Charset encoding)
             throws IOException, URISyntaxException
     {
     	byte[] encoded = Files.readAllBytes(Paths.get(XMLUtils.class.getResource(path).toURI()));

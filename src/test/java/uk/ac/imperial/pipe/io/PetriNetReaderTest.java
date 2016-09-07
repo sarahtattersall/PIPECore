@@ -10,23 +10,25 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.UnmarshalException;
-import javax.xml.bind.annotation.XmlType;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.PetriNetAdapter;
-import uk.ac.imperial.pipe.io.adapters.modelAdapter.TestingThrowsPetriNetAdapter;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 import uk.ac.imperial.pipe.models.petrinet.ArcType;
@@ -52,12 +54,17 @@ public class PetriNetReaderTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
+	private PrintStream err;
 
     
     @Before
     public void setUp() throws JAXBException {
         reader = new PetriNetIOImpl();  
-//        reader = new PetriNetIOImpl(false, true); // equivalent to null constructor  
+        err = System.err; // see throwsIfFileNotValidXml
+    }
+    @After
+    public void tearDown() {
+    	System.setErr(err); 
     }
 //    @Test
     public void readNetForConvenientDebugging() throws  JAXBException, FileNotFoundException {
@@ -309,4 +316,40 @@ public class PetriNetReaderTest {
     			"Arc 'P1 TO T0' references place P1 but P1 does not exist in file.");  
     	reader.read(path);
     }
+    @Test
+	public void identifiesPetriNetXmlFile() throws Exception {
+    	assertEquals(XmlFileEnum.PETRI_NET, 
+    			reader.determineFileType(FileUtils.fileLocation(XMLUtils.getSimplePetriNet())));  
+	}
+    @Test
+    public void identifiesIncludeXmlFile() throws Exception {
+    	assertEquals(XmlFileEnum.INCLUDE_HIERARCHY, 
+    			reader.determineFileType(FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFile())));  
+    }
+    @Test
+    public void throwsIfFileHasUnknownXmlTagsAtHighestLevel() throws Exception {
+    	expectedException.expect(PetriNetFileException.class);    	
+    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+    			PetriNetIOImpl.XML_NOT_PNML_NOR_INCLUDE_FORMAT); 
+    	reader.determineFileType(FileUtils.fileLocation(XMLUtils.getUnknownXml()));  
+    }
+    @Test
+    public void throwsIfFileNotValidXml() throws Exception {
+    	//TODO find a different way to suppress:  [Fatal Error] :1:1: Content is not allowed in prolog.
+    	System.setErr(new PrintStream(new OutputStream() {
+    	    @Override public void write(int b) throws IOException {}
+    	}));
+    	expectedException.expect(PetriNetFileException.class);
+    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+    			PetriNetIOImpl.FILE_IS_NOT_IN_XML_FORMAT); 
+    	reader.determineFileType(FileUtils.fileLocation(XMLUtils.getInvalidXml())); 
+    }
+    @Test
+    public void throwsIfFileNotFound() throws Exception {
+    	expectedException.expect(PetriNetFileException.class);
+    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
+    			PetriNetIOImpl.FILE_NOT_FOUND); 
+    	reader.determineFileType(XMLUtils.getNonExistentFile());  
+    }
+    
 }

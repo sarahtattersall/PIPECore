@@ -1,9 +1,17 @@
 package uk.ac.imperial.pipe.models.manager;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
+import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
+import uk.ac.imperial.pipe.io.PetriNetFileException;
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetReader;
+import uk.ac.imperial.pipe.io.PetriNetWriter;
+import uk.ac.imperial.pipe.io.XmlFileEnum;
 import uk.ac.imperial.pipe.models.PetriNetHolder;
 import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
@@ -31,14 +39,24 @@ public final class PetriNetManagerImpl implements PetriNetManager {
     public static final String NEW_PETRI_NET_MESSAGE = "New Petri net!";
 
     /**
-     * Message fired when when you remove the Petri net from the manager
+     * Message fired when the Petri net is removed from the manager
      */
     public static final String REMOVE_PETRI_NET_MESSAGE = "Removed Petri net";
 
     /**
+     * Message fired to listeners when a new include hierarchy is created
+     */
+	public static final String NEW_INCLUDE_HIERARCHY_MESSAGE = "New include hieararchy";
+
+    /**
+     * Message fired when the include hierarchy is removed from the manager
+     */
+	public static final String REMOVE_INCLUDE_HIERARCHY_MESSAGE = "Removed include hierarchy";
+
+    /**
      * Responsible for creating unique names for Petri nets
      */
-    private final PetriNetNamer petriNetNamer = new PetriNetNamer();
+    protected final PetriNetNamer petriNetNamer = new PetriNetNamer();
 
     /**
      * Container for holding created Petri nets
@@ -86,18 +104,58 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      * Loads the Petri net from the file and adds it to the internal holder,
      * firing a change message to indicate a Petri net has been added
      *
-     * @param file location of Petri net xml file
-     * @throws JAXBException if Petri net cannot be unmarshalled
-     * @throws UnparsableException  if rate parameter expression cannot be parsed 
-     * @throws FileNotFoundException  if file not found
+     * Creates one or more Petri nets by reading in and parsing the contents of the file
+     * If the file is in PNML format, a single Petri net is created with a name corresponding to the 
+     * file name, without its suffix.  If the file is in include 
+     * format, one or more Petri nets are created, corresponding to each level of the include hierarchy.
+     * The names of the Petri nets are the minimally unique include names. 
+     * @param file location of xml file
+     * @throws JAXBException if error during unmarshalling
+     * @throws UnparsableException if rate parameter expression cannot be parsed 
+     * @throws PetriNetFileException if the file does not exist, or is not valid XML, 
+     * or whose highest level tags are not <code>pnml</code> or <code>include</code>   
+     * @throws IncludeException if errors are encountered building an include hierarchy 
+     * @throws FileNotFoundException if one of the referenced files does not exist 
      */
     @Override
-    public void createFromFile(File file) throws JAXBException, UnparsableException, FileNotFoundException {
+    public void createFromFile(File file) throws JAXBException, UnparsableException,  PetriNetFileException, IncludeException, FileNotFoundException {
         PetriNetReader petriNetIO = new PetriNetIOImpl();
-        PetriNet petriNet = petriNetIO.read(file.getAbsolutePath());
+        String filePath = file.getAbsolutePath(); 
+        XmlFileEnum xmlFileEnum = petriNetIO.determineFileType(filePath);
+        switch (xmlFileEnum) {
+		case PETRI_NET:
+			createSinglePetriNetAndNotify(file, petriNetIO);
+			break;
+		case INCLUDE_HIERARCHY:
+			createPetriNetsFromIncludeHierarchy(filePath); 
+			break;
+
+		default:
+			break;
+		}
+    }
+
+	protected void createPetriNetsFromIncludeHierarchy(String filePath) throws JAXBException, FileNotFoundException, IncludeException {
+		IncludeHierarchyIO includeHierarchyIO = new IncludeHierarchyIOImpl(); 
+		IncludeHierarchy includes = includeHierarchyIO.read(filePath);
+		IncludeIterator it = includes.iterator(); 
+		while (it.hasNext()) {
+			createIncludeHierarchyAndNotify(it.next()); 
+		}
+	}
+
+	private void createIncludeHierarchyAndNotify(IncludeHierarchy include) {
+        petriNetNamer.registerIncludeName(include);
+        changeSupport.firePropertyChange(NEW_INCLUDE_HIERARCHY_MESSAGE, null, include);
+	}
+
+
+	protected void createSinglePetriNetAndNotify(File file, PetriNetReader petriNetIO)
+			throws JAXBException, FileNotFoundException {
+		PetriNet petriNet = petriNetIO.read(file.getAbsolutePath());
         namePetriNetFromFile(petriNet, file);
         changeSupport.firePropertyChange(NEW_PETRI_NET_MESSAGE, null, petriNet);
-    }
+	}
 
     /**
      * Save the petri net to the output file
@@ -108,8 +166,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
      */
     @Override
     public void savePetriNet(PetriNet petriNet, File outFile) throws JAXBException, IOException {
-
-        uk.ac.imperial.pipe.io.PetriNetWriter writer = new PetriNetIOImpl();
+        PetriNetWriter writer = new PetriNetIOImpl();
         writer.writeTo(outFile.getAbsolutePath(), petriNet);
         petriNetNamer.deRegisterPetriNet(petriNet);
         namePetriNetFromFile(petriNet, outFile);
@@ -137,6 +194,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
         petriNetNamer.registerPetriNet(petriNet);
     }
 
+    
     /**
      * Creates a new Petri net and adds a Default black token to it.
      */
