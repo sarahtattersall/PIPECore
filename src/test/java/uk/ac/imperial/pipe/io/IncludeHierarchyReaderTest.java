@@ -18,6 +18,7 @@ import java.awt.Color;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,11 @@ public class IncludeHierarchyReaderTest {
     public void tearDown() throws Exception {
     	deleteFile("testnet.xml");
     	deleteFile("testinclude.xml");
+    	deleteFile("multipleIncludesRelativeLocations.xml");
+    	deleteFile("xml/simpleNet.xml");
+    	deleteFile("xml/petriNet.xml");
+    	deleteFile("xml/gspn1.xml");
+    	deleteFile("xml");
     }
 
 	@Test
@@ -133,6 +139,36 @@ public class IncludeHierarchyReaderTest {
     	assertEquals(2, netc.getArcs().size()); 
     	assertEquals(225, netc.getComponent("P0", Place.class).getX()); 
     }
+    @Test
+    public void createsIncludeHierarchyWhereIncludedFileLocationsAreRelativeToRootInclude()
+    		throws PetriNetComponentNotFoundException, JAXBException, IncludeException, IOException {
+    	File includeFile = buildFilesInWorkingDirectory();
+    	IncludeHierarchy include = reader.read(includeFile.getAbsolutePath());
+    	assertEquals("a", include.getName()); 
+    	PetriNet net = include.getPetriNet(); 
+    	assertEquals(5, net.getPlaces().size()); 
+    	//b & bb at same level
+    	IncludeHierarchy includeb = include.getInclude("b"); 
+    	PetriNet netb = includeb.getPetriNet(); 
+    	assertEquals(2, netb.getPlaces().size());
+    	assertEquals(135, netb.getComponent("P0", Place.class).getX()); 
+    	IncludeHierarchy includebb = include.getInclude("bb"); 
+    	PetriNet netbb = includebb.getPetriNet(); 
+    	assertEquals(2, netbb.getPlaces().size()); 
+    	assertEquals(225, netbb.getComponent("P0", Place.class).getX()); 
+    	//c under b
+    	IncludeHierarchy includec = includeb.getInclude("c"); 
+    	PetriNet netc = includec.getPetriNet(); 
+    	assertEquals(2, netc.getPlaces().size()); 
+    	assertEquals(225, netc.getComponent("P0", Place.class).getX()); 
+    }
+	protected File buildFilesInWorkingDirectory() throws IOException {
+		File includeFile = FileUtils.copyToWorkingDirectory(XMLUtils.getMultipleIncludeHierarchyFileWithRelativeLocations());
+    	FileUtils.copyToWorkingDirectorySubdirectory("xml",XMLUtils.getSimplePetriNet());
+    	FileUtils.copyToWorkingDirectorySubdirectory("xml",XMLUtils.getPetriNet());
+    	FileUtils.copyToWorkingDirectorySubdirectory("xml",XMLUtils.getGeneralizedStochasticPetriNet());
+		return includeFile;
+	}
     @Test
     public void throwsWhenIncludedPetriNetHasAnError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException, IncludeException {
     	String path = FileUtils.fileLocation(XMLUtils.getIncludeWithInvalidPetriNet());  

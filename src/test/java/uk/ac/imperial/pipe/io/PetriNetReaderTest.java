@@ -10,10 +10,13 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
@@ -348,4 +351,5 @@ public class PetriNetReaderTest {
     			PetriNetIOImpl.FILE_NOT_FOUND); 
     	reader.determineFileType(XMLUtils.getNonExistentFile());  
     }
+    
 }

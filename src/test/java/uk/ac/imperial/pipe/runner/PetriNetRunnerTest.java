@@ -301,10 +301,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void commandLineRunsForInterfacePlaces() throws IOException {
 		PetriNetRunner.setPrintStreamForTesting(print);
-		String[] args = new String[]{"src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml","firingReport.csv","5","123456"}; 
+    	File includeFile = FileUtils.copyToWorkingDirectory(XMLUtils.getTwoNetsOneInterfaceStatus());  
+		String[] args = new String[]{includeFile.getName(),"firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
-		assertEquals("PetriNetRunner:  executing src/test/resources/xml/include/twoNetsOneInterfaceStatus.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
+		assertEquals("PetriNetRunner:  executing twoNetsOneInterfaceStatus.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());
 		assertEquals("PetriNetRunner:  complete.", reader.readLine());
 		PetriNetRunner.setPrintStreamForTesting(null);
 		BufferedReader fileReader = new BufferedReader(new FileReader(file)); 
@@ -395,8 +396,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         deleteFile("net3.xml");
         deleteFile("net4.xml");
         deleteFile("include.xml");
+        deleteFile("twoNetsOneInterfaceStatus.xml");
+        deleteFile("firingReport.csv");
+//    	
+
 //		System.out.println(file.getAbsolutePath()); // uncomment to find file
-		if (file.exists()) file.delete(); // comment to view file
+//		if (file.exists()) file.delete(); // comment to view file
 	}
 	//TODO execution message changes appropriately for firing limit and seed values
     //TODO runsNetsWithMultipleColors

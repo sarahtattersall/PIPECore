@@ -102,14 +102,26 @@ public class XMLUtils {
 	public static String getMultipleIncludeHierarchyFile() {
 		return "/xml/include/multipleIncludes.xml";
 	}
+	public static String getMultipleIncludeHierarchyFileWithRelativeLocations() {
+		return "/multipleIncludesRelativeLocations.xml";
+	}
 	public static String getMultipleIncludeHierarchyWithInterfaceStatusFile() {
 		return "/xml/include/multipleIncludesWithInterfaceStatus.xml";
 	}
 	public static String getIncludeWithInvalidPetriNet() {
 		return "/xml/include/includeWithInvalidPetriNet.xml";
 	}	
+	public static String getTwoNetsOneInterfaceStatus() {
+		return "/xml/include/twoNetsOneInterfaceStatus.xml";
+	}	
 	public static String getSimplePetriNet() {
 		return "/xml/simpleNet.xml";
+	}	
+	public static String getPetriNet() {
+		return "/xml/petriNet.xml";
+	}	
+	public static String getGeneralizedStochasticPetriNet() {
+		return "/xml/gspn1.xml";
 	}	
 	public static String getUnknownXml() {
 		return "/xml/unknownXml.xml";

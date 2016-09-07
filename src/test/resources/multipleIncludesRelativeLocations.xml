@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<include name="a" netLocation="xml/gspn1.xml">
+    <include name="b" netLocation="xml/simpleNet.xml">
+    	<include name="c" netLocation="xml/petriNet.xml"/>
+	</include>
+	<include name="bb" netLocation="xml/petriNet.xml"/>
+</include>

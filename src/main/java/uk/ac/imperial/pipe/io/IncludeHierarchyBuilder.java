@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.io;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -26,7 +27,8 @@ public class IncludeHierarchyBuilder {
 	@XmlAttribute
 	private String netLocation;
 	@XmlElement(name = "include")
-	private Collection<IncludeHierarchyBuilder> includeHierarchyBuilder; 
+	private Collection<IncludeHierarchyBuilder> includeHierarchyBuilder;
+	private String rootLocation; 
 	
 	public IncludeHierarchyBuilder() {
 	}
@@ -41,6 +43,7 @@ public class IncludeHierarchyBuilder {
 	public IncludeHierarchy buildIncludes(IncludeHierarchy parent) throws JAXBException, FileNotFoundException, IncludeException {
 		IncludeHierarchy include = buildHierarchy(parent); 
 		for (IncludeHierarchyBuilder builder : getIncludeHierarchyBuilder()) {
+			builder.setRootLocation(rootLocation); 
 			IncludeHierarchy child = builder.buildIncludes(include);
 			include.include(child); 
 		}
@@ -62,6 +65,7 @@ public class IncludeHierarchyBuilder {
 			net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
 		}
 		else {
+			netLocation = this.rootLocation + File.separator + netLocation;
 			net = petriNetIO.read(netLocation); 
 		}
 		return net;
@@ -94,5 +98,9 @@ public class IncludeHierarchyBuilder {
 	public boolean equals(Object obj) {
 		//TODO test and guard 
 		return ((IncludeHierarchyBuilder) obj).getName().equals(name);  
+	}
+
+	public void setRootLocation(String rootLocation) {
+		this.rootLocation = rootLocation; 
 	}
 }

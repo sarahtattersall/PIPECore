@@ -70,24 +70,22 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException{
 		Unmarshaller um = context.createUnmarshaller();
 	    um.setEventHandler(getEventHandler());
-	    getEventHandler().setFilename(fileLocation); 
+	    getEventHandler().setFilename(fileLocation);
+//	    fileLocation = FileUtils.fileLocation(fileLocation);
 	    try {
 	    	builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
 	    	getEventHandler().printMessages(); 
 		} catch (JAXBException e) {
-	//		getEventHandler().printMessages(); 
-	//		e.printStackTrace(); 
 			throw new JAXBException(getEventHandler().getMessage());  
-	//		throw e;  
 		} 
+	    File rootFile = new File(fileLocation);
+	    builder.setRootLocation(rootFile.getAbsoluteFile().getParent()); 
+	    
 		IncludeHierarchy include = builder.buildIncludes(null);  // root include has no parent
 		Result<InterfacePlaceAction> result = include.all(new UpdateMergeInterfaceStatusCommand());
 		if (result.hasResult()) throw new IncludeException(result.getAllMessages()); 
 		return include; 
 	}
-
-//    PetriNetHolder holder = null; 
-//
 
 	@Override
 	public IncludeHierarchyHolder getIncludeHierarchyHolder() {
