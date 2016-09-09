@@ -45,13 +45,20 @@ public final class PetriNetManagerImpl implements PetriNetManager {
 
     /**
      * Message fired to listeners when a new include hierarchy is created
+     * One message for each include level
      */
 	public static final String NEW_INCLUDE_HIERARCHY_MESSAGE = "New include hieararchy";
 
     /**
+     * Message fired to listeners when a new include hierarchy is created
+     * Single message for the root level include 
+     */
+	public static final String NEW_ROOT_LEVEL_INCLUDE_HIERARCHY_MESSAGE = "New root level include hierarchy";
+    /**
      * Message fired when the include hierarchy is removed from the manager
      */
 	public static final String REMOVE_INCLUDE_HIERARCHY_MESSAGE = "Removed include hierarchy";
+
 
     /**
      * Responsible for creating unique names for Petri nets
@@ -138,6 +145,7 @@ public final class PetriNetManagerImpl implements PetriNetManager {
 	protected void createPetriNetsFromIncludeHierarchy(String filePath) throws JAXBException, FileNotFoundException, IncludeException {
 		IncludeHierarchyIO includeHierarchyIO = new IncludeHierarchyIOImpl(); 
 		IncludeHierarchy includes = includeHierarchyIO.read(filePath);
+		changeSupport.firePropertyChange(NEW_ROOT_LEVEL_INCLUDE_HIERARCHY_MESSAGE, null, includes);   
 		IncludeIterator it = includes.iterator(); 
 		while (it.hasNext()) {
 			createIncludeHierarchyAndNotify(it.next()); 
