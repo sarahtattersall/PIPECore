@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +49,7 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 	public static final String INCLUDE_HIERARCHY_PETRI_NET_MAY_NOT_BE_NULL = "IncludeHierarchy:  PetriNet may not be null";
 	public static final String INCLUDED_NET_MAY_NOT_EXIST_AS_PARENT_IN_HIERARCHY = "Included Petri net name may not exist as a parent Petri net in this include hierarchy.";
 	public static final String INCLUDE_NAME_NOT_FOUND_AT_ANY_LEVEL = "Include name not found at any level: ";
+	public static final String INCLUDE_HIERARCHY_STRUCTURE_CHANGE = "Include Hierarchy structure has changed";
 	private String name;
 	private PetriNet petriNet;
 	private IncludeHierarchy parent;
@@ -65,6 +68,9 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 	private IncludeHierarchyCommandScope interfacePlaceAccessScope;
 	private IncludeHierarchyCommandScopeEnum interfacePlaceAccessScopeEnum;
 	private String petriNetLocation; //TODO consider converting to an interface. 
+    protected PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+
+	
 	public IncludeHierarchy(PetriNet net, String name) {
 		this(net, null, name); 
 	}
@@ -98,13 +104,16 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 		include(childHierarchy); 
 //		addIncludeToIncludeMap(name, childHierarchy); 
 //		childHierarchy.buildUniqueName(); 
-//		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+//		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum);
+		notifyListeners(); 
 		return childHierarchy; 
 	}
+
 	public void include(IncludeHierarchy childHierarchy) throws IncludeException {
 		addIncludeToIncludeMap(childHierarchy.getName(), childHierarchy); 
 		childHierarchy.buildUniqueName(); 
 		childHierarchy.setInterfacePlaceAccessScope(interfacePlaceAccessScopeEnum); 
+		notifyListeners(); 
 	}
 
 	private void buildRootAndLevelRelativeToRoot(IncludeHierarchy parent) {
@@ -201,6 +210,7 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 		}
 		buildFullyQualifiedName();   
 		buildUniqueName();
+		notifyListeners();
 		return renameResult; 
  	}
 
@@ -547,6 +557,26 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 	public int compareTo(IncludeHierarchy include) {
 		return this.getName().compareTo(include.getName());
 	}
-
+    @Override
+    public String toString() {
+    	return getName(); 
+    }
+    /**
+    *
+    * @param listener listener which will process all events of the implementing class
+    */
+   public void addPropertyChangeListener(PropertyChangeListener listener) {
+       changeSupport.addPropertyChangeListener(listener);
+   }
+   /**
+   *
+   * @param listener listener to no longer listen to events in the implementing class
+   */
+   public void removePropertyChangeListener(PropertyChangeListener listener) {
+       changeSupport.removePropertyChangeListener(listener);
+   }
+   private void notifyListeners() {
+       changeSupport.firePropertyChange(INCLUDE_HIERARCHY_STRUCTURE_CHANGE, null, this.getRoot());
+   }
 
 }
