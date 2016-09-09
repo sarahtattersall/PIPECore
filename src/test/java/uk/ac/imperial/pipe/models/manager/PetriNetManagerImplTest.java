@@ -27,7 +27,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PetriNetManagerImplTest {
+public class PetriNetManagerImplTest implements PropertyChangeListener {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -37,12 +37,15 @@ public class PetriNetManagerImplTest {
 
     private PetriNetManager manager;
 
+	private int notifyCount;
+
 
 
     @Before
     public void setUp() {
         manager = new PetriNetManagerImpl();
         manager.addPropertyChangeListener(listener);
+        notifyCount = 0; 
     }
 
     @Test
@@ -83,4 +86,25 @@ public class PetriNetManagerImplTest {
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("bb")); 
     	verify(listener, times(4)).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_INCLUDE_HIERARCHY_MESSAGE)));
     }
+    @Test
+    public void notifiesListenerOfSingleRootLevelIncludeWhenCreatingMultipleIncludesAndBeforeIndividualIncludeMessages() throws Exception {
+    	manager.addPropertyChangeListener(this); 
+    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
+    	// test is checkRootLevelIncludeMessageArrivesBeforeEachIndividualIncludeMessage
+    }
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		checkRootLevelIncludeMessageArrivesBeforeEachIndividualIncludeMessage(evt); 
+	}
+
+	protected void checkRootLevelIncludeMessageArrivesBeforeEachIndividualIncludeMessage(
+			PropertyChangeEvent evt) {
+		if (notifyCount == 0) {
+			assertEquals(PetriNetManagerImpl.NEW_ROOT_LEVEL_INCLUDE_HIERARCHY_MESSAGE, evt.getPropertyName());
+		} else {
+			assertEquals(PetriNetManagerImpl.NEW_INCLUDE_HIERARCHY_MESSAGE, evt.getPropertyName());
+		}
+		notifyCount ++;
+	}
 }
