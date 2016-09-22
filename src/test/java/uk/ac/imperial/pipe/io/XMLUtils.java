@@ -136,6 +136,7 @@ public class XMLUtils {
 	public static String readFile(String path, Charset encoding)
             throws IOException, URISyntaxException
     {
+		System.out.println(XMLUtils.class.getResource(path).toURI());
     	byte[] encoded = Files.readAllBytes(Paths.get(XMLUtils.class.getResource(path).toURI()));
         return encoding.decode(ByteBuffer.wrap(encoded)).toString();
     }

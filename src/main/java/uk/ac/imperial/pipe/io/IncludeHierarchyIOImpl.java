@@ -73,7 +73,7 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 	    getEventHandler().setFilename(fileLocation);
 //	    fileLocation = FileUtils.fileLocation(fileLocation);
 	    try {
-	    	builder = (IncludeHierarchyBuilder) um.unmarshal(new FileReader(fileLocation));
+	    	builder = (IncludeHierarchyBuilder) um.unmarshal(getReaderFromPath(fileLocation));
 	    	getEventHandler().printMessages(); 
 		} catch (JAXBException e) {
 			throw new JAXBException(getEventHandler().getMessage());  
@@ -86,6 +86,14 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
 		if (result.hasResult()) throw new IncludeException(result.getAllMessages()); 
 		return include; 
 	}
+
+	protected FileReader getReaderFromPath(String path)
+			throws FileNotFoundException {
+		String normalizedPath = FileUtils.fileLocation(path); 
+		return new FileReader(normalizedPath);
+	}
+	
+
 
 	@Override
 	public IncludeHierarchyHolder getIncludeHierarchyHolder() {

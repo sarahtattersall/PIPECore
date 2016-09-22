@@ -179,7 +179,8 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
 
 	protected FileReader getReaderFromPath(String path)
 			throws FileNotFoundException {
-		return new FileReader(path);
+		String normalizedPath = FileUtils.fileLocation(path); 
+		return new FileReader(normalizedPath);
 	}
 
     /**
