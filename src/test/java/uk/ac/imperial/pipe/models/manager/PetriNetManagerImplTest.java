@@ -71,7 +71,7 @@ public class PetriNetManagerImplTest implements PropertyChangeListener {
 	public void createsSinglePetriNetFromPnmlFile() throws Exception {
     	PetriNetManagerImpl managerImpl = (PetriNetManagerImpl) manager;
     	assertTrue(managerImpl.petriNetNamer.isUniqueName("simpleNet")); 
-    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getSimplePetriNet())));
+    	manager.createFromFile(new File(FileUtils.resourceLocation(XMLUtils.getSimplePetriNet())));
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("simpleNet")); 
         verify(listener).propertyChange(argThat(PropertyChangeUtils.hasName(PetriNetManagerImpl.NEW_PETRI_NET_MESSAGE)));
 	}
@@ -79,7 +79,7 @@ public class PetriNetManagerImplTest implements PropertyChangeListener {
     public void createsMultipleIncludeHierarchiesFromMultipleIncludeFileNamedWithIncludeName() throws Exception {
     	PetriNetManagerImpl managerImpl = (PetriNetManagerImpl) manager;
     	assertTrue("name not in use yet",managerImpl.petriNetNamer.isUniqueName("a")); 
-    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
+    	manager.createFromFile(new File(FileUtils.resourceLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("a")); 
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("b")); 
     	assertFalse(managerImpl.petriNetNamer.isUniqueName("c")); 
@@ -89,7 +89,7 @@ public class PetriNetManagerImplTest implements PropertyChangeListener {
     @Test
     public void notifiesListenerOfSingleRootLevelIncludeWhenCreatingMultipleIncludesAndBeforeIndividualIncludeMessages() throws Exception {
     	manager.addPropertyChangeListener(this); 
-    	manager.createFromFile(new File(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
+    	manager.createFromFile(new File(FileUtils.resourceLocation(XMLUtils.getMultipleIncludeHierarchyFile())));
     	// test is checkRootLevelIncludeMessageArrivesBeforeEachIndividualIncludeMessage
     }
 

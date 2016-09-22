@@ -43,7 +43,7 @@ public class IncludeHierarchyReaderTest {
     @Test
     public void createsSingleIncludeHierarchy()
     		throws Exception {
-    	IncludeHierarchy include = reader.read(FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFile()));
+    	IncludeHierarchy include = reader.read(FileUtils.resourceLocation(XMLUtils.getSingleIncludeHierarchyFile()));
     	assertEquals("a", include.getName()); 
     	PetriNet net = include.getPetriNet(); 
     	assertEquals(2, net.getPlaces().size()); 
@@ -77,7 +77,7 @@ public class IncludeHierarchyReaderTest {
 
 	@Test
 	public void interfaceStatusIsCorrectlyBuiltFromMultipleIncludes() throws Exception {
-    	IncludeHierarchy include = reader.read(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyWithInterfaceStatusFile()));
+    	IncludeHierarchy include = reader.read(FileUtils.resourceLocation(XMLUtils.getMultipleIncludeHierarchyWithInterfaceStatusFile()));
     	assertEquals("top", include.getName()); 
     	PetriNet net = include.getPetriNet(); 
     	assertEquals(2, net.getPlaces().size()); 
@@ -112,7 +112,7 @@ public class IncludeHierarchyReaderTest {
     @Test
     public void createsIncludeHierarchyWithMultipleLevels()
     		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException, IncludeException {
-    	IncludeHierarchy include = reader.read(FileUtils.fileLocation(XMLUtils.getMultipleIncludeHierarchyFile()));
+    	IncludeHierarchy include = reader.read(FileUtils.resourceLocation(XMLUtils.getMultipleIncludeHierarchyFile()));
     	assertEquals("a", include.getName()); 
     	PetriNet net = include.getPetriNet(); 
     	assertEquals(5, net.getPlaces().size()); 
@@ -171,8 +171,8 @@ public class IncludeHierarchyReaderTest {
 	}
     @Test
     public void throwsWhenIncludedPetriNetHasAnError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException, IncludeException {
-    	String path = FileUtils.fileLocation(XMLUtils.getIncludeWithInvalidPetriNet());  
-    	String includedPath = FileUtils.fileLocation(XMLUtils.getArcWithoutPlaceFile());  
+    	String path = FileUtils.resourceLocation(XMLUtils.getIncludeWithInvalidPetriNet());  
+    	String includedPath = FileUtils.resourceLocation(XMLUtils.getArcWithoutPlaceFile());  
     	expectedException.expect(JAXBException.class);
     	expectedException.expectMessage("PetriNetValidationEventHandler error attempting to build Petri net from file "+includedPath+
     			": uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException:  in uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter: " +

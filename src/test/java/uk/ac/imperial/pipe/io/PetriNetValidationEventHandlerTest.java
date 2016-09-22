@@ -41,7 +41,7 @@ public class PetriNetValidationEventHandlerTest {
     @Test
     public void messagePrintedAndThrowsForFirstNonUnexpectedElementError() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
     	reader = new TestingThrowsPetriNetIOImpl(false, true);  // true false
-    	String path = FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()); 
+    	String path = FileUtils.resourceLocation(XMLUtils.getInvalidPetriNetFile()); 
     	try {
     		@SuppressWarnings("unused")
     		PetriNet petriNet = reader.read(path);
@@ -68,7 +68,7 @@ public class PetriNetValidationEventHandlerTest {
     public void noMessagePrintedAndDoesntThrowWhenUnexpectedElement() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
     	reader = new TestingPetriNetIOImpl(true, true);   
     	@SuppressWarnings("unused")
-    	PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
+    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getInvalidPetriNetFile()));
     	PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
     	assertEquals(true, handler.getFormattedEvents().get(0).unexpected); 
     	assertFalse(handler.printMessage(handler.getFormattedEvents().get(0)));
@@ -111,7 +111,7 @@ public class PetriNetValidationEventHandlerTest {
 	protected void checkPrintedAndDoesntThrowWhenUnexpectedElement()
 			throws JAXBException, FileNotFoundException {
 		@SuppressWarnings("unused")
-		PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInvalidPetriNetFile()));
+		PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getInvalidPetriNetFile()));
         PetriNetValidationEventHandler handler = ((PetriNetIOImpl) reader).getEventHandler();  
     	checkValidationMessage(handler);
     	assertTrue(handler.printMessage(handler.getFormattedEvents().get(0)));

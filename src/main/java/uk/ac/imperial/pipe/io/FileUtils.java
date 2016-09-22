@@ -12,8 +12,28 @@ import java.nio.file.StandardCopyOption;
 
 public class FileUtils {
 
-    public static String fileLocation(String path) {
-    	String location; 
+	
+	
+	
+	public static String fileLocation(String path) {
+		String location = resourceLocation(path); 
+		if (location == null) {
+			System.out.println("else..."+path);
+			location = path;
+			File file = new File(location);
+			if (file.exists()) {
+				String normalized = file.toURI().getPath(); 
+				location = normalized; 
+				System.out.println("normalized..."+location);
+			} else {
+				location = System.getProperty("user.dir") + File.separator + path; 
+				System.out.println("userdir..."+location);
+			}
+		}
+		return location;
+	}
+    public static String resourceLocation(String path) {
+    	String location = null; 
     	Path newPath = null;
     	URL url = FileUtils.class.getResource(path); 
     	if (url != null) {
@@ -24,23 +44,10 @@ public class FileUtils {
     		} 
     		location = newPath.toString(); 
     	}
-    	else  {
-    		System.out.println("else..."+path);
-    		location = path;
-    		File file = new File(location);
-    		if (file.exists()) {
-    			String normalized = file.toURI().getPath(); 
-    			location = normalized; 
-    			System.out.println("normalized..."+location);
-    		} else {
-    			location = System.getProperty("user.dir") + File.separator + path; 
-    			System.out.println("userdir..."+location);
-    		}
-    	}
         return location;
     }
     public static File copyToWorkingDirectory(String path) throws IOException {
-    	Path source = Paths.get(fileLocation(path)); 
+    	Path source = Paths.get(resourceLocation(path)); 
     	File file = new File(source.toString());
     	Path target = Paths.get(System.getProperty("user.dir")+File.separator+file.getName());
     	File newFile = new File(target.toString()); 
@@ -49,7 +56,7 @@ public class FileUtils {
     }
 	public static File copyToWorkingDirectorySubdirectory(String directory,
 			String path) throws IOException {
-		Path source = Paths.get(fileLocation(path)); 
+		Path source = Paths.get(resourceLocation(path)); 
 		File file = new File(source.toString());
 		File dir = buildSubDirectory(directory);
 		String fullName = dir+File.separator+file.getName(); 
