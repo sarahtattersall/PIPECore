@@ -61,7 +61,7 @@ public class IncludeHierarchyWriterTest extends XMLTestCase {
     }
     
 	protected void checkIncludeReadWriteMatches(String includeXmlLocation) throws Exception {
-		IncludeHierarchy include = reader.read(FileUtils.fileLocation(includeXmlLocation));
+		IncludeHierarchy include = reader.read(FileUtils.resourceLocation(includeXmlLocation));
         assertResultsEqual(includeXmlLocation, include);
 	}
 

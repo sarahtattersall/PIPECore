@@ -275,7 +275,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 	@Test
 	public void runsFromIncludeXmlFile() throws Exception {
 		PetriNetRunner.setPrintStreamForTesting(print);
-		String[] args = new String[]{FileUtils.fileLocation(XMLUtils.getSingleIncludeHierarchyFileReadyToFire()),"firingReport.csv","5","123456"}; 
+		String[] args = new String[]{FileUtils.resourceLocation(XMLUtils.getSingleIncludeHierarchyFileReadyToFire()),"firingReport.csv","5","123456"}; 
 		PetriNetRunner.main(args);
 		reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(out.toByteArray())));
 //		assertEquals("PetriNetRunner:  executing /Users/stevedoubleday/git/PIPECore/target/test-classes/xml/include/singleIncludeReadyToFire.xml, for a maximum of 5 transitions, using random seed 123456, with results in firingReport.csv", reader.readLine());

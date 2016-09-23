@@ -6,8 +6,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
@@ -30,7 +35,11 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 @RunWith(MockitoJUnitRunner.class)
 public class IncludeHierarchyTest extends AbstractMapEntryTest {
-    @Rule
+
+//    @Mock
+//    private PropertyChangeListener listener;
+	
+	@Rule
     public ExpectedException expectedException = ExpectedException.none();
 
 
@@ -43,6 +52,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 	private Place placeTop;
 	private Place placeA;
 	private Place placeB;
+	private boolean called; 
 
 	private Map<String, IncludeHierarchy> includeMapAll;
 
@@ -59,6 +69,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		parentsSibs = IncludeHierarchyCommandScopeEnum.PARENTS_AND_SIBLINGS; 
 		all = IncludeHierarchyCommandScopeEnum.ALL;
 		parent = IncludeHierarchyCommandScopeEnum.PARENT;
+		called = false; 
 	}
     @Test
 	public void savesAndReturnsNet() throws Exception {
@@ -536,6 +547,27 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
 		assertTrue(includeb.compareTo(includeb) == 0); 
 		
     }
+    @Test
+	public void notifiesListenersUponStructureChange() throws Exception {
+    	PropertyChangeListener listener = new PropertyChangeListener () {
+
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				assertEquals(IncludeHierarchy.INCLUDE_HIERARCHY_STRUCTURE_CHANGE, evt.getPropertyName()); 
+				IncludeHierarchy newIncludes = (IncludeHierarchy) evt.getNewValue(); 
+				assertEquals(includes, newIncludes);
+				try {
+					assertEquals("include2", newIncludes.getChildInclude("include2").getName());
+				} catch (IncludeException e) {
+					e.printStackTrace();
+				} 
+				called  = true; 
+			}
+    	}; 
+    	includes.addPropertyChangeListener(listener) ;
+    	includes.include(net2, "include2"); 
+    	assertTrue("expected propertyChange to be called",called); 
+	}
     
 	private PetriNet createSimpleNet(int i) throws PetriNetComponentException {
 		PetriNet net = 

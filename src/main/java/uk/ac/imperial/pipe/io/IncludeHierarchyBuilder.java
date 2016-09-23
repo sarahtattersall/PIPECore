@@ -1,9 +1,8 @@
 package uk.ac.imperial.pipe.io;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URL;
-import java.util.ArrayList;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.TreeSet;
 
@@ -59,15 +58,26 @@ public class IncludeHierarchyBuilder {
 	protected PetriNet buildPetriNet(String netLocation) throws JAXBException,
 			FileNotFoundException {
 		PetriNetIO petriNetIO = new PetriNetIOImpl(); 
-		PetriNet net; 
-		URL url = PetriNetIO.class.getResource(netLocation);
-		if (url != null) {
-			net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
+		PetriNet net = null; 
+		String location = FileUtils.fileLocation(netLocation);
+		if (location == null) {
+			Path path = Paths.get(this.rootLocation, netLocation); 
+			location = FileUtils.getNormalizedLocation(path.toString()); 
 		}
-		else {
-			netLocation = this.rootLocation + File.separator + netLocation;
-			net = petriNetIO.read(netLocation); 
+		if (location != null) {
+			net = petriNetIO.read(location);
+		} else {
+			throw new FileNotFoundException("Could not find file "+netLocation+" as resource in classpath or in "+this.rootLocation); 
 		}
+		
+//		URL url = PetriNetIO.class.getResource(netLocation);
+//		if (url != null) {
+//			net = petriNetIO.read(PetriNetIO.class.getResource(netLocation).getPath());
+//		}
+//		else {
+//			netLocation = this.rootLocation + File.separator + netLocation;
+//			net = petriNetIO.read(netLocation); 
+//		}
 		return net;
 	}
 	public final String getName() {
