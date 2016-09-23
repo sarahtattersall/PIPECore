@@ -19,19 +19,11 @@ public class FileUtils {
 	
 	public static String fileLocation(String path) {
 		String location = resourceLocation(path); 
-		if (location == null) {
-			System.out.println("else..."+path);
-			location = path;
-			File file = new File(location);
-			if (file.exists()) {
-				String normalized = file.toURI().getPath(); 
-				location = normalized; 
-				System.out.println("normalized..."+location);
-			} else {
-				location = System.getProperty("user.dir") + File.separator + path; 
-				System.out.println("userdir..."+location);
-			}
-		}
+		if (location != null) return location; 
+		location = getNormalizedLocation(path);
+		if (location != null) return location; 
+		location = getWorkingDirectoryLocation(path);
+		System.out.println("file location: "+location);
 		return location;
 	}
     public static String resourceLocation(String path) {
@@ -39,10 +31,8 @@ public class FileUtils {
     	Path newPath = null;
     	URL url = FileUtils.class.getResource(path); 
     	if (url != null) {
-    		System.out.println("url: "+url);
     		try {
     			newPath = Paths.get(url.toURI()); // escape characters URL doesn't handle
-    			System.out.println("new path: "+newPath);
     		} catch (URISyntaxException e) {
     			System.out.println("URI syntax exception: "+path+"\n"+e.toString());
     		} 
@@ -66,21 +56,22 @@ public class FileUtils {
 		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING); 
 		return newFile; 
 	}
+	private static String getWorkingDirectoryLocation(String location) {
+		Path path = Paths.get(System.getProperty("user.dir"),location);
+		return getNormalizedLocation(path.toString()); 
+	}
+
 	protected static File buildSubDirectory(String directory) {
 		File dir = new File(System.getProperty("user.dir")+File.separator+directory); 
 		if (!dir.exists()) dir.mkdir();
 		return dir;
 	}
-	public static FileReader getFileReader(String location) {
-		FileReader reader = null;
+	protected static String getNormalizedLocation(String location) {
+	    String normalized = null; 
 		File file = new File(location);
 		if (file.exists()) {
-			String normalized = file.toURI().getPath(); 
-			try {
-				reader = new FileReader(normalized);
-			} catch (FileNotFoundException e) {
-			} 
+			normalized = file.toURI().getPath();
 		}
-		return reader; 
+		return normalized; 
 	}
 }
