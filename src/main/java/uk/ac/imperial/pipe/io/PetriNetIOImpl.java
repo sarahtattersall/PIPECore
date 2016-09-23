@@ -139,6 +139,11 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
 		} catch (JAXBException e) {
 			getEventHandler().printMessages(); 
 			throw e; 
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			} 
 		}
     }
 

@@ -104,12 +104,23 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
      *
      * @param stream to write to
      * @param builder IncludeHierarchyBuilder to be written
+     * @throws JAXBException 
      */
 	@Override
-	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException {
-        Marshaller m = context.createMarshaller();
-        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        m.marshal(builder, stream);
+	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException  {
+        Marshaller m;
+		try {
+			m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			m.marshal(builder, stream);
+		} catch (JAXBException e) {
+			throw e; 
+		} finally {
+			try {
+				stream.close();
+			} catch (IOException e) {
+			} 
+		}
 	}
 
 	/**
