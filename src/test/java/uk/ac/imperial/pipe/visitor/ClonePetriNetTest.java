@@ -104,6 +104,7 @@ public class ClonePetriNetTest {
 	}
     //TODO test for transitionOut/InboundArcs
     //TODO test for arcweights 
+    @Test
     public void convertsArcsFromInterfacePlaceToNewOriginPlace() throws Exception {
     	buildSimpleNet(); 
     	oldPetriNet.setName(new NormalPetriNetName("net")); 
@@ -113,14 +114,11 @@ public class ClonePetriNetTest {
     	oldPetriNet.setIncludeHierarchy(includes);
     	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
     	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
-    	assertEquals(4,executablePetriNet.getPlaces().size()); 
-    	assertEquals(4,executablePetriNet.getTransitions().size()); 
-    	assertEquals(6,executablePetriNet.getArcs().size()); 
-    	assertEquals(2, oldPetriNet.getPlaces().size()); 
-    	assertEquals(4, oldPetriNet.getArcs().size()); 
+    	checkExecutableHasSumOfOldPNAndNet2Components(net2, executablePetriNet); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
     	includes.getInclude("a").addToInterface(originPlace, true, false, false, false); 
-    	Place topPlace = oldPetriNet.getComponent("a.P0", Place.class);
+    	
+		Place topPlace = includes.getInterfacePlace("a.P0"); 
     	assertTrue(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
     	assertTrue(includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome); 
     	includes.addAvailablePlaceToPetriNet(topPlace); 
@@ -132,8 +130,21 @@ public class ClonePetriNetTest {
     	Place newPlace = ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().get("a.P0"); 
     	originPlace.setId("a.P0");  
     	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
-    	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size()); 
+    	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size());
+    	assertEquals("a.P0", ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().values().iterator().next().getId());
     }
+	protected void checkExecutableHasSumOfOldPNAndNet2Components(PetriNet net2,
+			ExecutablePetriNet executablePetriNet) {
+		assertEquals(2, oldPetriNet.getPlaces().size()); 
+    	assertEquals(4, oldPetriNet.getArcs().size()); 
+    	assertEquals(2, oldPetriNet.getTransitions().size()); 
+    	assertEquals(2, net2.getPlaces().size()); 
+    	assertEquals(2, net2.getArcs().size()); 
+    	assertEquals(2, net2.getTransitions().size()); 
+    	assertEquals("oldPN + net2 places = 4",4,executablePetriNet.getPlaces().size()); 
+    	assertEquals("oldPN + net2 transitions = 4",4,executablePetriNet.getTransitions().size()); 
+    	assertEquals("oldPN + net2 arcs = 6",6,executablePetriNet.getArcs().size());
+	}
     @Test
     public void clonesRateParameter() throws PetriNetComponentException {
 	    checkRateParameter("3");

@@ -1,33 +1,42 @@
 package uk.ac.imperial.pipe.animation;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import uk.ac.imperial.pipe.dsl.*;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
-import uk.ac.imperial.pipe.models.petrinet.Token;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.state.State;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import uk.ac.imperial.pipe.dsl.ANormalArc;
+import uk.ac.imperial.pipe.dsl.APetriNet;
+import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.AToken;
+import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.dsl.AnInhibitorArc;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
+import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.state.State;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetAnimationLogicTest {
 
-
+	
     private ExecutablePetriNet executablePetriNet;
 
 	@Test
@@ -381,4 +390,21 @@ public class PetriNetAnimationLogicTest {
         int actualP1 = successor.getTokens("P0").get("Default");
         assertEquals(Integer.MAX_VALUE, actualP1);
     }
+    @Test
+    public void clearsWhenExecutablePetriNetRefreshes() throws Exception {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
+        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        State state = executablePetriNet.getState();
+        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+        Set<Transition> transitions = new HashSet<>(); 
+        transitions.add(petriNet.getComponent("T0", Transition.class));
+        animator.cachedEnabledTransitions.put(state, transitions); 
+        assertEquals(1, animator.cachedEnabledTransitions.size());
+        executablePetriNet.refreshRequired();
+        executablePetriNet.refresh();
+        assertEquals("cache should be cleared",0, animator.cachedEnabledTransitions.size());
+
+    }
+    
 }
