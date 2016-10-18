@@ -1,11 +1,13 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeListener;
+
 
 /**
  * A transition is a Petri net component that is responsible for firing and thus moving
  * tokens from inbound places to outbound places
  */
-public interface Transition extends Connectable {
+public interface Transition extends Connectable, PropertyChangeListener  {
     /**
      * Message fired when the Transitions priority changes
      */

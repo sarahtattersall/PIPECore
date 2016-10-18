@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.visitor;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -92,6 +93,17 @@ public class ClonePetriNetTest {
     	cloneP.setTokenCount("Default", 3); 
     	assertEquals(3, oldP.getTokenCount("Default")); 
 	}
+    @Test
+    public void clonedTransitionMirrorsEnabledStatusOfSourceTransition() throws Exception {
+    	clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+    	Transition sourceT = oldPetriNet.getComponent("T0", Transition.class); 
+    	Transition cloneT = clonedPetriNet.getComponent("T0", Transition.class); 
+    	assertFalse(sourceT.isEnabled()); 
+    	cloneT.enable();  
+    	assertTrue("clone enable status mirrored to source transition",sourceT.isEnabled()); 
+    	cloneT.disable();  
+    	assertFalse("clone disable status mirrored to source transition",sourceT.isEnabled()); 
+    }
     @Test
 	public void clonePetriNetToExecutablePetriNetReplacingExistingState() throws Exception {
     	buildSimpleNet(); 

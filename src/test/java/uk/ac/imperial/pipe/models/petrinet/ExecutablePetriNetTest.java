@@ -26,6 +26,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
+import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
@@ -188,6 +189,65 @@ public class ExecutablePetriNetTest {
         executablePetriNet.refresh();
     	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
 	}
+    //This behavior is implicitly tested in ClonePetriNetTest so is not strictly necessary but left as a contrast to 
+    // refreshOfExecutablePetriNetRemovesOldExecutablePlacesAsListenersForGuiPlaceChanges,
+    // where listening is bi-directional
+	@Test
+	public void refreshedExecutablePetriNetTransitionsWillNotifyGuiTransitions() throws Exception {
+		PetriNet petriNet = buildSimpleNet(); 
+		petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
+		ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
+		DiscreteTransition rootT0 = (DiscreteTransition) executablePetriNet.getComponent("root.T0", Transition.class);
+		DiscreteTransition transition = (DiscreteTransition) petriNet.getComponent("T0", Transition.class);
+		checkConnectableHasListener("enabling of executable transition will notify GUI", true, rootT0, transition );
+		executablePetriNet.refreshRequired(); 
+		executablePetriNet.refresh(); 
+		DiscreteTransition rootT0new = (DiscreteTransition) executablePetriNet.getComponent("root.T0", Transition.class);
+		checkConnectableHasListener("enabling of refreshed executable transition will notify GUI", true, rootT0new, transition);
+	}
+    @Test
+	public void refreshOfExecutablePetriNetRemovesOldExecutablePlacesAsListenersForGuiPlaceChanges() throws Exception {
+    	PetriNet petriNet = buildSimpleNet(); 
+    	petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
+    	Place rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+    	Place place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
+    	checkConnectableHasListener("GUI token changes will notify executable", true, place, rootP0);
+    	executablePetriNet.refreshRequired(); 
+    	executablePetriNet.refresh(); 
+    	DiscretePlace rootP0new = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+    	checkConnectableHasListener("GUI token changes will notify refreshed executable", true, place, rootP0new);
+    	checkConnectableHasListener("...but will no longer notify old executable", false, place, rootP0);
+    	checkConnectableHasListener("token changes to executable will notify GUI", true, rootP0new, place);
+    	// rootP0 still has a reference to place, but not vice versa, so rootP0 should be garbage-collectable
+    	checkConnectableHasListener("...so would token changes to old executable, but those won't happen", true, rootP0, place);
+	}
+
+    protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
+    	checkConnectableHasListener("", expected, connectable, listeningConnectable);
+    }
+	protected void checkConnectableHasListener(String comment, boolean expected, Connectable connectable, Connectable listeningConnectable) {
+		boolean found = false; 
+		PropertyChangeListener[] listeners = ((AbstractPetriNetPubSub) connectable).changeSupport.getPropertyChangeListeners(); 
+    	for (PropertyChangeListener propertyChangeListener : listeners) {
+			if (propertyChangeListener == listeningConnectable) {
+				// equals() won't work because overridden in DiscretePlace
+				found = true;
+			} 
+		}
+    	assertEquals(expected, found); 	
+	}
+	private PetriNet buildSimpleNet() throws PetriNetComponentException {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
+                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
+                .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+                .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
+                .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+                .andFinally(ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token());
+		return petriNet; 
+	}
+
     protected PetriNet buildNet1() throws PetriNetComponentException {
     	PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).
     					and(AnImmediateTransition.withId("T0")).and(

@@ -4,6 +4,8 @@ import static java.lang.Math.floor;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -376,6 +378,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    changeSupport.firePropertyChange(ENABLED_CHANGE_MESSAGE, false, true);
 	}
 
+
 	/**
 	 * Disable the transition
 	 */
@@ -569,5 +572,22 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    this.angle = angle;
 	    changeSupport.firePropertyChange(ANGLE_CHANGE_MESSAGE, old, angle);
 	}
+    /**
+     * Mirror enable status in cloned Transition 
+     * (e.g., enabling a transition in ExecutablePetriNet will be mirrored to corresponding transition in source Petri net)
+     *
+     * @param event for the property change 
+     */
+	@Override
+	public void propertyChange(PropertyChangeEvent event) {
+		if (event.getPropertyName().equals(ENABLED_CHANGE_MESSAGE)) {
+			enable(); 
+		}
+		else if (event.getPropertyName().equals(DISABLED_CHANGE_MESSAGE)) {
+			disable(); 
+		}
+	}
+
+
 
 }
