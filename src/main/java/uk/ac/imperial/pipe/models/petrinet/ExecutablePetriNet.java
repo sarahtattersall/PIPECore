@@ -70,6 +70,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * Finally, a representation of the marking of this executable Petri net is saved 
 	 * as a {@link uk.ac.imperial.state.State}.  This can be retrieved with {@link #getState()}</p>
 	 */
+	//TODO currently only called when state changes; consider calling refreshRequired() on any PN structure change
 	public void refresh() {
 		if (isRefreshRequired()) {
 			notifyListenersToRemovePlaces(); 

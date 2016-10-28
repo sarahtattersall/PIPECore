@@ -355,6 +355,7 @@ public final class ClonePetriNet {
             FunctionalRateParameter rateParameter = (FunctionalRateParameter) transition.getRate();
             newTransition.setRate(rateParameters.get(rateParameter.getId()));
         }
+        newTransition.addPropertyChangeListener(transition); 
         transitions.put(transition.getId(), newTransition);
         newPetriNet.addTransition(newTransition);
     }

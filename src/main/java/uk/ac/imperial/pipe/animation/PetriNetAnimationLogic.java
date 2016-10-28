@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.animation;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +24,7 @@ import uk.ac.imperial.state.State;
  * of a Petri net. 
  */
 //TODO reallocate this logic; previously:  "It does not alter the state of the Petri net."
-public final class PetriNetAnimationLogic implements AnimationLogic {
+public final class PetriNetAnimationLogic implements AnimationLogic, PropertyChangeListener {
 
     /**
      * Executable Petri net this class represents the logic for
@@ -41,6 +43,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
      */
     public PetriNetAnimationLogic(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet; 
+    	this.executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this); 
 	}
 
 	/**
@@ -246,4 +249,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic {
             }
         }
     }
+
+	@Override
+	public void propertyChange(PropertyChangeEvent evt) {
+		clear(); 
+	}
 }

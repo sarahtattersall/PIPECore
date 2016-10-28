@@ -14,16 +14,12 @@ import java.nio.file.StandardCopyOption;
 
 public class FileUtils {
 
-	
-	
-	
 	public static String fileLocation(String path) {
 		String location = resourceLocation(path); 
 		if (location != null) return location; 
 		location = getNormalizedLocation(path);
 		if (location != null) return location; 
 		location = getWorkingDirectoryLocation(path);
-		System.out.println("file location: "+location);
 		return location;
 	}
     public static String resourceLocation(String path) {
