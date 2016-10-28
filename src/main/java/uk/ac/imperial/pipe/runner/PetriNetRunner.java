@@ -28,7 +28,6 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.io.FileUtils;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIO;
 import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
-import uk.ac.imperial.pipe.io.PetriNetFileException;
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetReader;
 import uk.ac.imperial.pipe.io.XmlFileEnum;
@@ -202,6 +201,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			try {
 				Place place = executablePetriNet.getComponent(tokenCount.placeId, Place.class);
 				place.setTokenCount(tokenCount.token, tokenCount.count);
+				logger.debug("marking pending place: "+place.getId()+" with token "+tokenCount.token+" and count "+tokenCount.count); 
 			} catch (PetriNetComponentNotFoundException e) {
 				e.printStackTrace();  // logic error, since we should guard against this at marking request
 			}
