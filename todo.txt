@@ -1,0 +1,75 @@
+Next steps for timed-transitions
+
+Observation:  there are a lot of classes that operate on an executable petri net (EPN):
+  EPN has a [Timed]State
+  HashedTimedState has an EPN, used for ordering transitions by time
+  AbstractTransition has an EPN
+     fire():  consumes/produces tokens
+  Arc has an EPN and a State
+     canFire(EPN, State)
+  PetriNetAnimationLogic has an EPN
+     controls order of transition firing, e.g.:
+       all immediate followed by all timed
+       by priority
+       by time
+     consider whether AnimationLogic both defines the pattern of firing and executes the pattern, 
+     or these responsibilities are split (between what?)  
+  PetriNetAnimator has an EPN and a PNAnimationLogic
+  
+Perhaps EPN should be a facade for many of these operations.  Instead of pulling information out
+of the EPN and evaluating it, e.g.:
+    public Set<Transition> getEnabledImmediateTransitions() {
+        Set<Transition> enabledTransitions = new HashSet<>();
+        for (Transition transition : executablePetriNet.getTransitions()) {
+            if (isEnabled(transition) && !transition.isTimed()) {
+                enabledTransitions.add(transition);
+            }
+        }
+        return enabledTransitions;
+    }
+
+...EPN should have getEnabledImmediateTransitions(), at least.  But perhaps instead 
+EPN should just have FireTransition(), which would call private methods like getEnabledImmediateTransitions
+
+EPN is created with an AnimationLogic, which is responsible for defining and executing a pattern 
+of firing.  
+
+The Animator would then only know about the EPN, and would not have to interact with the AnimationLogic
+
+Knowing about time
+	Currently EPN has a State and a TimedState.  Instead, perhaps TimedState extends State, and the 
+	caller is responsible for knowing whether the State that is returned knows about time.  
+	This would remove the responsibility of knowing about time from EPN.  The AnimationLogic 
+	would definitely have to be time-aware.  
+	
+	Consider whether much of the logic in HashedTimedState could be moved to the TimedAnimationLogic.  
+	Perhaps HashedTimedState only knows the current time, and the TimedAnimationLogic is responsible for 
+	deciding what happens at the next time?  Can the list of pending timed transitions be modified based on the history of what transitions have fired?
+	Perhaps the HashedTimedState only tracks the list of timed transitions, and the animationLogic is responsible for rebuilding the list of 
+	enabled immediate transitions following each new fired timed transition?   
+    
+Simplifying the interface for Arc and Transition: removing cyclic dependency on EPN
+	Currently the Arc is asked if it canFire and 
+	the Transition is told to consume/produce tokens, and to get its rate
+	
+	Perhaps EPN implements Evaluator, and Arc and Transition are instantiated with an Evaluator
+	interface Evaluator
+	    boolean canFire(Arc arc)
+	    Double getActualRate(Transition transition)
+	    State getState()  // for use by external transitions, rather than the entire EPN?
+	    void consumeInboundTokens(Transition transition)
+	    void produceOutboundTokens(Transition transition)
+	    
+AbstractTransition.fire()
+	perhaps should be: 
+	consumeInboundTokens
+	fire(); 
+	productOutboundTokens 
+	...in case the ExternalTransition wants to examine the state of the EPN?  This matches
+	the informal semantics:  "the transition consumes tokens (while firing) and then produces tokens"
+	currently consuming and producing tokens is done by both AbstractTransition and EPN	    
+	    
+All cached transition structures should be tested for appropriate invalidation and rebuild.  It is possible that they 
+constitute a performance optimization that rarely pays off, and doesn't justify their complexity.  	     
+  
+

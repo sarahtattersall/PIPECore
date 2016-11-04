@@ -27,6 +27,7 @@ public class InboundNormalArc extends InboundArc {
      * @return true if the arcs place (source) has the same number of tokens or greater than the specified weight on the arc
      *         false otherwise, or if counts for all the tokens on the arc are zero. 
      */
+    //TODO consider only taking an EPN, and having the EPN coordinate with its state:  perhaps all this is done by EPN: boolean epn.canArcFire(arc)
     @Override
     public final boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
         Place place = getSource();
