@@ -77,8 +77,8 @@ public class HashedTimedState extends TimedState {
     /**
      * @return all the currently enabled immediate transitions in the petri net
      */
+	//TODO consider pushing this into executablePN
     public Set<Transition> getEnabledImmediateTransitions() {
-
         Set<Transition> enabledTransitions = new HashSet<>();
         for (Transition transition : executablePetriNet.getTransitions()) {
             if (isEnabled(transition) && !transition.isTimed()) {
@@ -91,6 +91,7 @@ public class HashedTimedState extends TimedState {
     /**
      * @return all the currently enabled timed transitions in the petri net
      */
+    //TODO consider pushing this into executablePN
     public Set<Transition> getEnabledTimedTransitions() {
         Set<Transition> enabledTransitions = new HashSet<>();
         for (Transition transition : executablePetriNet.getTransitions()) {

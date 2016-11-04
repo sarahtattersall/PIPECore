@@ -26,6 +26,7 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	 */
 	private Thread timedRunnerThread;
 	
+	//TODO tell EPN it needs a TimedPetriNetAnimationLogic
 	public TimedPetriNetRunner(PetriNet petriNet) {
 		super(petriNet);
 	}
@@ -36,6 +37,11 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	 * @param newTime to set as current time  
 	 * @return next firing time 
 	 */
+	//TODO consider epn.fireTransitionsAndGetNextFiringTime
+	// alternatively:  EPN is not time-aware; it fires the next transition whether immediate or timed
+	//  epn.fireTransition
+	//  epn.fireTransition(long time) 
+	//  general:  fireTransition(-1) 
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
 		TimedState currentState = this.executablePetriNet.getTimedState();
 		currentState.setCurrentTime(newTime);
