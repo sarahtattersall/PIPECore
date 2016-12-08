@@ -1,6 +1,7 @@
 # PIPECore [![Build Status](https://travis-ci.org/sarahtattersall/PIPE.png?branch=master)](https://travis-ci.org/sarahtattersall/PIPECore)
 This project contains the core set of classes for creating and animating Petri nets. 
 
+
 This is an alpha release, supporting [hierarchical Petri nets and external interfaces](https://github.com/sjdayday/PIPECore/wiki), and is currently available through the hierarchical-nets branch.  Note that the maven information to use the hierarchical nets support is different from the PIPE 5.0 release in the master branch.
 
 ## Maven integration
