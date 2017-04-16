@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Level;
 import org.junit.Before;
@@ -804,15 +805,16 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        State state = executablePetriNet.getState();
+        TimedState state = executablePetriNet.getTimedState();
         PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
         Set<Transition> transitions = new HashSet<>(); 
         transitions.add(petriNet.getComponent("T0", Transition.class));
-        animator.cachedEnabledTransitions.put(state, transitions); 
-        assertEquals(1, animator.cachedEnabledTransitions.size());
+        animator.cachedEnabledImmediateTransitions.put(state, transitions); 
+        assertEquals(1, animator.cachedEnabledImmediateTransitions.size());
         executablePetriNet.refreshRequired();
         executablePetriNet.refresh();
-        assertEquals("cache should be cleared",0, animator.cachedEnabledTransitions.size());
+        assertEquals("cache should be cleared",0, animator.cachedEnabledImmediateTransitions.size());
+//        public Map<TimedState, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 
     }
     

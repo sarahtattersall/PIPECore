@@ -44,7 +44,7 @@ import uk.ac.imperial.state.State;
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
 //<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
-	private static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
+	protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
 	protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
 	protected static final String PETRI_NET_RUNNER = "PetriNetRunner:  ";
 	protected static final String PETRI_NET_TO_EXECUTE_IS_NULL = PETRI_NET_RUNNER+"PetriNet to execute is null: ";

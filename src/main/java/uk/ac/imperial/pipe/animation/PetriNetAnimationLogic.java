@@ -184,15 +184,15 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        return enabledTransitionsArray[index]; 
    }
 
-	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(TimedState timedState, 
-			Set<Transition> enabledTransitions) {
-		if (enabledTransitions.isEmpty()) {
-		   		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
-		   			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
-		   		}
-		   }
-		return enabledTransitions;
-	}
+//	protected Set<Transition> getEnabledTimedTransitionsForCurrentTime(TimedState timedState, 
+//			Set<Transition> enabledTransitions) {
+//		if (enabledTransitions.isEmpty()) {
+//		   		if (timedState.getEnabledTimedTransitions().containsKey(timedState.getCurrentTime())) {
+//		   			enabledTransitions = timedState.getEnabledTimedTransitions().get(timedState.getCurrentTime());
+//		   		}
+//		   }
+//		return enabledTransitions;
+//	}
 
     /**
      * @param state to be evaluated
