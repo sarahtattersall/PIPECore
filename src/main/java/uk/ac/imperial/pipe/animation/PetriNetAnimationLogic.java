@@ -100,7 +100,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         //    return cachedEnabledTransitions.get(state);
         //}
     	// First: get current enabled immediate transitions.
-        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
+		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
+//        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
         //boolean hasImmediate = areAnyTransitionsImmediate(enabledTransitions);
         int maxPriority = getMaxPriority(enabledTransitions);
         if (maxPriority > 1) {
@@ -131,7 +132,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        //    return cachedEnabledTransitions.get(state);
        //}
 	   // First: get current enabled immediate transitions.
-       Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
+       Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
+//       Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
        int maxPriority = getMaxPriority(enabledTransitions);
        if (maxPriority > 1) {
     	   removePrioritiesLessThan(maxPriority, enabledTransitions);
@@ -229,7 +231,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         	Iterator<Transition> checkStillEnabled = returnState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
         	while (checkStillEnabled.hasNext()) {
         		Transition nextChecked = checkStillEnabled.next();
-        		if (!(returnState.isEnabled( nextChecked ) )) {
+//        		if (!(returnState.isEnabled( nextChecked ) )) {
+        		if (!(this.executablePetriNet.isEnabled( nextChecked,returnState.getState() ) )) {
         			//System.out.println(nextChecked);
         			returnState.unregisterTimedTransition(nextChecked, nextFiringTime);
         		}

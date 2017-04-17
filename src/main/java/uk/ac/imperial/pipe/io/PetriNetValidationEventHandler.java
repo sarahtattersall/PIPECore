@@ -77,21 +77,12 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	}
 
 	private boolean saveAndCheckUnexpectedElement(ValidationEvent event) {
-//<<<<<<< b3c5fc1ed238e32bdc5d64e94dcbc86ac8fd9c84
 		if ((event.getLinkedException() == null) && (event.getMessage().startsWith(UNEXPECTED_ELEMENT))) {
 			formattedEvents.add(new FormattedEvent(true, formatEvent(), formatMessage())); 
 			return true;
 		}
 		else {
 			formattedEvents.add(new FormattedEvent(false, formatEvent(), formatMessage())); 
-//SJDclean =======
-//		if ((event.getLinkedException() == null) && (event.getMessage().startsWith("unexpected element"))) {
-//			formattedEvents.add(new FormattedEvent(true, printEvent())); 
-//			return true;
-//		}
-//		else {
-//			formattedEvents.add(new FormattedEvent(false, printEvent())); 
-//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 			return false;
 		}
 	}
@@ -165,14 +156,4 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	public final void setXmlFileType(XmlFileEnum xmlFileType) {
 		this.xmlFileType = xmlFileType;
 	}
-
-//SJDclean=======
-//		
-//		public FormattedEvent(boolean unexpected, String formattedEvent) {
-//			this.unexpected = unexpected; 
-//			this.formattedEvent = formattedEvent; 
-//		}
-//		
-//	}
-//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 }

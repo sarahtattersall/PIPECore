@@ -121,9 +121,6 @@ public class PetriNetWriterTest extends XMLTestCase {
     }
     
     public void testMarshalsPlace() throws Exception {
-//SJDclean=======
-//    public void testMarshalsPlace() throws IOException, SAXException, JAXBException {
-//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
         PetriNet petriNet = new PetriNet();
         Token token = new ColoredToken("Red", new Color(255, 0, 0));
         Place place = new DiscretePlace("P0", "P0");

@@ -22,7 +22,7 @@ public abstract class TimedState {
             builder.placeWithTokens(placeId, state.getTokens(placeId));
         }
     	this.state = builder.build();
-		this.currentTime = currentTime;
+		this.currentTime = time;
 	}
 
 	public State getState() {
@@ -37,11 +37,6 @@ public abstract class TimedState {
 		return this.currentTime;
 	}
 	    
-	public void setCurrentTime(long newTime) {
-		this.currentTime = newTime;
-		registerEnabledTimedTransitions( getEnabledTimedTransitions() );
-	}
-	
 	public abstract void resetTimeAndTimedTransitions(long newInitTime);
 	
 	public abstract TimedState makeCopy();
@@ -60,10 +55,5 @@ public abstract class TimedState {
 	
 	public abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
 	
-	public abstract Set<Transition> getEnabledImmediateTransitions();
-	
-	public abstract Set<Transition> getEnabledTimedTransitions();
-	
-	public abstract boolean isEnabled(Transition transition);
-
+    public abstract void setCurrentTime(long newTime);
 }

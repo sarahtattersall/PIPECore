@@ -63,22 +63,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 //    	setUpLog4J2(PetriNetAnimationLogic.class, Level.DEBUG, true); 
 //    	setUpLog4J2ForRoot(Level.DEBUG);  
 	}
-//<<<<<<< 11df5b8893857df071ff771a524c093a3c114042
-//    
-//	@Test
-////<<<<<<< 5bfbeec3b4365eac5d86077ff5c2ef1f2643b576
-////    public void infiniteServerSemantics() throws PetriNetComponentException {
-////        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-////                APlace.withId("P0").and(2, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
-////                AnImmediateTransition.withId("T0").andIsAnInfinite()).and(
-////                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
-////                ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
-////        executablePetriNet = petriNet.getExecutablePetriNet(); 
-////        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
-////=======
-//=======
     @Test
-//>>>>>>> Deprecate AnimationLogic.getEnabledTransitions, convert 2 tests to log4j
     public void infiniteServerSemantics() throws PetriNetComponentException {
 		PetriNet petriNet = buildPetriNet();
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
@@ -96,6 +81,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     }
 	
     //@Test
+    //TODO uncomment test; fix or delete
     public void testTimedPNRunner() throws PetriNetComponentException, InterruptedException {
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
     		APlace.withId("P0").and(3, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
@@ -281,22 +267,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 	}
     
 	@Test
-//<<<<<<< 2d290c87bc606112a7e9b5a10c5be8ffacaf0b75
-//	public void timedTransitionExecutesFollowingDelay() {
-//		PetriNet petriNet = buildTimedPetriNet();
-//		executablePetriNet = petriNet.getExecutablePetriNet(); 
-//		animator = new PetriNetAnimationLogic(executablePetriNet, 40000);
-//		State state = executablePetriNet.getState();
-//		((PetriNetAnimationLogic) animator).advanceToTime(40001); 
-//		Map<State, Collection<Transition>> successors = animator.getSuccessors(state);
-//SJDclean=======
 	public void timedTransitionExecutesFollowingDelay() throws PetriNetComponentException {
-//<<<<<<< 55df0c4d7513e7ac33409170339c49988ee1b32e
-//		advanceNetToTime(buildTimedPetriNet(1000), 40001);
-//>>>>>>> added 3 commented tests
-//=======
 		buildTimedPetriNet(1000, 40000);
-//>>>>>>> Introduced a TimedState as an extension of the PN-State which includes the currentTime and for the timed Petri Networks the time when transitions ar allowed to fire.
 		assertEquals(0, successors.size());
 		animator.advanceNetToTime( timedState, 41000 );
 		successors = animationLogic.getSuccessors( timedState );
@@ -306,15 +278,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		checkCountForPlace(2, "P0");
 		checkCountForPlace(1, "P1");
 		
-//<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
-////		System.out.println(successors);
-//		advanceNetToTime(42000, successor );
-////		System.out.println(successors);
-//		//successors = animationLogic.getSuccessors(successor);
-//=======
 		animator.advanceNetToTime( successor, 42000);
 		successors = animationLogic.getSuccessors(successor);
-//>>>>>>> Added TimedPetriNetRunner and sorted out timed transitions in the PNAnimationLogic and PNAnimator.
 		assertEquals(1, successors.size());
 		successor = successors.keySet().iterator().next();
 		
@@ -376,11 +341,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		
 	}
 	
-	//protected void advanceNetToTime(int advanceToTime, TimedState timedState) {
-		//timedState = executablePetriNet.getTimedState();
-	//	animator.advanceToTime(timedState, advanceToTime); 
-	//	successors = animationLogic.getSuccessors(timedState);
-	//}
 
 	protected PetriNet buildPetriNet() throws PetriNetComponentException {
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
@@ -390,14 +350,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
                 ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 		return petriNet;
 	}
-//<<<<<<< 55df0c4d7513e7ac33409170339c49988ee1b32e
-////<<<<<<< 2d290c87bc606112a7e9b5a10c5be8ffacaf0b75
-////	protected PetriNet buildTimedPetriNet() {
-////SJDclean=======
-//	protected PetriNet buildTimedPetriNet(int delay) throws PetriNetComponentException {
-//=======
 	protected PetriNet buildTimedPetriNet(int delay, long initTime) throws PetriNetComponentException {
-//>>>>>>> Introduced a TimedState as an extension of the PN-State which includes the currentTime and for the timed Petri Networks the time when transitions ar allowed to fire.
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
 		APlace.withId("P0").and(3, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
 		ATimedTransition.withId("T0").andDelay(delay)).and(

@@ -43,20 +43,12 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
-//<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
 	protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
 	protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
 	protected static final String PETRI_NET_RUNNER = "PetriNetRunner:  ";
 	protected static final String PETRI_NET_TO_EXECUTE_IS_NULL = PETRI_NET_RUNNER+"PetriNet to execute is null: ";
 	protected static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = PETRI_NET_RUNNER+"PetriNet XML could not be parsed successfully: ";
 	protected static final String INCLUDE_HIERARCHY_EXCEPTION = PETRI_NET_RUNNER+"Error attempting to build include hierarchy: ";
-//SJDclean=======
-//	protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);  
-//	private static final String PETRI_NET_RUNNER = "PetriNetRunner.";
-//	private static final String PETRI_NET_TO_EXECUTE_IS_NULL_OR_NOT_FOUND = "PetriNetRunner:  PetriNet to execute is null or not found: ";
-//	private static final String PETRI_NET_XML_COULD_NOT_BE_PARSED_SUCCESSFULLY_ = "PetriNetRunner:  PetriNet XML could not be parsed successfully: ";
-//	private static final String INCLUDE_HIERARCHY_EXCEPTION = "PetriNetRunner:  Error attempting to build include hierarchy: ";
-//>>>>>>> Added TimedPetriNetRunner and sorted out timed transitions in the PNAnimationLogic and PNAnimator.
 	public static final String EXECUTION_STARTED = "execution started";
 	public static final String UPDATED_STATE = "state updated";
 	public static final String EXECUTION_COMPLETED = "execution complete";
@@ -68,7 +60,6 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 	//TODO: executablePN should be protected
 	public ExecutablePetriNet executablePetriNet;
 	protected int round;
-	//protected boolean transitionsToFire;
 	private State previousState;
 	protected Animator animator;
 	protected Firing previousFiring;
@@ -221,7 +212,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 			// TODO: Can token counts can be decreased?
 			// This should be checked too.
 			this.executablePetriNet.getTimedState().registerEnabledTimedTransitions(
-					this.executablePetriNet.getTimedState().getEnabledTimedTransitions() );
+					this.executablePetriNet.getEnabledTimedTransitions() );
+//					this.executablePetriNet.getTimedState().getEnabledTimedTransitions() );
 		}
 	}
 
@@ -246,9 +238,6 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		logger.debug(EXECUTION_COMPLETED); 
 	}
 
-	//protected boolean transitionsToFire() {
-	//	return transitionsToFire;
-	//}
 
 	protected void start() {
 		// previousFiring is Round 0

@@ -59,10 +59,6 @@ public class HashedTimedState extends TimedState {
 	public ConcurrentSkipListMap<Long, Set<Transition>> getHashedTimedStateMap() {
 		return this.enabledTimedTransitions;
 	}
-
-//	public void setSecond(ConcurrentSkipListMap<Long, Set<Transition>> transitions) {
-//		this.enabledTimedTransitions = transitions;
-//	}
 	    
 	public long getCurrentTime() {
 		return this.currentTime;
@@ -74,60 +70,6 @@ public class HashedTimedState extends TimedState {
 	}
 	
 
-    /**
-     * @return all the currently enabled immediate transitions in the petri net
-     */
-    public Set<Transition> getEnabledImmediateTransitions() {
-
-        Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : executablePetriNet.getTransitions()) {
-            if (isEnabled(transition) && !transition.isTimed()) {
-                enabledTransitions.add(transition);
-            }
-        }
-        return enabledTransitions;
-    }
-    
-    /**
-     * @return all the currently enabled timed transitions in the petri net
-     */
-    public Set<Transition> getEnabledTimedTransitions() {
-        Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : executablePetriNet.getTransitions()) {
-            if (isEnabled(transition) & transition.isTimed()) {
-                enabledTransitions.add(transition);
-            }
-        }
-        return enabledTransitions;
-    }
-    
-    /**
-     * Works out if an transition is enabled. This means that it checks if
-     * a) places connected by an incoming arc to this transition have enough tokens to fire
-     * b) places connected by an outgoing arc to this transition have enough space to fit the
-     * new tokens (that is enough capacity).
-     *
-     * @param transition to see if it is enabled
-     * @return true if transition is enabled
-     */
-    public boolean isEnabled(Transition transition) {
-        for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
-            if (!arc.canFire(executablePetriNet, state)) {
-                return false;
-            }
-        }
-        for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
-            if (!arc.canFire(executablePetriNet, state)) {
-                return false;
-            }
-        }
-        return true;
-    }
-	
-	/*public void advanceTime(long newTime) {
-		
-	}*/
-	
 	public long getNextFiringTime() {
 		return this.enabledTimedTransitions.ceilingKey( this.currentTime );
 	}
@@ -208,5 +150,10 @@ public class HashedTimedState extends TimedState {
     		}
     	}
     }
+
+	public void setCurrentTime(long newTime) {
+		this.currentTime = newTime;
+		registerEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
+	}
 
 }

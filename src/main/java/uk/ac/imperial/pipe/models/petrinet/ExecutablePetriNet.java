@@ -6,7 +6,9 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
@@ -186,7 +188,60 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		setState(timedState.getState());
 		this.timedState = timedState;
 	}
-	
+    /**
+     * @return all the currently enabled immediate transitions in the petri net
+     */
+	//TODO calculate enabled transitions for other than current State
+	//  getEnabledImmediateTransitions(state)....calls isEnabled(transition, state)
+    public Set<Transition> getEnabledImmediateTransitions() {
+
+        Set<Transition> enabledTransitions = new HashSet<>();
+        for (Transition transition : getTransitions()) {
+            if (isEnabled(transition) && !transition.isTimed()) {
+                enabledTransitions.add(transition);
+            }
+        }
+        return enabledTransitions;
+    }
+    /**
+     * @return all the currently enabled timed transitions in the petri net
+     */
+    public Set<Transition> getEnabledTimedTransitions() {
+        Set<Transition> enabledTransitions = new HashSet<>();
+        for (Transition transition : getTransitions()) {
+            if (isEnabled(transition) & transition.isTimed()) {
+                enabledTransitions.add(transition);
+            }
+        }
+        return enabledTransitions;
+    }
+
+    /**
+     * Works out if an transition is enabled. This means that it checks if
+     * a) places connected by an incoming arc to this transition have enough tokens to fire
+     * b) places connected by an outgoing arc to this transition have enough space to fit the
+     * new tokens (that is enough capacity).
+     *
+     * @param transition to see if it is enabled
+     * @return true if transition is enabled
+     */
+    public boolean isEnabled(Transition transition) {
+    	return isEnabled(transition, this.state);
+    }
+    public boolean isEnabled(Transition transition, State state) {
+    	for (Arc<Place, Transition> arc : inboundArcs(transition)) {
+    		if (!arc.canFire(this, state)) {
+    			return false;
+    		}
+    	}
+    	for (Arc<Transition, Place> arc : outboundArcs(transition)) {
+    		if (!arc.canFire(this, state)) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
+
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
@@ -313,7 +368,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		if (transition.isTimed()) {
 			timedState.unregisterTimedTransition(transition, timedState.getCurrentTime() );
     	}
-    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
+    	timedState.registerEnabledTimedTransitions( getEnabledTimedTransitions() );
+//    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
 	}
 
 	protected void consumeInboundTokens(Transition transition, TimedState timedState) {
