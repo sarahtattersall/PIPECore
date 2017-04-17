@@ -124,24 +124,29 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
 	@Test
 	public void firingTransitionEnablesAndDisablesIndividualTransitionsAppropriately() throws Exception {
+		//TODO should "transition" mirror changes in EPN, rather than fetching each time? 
 		PetriNet petriNet = buildSequentiallyEnabledPetriNet();
-		
 		epn = petriNet.getExecutablePetriNet(); 
 		animator = new PetriNetAnimator(epn);
-		Transition transition = epn.getComponent("T1", Transition.class);
-		Transition transition2 = epn.getComponent("T2", Transition.class);
-		assertFalse(transition.isEnabled());
-		assertFalse(transition2.isEnabled());
+		Transition transition = getTransitionFromExecutablePetriNet("T1");
+		assertFalse(getTransitionFromExecutablePetriNet("T1").isEnabled());
+		assertFalse(getTransitionFromExecutablePetriNet("T2").isEnabled());
 		animator.startAnimation(); 
-		assertTrue(transition.isEnabled());
-		assertFalse(transition2.isEnabled());
+		assertTrue(getTransitionFromExecutablePetriNet("T1").isEnabled());
+		assertFalse(getTransitionFromExecutablePetriNet("T2").isEnabled());
 		animator.fireTransition(transition);
-		assertFalse(transition.isEnabled());
-		assertTrue(transition2.isEnabled());
+		assertFalse(getTransitionFromExecutablePetriNet("T1").isEnabled());
+		assertTrue(getTransitionFromExecutablePetriNet("T2").isEnabled());
 		animator.reset(); 
-		assertFalse(transition.isEnabled());
-		assertFalse(transition2.isEnabled());
+		assertFalse(getTransitionFromExecutablePetriNet("T1").isEnabled());
+		assertFalse(getTransitionFromExecutablePetriNet("T2").isEnabled());
 		
+	}
+
+
+	protected Transition getTransitionFromExecutablePetriNet(String transition)
+			throws PetriNetComponentNotFoundException {
+		return epn.getComponent(transition, Transition.class);
 	}
     @Test
     public void firingTransitionEnablesNextTransition() throws PetriNetComponentException {
