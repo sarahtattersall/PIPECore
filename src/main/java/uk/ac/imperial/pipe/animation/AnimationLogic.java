@@ -42,13 +42,6 @@ public interface AnimationLogic {
      */
     TimedState getFiredState(TimedState state, Transition transition);
 
-    /**
-     *
-     * @param state  petri net state to evaluate weight against
-     * @param weight a functional weight
-     * @return the evaluated weight for the given state
-     */
-    double getArcWeight(TimedState state, String weight);
 
     /**
      * Clears any caching done in the animation logic

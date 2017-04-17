@@ -127,30 +127,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     */
    @Override
    public Transition getRandomEnabledTransition(TimedState timedState) {
-	   // TODO: Turn on cached immediate transitions for current state.
-	   //if (cachedEnabledTransitions.containsKey(state)) {
-       //    return cachedEnabledTransitions.get(state);
-       //}
-	   // First: get current enabled immediate transitions.
-       Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
-//       Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
-       int maxPriority = getMaxPriority(enabledTransitions);
-       if (maxPriority > 1) {
-    	   removePrioritiesLessThan(maxPriority, enabledTransitions);
-       }
-       cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
-       // Second: Checking timed transitions which should fire by now when there are no
-       // immediate transitions left.
-       
-       // TODO: Check if it is still enabled 
-       // and whenever a place is loosing tokens it should be checked if
-       // a timed transitions becomes disabled again.
-       // APPROACH: for enabled timed transitions put 
-       // observed places in a map and for every changed place do a lookup if this might affect
-       // a timed transition.
-       if (enabledTransitions.isEmpty()) {
-       		enabledTransitions = timedState.getCurrentlyEnabledTimedTransitions();
-       }
+//       // TODO: Check if it is still enabled 
+//       // and whenever a place is losing tokens it should be checked if
+//       // a timed transitions becomes disabled again.
+//       // APPROACH: for enabled timed transitions put 
+//       // observed places in a map and for every changed place do a lookup if this might affect
+//       // a timed transition.
+	   Set<Transition> enabledTransitions = getEnabledImmediateOrTimedTransitions(timedState);
        if (enabledTransitions.isEmpty()) {
     	   return null;
        }
@@ -225,7 +208,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
 //        State returnState = builder.build();
         // Check all timed and waiting transitions, if they are still active.
-        Iterator<Long> nextFiringTimes = returnState.getNextFiringTimes().iterator();
+        verifyPendingTransitionsStillActive(returnState);
+        updateAffectedTransitionsStatus(returnState);
+        return ( returnState );
+    }
+    //TODO test this...
+	protected void verifyPendingTransitionsStillActive(TimedState returnState) {
+		Iterator<Long> nextFiringTimes = returnState.getNextFiringTimes().iterator();
         while (nextFiringTimes.hasNext()) {
         	long nextFiringTime = nextFiringTimes.next();
         	Iterator<Transition> checkStillEnabled = returnState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
@@ -238,9 +227,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         		}
         	}
         }
-        updateAffectedTransitionsStatus(returnState);
-        return ( returnState );
-    }
+	}
 
     /**
      * Computes transitions which need to be disabled because they are no longer enabled and
@@ -257,23 +244,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     		markedEnabledTransitions.add(transition);
     	}
     }
-    
-    
-    /**
-     * @param state  petri net state to evaluate weight against
-     * @param weight a functional weight
-     * @return the evaluated weight for the given state
-     */
-    @Override
-    public double getArcWeight(TimedState timedState, String weight) {
-    	double result =  executablePetriNet.evaluateExpression(timedState.getState(), weight); 
-        if (result == -1.0) {
-            //TODO:
-            throw new RuntimeException("Could not parse arc weight");
-        }
-        return result; 
-    }
-
     /**
      * Clears cached transitions
      */

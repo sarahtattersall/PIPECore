@@ -465,12 +465,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         }
         return currentWeight + arcWeight;
     }
-    /** MOVED FROM ABSTRACT TRANSITION
+    //MOVED FROM ABSTRACT TRANSITION
+    /** 
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
-    protected double getArcWeight(String weight, TimedState timedState) {
+    public double getArcWeight(String weight, TimedState timedState) {
     	double result =  this.evaluateExpression(timedState.getState(), weight); 
         if (result == -1.0) {
             //TODO:

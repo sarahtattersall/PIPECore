@@ -1,12 +1,11 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.Collections;
-import java.util.Collection;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import uk.ac.imperial.state.HashedStateBuilder;

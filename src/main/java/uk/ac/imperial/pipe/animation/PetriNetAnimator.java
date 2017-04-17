@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TimedState;
@@ -104,28 +105,31 @@ public final class PetriNetAnimator implements Animator {
         //Increment previous places
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
             Place place = arc.getSource();
-            for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-                String tokenId = entry.getKey();
-                String functionalWeight = entry.getValue();
-                double weight = animationLogic.getArcWeight(timedState, functionalWeight);
-                int currentCount = place.getTokenCount(tokenId);
-                int newCount = currentCount + (int) weight;
-                place.setTokenCount(tokenId, newCount);
-            }
+            adjustCount(timedState, arc, place, false);
         }
-
         //Decrement new places
         for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
-            Place place = arc.getTarget(); for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-                String tokenId = entry.getKey();
-                String functionalWeight = entry.getValue();
-                double weight = animationLogic.getArcWeight(timedState, functionalWeight);
-                int oldCount = place.getTokenCount(tokenId);
-                int newCount = oldCount - (int) weight;
-                place.setTokenCount(tokenId, newCount);
-            }
+            Place place = arc.getTarget(); 
+            adjustCount(timedState, arc, place, true);
         }
     }
+	protected void adjustCount(TimedState timedState,
+			Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean decrement) {
+		for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+		    String tokenId = entry.getKey();
+		    double weight = getWeight(timedState, entry);
+		    int currentCount = place.getTokenCount(tokenId);
+		    int adjust = (decrement) ? -1 : 1; 
+		    int newCount = currentCount + adjust * ((int) weight);
+		    place.setTokenCount(tokenId, newCount);
+		}
+	}
+
+	protected double getWeight(TimedState timedState,
+			Map.Entry<String, String> entry) {
+		String functionalWeight = entry.getValue();
+		return executablePetriNet.getArcWeight(functionalWeight, timedState );
+	}
 
 
     /**
