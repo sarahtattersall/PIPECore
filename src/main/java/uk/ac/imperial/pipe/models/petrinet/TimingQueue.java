@@ -7,16 +7,16 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
-public abstract class TimedState {
+public abstract class TimingQueue {
 	
 	protected State state;
 	protected long currentTime;
 	
-	protected TimedState() {
+	protected TimingQueue() {
 		super();
 	}
 	
-	public TimedState(State state, long time) {
+	public TimingQueue(State state, long time) {
 		HashedStateBuilder builder = new HashedStateBuilder();
         for (String placeId : state.getPlaces()) {
             builder.placeWithTokens(placeId, state.getTokens(placeId));
@@ -37,9 +37,9 @@ public abstract class TimedState {
 		return this.currentTime;
 	}
 	    
-	public abstract void resetTimeAndTimedTransitions(long newInitTime);
+	public abstract void resetTimeAndRebuildTimedTransitions(long newInitTime);
 	
-	public abstract TimedState makeCopy();
+	public abstract TimingQueue makeCopy();
 	
 	public abstract long getNextFiringTime();
 	
@@ -49,9 +49,9 @@ public abstract class TimedState {
 	
     public abstract void registerEnabledTimedTransitions(Set<Transition> enabledTransitions);
     
-    public abstract void unregisterTimedTransition(Transition transition, long atTime);
+    public abstract boolean unregisterTimedTransition(Transition transition, long atTime);
     
-	public abstract Set<Long> getNextFiringTimes();
+	public abstract Set<Long> getAllFiringTimes();
 	
 	public abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
 	

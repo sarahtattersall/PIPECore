@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
@@ -14,17 +14,17 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
  */
 public interface AnimationLogic {
     /**
-     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimedState)}
+     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
 	@Deprecated
-    Set<Transition> getEnabledTransitions(TimedState state);
+    Set<Transition> getEnabledTransitions(TimingQueue state);
 	
     /**
      * @return a random transition that can fire
      */
-    Transition getRandomEnabledTransition(TimedState state);
+    Transition getRandomEnabledTransition(TimingQueue state);
 
     /**
      * Calculates successor states of a given state
@@ -32,7 +32,7 @@ public interface AnimationLogic {
      * @param state to be evaluated
      * @return successors of the given state
      */
-    Map<TimedState, Collection<Transition>> getSuccessors(TimedState state);
+    Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue state);
 
     /**
      *
@@ -40,7 +40,7 @@ public interface AnimationLogic {
      * @param transition to be fired
      * @return the successor state after firing the transition
      */
-    TimedState getFiredState(TimedState state, Transition transition);
+    TimingQueue getFiredState(TimingQueue state, Transition transition);
 
 
     /**

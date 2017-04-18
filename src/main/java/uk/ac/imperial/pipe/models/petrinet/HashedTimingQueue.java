@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
-public class HashedTimedState extends TimedState {
+public class HashedTimingQueue extends TimingQueue {
 	
-	private ConcurrentSkipListMap<Long, Set<Transition>> enabledTimedTransitions;
+	protected ConcurrentSkipListMap<Long, Set<Transition>> enabledTimedTransitions;
 	private ExecutablePetriNet executablePetriNet;
 	
-	public HashedTimedState(ExecutablePetriNet epn, State state, ConcurrentSkipListMap<Long, Set<Transition>> timedTrans, long time) {
+	public HashedTimingQueue(ExecutablePetriNet epn, State state, ConcurrentSkipListMap<Long, Set<Transition>> timedTrans, long time) {
 		// TODO: Both copying is probably very expensive!
 	    this(epn, state, time);
 	    this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>();
@@ -28,7 +28,7 @@ public class HashedTimedState extends TimedState {
 	    }
 	}
 	
-	public HashedTimedState(ExecutablePetriNet epn, State state, long time) {
+	public HashedTimingQueue(ExecutablePetriNet epn, State state, long time) {
 		super(state, time);
 		this.executablePetriNet = epn;
     	this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
@@ -46,7 +46,10 @@ public class HashedTimedState extends TimedState {
 	public void setState(State state) {
 		this.state = state;
 	}
-
+	/**
+	 * For the current time, returns all timed transitions that are enabled to fire
+	 * @return set of transitions that are enabled to fire for the current time
+	 */
 	public Set<Transition> getCurrentlyEnabledTimedTransitions() {
 		if (this.enabledTimedTransitions.containsKey(this.currentTime)) {
 			return this.enabledTimedTransitions.get(this.currentTime);
@@ -62,8 +65,12 @@ public class HashedTimedState extends TimedState {
 	public long getCurrentTime() {
 		return this.currentTime;
 	}
-	    
-	public void resetTimeAndTimedTransitions(long newInitTime) {
+	/**
+	 * Sets the current time to a new time, and then rebuilds the timing queue using the new current
+	 * time as the initial offset.
+	 * @param newInitTime new time to use the base for building the timing queue
+	 */
+	public void resetTimeAndRebuildTimedTransitions(long newInitTime) {
 		this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>();
 		setCurrentTime(newInitTime);
 	}
@@ -73,7 +80,7 @@ public class HashedTimedState extends TimedState {
 		return this.enabledTimedTransitions.ceilingKey( this.currentTime );
 	}
 	
-	public Set<Long> getNextFiringTimes() {
+	public Set<Long> getAllFiringTimes() {
 		return this.enabledTimedTransitions.keySet();
 	}
 	
@@ -85,21 +92,25 @@ public class HashedTimedState extends TimedState {
 		return (this.enabledTimedTransitions.ceilingKey( this.currentTime ) != null);
 	}
 	
-	public TimedState makeCopy() {
+	public TimingQueue makeCopy() {
 		HashedStateBuilder builder = new HashedStateBuilder();
         for (String placeId : this.state.getPlaces()) {
             //Copy tokens
             builder.placeWithTokens(placeId, this.state.getTokens(placeId));
         }
-	    return (new HashedTimedState(executablePetriNet, builder.build(), this.enabledTimedTransitions, this.currentTime));
+	    return (new HashedTimingQueue(executablePetriNet, builder.build(), this.enabledTimedTransitions, this.currentTime));
 	}
-	
-	private boolean checkIfValueNotRegistered(Transition transition) {
+	/**
+	 * verifies whether a given transition does not exist anywhere in the timing queue 
+	 * @param transition to be verified
+	 * @return true if the transition does not exist in the timing queue
+	 */
+	protected boolean checkIfTransitionNotRegistered(Transition transition) {
 		boolean transitionNotRegistered = true;
 		Collection<Set<Transition>> transitionSets = this.enabledTimedTransitions.values();
-	    Iterator itr = transitionSets.iterator();
-	    while (itr.hasNext()) {
-	    	Set<Transition> nextSet = (Set<Transition>) itr.next();
+	    Iterator<Set<Transition>> it = transitionSets.iterator();
+	    while (it.hasNext()) {
+	    	Set<Transition> nextSet = it.next();
 	    	if (nextSet.contains(transition)) {
 	    		transitionNotRegistered = false;
 	    		break;
@@ -107,9 +118,26 @@ public class HashedTimedState extends TimedState {
 	    }
 	    return transitionNotRegistered;
 	}
-	
-	public void unregisterTimedTransition(Transition transition, long atTime) {
-		this.enabledTimedTransitions.get(atTime).remove(transition);
+	/**
+	 * If a transition exists in the timing queue, remove it.  
+	 * @param transition to be removed
+	 * @param atTime time at which transition was to be fired
+	 * @return true if transition was removed at the specified time; false if atTime did not 
+	 *   exist in the timing queue or if the transition was not at that time 
+	 *   (in which case transition might exist at another time -- logic error) 
+	 */
+	public boolean unregisterTimedTransition(Transition transition, long atTime) {
+		boolean unregistered = false;
+		if (this.enabledTimedTransitions.containsKey(atTime)) {
+			unregistered = this.enabledTimedTransitions.get(atTime).remove(transition);
+			removeFiringTimeIfEmpty(atTime);
+		} else {
+			unregistered = false; 
+		}
+		return unregistered; 
+	}
+
+	protected void removeFiringTimeIfEmpty(long atTime) {
 		if (this.enabledTimedTransitions.get(atTime).isEmpty()) {
 			this.enabledTimedTransitions.remove(atTime);
 		}
@@ -120,35 +148,35 @@ public class HashedTimedState extends TimedState {
      * put in the timing queue = when time is advanced they can get activated when 
      * the delay is gone.
      * 
-     * @param state  petri net state to evaluate weight against
+     * @param enabledTransitions  set of enabled timed transitions to be registered for timed firing
      */
     public void registerEnabledTimedTransitions(Set<Transition> enabledTransitions) {
-    	//Set<Transition> enabledTransitions = getEnabledTimedTransitions(timedState.getState());
     	Iterator<Transition> transitionIterator = enabledTransitions.iterator();
     	while (transitionIterator.hasNext()) {
     		Transition transition = transitionIterator.next();
-    		if (checkIfValueNotRegistered(transition)) {
-    		//if (transition.getNextFiringTime() <= this.currentTime) {
-    			// Set in the transition the next firing time 
-        		// (this is only used to keep track of the firing inside the transitions)
-    			long nextFiringTime = this.currentTime + transition.getDelay();
-    			
-    			// TODO: This information has to be removed from the transition - it is
-    			// only part of the state
-    			// Put transition into timing table to become fired when
-    			// the specified time is reached.
-    			if (this.enabledTimedTransitions.containsKey(nextFiringTime)) {
-    				Set<Transition> registeredTransitions = this.enabledTimedTransitions.get(nextFiringTime);
-    				registeredTransitions.add(transition);
-    				this.enabledTimedTransitions.put(nextFiringTime, registeredTransitions);
-    			} else {
-    				Set<Transition> registerTransitionSet = new HashSet<>();
-    			    registerTransitionSet.add(transition);
-    				this.enabledTimedTransitions.put(nextFiringTime, registerTransitionSet);
-    			}
+    		if (checkIfTransitionNotRegistered(transition)) {
+    			registerTransition(transition);
     		}
     	}
     }
+
+	protected void registerTransition(Transition transition) {
+		long nextFiringTime = this.currentTime + transition.getDelay();
+		Set<Transition> registeredTransitions = null; 
+		if (this.enabledTimedTransitions.containsKey(nextFiringTime)) {
+			registeredTransitions = this.enabledTimedTransitions.get(nextFiringTime);
+			addTransition(transition, nextFiringTime, registeredTransitions);
+		} else {
+			registeredTransitions = new HashSet<>();
+			addTransition(transition, nextFiringTime, registeredTransitions);
+		}
+	}
+
+	protected void addTransition(Transition transition, long nextFiringTime,
+			Set<Transition> registeredTransitions) {
+		registeredTransitions.add(transition);
+		this.enabledTimedTransitions.put(nextFiringTime, registeredTransitions);
+	}
 
 	public void setCurrentTime(long newTime) {
 		this.currentTime = newTime;

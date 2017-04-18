@@ -43,7 +43,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private boolean refreshRequired;
 	private State state;
 	// Wrapping the state with time
-	private TimedState timedState;
+	private TimingQueue timedState;
 	
 	//protected long timeStep = 10; // Is done in milliseconds.
 	//protected long initialTime = 0;
@@ -68,7 +68,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		//this.initialTime = initTime;
 		//this.currentTime = this.initialTime;
 		refresh(); 
-		timedState = new HashedTimedState(this, state, initTime);
+		timedState = buildTiming(initTime);
+	}
+
+	protected HashedTimingQueue buildTiming(long initTime) {
+		return new HashedTimingQueue(this, state, initTime);
 	}
 	
 	public ExecutablePetriNet(PetriNet petriNet) {
@@ -161,7 +165,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return state;
 	}
 	
-	public TimedState getTimedState() {
+	public TimingQueue getTimedState() {
 		// Refresh State - TODO: not sure necessary to reassign all the time
 		timedState.setState( getState() );
 		return timedState;
@@ -184,7 +188,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         }
 	}
 	
-	public void setTimedState(TimedState timedState) {
+	public void setTimedState(TimingQueue timedState) {
 		setState(timedState.getState());
 		this.timedState = timedState;
 	}
@@ -357,7 +361,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	/**
 	 * Fire a specific transition for the given TimedState.
 	 */
-	public void fireTransition(Transition transition, TimedState timedState) {
+	public void fireTransition(Transition transition, TimingQueue timedState) {
 		//TODO: Clean up - should the timedState be copied first to the network
 		// then the transition fired - and then the timedState set again?
 		transition.fire(); 
@@ -372,7 +376,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 //    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
 	}
 
-	protected void consumeInboundTokens(Transition transition, TimedState timedState) {
+	protected void consumeInboundTokens(Transition transition, TimingQueue timedState) {
 		/*for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
 		    String placeId = arc.getSource().getId();
 		    Map<String, String> arcWeights = arc.getTokenWeights();
@@ -408,7 +412,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	    }
 	}
 	
-	protected void produceOutboundTokens(Transition transition, TimedState timedState) {
+	protected void produceOutboundTokens(Transition transition, TimingQueue timedState) {
 		/*for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
 		    String placeId = arc.getTarget().getId();
 		    Map<String, String> arcWeights = arc.getTokenWeights();
@@ -471,7 +475,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
-    public double getArcWeight(String weight, TimedState timedState) {
+    public double getArcWeight(String weight, TimingQueue timedState) {
     	double result =  this.evaluateExpression(timedState.getState(), weight); 
         if (result == -1.0) {
             //TODO:

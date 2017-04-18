@@ -35,7 +35,7 @@ import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 import utils.AbstractTestLog4J2;
 //=======
 import uk.ac.imperial.state.State;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 //>>>>>>> Added TimedPetriNetRunner and sorted out timed transitions in the PNAnimationLogic and PNAnimator.
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,7 +68,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
         
-        TimedState timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimedState();
         assertEquals(1, (int) timedState.getState().getTokens("P0").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)
         //Place epnPlace = epn.getComponent("P0", Place.class);
@@ -86,7 +86,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
-        TimedState timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimedState();
         animator.fireTransition(transition);
         
         timedState = epn.getTimedState();
@@ -257,7 +257,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
 
-        TimedState timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimedState();
         assertEquals(0, (int) timedState.getState().getTokens("P1").get("Default") );
         assertEquals(1, (int) timedState.getState().getTokens("P2").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)

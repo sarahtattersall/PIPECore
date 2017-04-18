@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import com.google.common.collect.Sets;
@@ -48,7 +48,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * Needs to be concurrent thus to handle multiple calls to methods using this data structure
      * from different threads running in analysis modules
      */
-    public Map<TimedState, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
+    public Map<TimingQueue, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 	
 	/**
 	 * Random for use in random firing.   
@@ -71,7 +71,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	 * First, is looking for all immediate transitions.
 	 * Only if there are none, current timed transitions are used.
 	 * 
-	 * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimedState)}
+	 * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -85,7 +85,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //  presumably the user accepts the risk of firing transitions in an order that wouldn't be used by this class.     
     @Override
     @Deprecated
-    public Set<Transition> getEnabledTransitions(TimedState timedState) {
+    public Set<Transition> getEnabledTransitions(TimingQueue timedState) {
     	return getEnabledImmediateOrTimedTransitions(timedState);
     }
     /**
@@ -94,7 +94,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * @return enabled immediate transitions, if any; else enabled timed transitions 
      */
 	protected Set<Transition> getEnabledImmediateOrTimedTransitions(
-			TimedState timedState) {
+			TimingQueue timedState) {
 		// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
         //    return cachedEnabledTransitions.get(state);
@@ -126,7 +126,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     * @param state Must be a valid state for the Petri net this class represents
     */
    @Override
-   public Transition getRandomEnabledTransition(TimedState timedState) {
+   public Transition getRandomEnabledTransition(TimingQueue timedState) {
 //       // TODO: Check if it is still enabled 
 //       // and whenever a place is losing tokens it should be checked if
 //       // a timed transitions becomes disabled again.
@@ -148,8 +148,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * @return all successors of this state
      */
     @Override
-    public Map<TimedState, Collection<Transition>> getSuccessors(TimedState timedState) {
-    	TimedState startState = timedState.makeCopy();
+    public Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue timedState) {
+    	TimingQueue startState = timedState.makeCopy();
     	
     	//Set<Transition> enabledTransitions = startState.getEnabledTimedTransitionsNew();
     	//startState.registerEnabledTimedTransitions(enabledTransitions);
@@ -159,9 +159,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         if (enabled.size() > 0) {
         	logger.debug("Enabled : " + enabled.iterator().next());
         }
-        Map<TimedState, Collection<Transition>> successors = new HashMap<>();
+        Map<TimingQueue, Collection<Transition>> successors = new HashMap<>();
         for (Transition transition : enabled) {
-            TimedState successor = getFiredState( startState, transition);
+            TimingQueue successor = getFiredState( startState, transition);
             if (!successors.containsKey(successor)) {
                 successors.put(successor, new LinkedList<Transition>());
             }
@@ -190,9 +190,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     // This clearly has to move - it depends very much on the implementation e.g. of TimedState.
     // Maybe into TimedState?
     @Override
-    public TimedState getFiredState(TimedState timedState, Transition transition) {
+    public TimingQueue getFiredState(TimingQueue timedState, Transition transition) {
     	// TODO: Turn on HashedStateBuilder
-    	TimedState returnState = timedState.makeCopy();
+    	TimingQueue returnState = timedState.makeCopy();
     	
         Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(returnState);
         
@@ -213,17 +213,17 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         return ( returnState );
     }
     //TODO test this...
-	protected void verifyPendingTransitionsStillActive(TimedState returnState) {
-		Iterator<Long> nextFiringTimes = returnState.getNextFiringTimes().iterator();
+	protected void verifyPendingTransitionsStillActive(TimingQueue timedState) {
+		Iterator<Long> nextFiringTimes = timedState.getAllFiringTimes().iterator();
         while (nextFiringTimes.hasNext()) {
         	long nextFiringTime = nextFiringTimes.next();
-        	Iterator<Transition> checkStillEnabled = returnState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
+        	Iterator<Transition> checkStillEnabled = timedState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
         	while (checkStillEnabled.hasNext()) {
         		Transition nextChecked = checkStillEnabled.next();
 //        		if (!(returnState.isEnabled( nextChecked ) )) {
-        		if (!(this.executablePetriNet.isEnabled( nextChecked,returnState.getState() ) )) {
+        		if (!(this.executablePetriNet.isEnabled( nextChecked,timedState.getState() ) )) {
         			//System.out.println(nextChecked);
-        			returnState.unregisterTimedTransition(nextChecked, nextFiringTime);
+        			timedState.unregisterTimedTransition(nextChecked, nextFiringTime);
         		}
         	}
         }
@@ -233,7 +233,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * Computes transitions which need to be disabled because they are no longer enabled and
      * those that need to be enabled because they have been newly enabled.
      */
-    protected void updateAffectedTransitionsStatus(TimedState state) {
+    protected void updateAffectedTransitionsStatus(TimingQueue state) {
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
     	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
     		transition.disable();

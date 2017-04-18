@@ -6,7 +6,7 @@ import uk.ac.imperial.pipe.runner.PetriNetRunner;
 import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.animation.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.runner.Firing;
 
@@ -35,7 +35,7 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	 * time a timed transition would be up for firing.
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
-		TimedState currentState = this.executablePetriNet.getTimedState();
+		TimingQueue currentState = this.executablePetriNet.getTimedState();
 		currentState.setCurrentTime(newTime);
 		//((PetriNetAnimator) animator).fireAllCurrentEnabledTransitions(currentState);
 		boolean transitionToFire = true;

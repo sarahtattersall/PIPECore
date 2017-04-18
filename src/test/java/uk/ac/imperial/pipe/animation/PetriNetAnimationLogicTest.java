@@ -35,14 +35,14 @@ import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 //<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
 import utils.AbstractTestLog4J2;
 //=======
 import uk.ac.imperial.state.State;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.runner.TimedPetriNetRunner;
 //>>>>>>> Added TimedPetriNetRunner and sorted out timed transitions in the PNAnimationLogic and PNAnimator.
 
@@ -52,9 +52,9 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 	
     private ExecutablePetriNet executablePetriNet;
 	private PetriNetAnimationLogic animationLogic;
-	private TimedState timedState;
-	private Map<TimedState, Collection<Transition>> successors;
-	private TimedState successor;
+	private TimingQueue timedState;
+	private Map<TimingQueue, Collection<Transition>> successors;
+	private TimingQueue successor;
 	private PetriNetAnimator animator;
 
     @Before
@@ -89,7 +89,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
     		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
     	executablePetriNet = petriNet.getExecutablePetriNet(); 
-    	executablePetriNet.getTimedState().resetTimeAndTimedTransitions(0);
+    	executablePetriNet.getTimedState().resetTimeAndRebuildTimedTransitions(0);
     	animator = new PetriNetAnimator(executablePetriNet);
     	animationLogic = new PetriNetAnimationLogic(executablePetriNet);
     	timedState = executablePetriNet.getTimedState();
@@ -314,7 +314,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 				ANormalArc.withSource("P0").andTarget("T1").with("1", "Default").token()).andFinally(
 				ANormalArc.withSource("T1").andTarget("P2").and("1", "Default").token());
 		executablePetriNet = petriNet.getExecutablePetriNet();
-		executablePetriNet.getTimedState().resetTimeAndTimedTransitions(40000);
+		executablePetriNet.getTimedState().resetTimeAndRebuildTimedTransitions(40000);
 		// TODO: Save State in Animator is tricky - as it checks for the state in the PN
 		// not the TimedState object
 		animator = new PetriNetAnimator(executablePetriNet);
@@ -357,7 +357,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
 		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
-		executablePetriNet.getTimedState().resetTimeAndTimedTransitions(initTime);
+		executablePetriNet.getTimedState().resetTimeAndRebuildTimedTransitions(initTime);
 		animator = new PetriNetAnimator(executablePetriNet);
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 		timedState = executablePetriNet.getTimedState();
@@ -425,7 +425,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 				andFinally(ANormalArc.withSource("T1").andTarget("P2").and("1", "Default").token());
 		
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
-		executablePetriNet.getTimedState().resetTimeAndTimedTransitions(initTime);
+		executablePetriNet.getTimedState().resetTimeAndRebuildTimedTransitions(initTime);
 		animator = new PetriNetAnimator(executablePetriNet);
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 		timedState = executablePetriNet.getTimedState();
@@ -488,7 +488,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     			AnImmediateTransition.withId("T0")).andFinally(
     			ANormalArc.withSource("P0").andTarget("T0").with("#(P0)", "Default").token());
     	executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimedState timedState = executablePetriNet.getTimedState();
+        TimingQueue timedState = executablePetriNet.getTimedState();
         InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
         assertFalse(arc.canFire(executablePetriNet, timedState.getState() )); 
         Collection<Transition> transitions = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
@@ -700,12 +700,12 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     public void calculatesSimpleSuccessorStates() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(1);
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimedState timedState = executablePetriNet.getTimedState();
-        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
-        Map<TimedState, Collection<Transition>> successors = animator.getSuccessors(timedState);
+        TimingQueue timedState = executablePetriNet.getTimedState();
+        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
+        Map<TimingQueue, Collection<Transition>> successors = animationLogic.getSuccessors(timedState);
 
         assertEquals(1, successors.size());
-        TimedState successor = successors.keySet().iterator().next();
+        TimingQueue successor = successors.keySet().iterator().next();
 
         int actualP1 = successor.getState().getTokens("P1").get("Default");
         assertEquals(0, actualP1);
@@ -742,13 +742,13 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimedState timedState = executablePetriNet.getTimedState();
-        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+        TimingQueue timedState = executablePetriNet.getTimedState();
+        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 
-        Map<TimedState, Collection<Transition>> successors = animator.getSuccessors(timedState);
+        Map<TimingQueue, Collection<Transition>> successors = animationLogic.getSuccessors(timedState);
 
         assertEquals(1, successors.size());
-        TimedState successor = successors.keySet().iterator().next();
+        TimingQueue successor = successors.keySet().iterator().next();
 
         int actualP1 = successor.getState().getTokens("P0").get("Default");
         assertEquals(Integer.MAX_VALUE, actualP1);
@@ -758,15 +758,15 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimedState state = executablePetriNet.getTimedState();
-        PetriNetAnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
+        TimingQueue state = executablePetriNet.getTimedState();
+        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
         Set<Transition> transitions = new HashSet<>(); 
         transitions.add(petriNet.getComponent("T0", Transition.class));
-        animator.cachedEnabledImmediateTransitions.put(state, transitions); 
-        assertEquals(1, animator.cachedEnabledImmediateTransitions.size());
+        animationLogic.cachedEnabledImmediateTransitions.put(state, transitions); 
+        assertEquals(1, animationLogic.cachedEnabledImmediateTransitions.size());
         executablePetriNet.refreshRequired();
         executablePetriNet.refresh();
-        assertEquals("cache should be cleared",0, animator.cachedEnabledImmediateTransitions.size());
+        assertEquals("cache should be cleared",0, animationLogic.cachedEnabledImmediateTransitions.size());
 //        public Map<TimedState, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 
     }

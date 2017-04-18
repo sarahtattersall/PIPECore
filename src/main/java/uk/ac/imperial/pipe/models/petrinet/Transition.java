@@ -161,17 +161,4 @@ public interface Transition extends Connectable, PropertyChangeListener  {
      */
 	public int getDelay();
 	
-	/**
-	 * For {@link DiscreteTimedTransition}, specify the next point of time, in milliseconds, 
-	 * that this transition will fire.
-	 */
-    //public void setNextFiringTime(long time);
-    
-    /**
-     * 
-     * @return next time, in milliseconds, 
-     * that this transition will fire
-     */
-	//public long getNextFiringTime();
-
 }

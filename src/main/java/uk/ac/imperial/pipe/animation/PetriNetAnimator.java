@@ -11,7 +11,7 @@ import uk.ac.imperial.pipe.models.petrinet.Arc;
 import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
@@ -35,7 +35,7 @@ public final class PetriNetAnimator implements Animator {
      * Saved State of the underlying
      * Petri net so that it can be reapplied to the Petri net at any time
      */
-    private TimedState savedState;
+    private TimingQueue savedState;
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet;
@@ -100,7 +100,7 @@ public final class PetriNetAnimator implements Animator {
     // TODO: Has to be moved to ExecutablePetriNet - or later better TimedState?.
     @Override
     public void fireTransitionBackwards(Transition transition) {
-        TimedState timedState = executablePetriNet.getTimedState();
+        TimingQueue timedState = executablePetriNet.getTimedState();
         // TODO: Move time backward!? = put transition back onto stack
         //Increment previous places
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
@@ -113,7 +113,7 @@ public final class PetriNetAnimator implements Animator {
             adjustCount(timedState, arc, place, true);
         }
     }
-	protected void adjustCount(TimedState timedState,
+	protected void adjustCount(TimingQueue timedState,
 			Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean decrement) {
 		for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
 		    String tokenId = entry.getKey();
@@ -125,7 +125,7 @@ public final class PetriNetAnimator implements Animator {
 		}
 	}
 
-	protected double getWeight(TimedState timedState,
+	protected double getWeight(TimingQueue timedState,
 			Map.Entry<String, String> entry) {
 		String functionalWeight = entry.getValue();
 		return executablePetriNet.getArcWeight(functionalWeight, timedState );
@@ -136,9 +136,9 @@ public final class PetriNetAnimator implements Animator {
      * Fire all currently enabled immediate transitions
      * and afterwards the enabled timed transitions which are due to fire.
      * 
-     * @param TimedState timedState
+     * @param TimingQueue timedState
      */
-    public void fireAllCurrentEnabledTransitions(TimedState timedState) {
+    public void fireAllCurrentEnabledTransitions(TimingQueue timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
     	if (nextTransition != null) {
     		this.executablePetriNet.fireTransition(nextTransition, timedState);
@@ -157,9 +157,9 @@ public final class PetriNetAnimator implements Animator {
      * Fire a single enabled transition (immediate - or a timed one which is due when
      * there is no immediate transition left).
      * 
-     * @param TimedState timedState
+     * @param TimingQueue timedState
      */
-    public boolean fireOneEnabledTransition(TimedState timedState) {
+    public boolean fireOneEnabledTransition(TimingQueue timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
     	if (nextTransition != null) {
     		this.executablePetriNet.fireTransition(nextTransition, timedState);
@@ -180,7 +180,7 @@ public final class PetriNetAnimator implements Animator {
      * Fire all immediate transitions and afterwards step through time
      * always firing the timed transitions that become due to fire.
      */
-    public void advanceNetToTime(TimedState timedState, long newTime) {
+    public void advanceNetToTime(TimingQueue timedState, long newTime) {
     	if (newTime > timedState.getCurrentTime() ) {
         	fireAllCurrentEnabledTransitions(timedState);
         	while ( timedState.hasUpcomingTimedTransition() ) {

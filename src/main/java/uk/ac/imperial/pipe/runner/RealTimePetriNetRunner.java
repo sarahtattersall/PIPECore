@@ -1,7 +1,7 @@
 package uk.ac.imperial.pipe.runner;
 
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.TimedState;
+import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -56,7 +56,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	 * time a timed transition would be up for firing.
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
-		TimedState currentState = this.executablePetriNet.getTimedState();
+		TimingQueue currentState = this.executablePetriNet.getTimedState();
 		currentState.setCurrentTime(newTime);
 		//((PetriNetAnimator) animator).fireAllCurrentEnabledTransitions(currentState);
 		boolean transitionToFire = true;

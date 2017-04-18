@@ -610,15 +610,4 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 		return delay;
 	}
 	
-	/*@Override
-	public void setNextFiringTime(long nextFiringTime) {
-		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setNextFiringTime:  firingTime cannot be set if Transition is not timed.");
-		this.nextFiringTime = nextFiringTime; 
-	}
-
-	@Override
-	public long getNextFiringTime() {
-		return this.nextFiringTime;
-	}*/
-
 }
