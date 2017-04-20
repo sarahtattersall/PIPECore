@@ -18,7 +18,6 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.state.State;
 
 import com.google.common.collect.Sets;
 
@@ -101,13 +100,10 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         //    return cachedEnabledTransitions.get(state);
         //}
     	// First: get current enabled immediate transitions.
-		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
+		Set<Transition> enabledTransitions = 
+				executablePetriNet.maximumPriorityTransitions(
+				executablePetriNet.getEnabledImmediateTransitions());
 //        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
-        //boolean hasImmediate = areAnyTransitionsImmediate(enabledTransitions);
-        int maxPriority = getMaxPriority(enabledTransitions);
-        if (maxPriority > 1) {
-        	removePrioritiesLessThan(maxPriority, enabledTransitions);
-        }
         cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
         // Second: Checking timed transitions which should fire by now when there are no
         // immediate transitions left.
@@ -137,6 +133,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //		}
 //		return enabledTransitions;
 //	}
+
 	
     /**
     *
@@ -274,44 +271,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         cachedEnabledImmediateTransitions.clear();
     }
 
-    /**
-     * @param transitions to check if any are timed
-     * @return true if any of the transitions are immediate
-     */
-
-    /**
-     * @param transitions to find max priority of
-     * @return the maximum priority of immediate transitions in the collection
-     */
-    private int getMaxPriority(Iterable<Transition> transitions) {
-        int maxPriority = 0;
-        for (Transition transition : transitions) {
-            if (!transition.isTimed()) {
-                maxPriority = Math.max(maxPriority, transition.getPriority());
-            }
-        }
-        return maxPriority;
-    }
-
-
-    /**
-     * Performs in place removal transitions whose priority is less than the specified value
-     * <p/>
-     * Note we must use an iterator in order to ensure save removal
-     * whilst looping
-     *
-     * @param priority    minimum priority of transitions allowed to remain in the Collection
-     * @param transitions to remove if their priority is less than the specified value
-     */
-    private void removePrioritiesLessThan(int priority, Iterable<Transition> transitions) {
-        Iterator<Transition> transitionIterator = transitions.iterator();
-        while (transitionIterator.hasNext()) {
-            Transition transition = transitionIterator.next();
-            if (!transition.isTimed() && transition.getPriority() < priority) {
-                transitionIterator.remove();
-            }
-        }
-    }
     
 	private Random getRandom() {
 		if (random == null) {

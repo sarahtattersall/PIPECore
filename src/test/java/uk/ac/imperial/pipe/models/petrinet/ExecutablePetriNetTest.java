@@ -13,7 +13,9 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +34,7 @@ import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.tuple.Tuple;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -222,8 +225,49 @@ public class ExecutablePetriNetTest {
     	// rootP0 still has a reference to place, but not vice versa, so rootP0 should be garbage-collectable
     	checkConnectableHasListener("...so would token changes to old executable, but those won't happen", true, rootP0, place);
 	}
-
-    protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
+    @Test
+    public void returnsTupleOfOnlyEnabledImmediateAndTimedTransitions() throws Exception {
+    	PetriNet petriNet = buildNetWithImmediateAndTimedTransitionsSomeEnabled(); 
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+    	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions();
+    	Set<Transition> immediateTransitions = tuple.tuple1;
+    	Set<Transition> timedTransitions = tuple.tuple2; 
+    	assertEquals("only 1 of the 2 immediate transitions is enabled",
+    			1,immediateTransitions.size());
+    	assertEquals("T0", immediateTransitions.iterator().next().getId()); 
+    	assertEquals("T2", timedTransitions.iterator().next().getId()); 
+    }
+    private PetriNet buildNetWithImmediateAndTimedTransitionsSomeEnabled() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+			APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1"))
+				.and(AnImmediateTransition.withId("T0"))
+				.and(AnImmediateTransition.withId("T1"))
+				.and(ATimedTransition.withId("T2"))
+				.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+				.and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+				.andFinally(ANormalArc.withSource("P0").andTarget("T2").with("1", "Default").token());
+    	return petriNet; 
+    }
+    @Test
+    public void returnsOnlyTransitionsThatHaveMaximumPriority() throws Exception {
+    	PetriNet petriNet = buildNetWithTransitionsOfMultiplePriorities(); 
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+    	Collection<Transition> allTransitions = executablePetriNet.getTransitions();
+    	Set<Transition> maxPriorityTransitions = executablePetriNet.maximumPriorityTransitions(allTransitions); 
+    	assertEquals(2,maxPriorityTransitions.size());
+    	assertEquals("T3", maxPriorityTransitions.iterator().next().getId()); 
+    }
+    private PetriNet buildNetWithTransitionsOfMultiplePriorities() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+    			.and(AnImmediateTransition.withId("T0").andPriority(1))
+				.and(AnImmediateTransition.withId("T1").andPriority(1))
+				.and(AnImmediateTransition.withId("T2").andPriority(2))
+				.and(AnImmediateTransition.withId("T3").andPriority(3))
+				.andFinally(AnImmediateTransition.withId("T4").andPriority(3));
+    	return petriNet; 
+	}
+	protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
     	checkConnectableHasListener("", expected, connectable, listeningConnectable);
     }
 	protected void checkConnectableHasListener(String comment, boolean expected, Connectable connectable, Connectable listeningConnectable) {

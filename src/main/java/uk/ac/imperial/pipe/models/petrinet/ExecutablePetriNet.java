@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -255,7 +256,34 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     	}
     	return new Tuple<Set<Transition>, Set<Transition>>(immediateTransitions, timedTransitions); 
     }
-    
+    /**
+     * determines the maximum priority of a collection of transitions, and only returns the transitions with 
+     * that maximum priority 
+     * @param collection of transitions to be evaluated
+     * @return set of transitions that have the maximum priority of all transitions evaluated
+     */
+	public Set<Transition> maximumPriorityTransitions(
+			Collection<Transition> transitions) {
+		int maxPriority = getMaxPriority(transitions);
+		Set<Transition> maximumPriorityTransitions = new HashSet<>(); 
+		for (Transition transition : transitions) {
+			if (transition.getPriority() == maxPriority) {
+				maximumPriorityTransitions.add(transition); 
+			}
+		}
+		return maximumPriorityTransitions; 
+	}
+    private int getMaxPriority(Iterable<Transition> transitions) {
+        int maxPriority = 0;
+        for (Transition transition : transitions) {
+//            if (!transition.isTimed()) {  // duplicate, or is this needed? 
+                maxPriority = Math.max(maxPriority, transition.getPriority());
+//            }
+        }
+        return maxPriority;
+    }
+
+	
     /**
      * Determines if a transition is enabled for the current State ({@link #getState()}. 
      * Checks if:
@@ -594,5 +622,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
+
 
 }
