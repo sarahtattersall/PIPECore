@@ -122,7 +122,7 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = net.getExecutablePetriNet();
     	Place epnp1 = executablePetriNet.getComponent("P1", Place.class); 
     	epnp1.setTokenCount("Default", 2); 
-    	assertEquals(new Double(2.0), executablePetriNet.evaluateExpressionAgainstCurrentState("#(P1)")); 
+    	assertEquals(new Double(2.0), executablePetriNet.evaluateExpression("#(P1)")); 
 	}
     @Test
     public void evaluatesFunctionalExpressionGivenState() throws Exception {
@@ -139,7 +139,7 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = net.getExecutablePetriNet();
     	Place epnp1 = executablePetriNet.getComponent("P1", Place.class); 
     	epnp1.setTokenCount("Default", 2); 
-    	assertEquals(new Double(-1.0), executablePetriNet.evaluateExpressionAgainstCurrentState("Fred(P1)")); 
+    	assertEquals(new Double(-1.0), executablePetriNet.evaluateExpression("Fred(P1)")); 
     }
     @Test
     public void stateCanBeExtractedAndThenReappliedResettingBothExecutableAndSourcePetriNets() throws Exception {

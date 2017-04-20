@@ -49,7 +49,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void saveState() {
-    	savedState = executablePetriNet.getTimedState().makeCopy();
+    	savedState = executablePetriNet.getTimingQueue().makeCopy();
     }
 
     /**
@@ -68,7 +68,7 @@ public final class PetriNetAnimator implements Animator {
 // TODO: Clean up – Moved to AL
     @Override
     public Transition getRandomEnabledTransition() {
-    	return animationLogic.getRandomEnabledTransition(executablePetriNet.getTimedState());
+    	return animationLogic.getRandomEnabledTransition(executablePetriNet.getTimingQueue());
     }
 
     /**
@@ -78,7 +78,7 @@ public final class PetriNetAnimator implements Animator {
     @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimedState());
+        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
     }
 
    /**
@@ -89,7 +89,7 @@ public final class PetriNetAnimator implements Animator {
     */
     // TODO: Clean-up
     public void fireTransition(Transition transition) {
-    	animationLogic.getFiredState(this.executablePetriNet.getTimedState(), transition);  // don't call directly, so affected transitions are updated ? 
+    	animationLogic.getFiredState(this.executablePetriNet.getTimingQueue(), transition);  // don't call directly, so affected transitions are updated ? 
 //    	this.executablePetriNet.fireTransition(transition, this.executablePetriNet.getTimedState() );
     }
 
@@ -100,7 +100,7 @@ public final class PetriNetAnimator implements Animator {
     // TODO: Has to be moved to ExecutablePetriNet - or later better TimedState?.
     @Override
     public void fireTransitionBackwards(Transition transition) {
-        TimingQueue timedState = executablePetriNet.getTimedState();
+        TimingQueue timedState = executablePetriNet.getTimingQueue();
         // TODO: Move time backward!? = put transition back onto stack
         //Increment previous places
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {

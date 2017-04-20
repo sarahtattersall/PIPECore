@@ -10,10 +10,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import uk.ac.imperial.pipe.animation.AnimationLogic;
+import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
+import uk.ac.imperial.pipe.runner.Runner;
+import uk.ac.imperial.pipe.tuple.Tuple;
 import uk.ac.imperial.pipe.visitor.ClonePetriNet;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
@@ -21,21 +25,45 @@ import uk.ac.imperial.state.State;
 import com.google.common.collect.HashMultimap;
 
 /**
- * Makes a PetriNet available for execution, that is, animation or analysis by a module.  
+ * Makes a PetriNet available for execution, i.e., animation or analysis.  
  * The complete state of the Petri net is a set of collections of its constituent components.
- * For efficiency of processing the marking of the Petri net is saved as State  
+ * For efficiency of processing the marking of the Petri net is saved as its {@link State}   
  * <p>
- * If the Petri net is a composite Petri net, each import statement has been replaced with the components 
- * that comprise the imported Petri net, resulting in a single Petri net, 
- * with corresponding collections of all the constituent components.  
+ * The {@link IncludeHierarchy} of this Petri net is expanded to create a single Petri net consisting
+ * of all the included Petri nets connected by the arcs defined by their {@link MergeInterfaceStatus} 
+ * The result is a single Petri net, with corresponding collections of all the constituent components.  
  * </p><p>
  * If this executable Petri net is animated, the markings that result from firing 
  * enabled transitions will be populated in the affected places.  
  * If the affected places are components in an imported Petri net, the markings in the updated places in the 
  * executable Petri net are mirrored to the corresponding imported Petri net. </p>
+ * </p><p>
+ * Broadly, an executable Petri net is defined by its structure (places, transitions, arcs) and its state (marking), and possibly, its timing.
+ * The structure of an executable Petri net is built from an {@link IncludeHierarchy} of one or more {@link PetriNet}(s).  
+ * Any change to the include hierarchy or Petri nets will result in refreshing the executable Petri net. 
+ * During execution, the structure of the executable Petri net is fixed; what changes is its marking.  
+ * The current state (marking) of the executable Petri net is defined by its {@link State} ({@link #getState()}). 
+ * For Petri nets with timed transitions, the order of execution of timed transitions is defined by the  
+ * {@link TimingQueue} ({@link #getTimingQueue()}).  The current state and timing of the Petri net are used 
+ * by the PIPE GUI, and {@link Runner}.  Analysis of the Petri net, however, may require processing multiple
+ * different States, other than the current State.  Therefore, many methods have two flavors:
+ * <ul>
+ * <li> someProcessing():  performs some processing against the current State.  This may include updating the current State.
+ * <li> someProcessing(State state):  performs some processing against the given state.  The current State is neither referenced nor updated. 
+ * </ul>    
+ * </p><p>
+ * Processing of the executable Petri net may take different forms, defined as different implementations of {@link AnimationLogic}.
+ * Step-by-step execution (firing of individual transitions) is controlled by the {@link Animator}.
+ * </p>
+ * @see PetriNet
+ * @see AbstractPetriNet
+ * @see IncludeHierarchy
+ * @see State
+ * @see TimingQueue
+ * @see Runner
+ * @see AnimationLogic
+ * @see Animator
  */
-// * In the PIPE 5.0 gui, each imported Petri net is displayed in its own tab, and may be edited and persisted separately.  
-// * Expanded Petri nets are not visible in the gui; their updated markings are visible in the tabs of the corresponding imported Petri net. 
 public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChangeListener {
 
 	public static final String PETRI_NET_REFRESHED_MESSAGE = "executable Petri net refreshed";
@@ -43,7 +71,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private boolean refreshRequired;
 	private State state;
 	// Wrapping the state with time
-	private TimingQueue timedState;
+	private TimingQueue timingQueue;
 	
 	//protected long timeStep = 10; // Is done in milliseconds.
 	//protected long initialTime = 0;
@@ -68,10 +96,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		//this.initialTime = initTime;
 		//this.currentTime = this.initialTime;
 		refresh(); 
-		timedState = buildTiming(initTime);
+		timingQueue = buildTimingQueue(initTime);
 	}
 
-	protected HashedTimingQueue buildTiming(long initTime) {
+	protected HashedTimingQueue buildTimingQueue(long initTime) {
 		return new HashedTimingQueue(this, state, initTime);
 	}
 	
@@ -165,10 +193,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return state;
 	}
 	
-	public TimingQueue getTimedState() {
+	public TimingQueue getTimingQueue() {
 		// Refresh State - TODO: not sure necessary to reassign all the time
-		timedState.setState( getState() );
-		return timedState;
+		timingQueue.setState( getState() );
+		return timingQueue;
 	}
 	
 	/**
@@ -190,48 +218,68 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
 	public void setTimedState(TimingQueue timedState) {
 		setState(timedState.getState());
-		this.timedState = timedState;
+		this.timingQueue = timedState;
 	}
     /**
-     * @return all the currently enabled immediate transitions in the petri net
+     * @return all the enabled immediate transitions in the petri net for the current state
      */
 	//TODO calculate enabled transitions for other than current State
 	//  getEnabledImmediateTransitions(state)....calls isEnabled(transition, state)
     public Set<Transition> getEnabledImmediateTransitions() {
-
-        Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : getTransitions()) {
-            if (isEnabled(transition) && !transition.isTimed()) {
-                enabledTransitions.add(transition);
-            }
-        }
-        return enabledTransitions;
+    	return getEnabledImmediateAndTimedTransitions().tuple1; 
     }
     /**
-     * @return all the currently enabled timed transitions in the petri net
+     * Returns all the enabled timed transitions in the petri net for the current state, regardless
+     * of the current time.
+     * @return all the enabled timed transitions in the petri net for the current state
      */
     public Set<Transition> getEnabledTimedTransitions() {
-        Set<Transition> enabledTransitions = new HashSet<>();
-        for (Transition transition : getTransitions()) {
-            if (isEnabled(transition) & transition.isTimed()) {
-                enabledTransitions.add(transition);
-            }
-        }
-        return enabledTransitions;
+    	return getEnabledImmediateAndTimedTransitions().tuple2; 
     }
-
     /**
-     * Works out if an transition is enabled. This means that it checks if
+     * @see #getEnabledImmediateTransitions()
+     * @see #getEnabledTimedTransitions()
+     * @return a Tuple: immediate enabled transitions, timed enabled transitions
+     */
+    public Tuple<Set<Transition>, Set<Transition>> getEnabledImmediateAndTimedTransitions() {
+    	Set<Transition> immediateTransitions = new HashSet<>();
+    	Set<Transition> timedTransitions = new HashSet<>();
+    	for (Transition transition : getTransitions()) {
+    		if (isEnabled(transition)) {
+    			if (transition.isTimed()) {
+    				timedTransitions.add(transition);
+    			} else {
+    				immediateTransitions.add(transition);
+    			}
+    		}
+    	}
+    	return new Tuple<Set<Transition>, Set<Transition>>(immediateTransitions, timedTransitions); 
+    }
+    
+    /**
+     * Determines if a transition is enabled for the current State ({@link #getState()}. 
+     * Checks if:
      * a) places connected by an incoming arc to this transition have enough tokens to fire
      * b) places connected by an outgoing arc to this transition have enough space to fit the
-     * new tokens (that is enough capacity).
+     * new tokens (i.e., enough capacity).
      *
      * @param transition to see if it is enabled
      * @return true if transition is enabled
      */
     public boolean isEnabled(Transition transition) {
-    	return isEnabled(transition, this.state);
+    	return isEnabled(transition, getState());
     }
+    /**
+     * Determines if a transition is enabled for the given State, ignoring the current State. 
+     * Checks if:
+     * a) places connected by an incoming arc to this transition have enough tokens to fire
+     * b) places connected by an outgoing arc to this transition have enough space to fit the
+     * new tokens (i.e., enough capacity).
+     *
+     * @param transition to see if it is enabled
+     * @param state against which enabled status is to be determined
+     * @return true if transition is enabled
+     */
     public boolean isEnabled(Transition transition, State state) {
     	for (Arc<Place, Transition> arc : inboundArcs(transition)) {
     		if (!arc.canFire(this, state)) {
@@ -252,17 +300,16 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refreshRequired = true; 
 	}
 	/**
+	 * Evaluates an expression against the current State ({@link #getState()}. 
 	 * @param expression to evaluate
 	 * @return double result of the evaluation of the expression against the current state of 
 	 * this executable petri net, or -1.0 if the expression is not valid. 
 	 */
-	public Double evaluateExpressionAgainstCurrentState(String expression) {
+	public Double evaluateExpression(String expression) {
 		return evaluateExpression(getState(), expression);
 	}
 	/**
-	 * <i>Note that the expression is evaluated against the given state, 
-	 * not the current state.  If evaluation against the current state is needed, 
-	 * invoke {@link #evaluateExpressionAgainstCurrentState(String)}</i>.  
+	 * Evaluates an expression against the given State, ignoring the current State. 
 	 * @param state representing a possible marking of the places in this executable Petri net.  
 	 * @param expression to evaluate
 	 * @return double result of the evaluation of the expression against the given state, 
@@ -377,6 +424,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	protected void consumeInboundTokens(Transition transition, TimingQueue timedState) {
+		consumeInboundTokens(transition, timedState.getState()); 
+	}
+	//TODO convert to state processing; private method operates on places
+	protected void consumeInboundTokens(Transition transition, State state) {
 		/*for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
 		    String placeId = arc.getSource().getId();
 		    Map<String, String> arcWeights = arc.getTokenWeights();
@@ -396,23 +447,27 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		    }
 		}*/
 		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
-	        Place place = arc.getSource();
-	        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-	        	if (arc.getType() == ArcType.NORMAL) {
-	        		String tokenId = entry.getKey();
-	        		String functionalWeight = entry.getValue();
-	        		double weight = getArcWeight(functionalWeight, timedState);
-	        		int currentCount = place.getTokenCount(tokenId);
-	        		//int newCount = currentCount + (int) weight;
-	        		// TODO: This is still strange as a place has also always a marking associated.
-	        		place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
-	        		//timedState.setState( this.getState() );
-	        	}
-	        }
-	    }
+			Place place = arc.getSource();
+			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+				if (arc.getType() == ArcType.NORMAL) {
+					String tokenId = entry.getKey();
+					String functionalWeight = entry.getValue();
+					double weight = getArcWeight(functionalWeight, state);
+					int currentCount = place.getTokenCount(tokenId);
+					//int newCount = currentCount + (int) weight;
+					// TODO: This is still strange as a place has also always a marking associated.
+					place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
+					//timedState.setState( this.getState() );
+				}
+			}
+		}
 	}
 	
 	protected void produceOutboundTokens(Transition transition, TimingQueue timedState) {
+		produceOutboundTokens(transition, timedState.getState());
+	}
+	//TODO convert to state processing; private method operates on places
+	protected void produceOutboundTokens(Transition transition, State state) {
 		/*for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
 		    String placeId = arc.getTarget().getId();
 		    Map<String, String> arcWeights = arc.getTokenWeights();
@@ -426,60 +481,69 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		        ((Place) arc.getTarget()).setTokenCount(tokenId, addWeight(currentCount, arcWeight ));
 		    }
 		}*/
-	    //Increment new places
-	    for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
-	        Place place = arc.getTarget(); 
-	        for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-	            String tokenId = entry.getKey();
-	            String functionalWeight = entry.getValue();
-	            double weight = getArcWeight(functionalWeight, timedState);
-	            int currentCount = place.getTokenCount(tokenId);
-	            //int newCount = oldCount - (int) weight;
-	            place.setTokenCount(tokenId, addWeight(currentCount, (int) weight ));
-	        }
-	    }
+		//Increment new places
+		for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
+			Place place = arc.getTarget(); 
+			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+				String tokenId = entry.getKey();
+				String functionalWeight = entry.getValue();
+				double weight = getArcWeight(functionalWeight, state);
+				int currentCount = place.getTokenCount(tokenId);
+				//int newCount = oldCount - (int) weight;
+				place.setTokenCount(tokenId, addWeight(currentCount, (int) weight ));
+			}
+		}
 	}
 	
-	/** MOVED FROM ABSTRACTTRANSITION
+	/** 
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
      * from it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight of the arc
+     * @param arcWeight to be subtracted
      * @return subtracted weight
      */
     protected int subtractWeight(int currentWeight, int arcWeight) {
-        if (currentWeight == Integer.MAX_VALUE) {
-            return currentWeight;
-        }
-        return currentWeight - arcWeight;
+    	return adjustWeight(currentWeight, arcWeight, false);
     }
-
-    /** MOVED FROM ABSTRACT TRANSITION
+    /** 
      * Treats Integer.MAX_VALUE as infinity and so will not add the weight
      * to it if this is the case
      *
-     * @param currentWeight
-     * @param arcWeight
+     * @param currentWeight of the arc
+     * @param arcWeight to be added
      * @return added weight
      */
     protected int addWeight(int currentWeight, int arcWeight) {
+    	return adjustWeight(currentWeight, arcWeight, true);
+    }
+    private int adjustWeight(int currentWeight, int arcWeight, boolean add) {
         if (currentWeight == Integer.MAX_VALUE) {
             return currentWeight;
         }
-        return currentWeight + arcWeight;
+        int adjust = (add) ? 1 : -1; 
+        return currentWeight + (adjust * arcWeight);
     }
-    //MOVED FROM ABSTRACT TRANSITION
+    
     /** 
      * @param state  petri net state to evaluate weight against
      * @param weight a functional weight
      * @return the evaluated weight for the given state
      */
+    public double getArcWeight(String weight, State state) {
+    	double result =  this.evaluateExpression(state, weight); 
+    	if (result == -1.0) {
+    		//TODO: 
+    		throw new RuntimeException("Could not parse arc weight: "+weight);
+    	}
+    	return result; 
+    }
+    //TODO remove TQ
     public double getArcWeight(String weight, TimingQueue timedState) {
     	double result =  this.evaluateExpression(timedState.getState(), weight); 
         if (result == -1.0) {
-            //TODO:
-            throw new RuntimeException("Could not parse arc weight");
+            //TODO: 
+            throw new RuntimeException("Could not parse arc weight: "+weight);
         }
         return result; 
     }

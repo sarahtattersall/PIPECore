@@ -236,7 +236,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	}
 
 	private Double getRateGivenCurrentState(ExecutablePetriNet executablePetriNet) {
-		return executablePetriNet.evaluateExpressionAgainstCurrentState(getRateExpr());
+		return executablePetriNet.evaluateExpression(getRateExpr());
 	}
 
 	/**

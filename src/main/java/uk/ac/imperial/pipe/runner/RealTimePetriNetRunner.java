@@ -45,7 +45,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	 * and synchronizes it with the real time.
 	 */
 	public void startRealTimeClock() {
-		pnStartTime = this.executablePetriNet.getTimedState().getCurrentTime();
+		pnStartTime = this.executablePetriNet.getTimingQueue().getCurrentTime();
 		pnCurrentTime = pnStartTime;
 		realStartTime = System.nanoTime()/1000000;
 		realCurrentTime = realStartTime;
@@ -56,7 +56,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	 * time a timed transition would be up for firing.
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
-		TimingQueue currentState = this.executablePetriNet.getTimedState();
+		TimingQueue currentState = this.executablePetriNet.getTimingQueue();
 		currentState.setCurrentTime(newTime);
 		//((PetriNetAnimator) animator).fireAllCurrentEnabledTransitions(currentState);
 		boolean transitionToFire = true;
@@ -82,7 +82,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
 		start();
 		realCurrentTime = System.nanoTime()/1000000;
-		pnCurrentTime = this.executablePetriNet.getTimedState().getCurrentTime();
+		pnCurrentTime = this.executablePetriNet.getTimingQueue().getCurrentTime();
 		// Wait for realtime to catch up =
 		// for the stepping function the PN can go ahead of realtime, but
 		// importantly no timed transition can be fired before real time.
@@ -147,6 +147,6 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	}
 
 	public long getPNTimeSinceStart() {
-		return (this.executablePetriNet.getTimedState().getCurrentTime() - pnStartTime);
+		return (this.executablePetriNet.getTimingQueue().getCurrentTime() - pnStartTime);
 	}
 }

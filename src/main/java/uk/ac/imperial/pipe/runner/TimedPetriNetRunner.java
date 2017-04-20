@@ -35,7 +35,7 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	 * time a timed transition would be up for firing.
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
-		TimingQueue currentState = this.executablePetriNet.getTimedState();
+		TimingQueue currentState = this.executablePetriNet.getTimingQueue();
 		currentState.setCurrentTime(newTime);
 		//((PetriNetAnimator) animator).fireAllCurrentEnabledTransitions(currentState);
 		boolean transitionToFire = true;
@@ -50,14 +50,14 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	}
 	
 	public void setCurrentTimeExecutablePetriNet(long newTime) {
-		this.executablePetriNet.getTimedState().setCurrentTime(newTime);
+		this.executablePetriNet.getTimingQueue().setCurrentTime(newTime);
 	}
 	
 	@Override
 	public void run() {
 		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
 		start(); 
-		final long initialFiringTime = this.executablePetriNet.getTimedState().getCurrentTime();
+		final long initialFiringTime = this.executablePetriNet.getTimingQueue().getCurrentTime();
 		timedRunnerThread = new Thread() {
 			public void run() {
 				long lastTime, startTime, endTime;

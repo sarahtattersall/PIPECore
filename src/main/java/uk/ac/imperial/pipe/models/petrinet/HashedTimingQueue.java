@@ -54,11 +54,11 @@ public class HashedTimingQueue extends TimingQueue {
 		if (this.enabledTimedTransitions.containsKey(this.currentTime)) {
 			return this.enabledTimedTransitions.get(this.currentTime);
 		} else {
-			return ( Collections.emptySet() );
+			return Collections.emptySet() ;
 		}
 	}
 	
-	public ConcurrentSkipListMap<Long, Set<Transition>> getHashedTimedStateMap() {
+	public ConcurrentSkipListMap<Long, Set<Transition>> getTimingQueueMap() {
 		return this.enabledTimedTransitions;
 	}
 	    
@@ -74,20 +74,39 @@ public class HashedTimingQueue extends TimingQueue {
 		this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>();
 		setCurrentTime(newInitTime);
 	}
-	
-
+	/**
+	 * @return the next time at which at least one transition will fire.  
+	 * If the current time has at least one transition, the current time will be returned. 
+	 * If the timing queue is empty, returns -1.   
+	 */
 	public long getNextFiringTime() {
-		return this.enabledTimedTransitions.ceilingKey( this.currentTime );
+		if (enabledTimedTransitions.size() > 0) {
+			return this.enabledTimedTransitions.ceilingKey( this.currentTime );
+		} else {
+			return -1l; 
+		}
 	}
-	
+	/**
+	 * @return set of all times at which transitions are scheduled to fire, including times 
+	 * that have already past.   
+	 */
 	public Set<Long> getAllFiringTimes() {
 		return this.enabledTimedTransitions.keySet();
 	}
-	
+	/**
+	 * @return set of all transitions scheduled to fire at the given time, or an empty set,
+	 * if the time does not exist in the timing queue.  
+	 */
 	public Set<Transition> getEnabledTransitionsAtTime(long nextTime) {
-		return this.enabledTimedTransitions.get(nextTime);
+		if (this.enabledTimedTransitions.containsKey(nextTime)) {
+			return this.enabledTimedTransitions.get(nextTime);
+		} else {
+			return  Collections.emptySet(); 
+		}
 	}
-	
+	/**
+	 * @return true if there is at least one transition at the current or later time
+	 */
 	public boolean hasUpcomingTimedTransition() {
 		return (this.enabledTimedTransitions.ceilingKey( this.currentTime ) != null);
 	}

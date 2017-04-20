@@ -68,7 +68,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
         
-        TimingQueue timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimingQueue();
         assertEquals(1, (int) timedState.getState().getTokens("P0").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)
         //Place epnPlace = epn.getComponent("P0", Place.class);
@@ -86,10 +86,10 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
-        TimingQueue timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimingQueue();
         animator.fireTransition(transition);
         
-        timedState = epn.getTimedState();
+        timedState = epn.getTimingQueue();
         assertEquals(0, (int) timedState.getState().getTokens("P0").get("Default") );
         assertEquals(10, (int) timedState.getState().getTokens("P1").get("Red") );
         // I think this way is now wrong to ask for change in the STATE (not network)
@@ -118,7 +118,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
 	protected Collection<Transition> getEnabledTransitions() {
 			animationLogic = (PetriNetAnimationLogic) animator.getAnimationLogic(); 
-		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getTimedState());
+		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getTimingQueue());
 		return enabled;
 	}
 
@@ -257,7 +257,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
 
-        TimingQueue timedState = epn.getTimedState();
+        TimingQueue timedState = epn.getTimingQueue();
         assertEquals(0, (int) timedState.getState().getTokens("P1").get("Default") );
         assertEquals(1, (int) timedState.getState().getTokens("P2").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)

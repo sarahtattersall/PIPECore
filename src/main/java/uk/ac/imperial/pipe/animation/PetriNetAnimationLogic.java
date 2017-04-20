@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
+import uk.ac.imperial.state.State;
 
 import com.google.common.collect.Sets;
 
@@ -115,6 +116,27 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         }
         return enabledTransitions;
 	}
+//	protected Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
+//		// TODO: Turn on cached immediate transitions for current state.
+//		//if (cachedEnabledTransitions.containsKey(state)) {
+//		//    return cachedEnabledTransitions.get(state);
+//		//}
+//		// First: get current enabled immediate transitions.
+//		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
+////        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
+//		//boolean hasImmediate = areAnyTransitionsImmediate(enabledTransitions);
+//		int maxPriority = getMaxPriority(enabledTransitions);
+//		if (maxPriority > 1) {
+//			removePrioritiesLessThan(maxPriority, enabledTransitions);
+//		}
+//		cachedEnabledImmediateTransitions.put(state, enabledTransitions);
+//		// Second: Checking timed transitions which should fire by now when there are no
+//		// immediate transitions left.
+//		if (enabledTransitions.isEmpty()) {
+//			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
+//		}
+//		return enabledTransitions;
+//	}
 	
     /**
     *
@@ -309,7 +331,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	public void propertyChange(PropertyChangeEvent evt) {
 		clear();
 	}
-    
+    //TODO consider moving to animator
 	@Override
 	public void stopAnimation() {
 		for (Transition transition : markedEnabledTransitions) {
@@ -320,7 +342,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	@Override
 	public void startAnimation() {
 		initMarkedEnabledTransitions();  
-    	updateAffectedTransitionsStatus(executablePetriNet.getTimedState()); 
+    	updateAffectedTransitionsStatus(executablePetriNet.getTimingQueue()); 
 	}
 
 	protected void initMarkedEnabledTransitions() {
