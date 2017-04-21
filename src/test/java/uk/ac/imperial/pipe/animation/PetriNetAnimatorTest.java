@@ -61,18 +61,26 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
         PetriNet petriNet = createSelfLoopPetriNet("1");
         Place place = petriNet.getComponent("P0", Place.class);
-        place.setTokenCount("Default", 1);
-        place.setCapacity(1);
+//        place.setTokenCount("Default", 1);
+//        place.setCapacity(1);
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
         
-        TimingQueue timedState = epn.getTimingQueue();
-        assertEquals(1, (int) timedState.getState().getTokens("P0").get("Default") );
+//        TimingQueue timedState = epn.getTimingQueue();
+        State state = epn.getState(); 
+        assertEquals(1, (int) state.getTokens("P0").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)
         //Place epnPlace = epn.getComponent("P0", Place.class);
         //assertEquals(1, epnPlace.getTokenCount("Default"));
+    }
+    private PetriNet createSelfLoopPetriNet(String tokenWeight) throws PetriNetComponentException {
+        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+    		.and(APlace.withId("P0").andCapacity(1).and(1, "Default").token())
+    		.and(AnImmediateTransition.withId("T1"))
+    		.and(ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens())
+    		.andFinally(ANormalArc.withSource("P0").andTarget("T1").with(tokenWeight, "Default").tokens());
     }
 
     @Test
@@ -228,12 +236,6 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     }
 
 
-    private PetriNet createSelfLoopPetriNet(String tokenWeight) throws PetriNetComponentException {
-        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
-                AnImmediateTransition.withId("T1")).and(
-                ANormalArc.withSource("T1").andTarget("P0").with(tokenWeight, "Default").tokens()).andFinally(
-                ANormalArc.withSource("P0").andTarget("T1").with(tokenWeight, "Default").tokens());
-    }
 
     @Test
     public void correctlyEnablesTransitionEvenAfterFiring() throws PetriNetComponentException {

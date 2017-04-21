@@ -256,6 +256,20 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     	}
     	return new Tuple<Set<Transition>, Set<Transition>>(immediateTransitions, timedTransitions); 
     }
+    
+	public Set<Transition> getCurrentlyEnabledTimedTransitions() {
+		return timingQueue.getCurrentlyEnabledTimedTransitions();
+	}
+
+	public long getCurrentTime() {
+		return timingQueue.getCurrentTime();
+	}
+	public void setCurrentTime(long time) {
+		timingQueue.setCurrentTime(time); 
+	}
+
+
+	
     /**
      * determines the maximum priority of a collection of transitions, and only returns the transitions with 
      * that maximum priority 
@@ -441,7 +455,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		// then the transition fired - and then the timedState set again?
 		transition.fire(); 
 		//TODO: shouldn't this go into fire?
+//		consumeInboundTokens(transition);
+//		this.state = consumeInboundTokens(transition); // new
 		consumeInboundTokens(transition, timedState);
+//		produceOutboundTokens(transition);
+//		this.state = produceOutboundTokens(transition); // new
 		produceOutboundTokens(transition, timedState);
 		timedState.setState( this.getState() );
 		if (transition.isTimed()) {
@@ -450,30 +468,15 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     	timedState.registerEnabledTimedTransitions( getEnabledTimedTransitions() );
 //    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
 	}
-
+// new
+//	protected State consumeInboundTokens(Transition transition, TimingQueue timedState) {
+//		return consumeInboundTokens(transition, timedState.getState(), false); 
+//	}
 	protected void consumeInboundTokens(Transition transition, TimingQueue timedState) {
 		consumeInboundTokens(transition, timedState.getState()); 
 	}
-	//TODO convert to state processing; private method operates on places
+	// old
 	protected void consumeInboundTokens(Transition transition, State state) {
-		/*for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
-		    String placeId = arc.getSource().getId();
-		    Map<String, String> arcWeights = arc.getTokenWeights();
-		    Map<String, Integer> tokens = timedState.getState().getTokens(placeId);
-		    for (Map.Entry<String, Integer> entry : tokens.entrySet()) {
-		        String tokenId = entry.getKey();
-		        if (arcWeights.containsKey(tokenId)) {
-		            int currentCount = entry.getValue();
-		            int arcWeight = (int) getArcWeight(arcWeights.get(tokenId), timedState);
-		            // Write to current state map
-		            // TODO: right now it is handled through the 
-		            //tokens.put(tokenId, subtractWeight(currentCount, arcWeight));
-		            // TODO: This is still strange as a place has also always a marking associated.
-		            //arc.getSource().setTokenCount(tokenId, subtractWeight(currentCount, arcWeight));
-		            //builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
-		        }
-		    }
-		}*/
 		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
 			Place place = arc.getSource();
 			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
@@ -490,26 +493,29 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			}
 		}
 	}
-	
+
+	protected State consumeInboundTokens(Transition transition) {
+		return consumeInboundTokens(transition, this.state, true); 
+	}
+	protected State consumeInboundTokens(Transition transition, State state, boolean updatePlace) {
+		HashedStateBuilder builder = new HashedStateBuilder(state); 
+		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
+			Place place = arc.getSource();
+			if (arc.getType() == ArcType.NORMAL) {
+				updateTokensInStateAndPerhapsPlace(arc, state, updatePlace,	builder, place, false);
+			}
+		}
+		return builder.build(); 
+	}
+// new	
+//	protected State produceOutboundTokens(Transition transition, TimingQueue timedState) {
+//		return produceOutboundTokens(transition, timedState.getState(), false);
+//	}
 	protected void produceOutboundTokens(Transition transition, TimingQueue timedState) {
 		produceOutboundTokens(transition, timedState.getState());
 	}
-	//TODO convert to state processing; private method operates on places
+	// old
 	protected void produceOutboundTokens(Transition transition, State state) {
-		/*for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
-		    String placeId = arc.getTarget().getId();
-		    Map<String, String> arcWeights = arc.getTokenWeights();
-		    Map<String, Integer> tokens = timedState.getState().getTokens(placeId);
-		    for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-		        String tokenId = entry.getKey();
-		        int currentCount = timedState.getState().getTokens(placeId).get(tokenId);
-		        int arcWeight = (int) getArcWeight(entry.getValue(), timedState);
-		        //tokens.put(tokenId, addWeight(currentCount, arcWeight) );
-		        //builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
-		        ((Place) arc.getTarget()).setTokenCount(tokenId, addWeight(currentCount, arcWeight ));
-		    }
-		}*/
-		//Increment new places
 		for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
 			Place place = arc.getTarget(); 
 			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
@@ -519,6 +525,34 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 				int currentCount = place.getTokenCount(tokenId);
 				//int newCount = oldCount - (int) weight;
 				place.setTokenCount(tokenId, addWeight(currentCount, (int) weight ));
+			}
+		}
+	}
+	protected State produceOutboundTokens(Transition transition) {
+		return produceOutboundTokens(transition, this.state, true);
+	}
+	protected State produceOutboundTokens(Transition transition, State state, boolean updatePlace) {
+		HashedStateBuilder builder = new HashedStateBuilder(state); 
+		for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
+			Place place = arc.getTarget(); 
+			updateTokensInStateAndPerhapsPlace(arc, state, updatePlace, builder, place, true);
+		}
+		return builder.build(); 
+	}
+
+	protected void updateTokensInStateAndPerhapsPlace(
+		Arc<? extends Connectable, ? extends Connectable> arc,
+		State state, boolean updatePlace, HashedStateBuilder builder,
+		Place place, boolean add) {
+		for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+			String tokenId = entry.getKey();
+			String functionalWeight = entry.getValue();
+			double weight = getArcWeight(functionalWeight, state);
+			int currentCount = state.getTokens(place.getId()).get(tokenId);
+			int newCount = adjustWeight(currentCount, (int) weight, add);
+			builder.placeWithToken(place.getId(), tokenId, newCount);
+			if (updatePlace) {
+				place.setTokenCount(tokenId, newCount);
 			}
 		}
 	}
@@ -622,6 +656,9 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
+
+
+
 
 
 }

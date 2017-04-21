@@ -430,9 +430,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 		timedState = executablePetriNet.getTimingQueue();
 		successors = animationLogic.getSuccessors(timedState);
-		//TODO: registerTransitions must be invoked - should be bound to constructor;
-		//animationLogic.registerEnabledTimedTransitions(timedState);
-		
 		return petriNet;
 	}
 

@@ -267,6 +267,62 @@ public class ExecutablePetriNetTest {
 				.andFinally(AnImmediateTransition.withId("T4").andPriority(3));
     	return petriNet; 
 	}
+	@Test
+	public void firesTimedTransitionsUnderControlOfTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		assertEquals(0, executablePetriNet.getCurrentTime()); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(0, currentTimedTransitions.size()); 
+		executablePetriNet.setCurrentTime(5); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals("T2", currentTimedTransitions.iterator().next().getId()); 
+		executablePetriNet.setCurrentTime(10); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals("T3", currentTimedTransitions.iterator().next().getId()); 
+	}
+    private PetriNet buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+			APlace.withId("P0").and(1, "Default").token())
+				.and(APlace.withId("P1")).and(APlace.withId("P2").and(1, "Default").token())
+				.and(AnImmediateTransition.withId("T1")) // immediate, but not enabled (P1 empty)
+				.and(ATimedTransition.withId("T0")) // timed, but not enabled (P1 empty)
+				.and(ATimedTransition.withId("T2").andDelay(5)) // enabled (P0 marked)
+				.and(ATimedTransition.withId("T3").andDelay(10)) // enabled (P2 marked)
+				.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())  
+				.and(ANormalArc.withSource("P0").andTarget("T2").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+				.andFinally(ANormalArc.withSource("P2").andTarget("T3").with("1", "Default").token());
+    	return petriNet; 
+    }
+    @Test
+    public void consumesAndProducesTokensUpdatingStateOnly() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkState(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(t0, state, false); 
+    	checkState(consumeState0,"P0",0,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State produceState0 = executablePetriNet.produceOutboundTokens(t0, consumeState0, false); 
+    	checkState(produceState0,"P0",0,"P1", 1);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(t1, produceState0, false); 
+    	checkState(consumeState1,"P0",0,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State produceState1 = executablePetriNet.produceOutboundTokens(t1, consumeState1, false); 
+    	checkState(produceState1,"P0",1,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    }
+
+    
+	private void checkState(State state, String place0, int count0, String place1, int count1) {
+		assertEquals(count0, (int) state.getTokens(place0).get("Default"));
+		assertEquals(count1, (int) state.getTokens(place1).get("Default"));
+	}
 	protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
     	checkConnectableHasListener("", expected, connectable, listeningConnectable);
     }
@@ -284,7 +340,7 @@ public class ExecutablePetriNetTest {
 	private PetriNet buildSimpleNet() throws PetriNetComponentException {
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
-                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
+                AnImmediateTransition.withId("T0")).and(AnImmediateTransition.withId("T1"))
                 .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
                 .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
                 .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())

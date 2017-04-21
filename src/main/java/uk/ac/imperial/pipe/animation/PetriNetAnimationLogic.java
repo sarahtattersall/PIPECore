@@ -108,6 +108,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         // Second: Checking timed transitions which should fire by now when there are no
         // immediate transitions left.
         if (enabledTransitions.isEmpty()) {
+        	//TODO:  may have to pass in a state? 
         	enabledTransitions = timedState.getCurrentlyEnabledTimedTransitions(); 
         }
         return enabledTransitions;
