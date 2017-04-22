@@ -7,12 +7,9 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import uk.ac.imperial.pipe.animation.AnimationLogic;
-import uk.ac.imperial.pipe.animation.Animator;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
@@ -446,11 +443,94 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refresh(); 
 		return super.getRateParameters();
 	}
+	/**
+	 * Fire a transition, returning the State resulting from consuming tokens from the sources of the 
+	 * inbound arcs and producing tokens on the targets of the outbound arcs.  
+	 * <p>
+	 * This method updates the state of this executable Petri net.  To fire a transition without changing 
+	 * the state of the executable Petri net, use {@link #fireTransition(Transition, State)}. 
+	 * Both methods will return the same State.  This method will also result in an executable Petri net
+	 * whose State ({@link #getState()}) is identical to the State returned.  
+	 * </p><p>
+	 * The caller ({@link Animator} or {@link AnimationLogic}) is responsible for ensuring the transition
+	 * is in an appropriate state for firing, having selected the transition from the results of 
+	 * {@link #getEnabledImmediateTransitions()}, {@link #getEnabledTimedTransitions()}, 
+	 * {@link #getEnabledImmediateAndTimedTransitions()}, or {@link #getCurrentlyEnabledTimedTransitions()}.
+	 * Otherwise, results are undefined. 
+	 * </p><p>
+	 * The order of operations is as follows: 
+	 * <ul>
+	 * <li>inbound tokens are consumed, updating the source places
+	 * <li>outbound tokens are produced, updating the target places
+	 * <li>timing queue is updated to reflect any changes to the state of timed transitions
+	 * <li>the transition is fired
+	 * </ul>
+	 * If the transition is an {@link ExternalTransition} it will have access to the executable petri net
+	 * after the inbound tokens are consumed and the outbound tokens are produced.  This does not match 
+	 * a common sense interpretation of the semantics of "firing" (consume, fire, produce), but has the practical effect 
+	 * of ensuring the executable petri net is in a consistent state when external transition is given 
+	 * access to it. </p>   
+	 * @param transition to be fired
+	 * @return state that results from firing the transition
+	 */
+	protected State fireTransition(Transition transition) {
+		return fireTransition(transition, this.state, true); 
+	}
+	/**
+	 * Fire a transition, returning the State resulting from consuming tokens from the sources of the 
+	 * inbound arcs and producing tokens on the targets of the outbound arcs.  
+	 * <p>
+	 * This method does not update the state of this executable Petri net.  Instead, it operates <i>as if</i>
+	 * the input State was the state of this executable Petri net, and returns the State that would result
+	 * if that were the case.    
+	 * To fire a transition and change the corresponding state of the executable Petri net, 
+	 * use {@link #fireTransition(Transition)}.  Both methods will return the same State.  
+	 * </p><p>
+	 * The caller ({@link Animator} or {@link AnimationLogic}) is responsible for ensuring the transition
+	 * is in an appropriate state for firing, having selected the transition from the results of {@link #getEnabledImmediateTransitions()}, 
+	 * {@link #getEnabledTimedTransitions()}, {@link #getEnabledImmediateAndTimedTransitions()}, or {@link #getCurrentlyEnabledTimedTransitions()}.
+	 * Otherwise, results are undefined. 
+	 * </p><p>
+	 * The order of operations is as follows: 
+	 * <ul>
+	 * <li>inbound tokens are consumed, updating the source places
+	 * <li>outbound tokens are produced, updating the target places
+	 * <li>timing queue is updated to reflect any changes to the state of timed transitions
+	 * <li>the transition is fired
+	 * </ul>
+	 * If the transition is an {@link ExternalTransition} it will have access to the executable petri net
+	 * after the inbound tokens are consumed and the outbound tokens are produced.  This does not match 
+	 * a common sense interpretation of the semantics of "firing" (consume, fire, produce), but has the practical effect 
+	 * of ensuring the executable petri net is in a consistent state when external transition is given 
+	 * access to it. </p>   
+	 * @param transition to be fired
+	 * @param state prior to the firing of the transition
+	 * @return state that results from firing the transition
+	 */
+	protected State fireTransition(Transition transition, State state) {
+		return fireTransition(transition, state, false); 
+	}
+	protected State fireTransition(Transition transition, State state, boolean updateState) {
+		State stateConsumed = consumeInboundTokens(transition, state, updateState);
+		State stateProduced = produceOutboundTokens(transition, stateConsumed, updateState);
+		if (updateState) {
+//			setState(stateProduced);  // not required, as place updates will force state update 
+			updateTimingQueue(transition); 
+		}
+		transition.fire(); 
+		return stateProduced; 
+	}
+	private void updateTimingQueue(Transition transition) {
+		if (transition.isTimed()) {
+			getTimingQueue().unregisterTimedTransition(transition, getCurrentTime());
+		}
+		getTimingQueue().registerEnabledTimedTransitions( getEnabledTimedTransitions() );
+	}
 
 	/**
 	 * Fire a specific transition for the given TimedState.
 	 */
-	public void fireTransition(Transition transition, TimingQueue timedState) {
+	protected void fireTransition(Transition transition, TimingQueue timedState) {
 		//TODO: Clean up - should the timedState be copied first to the network
 		// then the transition fired - and then the timedState set again?
 		transition.fire(); 

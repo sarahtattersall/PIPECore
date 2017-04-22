@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.animation;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -15,9 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import com.google.common.collect.Sets;
 
@@ -93,7 +90,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * @param timedState
      * @return enabled immediate transitions, if any; else enabled timed transitions 
      */
-	protected Set<Transition> getEnabledImmediateOrTimedTransitions(
+	public Set<Transition> getEnabledImmediateOrTimedTransitions(
 			TimingQueue timedState) {
 		// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
@@ -228,6 +225,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
 //        State returnState = builder.build();
         // Check all timed and waiting transitions, if they are still active.
+        //TODO how does this work if not updating EPN's timing queue?  
         verifyPendingTransitionsStillActive(returnState);
         updateAffectedTransitionsStatus(returnState);
         return ( returnState );

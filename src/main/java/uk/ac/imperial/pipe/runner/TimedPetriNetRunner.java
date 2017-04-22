@@ -3,9 +3,9 @@ package uk.ac.imperial.pipe.runner;
 import java.util.Set;
 
 import uk.ac.imperial.pipe.runner.PetriNetRunner;
-import uk.ac.imperial.pipe.animation.Animator;
-import uk.ac.imperial.pipe.animation.PetriNetAnimator;
+import uk.ac.imperial.pipe.models.petrinet.Animator;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.runner.Firing;

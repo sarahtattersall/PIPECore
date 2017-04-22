@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.animation;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.Map;
 import java.util.Random;
@@ -7,12 +7,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.Connectable;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
  * Contains methods to help with animating the Petri net and performs

@@ -1,4 +1,4 @@
-package uk.ac.imperial.pipe.animation;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -34,6 +34,8 @@ import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimationLogic;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.models.petrinet.Token;

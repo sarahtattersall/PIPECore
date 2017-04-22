@@ -34,8 +34,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import uk.ac.imperial.pipe.animation.PetriNetAnimationLogic;
-import uk.ac.imperial.pipe.animation.PetriNetAnimator;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
@@ -55,6 +53,8 @@ import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimationLogic;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TestingContext;
 import uk.ac.imperial.pipe.models.petrinet.Transition;

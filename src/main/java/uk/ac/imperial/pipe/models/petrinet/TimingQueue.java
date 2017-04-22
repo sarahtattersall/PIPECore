@@ -13,14 +13,17 @@ public abstract class TimingQueue {
 	protected TimingQueue() {
 		super();
 	}
+	public TimingQueue(long time) {
+		this.currentTime = time;
+	}
 	
 	public TimingQueue(State state, long time) {
+		this(time);
 		HashedStateBuilder builder = new HashedStateBuilder();
         for (String placeId : state.getPlaces()) {
             builder.placeWithTokens(placeId, state.getTokens(placeId));
         }
     	this.state = builder.build();
-		this.currentTime = time;
 	}
 
 	public State getState() {

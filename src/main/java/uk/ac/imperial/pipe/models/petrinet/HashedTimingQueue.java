@@ -34,6 +34,13 @@ public class HashedTimingQueue extends TimingQueue {
     	this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
     	setCurrentTime(time);
 	}
+	public HashedTimingQueue(ExecutablePetriNet epn, long time) {
+		super(time);
+		this.executablePetriNet = epn;
+		this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
+		setCurrentTime(time);
+	}
+	
 
 	public String toString() { 
 		return "(" + this.state + ", " + this.enabledTimedTransitions + ", " + this.currentTime + ")"; 

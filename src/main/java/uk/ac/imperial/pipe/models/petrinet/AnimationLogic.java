@@ -1,12 +1,10 @@
-package uk.ac.imperial.pipe.animation;
+package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 /**
  * Contains methods which deal with the logic of animation, for instance

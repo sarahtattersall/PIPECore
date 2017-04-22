@@ -268,7 +268,7 @@ public class ExecutablePetriNetTest {
     	return petriNet; 
 	}
 	@Test
-	public void firesTimedTransitionsUnderControlOfTimingQueue() throws Exception {
+	public void timedTransitionsUnderControlOfTimingQueue() throws Exception {
 		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
 				.getExecutablePetriNet();
 		assertEquals(0, executablePetriNet.getCurrentTime()); 
@@ -280,6 +280,54 @@ public class ExecutablePetriNetTest {
 		executablePetriNet.setCurrentTime(10); 
 		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
 		assertEquals("T3", currentTimedTransitions.iterator().next().getId()); 
+	}
+	@Test
+	public void fireTimedTransitionsWithUpdatesToTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(1, currentTimedTransitions.size()); 
+		Transition t2 = currentTimedTransitions.iterator().next(); 
+		executablePetriNet.fireTransition(t2);
+		assertEquals(0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		executablePetriNet.setCurrentTime(10); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(1, currentTimedTransitions.size()); 
+		Transition t3 = currentTimedTransitions.iterator().next(); 
+		State finalState = executablePetriNet.fireTransition(t3);
+		assertEquals(0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals("timing queue reflects current time",10, executablePetriNet.getCurrentTime());
+    	checkStateAndPlaces("both input places empty",finalState,"P0",0,"P2",0);
+	}
+	@Test
+	public void fireTimedTransitionsUsingSeparateTimingQueueWithoutUpdatesToEPNTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		State state = executablePetriNet.getState(); 
+		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
+		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, 0); 
+		assertEquals("2 times registered in timingQueue",2, timingQueue.getAllFiringTimes().size());
+		assertEquals("...and in the EPN",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+		timingQueue.setCurrentTime(5); 
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = timingQueue.getCurrentlyEnabledTimedTransitions();
+		Transition t2 = currentTimedTransitions.iterator().next(); 
+		State stateT2 = executablePetriNet.fireTransition(t2, state);
+		assertTrue(timingQueue.unregisterTimedTransition(t2, 5));
+		assertEquals("local timing queue knows we fired transition",
+				0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals("...but EPN does not",
+				1, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		long nextTime = timingQueue.getNextFiringTime();
+		// can't timingQueue.setCurrentTime(10) because rebuilds from EPN, which hasn't been updated
+		assertEquals(10, nextTime); 
+		Transition t3 = timingQueue.getEnabledTransitionsAtTime(nextTime).iterator().next(); 
+		executablePetriNet.fireTransition(t3, stateT2);
+		assertTrue(timingQueue.unregisterTimedTransition(t3, 10));
+		assertEquals("no times left to fire",0, timingQueue.getAllFiringTimes().size());
+		assertEquals("EPN timing queue untouched",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
 	}
     private PetriNet buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled() throws PetriNetComponentException {
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
@@ -334,16 +382,49 @@ public class ExecutablePetriNetTest {
     	State produceState1 = executablePetriNet.produceOutboundTokens(t1, consumeState1, true); 
     	checkStateAndPlaces(produceState1,"P0",1,"P1", 0);
     }
-
-    
+    @Test
+    public void fireTransitionConsumesAndProducesTokensUpdatingStateOnly() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkStateAndPlaces("initial state and EPN are the same",state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	State returnedState = executablePetriNet.fireTransition(t0, state); 
+    	checkState(returnedState,"P0",0,"P1",1);
+    	checkState("underlying EPN unchanged",executablePetriNet.getState(),"P0",1,"P1", 0);
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class);
+    	State finalState = executablePetriNet.fireTransition(t1, returnedState); 
+    	checkStateAndPlaces("final state matches original state",finalState,"P0",1,"P1",0);
+    }
+    @Test
+    public void fireTransitionConsumesAndProducesTokensUpdatingStateAndPlaces() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkStateAndPlaces(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	State returnedState = executablePetriNet.fireTransition(t0); 
+    	checkStateAndPlaces("as state not passed but taken from EPN, both state & places always match",
+    			returnedState,"P0",0,"P1",1);
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class);
+    	State finalState = executablePetriNet.fireTransition(t1); 
+    	checkStateAndPlaces("final state matches original state",finalState,"P0",1,"P1",0);
+    }
+	private void checkStateAndPlaces(String comment, State state, String place0, int count0,
+			String place1, int count1) {
+		checkState(comment, state, place0, count0, place1, count1); 
+		checkState(comment, executablePetriNet.getState(), place0, count0, place1, count1); 
+	}
 	private void checkStateAndPlaces(State state, String place0, int count0,
 			String place1, int count1) {
-		checkState(state, place0, count0, place1, count1); 
-		checkState(executablePetriNet.getState(), place0, count0, place1, count1); 
+		checkStateAndPlaces("", state, place0, count0, place1, count1); 
+	}
+	private void checkState(String comment,State state, String place0, int count0, String place1, int count1) {
+		assertEquals(comment,count0, (int) state.getTokens(place0).get("Default"));
+		assertEquals(comment,count1, (int) state.getTokens(place1).get("Default"));
 	}
 	private void checkState(State state, String place0, int count0, String place1, int count1) {
-		assertEquals(count0, (int) state.getTokens(place0).get("Default"));
-		assertEquals(count1, (int) state.getTokens(place1).get("Default"));
+		checkState("", state, place0, count0, place1, count1); 
 	}
 	protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
     	checkConnectableHasListener("", expected, connectable, listeningConnectable);
