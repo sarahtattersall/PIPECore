@@ -202,17 +202,18 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     }
 
     @Test
-    public void throwsErrorIfSetTokenCountGreaterThanCapacity() {
+    public void throwsErrorIfSetTokenCountOfAllColorsGreaterThanCapacity() {
         exception.expect(RuntimeException.class);
-        exception.expectMessage("Cannot set token count that exceeds the capacity");
-        place.setCapacity(1);
+        exception.expectMessage("Total token count (3) exceeds capacity (2)");
+        place.setCapacity(2);
+        place.setTokenCount("Default", 1);
         place.setTokenCount("red", 2);
     }
 
     @Test
     public void throwsErrorIfIncrementTokenCountGreaterThanCapacity() {
         exception.expect(RuntimeException.class);
-        exception.expectMessage("Cannot set token count that exceeds the capacity");
+        exception.expectMessage("Total token count (2) exceeds capacity (1)");
         place.setCapacity(1);
 
         place.incrementTokenCount("red");
@@ -230,7 +231,7 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     @Test
     public void setTokenCountsCannotExceedCapacity() {
         exception.expect(RuntimeException.class);
-        exception.expectMessage("Count of tokens exceeds capacity!");
+        exception.expectMessage("Total token count (10) exceeds capacity (1)");
         place.setCapacity(1);
 
         Map<String, Integer> tokenCounts = new HashMap<>();
@@ -240,15 +241,15 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     }
 
     @Test
-    public void changingNumberOfTokensDoesNotTriggerExceedCapacityError() {
-        int capacity = 1;
+    public void changingNumberOfTokensWorks() {
+        int capacity = 2;
         place.setCapacity(capacity);
-
         place.incrementTokenCount("red");
-
-        place.setTokenCount("red", 1);
+        place.incrementTokenCount("red");
+        assertEquals(2, place.getTokenCount("red")); 
+        place.setTokenCount("red", 1); 
+        assertEquals("override existing count",1, place.getTokenCount("red")); 
     }
-
     @Test
     public void correctlyCountsNumberOfTokensStored() {
         int capacity = 20;

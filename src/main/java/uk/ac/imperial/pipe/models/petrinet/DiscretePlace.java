@@ -6,7 +6,6 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
@@ -165,6 +164,18 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     public Map<String, Integer> getTokenCounts() {
         return tokenCounts;
     }
+    /**
+     * Modifies the token count of the specified token
+     * @param token to be modified
+     * @param count to be set 
+     */
+    @Override
+    public void setTokenCount(String token, int count) {
+    	Map<String, Integer> counts = new HashMap<>(getTokenCounts());
+    	counts.put(token, count); 
+    	setTokenCounts(counts); 
+    }
+
 
     /**
      *
@@ -183,7 +194,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 		if (hasCapacityRestriction()) {
             int count = getNumberOfTokensStored(tokenCounts);
             if (count > capacity) {
-                throw new RuntimeException("Count of tokens exceeds capacity!");
+                throw new RuntimeException("Total token count ("+count+") exceeds capacity ("+capacity+")");
             }
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
@@ -234,26 +245,6 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	protected void notifyTokenListeners(String propertyMessage, Map<String, Integer> old, Map<String, Integer> tokenCounts) {
 		changeSupport.firePropertyChange(propertyMessage, old, tokenCounts);
 	}
-
-    /**
-     * Modifies the token count of the specified token
-     * @param token to be modified
-     * @param count to be set 
-     */
-    @Override
-    public void setTokenCount(String token, int count) {
-        if (hasCapacityRestriction()) {
-            int currentTokenCount = getNumberOfTokensStored();
-            int countMinusToken = currentTokenCount - getTokenCount(token);
-            if (countMinusToken + count > capacity) {
-                throw new RuntimeException("Cannot set token count that exceeds " +
-                        "the capacity of " + count);
-            }
-        }
-        Map<String, Integer> old = new HashMap<>(this.tokenCounts);
-        tokenCounts.put(token, count);
-        notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
-    }
 
     /**
      * @return the number of tokens currently stored in this place
@@ -423,7 +414,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 	public void setInInterface(boolean inInterface) {
     	this.inInterface = inInterface;
     	if (inInterface) {
-    		status = new PlaceStatusInterface(this); //FIXME
+    		status = new PlaceStatusInterface(this); //FIXME ?
     	}
     	else {
     		status = new PlaceStatusNormal(this); 
