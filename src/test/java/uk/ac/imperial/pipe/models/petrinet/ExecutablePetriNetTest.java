@@ -317,8 +317,30 @@ public class ExecutablePetriNetTest {
     	checkState(produceState1,"P0",1,"P1", 0);
     	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
     }
+    @Test
+    public void consumesAndProducesTokensUpdatingStateAndPlaces() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkState(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(t0, state, true); 
+    	checkStateAndPlaces(consumeState0,"P0",0,"P1", 0);
+    	State produceState0 = executablePetriNet.produceOutboundTokens(t0, consumeState0, true); 
+    	checkStateAndPlaces(produceState0,"P0",0,"P1", 1);
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(t1, produceState0, true); 
+    	checkStateAndPlaces(consumeState1,"P0",0,"P1", 0);
+    	State produceState1 = executablePetriNet.produceOutboundTokens(t1, consumeState1, true); 
+    	checkStateAndPlaces(produceState1,"P0",1,"P1", 0);
+    }
 
     
+	private void checkStateAndPlaces(State state, String place0, int count0,
+			String place1, int count1) {
+		checkState(state, place0, count0, place1, count1); 
+		checkState(executablePetriNet.getState(), place0, count0, place1, count1); 
+	}
 	private void checkState(State state, String place0, int count0, String place1, int count1) {
 		assertEquals(count0, (int) state.getTokens(place0).get("Default"));
 		assertEquals(count1, (int) state.getTokens(place1).get("Default"));
