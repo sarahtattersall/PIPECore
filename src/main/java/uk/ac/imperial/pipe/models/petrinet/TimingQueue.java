@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Iterator;
 import java.util.Set;
 
 import uk.ac.imperial.state.HashedStateBuilder;
@@ -50,11 +51,17 @@ public abstract class TimingQueue {
 	
     public abstract void registerEnabledTimedTransitions(Set<Transition> enabledTransitions);
     
-    public abstract boolean unregisterTimedTransition(Transition transition, long atTime);
     
 	public abstract Set<Long> getAllFiringTimes();
 	
 	public abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
 	
     public abstract void setCurrentTime(long newTime);
+
+    public abstract void verifyPendingTransitionsStillActive(State state);
+    
+    public abstract boolean unregisterTimedTransition(Transition transition, long atTime);
+	public abstract boolean unregisterTimedTransition(Transition nextChecked,
+			Long nextFiringTime, Iterator<Transition> transitionIterator,
+			Iterator<Long> timeIterator); 
 }

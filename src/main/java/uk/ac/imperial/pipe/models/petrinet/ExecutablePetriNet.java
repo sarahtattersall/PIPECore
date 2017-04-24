@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -515,15 +516,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		State stateProduced = produceOutboundTokens(transition, stateConsumed, updateState);
 		if (updateState) {
 //			setState(stateProduced);  // not required, as place updates will force state update 
-			updateTimingQueue(transition); 
+			updateTimingQueue(stateProduced); 
 		}
 		transition.fire(); 
 		return stateProduced; 
 	}
-	private void updateTimingQueue(Transition transition) {
-		if (transition.isTimed()) {
-			getTimingQueue().unregisterTimedTransition(transition, getCurrentTime());
-		}
+	private void updateTimingQueue(State state) {
+		getTimingQueue().verifyPendingTransitionsStillActive(state); 
 		getTimingQueue().registerEnabledTimedTransitions( getEnabledTimedTransitions() );
 	}
 

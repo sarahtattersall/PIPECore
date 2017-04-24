@@ -344,6 +344,29 @@ public class ExecutablePetriNetTest {
 				.andFinally(ANormalArc.withSource("P2").andTarget("T3").with("1", "Default").token());
     	return petriNet; 
     }
+	@Test
+	public void twoEnabledTimedTransitionsBothDisabledWhenOneFires() throws Exception {
+		executablePetriNet = buildNetTwoTimedTransitions()
+				.getExecutablePetriNet();
+		assertEquals(1, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(2, currentTimedTransitions.size()); 
+		Transition t0 = currentTimedTransitions.iterator().next(); 
+		executablePetriNet.fireTransition(t0);
+		assertEquals("both T0 and T1 no longer enabled",
+				0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals(0, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+	}
+    private PetriNet buildNetTwoTimedTransitions() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P0").and(1, "Default").token())
+    			.and(ATimedTransition.withId("T0").andDelay(5)) 
+    			.and(ATimedTransition.withId("T1").andDelay(5)) 
+    			.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())  
+    			.andFinally(ANormalArc.withSource("P0").andTarget("T1").with("1", "Default").token());
+    	return petriNet; 
+    }
     @Test
     public void consumesAndProducesTokensUpdatingStateOnly() throws Exception {
     	executablePetriNet = buildSimpleNet()

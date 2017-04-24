@@ -162,7 +162,35 @@ public class HashedTimingQueue extends TimingQueue {
 		}
 		return unregistered; 
 	}
+	
+	@Override
+	public void verifyPendingTransitionsStillActive(State state) {
+		Iterator<Long> timeIterator = getAllFiringTimes().iterator();  
+		while (timeIterator.hasNext()) {
+			Long nextFiringTime = timeIterator.next(); 
+			Iterator<Transition> transitionIterator = getEnabledTransitionsAtTime(nextFiringTime).iterator();	
+			while (transitionIterator.hasNext()) {
+				Transition nextChecked = transitionIterator.next(); 
+        		if (!(executablePetriNet.isEnabled( nextChecked, state ) )) { 
+        			transitionIterator.remove(); 
+        			if (this.enabledTimedTransitions.get(nextFiringTime).isEmpty()) {
+        				timeIterator.remove(); 
+        			}
+        		}
+        	}
+        }
+	}
 
+	
+	@Override
+	public boolean unregisterTimedTransition(Transition nextChecked,
+			Long nextFiringTime, Iterator<Transition> transitionIterator,
+			Iterator<Long> timeIterator) {
+		transitionIterator.remove();
+		return false;
+	}
+
+	
 	protected void removeFiringTimeIfEmpty(long atTime) {
 		if (this.enabledTimedTransitions.get(atTime).isEmpty()) {
 			this.enabledTimedTransitions.remove(atTime);
@@ -208,5 +236,6 @@ public class HashedTimingQueue extends TimingQueue {
 		this.currentTime = newTime;
 		registerEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
 	}
+
 
 }

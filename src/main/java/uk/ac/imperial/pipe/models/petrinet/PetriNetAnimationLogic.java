@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import uk.ac.imperial.state.State;
+
 
 import com.google.common.collect.Sets;
 
@@ -230,21 +232,31 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         updateAffectedTransitionsStatus(returnState);
         return ( returnState );
     }
-    //TODO test this...
-	protected void verifyPendingTransitionsStillActive(TimingQueue timedState) {
-		Iterator<Long> nextFiringTimes = timedState.getAllFiringTimes().iterator();
-        while (nextFiringTimes.hasNext()) {
-        	long nextFiringTime = nextFiringTimes.next();
-        	Iterator<Transition> checkStillEnabled = timedState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
-        	while (checkStillEnabled.hasNext()) {
-        		Transition nextChecked = checkStillEnabled.next();
-//        		if (!(returnState.isEnabled( nextChecked ) )) {
-        		if (!(this.executablePetriNet.isEnabled( nextChecked,timedState.getState() ) )) {
-        			//System.out.println(nextChecked);
-        			timedState.unregisterTimedTransition(nextChecked, nextFiringTime);
+	protected void verifyPendingTransitionsStillActive(TimingQueue timingQueue, State state) {
+		for (Long nextFiringTime : timingQueue.getAllFiringTimes()) {
+        	Set<Transition> checkStillEnabled = timingQueue.getEnabledTransitionsAtTime(nextFiringTime);	
+        	for (Transition nextChecked : checkStillEnabled) {
+        		if (!(this.executablePetriNet.isEnabled( nextChecked, state ) )) { 
+        			timingQueue.unregisterTimedTransition(nextChecked, nextFiringTime);
         		}
         	}
         }
+	}
+	//old
+	protected void verifyPendingTransitionsStillActive(TimingQueue timedState) {
+		Iterator<Long> nextFiringTimes = timedState.getAllFiringTimes().iterator();
+		while (nextFiringTimes.hasNext()) {
+			long nextFiringTime = nextFiringTimes.next();
+			Iterator<Transition> checkStillEnabled = timedState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
+			while (checkStillEnabled.hasNext()) {
+				Transition nextChecked = checkStillEnabled.next();
+//        		if (!(returnState.isEnabled( nextChecked ) )) {
+				if (!(this.executablePetriNet.isEnabled( nextChecked,timedState.getState() ) )) { // ok
+					//System.out.println(nextChecked);
+					timedState.unregisterTimedTransition(nextChecked, nextFiringTime);
+				}
+			}
+		}
 	}
 
     /**
