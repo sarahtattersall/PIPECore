@@ -7,7 +7,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -24,22 +23,17 @@ import uk.ac.imperial.state.State;
 import com.google.common.collect.HashMultimap;
 
 /**
- * Makes a PetriNet available for execution, i.e., animation or analysis.  
- * The complete state of the Petri net is a set of collections of its constituent components.
- * For efficiency of processing the marking of the Petri net is saved as its {@link State}   
+ * Makes a {@link PetriNet} available for execution, i.e., animation or analysis.  
+ * The complete state of the executable Petri net is a set of collections of its constituent components.
+ * For efficiency of processing the marking of the executable Petri net is saved as its {@link State}   
  * <p>
- * The {@link IncludeHierarchy} of this Petri net is expanded to create a single Petri net consisting
- * of all the included Petri nets connected by the arcs defined by their {@link MergeInterfaceStatus} 
+ * Broadly, an executable Petri net is defined by its structure (places, transitions, arcs) and its state (marking), 
+ * and possibly, its timing. The structure of an executable Petri net is built from an {@link IncludeHierarchy} 
+ * of one or more {@link PetriNet}(s).  The {@link IncludeHierarchy} of this Petri net is expanded to create a single 
+ * Petri net consisting of all the included Petri nets connected by the arcs defined by their {@link MergeInterfaceStatus} 
  * The result is a single Petri net, with corresponding collections of all the constituent components.  
  * </p><p>
- * If this executable Petri net is animated, the markings that result from firing 
- * enabled transitions will be populated in the affected places.  
- * If the affected places are components in an imported Petri net, the markings in the updated places in the 
- * executable Petri net are mirrored to the corresponding imported Petri net. </p>
- * </p><p>
- * Broadly, an executable Petri net is defined by its structure (places, transitions, arcs) and its state (marking), and possibly, its timing.
- * The structure of an executable Petri net is built from an {@link IncludeHierarchy} of one or more {@link PetriNet}(s).  
- * Any change to the include hierarchy or Petri nets will result in refreshing the executable Petri net. 
+ * Any change to the include hierarchy or Petri nets will result in refreshing ({@link #refresh()}) the executable Petri net. 
  * During execution, the structure of the executable Petri net is fixed; what changes is its marking.  
  * The current state (marking) of the executable Petri net is defined by its {@link State} ({@link #getState()}). 
  * For Petri nets with timed transitions, the order of execution of timed transitions is defined by the  
@@ -53,6 +47,11 @@ import com.google.common.collect.HashMultimap;
  * </p><p>
  * Processing of the executable Petri net may take different forms, defined as different implementations of {@link AnimationLogic}.
  * Step-by-step execution (firing of individual transitions) is controlled by the {@link Animator}.
+ * </p><p>
+ * If this executable Petri net is animated ({@link Animator}), the markings that result from firing enabled 
+ * transitions will be populated in the affected places. If the affected places are components in an included Petri 
+ * net, the markings in the updated places in the executable Petri net are mirrored to the corresponding 
+ * included Petri net. 
  * </p>
  * @see PetriNet
  * @see AbstractPetriNet
@@ -69,12 +68,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private PetriNet petriNet;
 	private boolean refreshRequired;
 	private State state;
-	// Wrapping the state with time
 	private TimingQueue timingQueue;
-	
-	//protected long timeStep = 10; // Is done in milliseconds.
-	//protected long initialTime = 0;
-	//public long currentTime= this.initialTime;
 	
     /**
      * Functional weight parser
@@ -92,8 +86,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		this.petriNet = petriNet;
 		includeHierarchy = petriNet.getIncludeHierarchy(); 
 		refreshRequired = true;
-		//this.initialTime = initTime;
-		//this.currentTime = this.initialTime;
 		refresh(); 
 		timingQueue = buildTimingQueue(initTime);
 	}
@@ -182,10 +174,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 	
     /**
-    * Supports calculating State independently of this executable petri net, 
-    * and then applying an updated State later
-    * @see #setState
-    * @return the State of the executable Petri net.
+     * Return the current State of this executable Petri net.
+     * Enables analyzing and computing State independently of this executable Petri net, 
+     * and then applying an updated State later
+     * @see #setState
+     * @return current State of the executable Petri net.
     */
 	public State getState() {
 		refresh(); 
@@ -220,31 +213,90 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		this.timingQueue = timedState;
 	}
     /**
-     * @return all the enabled immediate transitions in the petri net for the current state
+     * Returns the enabled immediate Transitions for the current State ({@link #getState()}) 
+     * of this executable Petri net, evaluated against the structure of this executable Petri net.
+     * To retrieve the enabled immediate Transitions for a given State, 
+     * use {@link #getEnabledImmediateTransitions(State)}    
+     * @see #getEnabledTimedTransitions()
+     * @see #getEnabledImmediateAndTimedTransitions() 
+     * @return all the enabled immediate transitions in the executable petri net for the current state
      */
-	//TODO calculate enabled transitions for other than current State
-	//  getEnabledImmediateTransitions(state)....calls isEnabled(transition, state)
     public Set<Transition> getEnabledImmediateTransitions() {
     	return getEnabledImmediateAndTimedTransitions().tuple1; 
     }
     /**
-     * Returns all the enabled timed transitions in the petri net for the current state, regardless
-     * of the current time.
-     * @return all the enabled timed transitions in the petri net for the current state
+     * Returns the enabled immediate Transitions for the given State evaluated against the structure 
+     * of this executable Petri net, but ignoring the current state of this executable Petri net.  
+     * To retrieve the enabled immediate Transitions for the current State, use {@link #getEnabledImmediateTransitions()}.
+     * If the current State ({@link #getState()}) of the executable Petri net is passed to this method, 
+     * it will return results identical to {@link #getEnabledImmediateTransitions()}.      
+     * @see #getEnabledTimedTransitions(State)
+     * @see #getEnabledImmediateAndTimedTransitions(State) 
+     * @return all the enabled immediate transitions in the executable petri net for the given state
+     */
+    public Set<Transition> getEnabledImmediateTransitions(State state) {
+    	return getEnabledImmediateAndTimedTransitions(state).tuple1; 
+    }
+    /**
+     * Returns the enabled timed Transitions for the current State ({@link #getState()}) 
+     * of this executable Petri net, evaluated against the structure of this executable Petri net.
+     * This method ignores the current time ({@link #getCurrentTime()}); to retrieve only the subset of the enabled 
+     * timed Transitions that could fire at the current time, use {@link #getCurrentlyEnabledTimedTransitions()}.
+     * To retrieve the enabled timed Transitions for a given State, 
+     * use {@link #getEnabledImmediateTransitions(State)}.    
+     * @see #getCurrentlyEnabledTimedTransitions()
+     * @see #getEnabledImmediateTransitions()
+     * @see #getEnabledImmediateAndTimedTransitions() 
+     * @return all the enabled timed transitions in the executable petri net for the current state
      */
     public Set<Transition> getEnabledTimedTransitions() {
     	return getEnabledImmediateAndTimedTransitions().tuple2; 
     }
     /**
+     * Returns the enabled timed Transitions for the given State evaluated against the structure 
+     * of this executable Petri net, but ignoring the current state of this executable Petri net.  
+     * To retrieve the enabled timed Transitions for the current State, use {@link #getEnabledTimedTransitions()}.
+     * If the current State ({@link #getState()}) of the executable Petri net is passed to this method, 
+     * it will return results identical to {@link #getEnabledTimedTransitions()}.
+     * This method ignores the current time ({@link #getCurrentTime()}); to retrieve only the subset of the enabled 
+     * timed Transitions that could fire at the current time, use {@link #getCurrentlyEnabledTimedTransitions(State)}.
+     * @see #getCurrentlyEnabledTimedTransitions(State)
+     * @see #getEnabledImmediateTransitions(State)
+     * @see #getEnabledImmediateAndTimedTransitions(State) 
+     * @return all the enabled timed transitions in the executable petri net for the given state
+     */
+    public Set<Transition> getEnabledTimedTransitions(State state) {
+    	return getEnabledImmediateAndTimedTransitions(state).tuple2; 
+    }
+    /**
+     * Returns both the enabled immediate and timed Transitions for the current State 
+     * ({@link #getState()}) of this executable Petri net, evaluated against the structure of this executable Petri net.
+     * The two sets are returned as a {@link Tuple}.
+     * To retrieve the enabled immediate and timed Transitions for a given State, 
+     * use {@link #getEnabledImmediateAndTimedTransitions(State)}    
      * @see #getEnabledImmediateTransitions()
      * @see #getEnabledTimedTransitions()
      * @return a Tuple: immediate enabled transitions, timed enabled transitions
      */
     public Tuple<Set<Transition>, Set<Transition>> getEnabledImmediateAndTimedTransitions() {
+    	return getEnabledImmediateAndTimedTransitions(this.state); 
+    }
+    /**
+     * Returns both the enabled immediate and timed Transitions for a given State 
+     * evaluated against the structure of this executable Petri net, but ignoring the current state 
+     * of this executable Petri net.  The two sets are returned as a {@link Tuple}.
+     * To retrieve the enabled immediate and timed Transitions for the current State ({@link #getState()}), 
+     * use {@link #getEnabledImmediateAndTimedTransitions()}.  If the current State of the executable Petri net
+     * is passed to this method, it will return results identical to {@link #getEnabledImmediateAndTimedTransitions()}.      
+     * @see #getEnabledImmediateTransitions()
+     * @see #getEnabledTimedTransitions()
+     * @return a Tuple: immediate enabled transitions, timed enabled transitions
+     */
+	public Tuple<Set<Transition>, Set<Transition>> getEnabledImmediateAndTimedTransitions(State state) {
     	Set<Transition> immediateTransitions = new HashSet<>();
     	Set<Transition> timedTransitions = new HashSet<>();
     	for (Transition transition : getTransitions()) {
-    		if (isEnabled(transition)) {
+    		if (isEnabled(transition, state)) {
     			if (transition.isTimed()) {
     				timedTransitions.add(transition);
     			} else {
@@ -253,7 +305,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     		}
     	}
     	return new Tuple<Set<Transition>, Set<Transition>>(immediateTransitions, timedTransitions); 
-    }
+	}
     
 	public Set<Transition> getCurrentlyEnabledTimedTransitions() {
 		return timingQueue.getCurrentlyEnabledTimedTransitions();
@@ -542,6 +594,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		produceOutboundTokens(transition, timedState);
 		timedState.setState( this.getState() );
 		if (transition.isTimed()) {
+//			timedState.verifyPendingTransitionsStillActive(this.getState());
 			timedState.unregisterTimedTransition(transition, timedState.getCurrentTime() );
     	}
     	timedState.registerEnabledTimedTransitions( getEnabledTimedTransitions() );
@@ -735,9 +788,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
-
-
-
 
 
 }

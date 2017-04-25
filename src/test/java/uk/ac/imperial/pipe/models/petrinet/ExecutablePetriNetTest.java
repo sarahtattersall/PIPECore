@@ -230,13 +230,31 @@ public class ExecutablePetriNetTest {
     	PetriNet petriNet = buildNetWithImmediateAndTimedTransitionsSomeEnabled(); 
     	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
     	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions();
-    	Set<Transition> immediateTransitions = tuple.tuple1;
+    	checkT0ImmediateAndT2TimedEnabled(tuple); 
+    }
+    @Test
+    public void returnsEnabledTransitionsForProvidedState() throws Exception {
+        executablePetriNet = buildNetWithImmediateAndTimedTransitionsSomeEnabled().getExecutablePetriNet();
+        State state = executablePetriNet.getState(); 
+        Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+        assertTrue(executablePetriNet.isEnabled(t0));
+        executablePetriNet.fireTransition(t0); 
+        assertFalse("T0 no longer enabled in EPN",executablePetriNet.isEnabled(t0));
+    	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions(state);
+    	// although T0 in EPN is disabled, sets of enabled transitions for State are not affected
+    	checkT0ImmediateAndT2TimedEnabled(tuple); 
+    	assertTrue("...but T0 still enabled in State",executablePetriNet.isEnabled(t0,state));
+    }
+
+	protected void checkT0ImmediateAndT2TimedEnabled(
+			Tuple<Set<Transition>, Set<Transition>> tuple) {
+		Set<Transition> immediateTransitions = tuple.tuple1;
     	Set<Transition> timedTransitions = tuple.tuple2; 
     	assertEquals("only 1 of the 2 immediate transitions is enabled",
     			1,immediateTransitions.size());
     	assertEquals("T0", immediateTransitions.iterator().next().getId()); 
-    	assertEquals("T2", timedTransitions.iterator().next().getId()); 
-    }
+    	assertEquals("T2", timedTransitions.iterator().next().getId());
+	}
     private PetriNet buildNetWithImmediateAndTimedTransitionsSomeEnabled() throws PetriNetComponentException {
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
 			APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1"))
