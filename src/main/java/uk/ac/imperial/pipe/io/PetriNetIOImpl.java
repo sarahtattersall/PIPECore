@@ -40,6 +40,25 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.PlaceAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.RateParameterAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TokenAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TokenSetIntegerAdapter;
+import uk.ac.imperial.pipe.io.adapters.modelAdapter.TransitionAdapter;
+import uk.ac.imperial.pipe.models.PetriNetHolder;
+import uk.ac.imperial.pipe.models.petrinet.ColoredToken;
+import uk.ac.imperial.pipe.models.petrinet.FunctionalRateParameter;
+import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.Token;
+import uk.ac.imperial.pipe.models.petrinet.Transition;
+
 /**
  * Petri net IO implementation that writes and reads a Petri net using JAXB
  */

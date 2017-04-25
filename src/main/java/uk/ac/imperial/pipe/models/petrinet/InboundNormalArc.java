@@ -37,14 +37,16 @@ public class InboundNormalArc extends InboundArc {
         Map<String, String> tokenWeights = getTokenWeights();
         double tokenWeight = 0; 
         for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue()); 
+        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue());
             if (tokenWeight == -1.0) {
                 //TODO:
                 throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
             }
             String tokenId = entry.getKey();
             int currentCount = tokenCounts.get(tokenId);
-            if (currentCount < tokenWeight) {  
+            //TODO test:  currentCount = -1 can't mean that the arc can fire
+//            if ((currentCount < tokenWeight) && (currentCount != -1)) {
+            if ((currentCount < tokenWeight) || (currentCount == 0)) {
                 return false;
             }
         }

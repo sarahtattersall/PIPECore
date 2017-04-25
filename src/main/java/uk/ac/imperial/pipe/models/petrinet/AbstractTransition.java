@@ -56,6 +56,10 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 * Angle at which this transition should be displayed
 	 */
 	protected int angle = 0;
+	
+	int delay = 0;
+	//long nextFiringTime = Long.MIN_VALUE;
+	
 	public AbstractTransition(String id, String name) {
 		super(id, name);
 	}
@@ -77,14 +81,15 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 		this.state = state; 
 		this.builder = builder; 
 		fire(); 
+		//TODO: shouldn't this go into fire?
+		// Right now, when you fire a transition: nothing happens
 		consumeInboundTokens();
 
 		State temporaryState = builder.build();
-
+		//TODO: shouldn't this go into fire?
 		produceOutboundTokens(temporaryState);
 		return builder; 
 	}
-
 
 	protected void produceOutboundTokens(State temporaryState) {
 		for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(this)) {
@@ -231,7 +236,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	}
 
 	private Double getRateGivenCurrentState(ExecutablePetriNet executablePetriNet) {
-		return executablePetriNet.evaluateExpressionAgainstCurrentState(getRateExpr());
+		return executablePetriNet.evaluateExpression(getRateExpr());
 	}
 
 	/**
@@ -423,6 +428,10 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    if (!rate.equals(that.rate)) {
 	        return false;
 	    }
+
+	    if (delay != that.delay) {
+	    		return false;
+	    }
 	
 	    return true;
 	}
@@ -590,4 +599,15 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 
 
+	@Override
+	public void setDelay(int delay) {
+		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
+		this.delay = delay; 
+	}
+
+	@Override
+	public int getDelay() {
+		return delay;
+	}
+	
 }

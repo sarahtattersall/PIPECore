@@ -58,14 +58,24 @@ public class ATransitionTest {
 
 
     @Test
-    public void createsTimedTransition() {
+    public void createsTimedTransitionWithRate() {
         Transition transition =
                 ATimedTransition.withId("T0").create(tokens, places, transitions, rateParameters);
         Transition expected = new DiscreteTransition("T0", "T0");
         expected.setTimed(true);
         assertEquals(expected, transition);
     }
-
+    @Test
+    public void createsTimedTransitionWithDelay() {
+	    	Transition transition =
+	    			ATimedTransition.withId("T0").andDelay(1000).create(tokens, places, transitions, rateParameters);
+	    	Transition expected = new DiscreteTransition("T0", "T0");
+	    	expected.setTimed(true);
+	    	expected.setDelay(1000); 
+	    	assertEquals(expected, transition);
+    }
+    // how to distinguish rates from delays
+    
 
     @Test
     public void createsImmediateTransition() {

@@ -1,6 +1,5 @@
-package uk.ac.imperial.pipe.animation;
+package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.util.Random;
 import java.util.Set;
@@ -25,8 +24,8 @@ public interface Animator {
     /**
      * @return a random transition that can fire
      */
+// TODO: Should be given by animation logic.
     Transition getRandomEnabledTransition();
-
 
     /**
      * Finds all of the transitions which are enabled
@@ -37,8 +36,11 @@ public interface Animator {
      * priority than the highest available priority. </p>
      * 
      *
+     * @deprecated use {@link #getRandomEnabledTransition()}
+     * 
      * @return all transitions that can be enabled
      */
+    @Deprecated
     Set<Transition> getEnabledTransitions();
 
 
@@ -72,4 +74,14 @@ public interface Animator {
 	 * @param random to use for pseudo-random operations
 	 */
 	public void setRandom(Random random);
+	/**
+	 * Gets the animation logic that determines what transitions are eligible for animation 
+	 * @return AnimationLogic
+	 */
+	public AnimationLogic getAnimationLogic();
+
+	/**
+	 * Prepare to animate:  save state, and mark initially enabled transitions 
+	 */
+	public void startAnimation();
 }
