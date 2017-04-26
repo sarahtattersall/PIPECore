@@ -64,4 +64,5 @@ public abstract class TimingQueue {
 	public abstract boolean unregisterTimedTransition(Transition nextChecked,
 			Long nextFiringTime, Iterator<Transition> transitionIterator,
 			Iterator<Long> timeIterator); 
+	public abstract boolean dequeue(Transition transition, State state); 
 }

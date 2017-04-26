@@ -232,6 +232,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         updateAffectedTransitionsStatus(returnState);
         return ( returnState );
     }
+    //TODO remove; now in timingQ
 	protected void verifyPendingTransitionsStillActive(TimingQueue timingQueue, State state) {
 		for (Long nextFiringTime : timingQueue.getAllFiringTimes()) {
         	Set<Transition> checkStillEnabled = timingQueue.getEnabledTransitionsAtTime(nextFiringTime);	

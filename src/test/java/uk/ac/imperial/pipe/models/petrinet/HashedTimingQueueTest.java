@@ -64,26 +64,26 @@ public class HashedTimingQueueTest {
 		assertEquals("T2", timing.enabledTimedTransitions.get(7l).iterator().next().getId()); 
 	}
 	@Test
-	public void onceRegisteredTransitionsCanBeUnRegistered() {
+	public void onceQueuedTransitionsCanBeDequeued() {
 		Transition transition = buildTransition("T1", 0);
 		executablePetriNet.testTransitions.add(transition); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
-		timing.unregisterTimedTransition(transition, 3l); 
+		timing.dequeue(transition, executablePetriNet.getState()); 
 		assertEquals(1, timing.enabledTimedTransitions.size()); 
 		assertEquals(1, timing.enabledTimedTransitions.get(7l).size()); 
 		assertEquals("T2", timing.enabledTimedTransitions.get(7l).iterator().next().getId()); 
 	}
 	@Test
-	public void attemptingToUnregisterTransitionAtWrongTimeReturnsFalse() {
+	public void attemptingToDequeueTransitionThatDoesntExistReturnsFalse() {
 		Transition transition = buildTransition("T1", 0);
+		Transition transitionNotAdded = buildTransition("T99", 0);
 		executablePetriNet.testTransitions.add(transition); 
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
-		assertFalse("wrong time, so not unregistered",
-				timing.unregisterTimedTransition(transition, 2l)); 
-		assertTrue("...but transition still exists at a different time",
-				timing.unregisterTimedTransition(transition, 3l)); 
+		assertTrue(timing.dequeue(transition, executablePetriNet.getState())); 
+		assertFalse("not in the EPN, so not dequeued",
+				timing.dequeue(transitionNotAdded, executablePetriNet.getState())); 
 	}
 	@Test
 	public void onceTransitionIsAddedLaterChangesToDelayAreIgnored() {
@@ -169,7 +169,7 @@ public class HashedTimingQueueTest {
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
 		assertEquals(3, timing.getAllFiringTimes().size());
 		assertEquals(5l, (long) timing.getAllFiringTimes().iterator().next());
-		timing.unregisterTimedTransition(transition, 5l); 
+		timing.dequeue(transition, executablePetriNet.getState()); 
 		assertEquals(2, timing.getAllFiringTimes().size());
 		assertEquals(7l, (long) timing.getAllFiringTimes().iterator().next());
 	}

@@ -97,6 +97,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 * @return set of all times at which transitions are scheduled to fire, including times 
 	 * that have already past.   
 	 */
+	//TODO make private 
 	public Set<Long> getAllFiringTimes() {
 		return this.enabledTimedTransitions.keySet();
 	}
@@ -104,6 +105,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 * @return set of all transitions scheduled to fire at the given time, or an empty set,
 	 * if the time does not exist in the timing queue.  
 	 */
+	//TODO:  make private 
 	public Set<Transition> getEnabledTransitionsAtTime(long nextTime) {
 		if (this.enabledTimedTransitions.containsKey(nextTime)) {
 			return this.enabledTimedTransitions.get(nextTime);
@@ -162,23 +164,43 @@ public class HashedTimingQueue extends TimingQueue {
 		}
 		return unregistered; 
 	}
+	public boolean dequeue(Transition transition, State state) {
+		boolean unregistered = false;
+		for (Set<Transition> transitions : enabledTimedTransitions.values()) {
+			if (transitions.remove(transition)) {
+				unregistered = true; 
+			}
+		}
+		verifyPendingTransitionsStillActive(state);
+		registerEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions(state));
+		return unregistered; 
+	}
+
 	
 	@Override
 	public void verifyPendingTransitionsStillActive(State state) {
 		Iterator<Long> timeIterator = getAllFiringTimes().iterator();  
 		while (timeIterator.hasNext()) {
-			Long nextFiringTime = timeIterator.next(); 
-			Iterator<Transition> transitionIterator = getEnabledTransitionsAtTime(nextFiringTime).iterator();	
+			Long nextFiringTime = timeIterator.next();
+			Set<Transition> enabledTransitions = removeEmptyTimeSlots(timeIterator, nextFiringTime);
+			Iterator<Transition> transitionIterator = enabledTransitions.iterator();	
 			while (transitionIterator.hasNext()) {
 				Transition nextChecked = transitionIterator.next(); 
-        		if (!(executablePetriNet.isEnabled( nextChecked, state ) )) { 
-        			transitionIterator.remove(); 
-        			if (this.enabledTimedTransitions.get(nextFiringTime).isEmpty()) {
-        				timeIterator.remove(); 
-        			}
-        		}
-        	}
+				if (!(executablePetriNet.isEnabled( nextChecked, state ) )) { 
+					transitionIterator.remove(); 
+					removeEmptyTimeSlots(timeIterator, nextFiringTime);
+				}
+			}
         }
+	}
+
+	private Set<Transition> removeEmptyTimeSlots(Iterator<Long> timeIterator,
+			Long nextFiringTime) {
+		Set<Transition> enabledTimedTransitions = getEnabledTransitionsAtTime(nextFiringTime); 
+		if (enabledTimedTransitions.isEmpty()) {
+			timeIterator.remove(); 
+		}
+		return enabledTimedTransitions; 
 	}
 
 	

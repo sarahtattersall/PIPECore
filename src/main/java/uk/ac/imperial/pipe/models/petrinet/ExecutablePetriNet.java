@@ -560,23 +560,33 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * @param state prior to the firing of the transition
 	 * @return state that results from firing the transition
 	 */
+//FIXME    * We cannot set the token counts in the decrement phase in case an increment
+//    * depends on this value. </p>
+//    * <p>
+//    * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
+//    * #(P0) to refer to the number of tokens before firing. </p>
+
+	
+	
 	protected State fireTransition(Transition transition, State state) {
 		return fireTransition(transition, state, false); 
 	}
 	protected State fireTransition(Transition transition, State state, boolean updateState) {
 		State stateConsumed = consumeInboundTokens(transition, state, updateState);
-		State stateProduced = produceOutboundTokens(transition, stateConsumed, updateState);
+		State stateProduced = produceOutboundTokens(transition, stateConsumed, updateState);  //re FIXME:  perhaps just state instead of stateConsumed? 
 		if (updateState) {
 //			setState(stateProduced);  // not required, as place updates will force state update 
-			updateTimingQueue(stateProduced); 
+			getTimingQueue().dequeue(transition, stateProduced); 
+//			updateTimingQueue(transition, stateProduced); // getTimingQueue.dequeueTransition(transition, 
 		}
 		transition.fire(); 
 		return stateProduced; 
 	}
-	private void updateTimingQueue(State state) {
-		getTimingQueue().verifyPendingTransitionsStillActive(state); 
-		getTimingQueue().registerEnabledTimedTransitions( getEnabledTimedTransitions() );
-	}
+//	private void updateTimingQueue(Transition transition, State state) {
+//		getTimingQueue().dequeue(transition, state); 
+////		getTimingQueue().verifyPendingTransitionsStillActive(state); 
+////		getTimingQueue().registerEnabledTimedTransitions( getEnabledTimedTransitions() ); //TODO getEnabledTimedTransitions(state) 
+//	}
 
 	/**
 	 * Fire a specific transition for the given TimedState.

@@ -132,20 +132,26 @@ public final class PetriNetAnimator implements Animator {
      * 
      * @param TimingQueue timedState
      */
+	//FIXME:  halting problem :/
     public void fireAllCurrentEnabledTransitions(TimingQueue timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
     	if (nextTransition != null) {
-    		this.executablePetriNet.fireTransition(nextTransition, timedState);
-    		// TODO: Removing from timed transition table has to go somewhere else
-    		if (nextTransition.isTimed()) {
-    			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
-    		}
+    		fireTransitionPotentiallyTimed(timedState, nextTransition);
     		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
 //    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
         	timedState.registerEnabledTimedTransitions(enabledTransitions);
     		fireAllCurrentEnabledTransitions(timedState);
     	}
     }
+    //FIXME:  move this, and collapse firing with unregistering 
+	private void fireTransitionPotentiallyTimed(TimingQueue timedState,
+			Transition nextTransition) {
+		this.executablePetriNet.fireTransition(nextTransition, timedState);
+		// TODO: Removing from timed transition table has to go somewhere else
+		if (nextTransition.isTimed()) {
+			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
+		}
+	}
 
     /**
      * Fire a single enabled transition (immediate - or a timed one which is due when
@@ -156,10 +162,7 @@ public final class PetriNetAnimator implements Animator {
     public boolean fireOneEnabledTransition(TimingQueue timedState) {
     	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
     	if (nextTransition != null) {
-    		this.executablePetriNet.fireTransition(nextTransition, timedState);
-    		if (nextTransition.isTimed()) {
-    			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
-    		}
+    		fireTransitionPotentiallyTimed(timedState, nextTransition);
     		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
 //    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
         	timedState.registerEnabledTimedTransitions(enabledTransitions);
