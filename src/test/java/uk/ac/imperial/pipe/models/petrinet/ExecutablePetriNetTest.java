@@ -437,19 +437,20 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = buildSimpleNet()
     			.getExecutablePetriNet();
     	State state = executablePetriNet.getState();
+    	HashedStateBuilder builder = new HashedStateBuilder(state); 
     	checkState(state,"P0",1,"P1", 0);
     	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
     	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
-    	State consumeState0 = executablePetriNet.consumeInboundTokens(t0, state, false); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(builder, t0, state, false); 
     	checkState(consumeState0,"P0",0,"P1", 0);
     	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
-    	State produceState0 = executablePetriNet.produceOutboundTokens(t0, consumeState0, false); 
+    	State produceState0 = executablePetriNet.produceOutboundTokens(builder, t0, consumeState0, false); 
     	checkState(produceState0,"P0",0,"P1", 1);
     	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
-    	State consumeState1 = executablePetriNet.consumeInboundTokens(t1, produceState0, false); 
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(builder, t1, produceState0, false); 
     	checkState(consumeState1,"P0",0,"P1", 0);
     	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
-    	State produceState1 = executablePetriNet.produceOutboundTokens(t1, consumeState1, false); 
+    	State produceState1 = executablePetriNet.produceOutboundTokens(builder, t1, consumeState1, false); 
     	checkState(produceState1,"P0",1,"P1", 0);
     	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
     }
@@ -458,16 +459,17 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = buildSimpleNet()
     			.getExecutablePetriNet();
     	State state = executablePetriNet.getState();
+    	HashedStateBuilder builder = new HashedStateBuilder(state); 
     	checkState(state,"P0",1,"P1", 0);
     	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
     	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
-    	State consumeState0 = executablePetriNet.consumeInboundTokens(t0, state, true); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(builder, t0, state, true); 
     	checkStateAndPlaces(consumeState0,"P0",0,"P1", 0);
-    	State produceState0 = executablePetriNet.produceOutboundTokens(t0, consumeState0, true); 
+    	State produceState0 = executablePetriNet.produceOutboundTokens(builder, t0, consumeState0, true); 
     	checkStateAndPlaces(produceState0,"P0",0,"P1", 1);
-    	State consumeState1 = executablePetriNet.consumeInboundTokens(t1, produceState0, true); 
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(builder, t1, produceState0, true); 
     	checkStateAndPlaces(consumeState1,"P0",0,"P1", 0);
-    	State produceState1 = executablePetriNet.produceOutboundTokens(t1, consumeState1, true); 
+    	State produceState1 = executablePetriNet.produceOutboundTokens(builder, t1, consumeState1, true); 
     	checkStateAndPlaces(produceState1,"P0",1,"P1", 0);
     }
     @Test

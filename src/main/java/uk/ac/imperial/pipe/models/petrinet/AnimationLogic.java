@@ -42,7 +42,8 @@ public interface AnimationLogic {
      * @return the successor state after firing the transition
      */
     public TimingQueue getFiredState(TimingQueue state, Transition transition);
-    public State getFiredState(State state, Transition transition);
+    public State getFiredState(Transition transition, State state);
+    public State getFiredState(Transition transition);
 
 
     /**

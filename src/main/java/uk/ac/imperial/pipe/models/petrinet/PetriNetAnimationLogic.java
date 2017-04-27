@@ -122,12 +122,15 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 		//}
 		Set<Transition> enabledTransitions = 
 				executablePetriNet.maximumPriorityTransitions(
-				executablePetriNet.getEnabledImmediateTransitions(state));
+				executablePetriNet.getEnabledImmediateTransitions(state)); 
 		cachedEnabledImmediateTransitionsState.put(state, enabledTransitions);
 		if (enabledTransitions.isEmpty()) {
 			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
 		}
 		return enabledTransitions;
+	}
+	public Set<Transition> getEnabledImmediateOrTimedTransitions() {
+		return getEnabledImmediateOrTimedTransitions(executablePetriNet.getState()); 
 	}
 
 	
@@ -235,7 +238,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     	Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
     	Map<State, Collection<Transition>> successors = new HashMap<>();
     	for (Transition transition : enabled) {
-    		State successor = getFiredState( startState, transition);
+    		State successor = getFiredState( transition, startState);
     		if (!successors.containsKey(successor)) {
     			successors.put(successor, new LinkedList<Transition>());
     		}
@@ -277,19 +280,36 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         return ( returnState );
     }
     /**
+     * @param transition  to be fired 
+     * @param state to be evaluated
+     * @return Map of places whose token counts differ from those in the initial state
+     */
+    //TODO:  refactor to ExecutablePetriNet 
+    @Override
+    public State getFiredState(Transition transition, State state) {
+    	return getFiredState(transition, state, false);
+    }
+    /**
      * @param state to be evaluated
      * @param transition  to be fired 
      * @return Map of places whose token counts differ from those in the initial state
      */
     //TODO:  refactor to ExecutablePetriNet 
-    // This clearly has to move - it depends very much on the implementation e.g. of TimedState.
     @Override
-    public State getFiredState(State state, Transition transition) {
+    public State getFiredState(Transition transition) {
+    	return getFiredState(transition, executablePetriNet.getState(), true);
+    }
+    
+    private State getFiredState(Transition transition, State state, boolean updateState) {
     	State returnState = (new HashedStateBuilder(state)).build();
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
     	if (enabled.contains(transition)) {
     		// Has to be guaranteed!
-    		returnState = this.executablePetriNet.fireTransition(transition, state);
+    		if (updateState) {
+    			returnState = this.executablePetriNet.fireTransition(transition);
+    		} else {
+    			returnState = this.executablePetriNet.fireTransition(transition, state);
+    		}
     	}
     	updateAffectedTransitionsStatus(returnState);
     	return ( returnState );

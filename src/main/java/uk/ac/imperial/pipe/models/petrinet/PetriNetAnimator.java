@@ -84,7 +84,9 @@ public final class PetriNetAnimator implements Animator {
     */
     // TODO: Clean-up
     public void fireTransition(Transition transition) {
-    	animationLogic.getFiredState(this.executablePetriNet.getTimingQueue(), transition);  // don't call directly, so affected transitions are updated ? 
+    	animationLogic.getFiredState(transition);  // don't call directly, so affected transitions are updated ? 
+//    	animationLogic.getFiredState(transition, this.executablePetriNet.getState());  // don't call directly, so affected transitions are updated ? 
+//    	animationLogic.getFiredState(this.executablePetriNet.getTimingQueue(), transition);  // don't call directly, so affected transitions are updated ? 
 //    	this.executablePetriNet.fireTransition(transition, this.executablePetriNet.getTimedState() );
     }
 

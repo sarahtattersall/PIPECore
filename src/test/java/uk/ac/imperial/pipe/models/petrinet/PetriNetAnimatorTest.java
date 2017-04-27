@@ -63,9 +63,6 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     public void correctlyIncrementsTokenCountInSelfLoop() throws PetriNetComponentException {
 
         PetriNet petriNet = createSelfLoopPetriNet("1");
-        Place place = petriNet.getComponent("P0", Place.class);
-//        place.setTokenCount("Default", 1);
-//        place.setCapacity(1);
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
@@ -97,12 +94,16 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
-        TimingQueue timedState = epn.getTimingQueue();
+//        TimingQueue timedState = epn.getTimingQueue();
         animator.fireTransition(transition);
-        
-        timedState = epn.getTimingQueue();
-        assertEquals(0, (int) timedState.getState().getTokens("P0").get("Default") );
-        assertEquals(10, (int) timedState.getState().getTokens("P1").get("Red") );
+
+        State state = epn.getState(); 
+        assertEquals(0, (int) state.getTokens("P0").get("Default") );
+        assertEquals(10, (int) state.getTokens("P1").get("Red") );
+
+//        timedState = epn.getTimingQueue();
+//        assertEquals(0, (int) timedState.getState().getTokens("P0").get("Default") );
+//        assertEquals(10, (int) timedState.getState().getTokens("P1").get("Red") );
         // I think this way is now wrong to ask for change in the STATE (not network)
         /*Place ep1 = epn.getComponent("P0", Place.class);
         Place ep2 = epn.getComponent("P1", Place.class);
@@ -262,10 +263,12 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
         Animator animator = new PetriNetAnimator(epn);
         Transition transition = epn.getComponent("T1", Transition.class);
         animator.fireTransition(transition);
-
-        TimingQueue timedState = epn.getTimingQueue();
-        assertEquals(0, (int) timedState.getState().getTokens("P1").get("Default") );
-        assertEquals(1, (int) timedState.getState().getTokens("P2").get("Default") );
+        State state = epn.getState(); 
+        assertEquals(0, (int) state.getTokens("P1").get("Default") );
+        assertEquals(1, (int) state.getTokens("P2").get("Default") );
+//        TimingQueue timedState = epn.getTimingQueue();
+//        assertEquals(0, (int) timedState.getState().getTokens("P1").get("Default") );
+//        assertEquals(1, (int) timedState.getState().getTokens("P2").get("Default") );
         // I think this way is now wrong to ask for change in the STATE (not network)
         /*Token token = epn.getComponent("Default", Token.class);
         Place p1 = epn.getComponent("P1", Place.class);
