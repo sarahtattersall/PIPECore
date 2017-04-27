@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import uk.ac.imperial.state.State;
+
 
 /**
  * Contains methods which deal with the logic of animation, for instance
@@ -17,12 +19,12 @@ public interface AnimationLogic {
      * @return all enabled transitions
      */
 	@Deprecated
-    Set<Transition> getEnabledTransitions(TimingQueue state);
-	
+	public Set<Transition> getEnabledTransitions(State state);
     /**
      * @return a random transition that can fire
      */
     Transition getRandomEnabledTransition(TimingQueue state);
+    public Transition getRandomEnabledTransition(State state);
 
     /**
      * Calculates successor states of a given state
@@ -31,6 +33,7 @@ public interface AnimationLogic {
      * @return successors of the given state
      */
     Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue state);
+    Map<State, Collection<Transition>> getSuccessors(State state);
 
     /**
      *
@@ -38,7 +41,8 @@ public interface AnimationLogic {
      * @param transition to be fired
      * @return the successor state after firing the transition
      */
-    TimingQueue getFiredState(TimingQueue state, Transition transition);
+    public TimingQueue getFiredState(TimingQueue state, Transition transition);
+    public State getFiredState(State state, Transition transition);
 
 
     /**
@@ -64,4 +68,6 @@ public interface AnimationLogic {
 	 * All initially enabled transitions will be marked as enabled
 	 */
 	public void startAnimation();
+
+
 }

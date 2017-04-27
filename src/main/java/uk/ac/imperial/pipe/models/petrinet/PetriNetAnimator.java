@@ -72,7 +72,8 @@ public final class PetriNetAnimator implements Animator {
     @Deprecated
     @Override
     public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
+        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getState());
+//        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
     }
 
    /**

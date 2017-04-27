@@ -262,7 +262,6 @@ public class HashedTimingQueue extends TimingQueue {
 		queuedTransitions.add(transition);
 		this.enabledTimedTransitions.put(nextFiringTime, queuedTransitions);
 	}
-	//TODO:  different from dequeue call; don't have state :( 
 	public void setCurrentTime(long newTime) {
 		this.currentTime = newTime;
 		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );

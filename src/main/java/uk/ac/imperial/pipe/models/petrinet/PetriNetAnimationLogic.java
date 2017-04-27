@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import uk.ac.imperial.state.HashedState;
+import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 
@@ -48,6 +50,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * from different threads running in analysis modules
      */
     public Map<TimingQueue, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
+    public Map<State, Set<Transition>> cachedEnabledImmediateTransitionsState = new ConcurrentHashMap<>();
 	
 	/**
 	 * Random for use in random firing.   
@@ -66,11 +69,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 		initMarkedEnabledTransitions();  
 	}
 
-	/**
-	 * First, is looking for all immediate transitions.
-	 * Only if there are none, current timed transitions are used.
-	 * 
-	 * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
+    /**
+     * First, is looking for all immediate transitions.
+     * Only if there are none, current timed transitions are used.
+     * 
+     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -83,17 +86,17 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //Malte:  note that the GUI (TransitionAnimationHandler) allows the user to fire any arbitrary enabled transition
 //  presumably the user accepts the risk of firing transitions in an order that wouldn't be used by this class.     
     @Override
-    @Deprecated
-    public Set<Transition> getEnabledTransitions(TimingQueue timedState) {
-    	return getEnabledImmediateOrTimedTransitions(timedState);
+    public Set<Transition> getEnabledTransitions(State state) {
+    	return getEnabledImmediateOrTimedTransitions(state);
     }
+    
     /**
      * Replaces getEnabledTransitions; intended for internal use and testing
-     * @param timedState
+     * @param timingQueue
      * @return enabled immediate transitions, if any; else enabled timed transitions 
      */
 	public Set<Transition> getEnabledImmediateOrTimedTransitions(
-			TimingQueue timedState) {
+			TimingQueue timingQueue) {
 		// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
         //    return cachedEnabledTransitions.get(state);
@@ -103,36 +106,29 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 				executablePetriNet.maximumPriorityTransitions(
 				executablePetriNet.getEnabledImmediateTransitions());
 //        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
-        cachedEnabledImmediateTransitions.put(timedState, enabledTransitions);
+        cachedEnabledImmediateTransitions.put(timingQueue, enabledTransitions);
         // Second: Checking timed transitions which should fire by now when there are no
         // immediate transitions left.
         if (enabledTransitions.isEmpty()) {
         	//TODO:  may have to pass in a state? 
-        	enabledTransitions = timedState.getCurrentlyEnabledTimedTransitions(); 
+        	enabledTransitions = timingQueue.getCurrentlyEnabledTimedTransitions(); 
         }
         return enabledTransitions;
 	}
-//	protected Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
-//		// TODO: Turn on cached immediate transitions for current state.
-//		//if (cachedEnabledTransitions.containsKey(state)) {
-//		//    return cachedEnabledTransitions.get(state);
-//		//}
-//		// First: get current enabled immediate transitions.
-//		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledImmediateTransitions();
-////        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
-//		//boolean hasImmediate = areAnyTransitionsImmediate(enabledTransitions);
-//		int maxPriority = getMaxPriority(enabledTransitions);
-//		if (maxPriority > 1) {
-//			removePrioritiesLessThan(maxPriority, enabledTransitions);
-//		}
-//		cachedEnabledImmediateTransitions.put(state, enabledTransitions);
-//		// Second: Checking timed transitions which should fire by now when there are no
-//		// immediate transitions left.
-//		if (enabledTransitions.isEmpty()) {
-//			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
-//		}
-//		return enabledTransitions;
-//	}
+	public Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
+		// TODO: Turn on cached immediate transitions for current state.
+		//if (cachedEnabledTransitions.containsKey(state)) {
+		//    return cachedEnabledTransitions.get(state);
+		//}
+		Set<Transition> enabledTransitions = 
+				executablePetriNet.maximumPriorityTransitions(
+				executablePetriNet.getEnabledImmediateTransitions(state));
+		cachedEnabledImmediateTransitionsState.put(state, enabledTransitions);
+		if (enabledTransitions.isEmpty()) {
+			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
+		}
+		return enabledTransitions;
+	}
 
 	
     /**
@@ -160,34 +156,26 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
        int index = getRandom().nextInt(enabledTransitions.size());
        return enabledTransitionsArray[index]; 
    }
+   /**
+    *
+    * @return a random transition which is enabled given the Petri nets current state.
+    * 
+    * First, is looking for all immediate transitions.
+    * Only if there are none, current timed transitions are used.
+    * 
+    * @param state Must be a valid state for the Petri net this class represents
+    */
+   @Override
+   public Transition getRandomEnabledTransition(State state) {
+	   Set<Transition> enabledTransitions = getEnabledImmediateOrTimedTransitions(state);
+	   if (enabledTransitions.isEmpty()) {
+		   return null;
+	   }
+	   Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
+	   int index = getRandom().nextInt(enabledTransitions.size());
+	   return enabledTransitionsArray[index]; 
+   }
 
-
-    /**
-     * @param state to be evaluated
-     * @return all successors of this state
-     */
-    @Override
-    public Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue timedState) {
-    	TimingQueue startState = timedState.makeCopy();
-    	
-    	//Set<Transition> enabledTransitions = startState.getEnabledTimedTransitionsNew();
-    	//startState.registerEnabledTimedTransitions(enabledTransitions);
-    	// TODO: successor has to be adapted.
-        Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timedState);
-        logger.debug("Get Succ: " + timedState);
-        if (enabled.size() > 0) {
-        	logger.debug("Enabled : " + enabled.iterator().next());
-        }
-        Map<TimingQueue, Collection<Transition>> successors = new HashMap<>();
-        for (Transition transition : enabled) {
-            TimingQueue successor = getFiredState( startState, transition);
-            if (!successors.containsKey(successor)) {
-                successors.put(successor, new LinkedList<Transition>());
-            }
-            successors.get(successor).add(transition);
-        }
-        return successors;
-    }
 
     /**
      * Creates a map for the successor of the given state after firing the
@@ -201,6 +189,62 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
      * #(P0) to refer to the number of tokens before firing. </p>
      *
+     * @param state to be evaluated
+     * @return all successors of this state
+     */
+    @Override
+    public Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue timingQueue) {
+    	TimingQueue startState = timingQueue.makeCopy();
+    	
+    	//Set<Transition> enabledTransitions = startState.getEnabledTimedTransitionsNew();
+    	//startState.registerEnabledTimedTransitions(enabledTransitions);
+    	// TODO: successor has to be adapted.
+        Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timingQueue);
+        logger.debug("Get Succ: " + timingQueue);
+        if (enabled.size() > 0) {
+        	logger.debug("Enabled : " + enabled.iterator().next());
+        }
+        Map<TimingQueue, Collection<Transition>> successors = new HashMap<>();
+        for (Transition transition : enabled) {
+            TimingQueue successor = getFiredState( startState, transition);
+            if (!successors.containsKey(successor)) {
+                successors.put(successor, new LinkedList<Transition>());
+            }
+            successors.get(successor).add(transition);
+        }
+        return successors;
+    }
+    /**
+     * Creates a map for the successor of the given state after firing the
+     * transition.
+     * calculating the decremented token counts and then calculating the incremented
+     * token counts.
+     * <p>
+     * We cannot set the token counts in the decrement phase in case an increment
+     * depends on this value. </p>
+     * <p>
+     * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
+     * #(P0) to refer to the number of tokens before firing. </p>
+     *
+     * @param state to be evaluated
+     * @return all successors of this state
+     */
+    @Override
+    public Map<State, Collection<Transition>> getSuccessors(State state) {
+    	State startState = (new HashedStateBuilder(state)).build(); 
+    	Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+    	Map<State, Collection<Transition>> successors = new HashMap<>();
+    	for (Transition transition : enabled) {
+    		State successor = getFiredState( startState, transition);
+    		if (!successors.containsKey(successor)) {
+    			successors.put(successor, new LinkedList<Transition>());
+    		}
+    		successors.get(successor).add(transition);
+    	}
+    	return successors;
+    }
+
+    /**
      * @param state to be evaluated
      * @param transition  to be fired 
      * @return Map of places whose token counts differ from those in the initial state
@@ -232,6 +276,24 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
         updateAffectedTransitionsStatus(returnState);
         return ( returnState );
     }
+    /**
+     * @param state to be evaluated
+     * @param transition  to be fired 
+     * @return Map of places whose token counts differ from those in the initial state
+     */
+    //TODO:  refactor to ExecutablePetriNet 
+    // This clearly has to move - it depends very much on the implementation e.g. of TimedState.
+    @Override
+    public State getFiredState(State state, Transition transition) {
+    	State returnState = (new HashedStateBuilder(state)).build();
+    	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+    	if (enabled.contains(transition)) {
+    		// Has to be guaranteed!
+    		returnState = this.executablePetriNet.fireTransition(transition, state);
+    	}
+    	updateAffectedTransitionsStatus(returnState);
+    	return ( returnState );
+    }
 	//old
 	protected void verifyPendingTransitionsStillActive(TimingQueue timedState) {
 		Iterator<Long> nextFiringTimes = timedState.getAllFiringTimes().iterator();
@@ -254,6 +316,21 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * those that need to be enabled because they have been newly enabled.
      */
     protected void updateAffectedTransitionsStatus(TimingQueue state) {
+    	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+    	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
+    		transition.disable();
+    		markedEnabledTransitions.remove(transition);
+    	}
+    	for (Transition transition : Sets.difference(enabled, markedEnabledTransitions)) {
+    		transition.enable();
+    		markedEnabledTransitions.add(transition);
+    	}
+    }
+    /**
+     * Computes transitions which need to be disabled because they are no longer enabled and
+     * those that need to be enabled because they have been newly enabled.
+     */
+    protected void updateAffectedTransitionsStatus(State state) {
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
     	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
     		transition.disable();

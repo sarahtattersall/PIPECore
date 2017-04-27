@@ -358,7 +358,9 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		ATimedTransition.withId("T0").andDelay(delay)).and(
 		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
 		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
-		executablePetriNet = petriNet.getExecutablePetriNet(); 
+		executablePetriNet = petriNet.getExecutablePetriNet();
+//		executablePetriNet.setCurrentTime(initTime);
+//		executablePetriNet.getTimingQueue().rebuild(executablePetriNet.getState()); 
 		executablePetriNet.getTimingQueue().resetTimeAndRebuildTimedTransitions(initTime);
 		animator = new PetriNetAnimator(executablePetriNet);
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
@@ -426,6 +428,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 				andFinally(ANormalArc.withSource("T1").andTarget("P2").and("1", "Default").token());
 		
 		executablePetriNet = petriNet.getExecutablePetriNet(); 
+//		executablePetriNet.setCurrentTime(initTime);
+//		executablePetriNet.getTimingQueue().rebuild(executablePetriNet.getState()); 
 		executablePetriNet.getTimingQueue().resetTimeAndRebuildTimedTransitions(initTime);
 		animator = new PetriNetAnimator(executablePetriNet);
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
@@ -456,7 +460,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 	protected Collection<Transition> getEnabledImmediateOrTimedTransitionsFromAnimationLogic() {
 		//        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
 		        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
-		        Collection<Transition> transitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
+		        Collection<Transition> transitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getState());
+//		        Collection<Transition> transitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
 		return transitions;
 	}
 

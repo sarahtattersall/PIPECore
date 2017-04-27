@@ -129,7 +129,8 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
 
 	protected Collection<Transition> getEnabledTransitions() {
 			animationLogic = (PetriNetAnimationLogic) animator.getAnimationLogic(); 
-		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getTimingQueue());
+//		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getTimingQueue());
+		    Collection<Transition> enabled = animationLogic.getEnabledImmediateOrTimedTransitions(epn.getState());
 		return enabled;
 	}
 
