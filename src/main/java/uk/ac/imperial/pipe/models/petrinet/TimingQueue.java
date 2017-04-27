@@ -49,20 +49,18 @@ public abstract class TimingQueue {
 	
 	public abstract Set<Transition> getCurrentlyEnabledTimedTransitions();
 	
-    public abstract void registerEnabledTimedTransitions(Set<Transition> enabledTransitions);
+    public abstract void queueEnabledTimedTransitions(Set<Transition> enabledTransitions);
+	public abstract void rebuild(State state);
     
-    
-	public abstract Set<Long> getAllFiringTimes();
+	protected abstract Set<Long> getAllFiringTimes();
 	
-	public abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
+	protected abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
 	
     public abstract void setCurrentTime(long newTime);
 
     public abstract void verifyPendingTransitionsStillActive(State state);
     
     public abstract boolean unregisterTimedTransition(Transition transition, long atTime);
-	public abstract boolean unregisterTimedTransition(Transition nextChecked,
-			Long nextFiringTime, Iterator<Transition> transitionIterator,
-			Iterator<Long> timeIterator); 
-	public abstract boolean dequeue(Transition transition, State state); 
+
+    public abstract boolean dequeueAndRebuild(Transition transition, State state); 
 }

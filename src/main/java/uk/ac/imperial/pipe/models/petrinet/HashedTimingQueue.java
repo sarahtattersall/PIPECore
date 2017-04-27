@@ -33,14 +33,8 @@ public class HashedTimingQueue extends TimingQueue {
 		this.executablePetriNet = epn;
     	this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
     	setCurrentTime(time);
+    	rebuild(state); 
 	}
-	public HashedTimingQueue(ExecutablePetriNet epn, long time) {
-		super(time);
-		this.executablePetriNet = epn;
-		this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
-		setCurrentTime(time);
-	}
-	
 
 	public String toString() { 
 		return "(" + this.state + ", " + this.enabledTimedTransitions + ", " + this.currentTime + ")"; 
@@ -58,11 +52,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 * @return set of transitions that are enabled to fire for the current time
 	 */
 	public Set<Transition> getCurrentlyEnabledTimedTransitions() {
-		if (this.enabledTimedTransitions.containsKey(this.currentTime)) {
-			return this.enabledTimedTransitions.get(this.currentTime);
-		} else {
-			return Collections.emptySet() ;
-		}
+		return getEnabledTransitionsAtTime(currentTime); 
 	}
 	
 	public ConcurrentSkipListMap<Long, Set<Transition>> getTimingQueueMap() {
@@ -98,7 +88,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 * that have already past.   
 	 */
 	//TODO make private 
-	public Set<Long> getAllFiringTimes() {
+	protected Set<Long> getAllFiringTimes() {
 		return this.enabledTimedTransitions.keySet();
 	}
 	/**
@@ -106,7 +96,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 * if the time does not exist in the timing queue.  
 	 */
 	//TODO:  make private 
-	public Set<Transition> getEnabledTransitionsAtTime(long nextTime) {
+	protected Set<Transition> getEnabledTransitionsAtTime(long nextTime) {
 		if (this.enabledTimedTransitions.containsKey(nextTime)) {
 			return this.enabledTimedTransitions.get(nextTime);
 		} else {
@@ -164,7 +154,20 @@ public class HashedTimingQueue extends TimingQueue {
 		}
 		return unregistered; 
 	}
-	public boolean dequeue(Transition transition, State state) {
+	/**
+	 * If a transition exists in the timing queue, remove it.  Then, rebuild 
+	 * the timing queue based on the state that was produced by the firing of the transition.  
+	 * @param transition to be removed
+	 * @param state of the executable Petri net produced when the transition fired
+	 * @return true if transition was removed; false if transition did not exist  
+	 */
+	public boolean dequeueAndRebuild(Transition transition, State state) {
+		boolean dequeued = dequeue(transition, state); 
+		rebuild(state); 
+		return dequeued; 
+	}
+
+	protected boolean dequeue(Transition transition, State state) {
 		boolean unregistered = false;
 		for (Set<Transition> transitions : enabledTimedTransitions.values()) {
 			if (transitions.remove(transition)) {
@@ -172,8 +175,17 @@ public class HashedTimingQueue extends TimingQueue {
 			}
 		}
 		verifyPendingTransitionsStillActive(state);
-		registerEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions(state));
-		return unregistered; 
+		return unregistered;
+	}
+	
+	
+	/**
+	 * Rebuild the timing queue based on the given state and the current time  
+	 * @param state of the executable Petri net 
+	 */
+	public void rebuild(State state) {
+		verifyPendingTransitionsStillActive(state);
+		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions(state));
 	}
 
 	
@@ -204,15 +216,6 @@ public class HashedTimingQueue extends TimingQueue {
 	}
 
 	
-	@Override
-	public boolean unregisterTimedTransition(Transition nextChecked,
-			Long nextFiringTime, Iterator<Transition> transitionIterator,
-			Iterator<Long> timeIterator) {
-		transitionIterator.remove();
-		return false;
-	}
-
-	
 	protected void removeFiringTimeIfEmpty(long atTime) {
 		if (this.enabledTimedTransitions.get(atTime).isEmpty()) {
 			this.enabledTimedTransitions.remove(atTime);
@@ -224,39 +227,39 @@ public class HashedTimingQueue extends TimingQueue {
      * put in the timing queue = when time is advanced they can get activated when 
      * the delay is gone.
      * 
-     * @param enabledTransitions  set of enabled timed transitions to be registered for timed firing
+     * @param enabledTransitions  set of enabled timed transitions to be queued for timed firing
      */
-    public void registerEnabledTimedTransitions(Set<Transition> enabledTransitions) {
+    public void queueEnabledTimedTransitions(Set<Transition> enabledTransitions) {
     	Iterator<Transition> transitionIterator = enabledTransitions.iterator();
     	while (transitionIterator.hasNext()) {
     		Transition transition = transitionIterator.next();
     		if (checkIfTransitionNotRegistered(transition)) {
-    			registerTransition(transition);
+    			queueTransition(transition);
     		}
     	}
     }
 
-	protected void registerTransition(Transition transition) {
+	protected void queueTransition(Transition transition) {
 		long nextFiringTime = this.currentTime + transition.getDelay();
-		Set<Transition> registeredTransitions = null; 
+		Set<Transition> queuedTransitions = null; 
 		if (this.enabledTimedTransitions.containsKey(nextFiringTime)) {
-			registeredTransitions = this.enabledTimedTransitions.get(nextFiringTime);
-			addTransition(transition, nextFiringTime, registeredTransitions);
+			queuedTransitions = this.enabledTimedTransitions.get(nextFiringTime);
+			addTransition(transition, nextFiringTime, queuedTransitions);
 		} else {
-			registeredTransitions = new HashSet<>();
-			addTransition(transition, nextFiringTime, registeredTransitions);
+			queuedTransitions = new HashSet<>();
+			addTransition(transition, nextFiringTime, queuedTransitions);
 		}
 	}
 
 	protected void addTransition(Transition transition, long nextFiringTime,
-			Set<Transition> registeredTransitions) {
-		registeredTransitions.add(transition);
-		this.enabledTimedTransitions.put(nextFiringTime, registeredTransitions);
+			Set<Transition> queuedTransitions) {
+		queuedTransitions.add(transition);
+		this.enabledTimedTransitions.put(nextFiringTime, queuedTransitions);
 	}
-
+	//TODO:  different from dequeue call; don't have state :( 
 	public void setCurrentTime(long newTime) {
 		this.currentTime = newTime;
-		registerEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
+		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
 	}
 
 

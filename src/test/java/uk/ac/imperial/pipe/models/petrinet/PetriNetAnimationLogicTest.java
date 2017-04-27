@@ -47,7 +47,6 @@ import utils.AbstractTestLog4J2;
 import uk.ac.imperial.state.State;
 import uk.ac.imperial.pipe.models.petrinet.TimingQueue;
 import uk.ac.imperial.pipe.runner.TimedPetriNetRunner;
-//>>>>>>> Added TimedPetriNetRunner and sorted out timed transitions in the PNAnimationLogic and PNAnimator.
 
 @RunWith(MockitoJUnitRunner.class)
 public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
@@ -393,7 +392,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		checkCountForPlace(0, "P1");
 		checkCountForPlace(1, "P2");
 	}
-	//FIXME commented test
 	@Test  
 	public void secondTimedTransitionWithZeroDelayFiresWhenTransitionIsEnabled() throws PetriNetComponentException {
 		buildTimedPetriNetTwoTimedTransitions(0, 40000);

@@ -325,7 +325,7 @@ public class ExecutablePetriNetTest {
 				.getExecutablePetriNet();
 		State state = executablePetriNet.getState(); 
 		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
-		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, 0); 
+		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState(), 0); 
 		assertEquals("2 times registered in timingQueue",2, timingQueue.getAllFiringTimes().size());
 		assertEquals("...and in the EPN",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
 		timingQueue.setCurrentTime(5); 
@@ -333,7 +333,7 @@ public class ExecutablePetriNetTest {
 		Set<Transition> currentTimedTransitions = timingQueue.getCurrentlyEnabledTimedTransitions();
 		Transition t2 = currentTimedTransitions.iterator().next(); 
 		State stateT2 = executablePetriNet.fireTransition(t2, state);
-		assertTrue(timingQueue.unregisterTimedTransition(t2, 5));
+		assertTrue(timingQueue.dequeueAndRebuild(t2, stateT2));
 		assertEquals("local timing queue knows we fired transition",
 				0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
 		assertEquals("...but EPN does not",
@@ -342,8 +342,8 @@ public class ExecutablePetriNetTest {
 		// can't timingQueue.setCurrentTime(10) because rebuilds from EPN, which hasn't been updated
 		assertEquals(10, nextTime); 
 		Transition t3 = timingQueue.getEnabledTransitionsAtTime(nextTime).iterator().next(); 
-		executablePetriNet.fireTransition(t3, stateT2);
-		assertTrue(timingQueue.unregisterTimedTransition(t3, 10));
+		State stateT3 = executablePetriNet.fireTransition(t3, stateT2);
+		assertTrue(timingQueue.dequeueAndRebuild(t3, stateT3));
 		assertEquals("no times left to fire",0, timingQueue.getAllFiringTimes().size());
 		assertEquals("EPN timing queue untouched",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
 	}

@@ -211,7 +211,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 		if (tokenCount != null) {
 			// TODO: Can token counts can be decreased?
 			// This should be checked too.
-			this.executablePetriNet.getTimingQueue().registerEnabledTimedTransitions(
+			this.executablePetriNet.getTimingQueue().queueEnabledTimedTransitions(
 					this.executablePetriNet.getEnabledTimedTransitions() );
 //					this.executablePetriNet.getTimedState().getEnabledTimedTransitions() );
 		}

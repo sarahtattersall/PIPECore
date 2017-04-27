@@ -70,6 +70,7 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
+//		timing.dequeueAndRebuild(transition, executablePetriNet.getState()); 
 		timing.dequeue(transition, executablePetriNet.getState()); 
 		assertEquals(1, timing.enabledTimedTransitions.size()); 
 		assertEquals(1, timing.enabledTimedTransitions.get(7l).size()); 
@@ -81,9 +82,9 @@ public class HashedTimingQueueTest {
 		Transition transitionNotAdded = buildTransition("T99", 0);
 		executablePetriNet.testTransitions.add(transition); 
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
-		assertTrue(timing.dequeue(transition, executablePetriNet.getState())); 
+		assertTrue(timing.dequeueAndRebuild(transition, executablePetriNet.getState())); 
 		assertFalse("not in the EPN, so not dequeued",
-				timing.dequeue(transitionNotAdded, executablePetriNet.getState())); 
+				timing.dequeueAndRebuild(transitionNotAdded, executablePetriNet.getState())); 
 	}
 	@Test
 	public void onceTransitionIsAddedLaterChangesToDelayAreIgnored() {
@@ -166,10 +167,12 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(transition); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T3", 8)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState() , 3);
 		assertEquals(3, timing.getAllFiringTimes().size());
 		assertEquals(5l, (long) timing.getAllFiringTimes().iterator().next());
 		timing.dequeue(transition, executablePetriNet.getState()); 
+//		timing.dequeueAndRebuild(transition, executablePetriNet.getState()); 
+//		assertTrue(timing.dequeue(transition)); 
 		assertEquals(2, timing.getAllFiringTimes().size());
 		assertEquals(7l, (long) timing.getAllFiringTimes().iterator().next());
 	}
@@ -204,9 +207,19 @@ public class HashedTimingQueueTest {
 			super(petriNet);
 		}
 		@Override
+		public Set<Transition> getEnabledTimedTransitions(State state) {
+			return testTransitions;
+		}
+		@Override
 		public Set<Transition> getEnabledTimedTransitions() {
 			return testTransitions;
 		}
+		
+		@Override
+		public boolean isEnabled(Transition transition, State state) {
+			return true; 
+		}
+		
 		//skip recursive call in the EPN constructor
 		@Override
 		protected HashedTimingQueue buildTimingQueue(long initTime) {

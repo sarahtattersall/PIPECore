@@ -575,18 +575,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		State stateConsumed = consumeInboundTokens(transition, state, updateState);
 		State stateProduced = produceOutboundTokens(transition, stateConsumed, updateState);  //re FIXME:  perhaps just state instead of stateConsumed? 
 		if (updateState) {
-//			setState(stateProduced);  // not required, as place updates will force state update 
-			getTimingQueue().dequeue(transition, stateProduced); 
-//			updateTimingQueue(transition, stateProduced); // getTimingQueue.dequeueTransition(transition, 
+			getTimingQueue().dequeueAndRebuild(transition, stateProduced); 
 		}
 		transition.fire(); 
 		return stateProduced; 
 	}
-//	private void updateTimingQueue(Transition transition, State state) {
-//		getTimingQueue().dequeue(transition, state); 
-////		getTimingQueue().verifyPendingTransitionsStillActive(state); 
-////		getTimingQueue().registerEnabledTimedTransitions( getEnabledTimedTransitions() ); //TODO getEnabledTimedTransitions(state) 
-//	}
 
 	/**
 	 * Fire a specific transition for the given TimedState.
@@ -607,7 +600,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 //			timedState.verifyPendingTransitionsStillActive(this.getState());
 			timedState.unregisterTimedTransition(transition, timedState.getCurrentTime() );
     	}
-    	timedState.registerEnabledTimedTransitions( getEnabledTimedTransitions() );
+    	timedState.queueEnabledTimedTransitions( getEnabledTimedTransitions() );
 //    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
 	}
 // new

@@ -139,7 +139,7 @@ public final class PetriNetAnimator implements Animator {
     		fireTransitionPotentiallyTimed(timedState, nextTransition);
     		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
 //    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
-        	timedState.registerEnabledTimedTransitions(enabledTransitions);
+        	timedState.queueEnabledTimedTransitions(enabledTransitions);
     		fireAllCurrentEnabledTransitions(timedState);
     	}
     }
@@ -165,7 +165,7 @@ public final class PetriNetAnimator implements Animator {
     		fireTransitionPotentiallyTimed(timedState, nextTransition);
     		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
 //    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
-        	timedState.registerEnabledTimedTransitions(enabledTransitions);
+        	timedState.queueEnabledTimedTransitions(enabledTransitions);
     		return true;
     	} else {
     		return false;
