@@ -339,7 +339,7 @@ public class ExecutablePetriNetTest {
 		assertEquals("...but EPN does not",
 				1, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
 		long nextTime = timingQueue.getNextFiringTime();
-		// can't timingQueue.setCurrentTime(10) because rebuilds from EPN, which hasn't been updated
+		// or, timingQueue.setCurrentTime(10) and tq.getCurrentlyEnabledTimedTransitions()
 		assertEquals(10, nextTime); 
 		Transition t3 = timingQueue.getEnabledTransitionsAtTime(nextTime).iterator().next(); 
 		State stateT3 = executablePetriNet.fireTransition(t3, stateT2);
@@ -362,6 +362,53 @@ public class ExecutablePetriNetTest {
 				.andFinally(ANormalArc.withSource("P2").andTarget("T3").with("1", "Default").token());
     	return petriNet; 
     }
+    @Test
+    public void timedTransitionsFiredUnderTimingQueueControl() throws Exception {
+    	executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState(); 
+    	HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState(), 0);
+    	assertTrue(timingQueue.hasUpcomingTimedTransition());
+    	int round = 0; 
+    	while (timingQueue.hasUpcomingTimedTransition()) {
+    		timingQueue.setCurrentTime(timingQueue.getNextFiringTime()); 
+    		Set<Transition> transitions = timingQueue.getCurrentlyEnabledTimedTransitions();
+    		for (Transition transition : transitions) {
+    			state = executablePetriNet.fireTransition(transition, state); 
+    			timingQueue.dequeueAndRebuild(transition, state);
+    			checkTimingQueue(++round, transition, timingQueue); 
+    		}
+    	}
+    }
+    @Test
+    public void timedTransitionsFiredUnderExecutablePetriNetControl() throws Exception {
+    	executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+    			.getExecutablePetriNet();
+    	int round = 0; 
+    	while (executablePetriNet.getTimingQueue().hasUpcomingTimedTransition()) {
+    		executablePetriNet.setCurrentTime(executablePetriNet.getTimingQueue().getNextFiringTime()); 
+    		Set<Transition> transitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+    		for (Transition transition : transitions) {
+    			executablePetriNet.fireTransition(transition); 
+    			checkTimingQueue(++round, transition, executablePetriNet.getTimingQueue()); 
+    		}
+    	}
+    }
+	private void checkTimingQueue(int round, Transition transition,
+			TimingQueue timingQueue) {
+		if (round == 1) {
+			assertEquals(5, timingQueue.getCurrentTime()); 
+			assertEquals("T2", transition.getId()); 
+			assertEquals(0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		} else 
+		if (round == 2) {
+			assertEquals(10, timingQueue.getCurrentTime()); 
+			assertEquals("T3", transition.getId()); 
+			assertEquals(0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		} else {
+			fail("should not have more than 2 rounds"); 
+		}
+	}
 	@Test
 	public void twoEnabledTimedTransitionsBothDisabledWhenOneFires() throws Exception {
 		executablePetriNet = buildNetTwoTimedTransitions()

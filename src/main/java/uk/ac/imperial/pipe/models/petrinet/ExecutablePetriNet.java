@@ -526,7 +526,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * @param transition to be fired
 	 * @return state that results from firing the transition
 	 */
-	protected State fireTransition(Transition transition) {
+	public State fireTransition(Transition transition) {
 		return fireTransition(transition, this.state, true); 
 	}
 	/**
@@ -568,7 +568,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	
 	
-	protected State fireTransition(Transition transition, State state) {
+	public State fireTransition(Transition transition, State state) {
 		return fireTransition(transition, state, false); 
 	}
 	protected State fireTransition(Transition transition, State state, boolean updateState) {

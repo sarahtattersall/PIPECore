@@ -22,6 +22,8 @@ public class HashedTimingQueueTest {
 
 	@Before
 	public void setUp() throws Exception {
+		// use of this TestingExecutable... fake limits testing of rebuild() and dequeueAndRebuild()
+		// see ExecutablePetriNetTest 
 		executablePetriNet = new TestingExecutablePetriNet(new PetriNet()); 
 		buildState();  
 	}
@@ -70,8 +72,8 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		timing = new HashedTimingQueue(executablePetriNet, state, 3);
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
-//		timing.dequeueAndRebuild(transition, executablePetriNet.getState()); 
-		timing.dequeue(transition, executablePetriNet.getState()); 
+		timing.dequeue(transition, executablePetriNet.getState());
+		// for timing.dequeueAndRebuild, see ExecutablePetriNetTest
 		assertEquals(1, timing.enabledTimedTransitions.size()); 
 		assertEquals(1, timing.enabledTimedTransitions.get(7l).size()); 
 		assertEquals("T2", timing.enabledTimedTransitions.get(7l).iterator().next().getId()); 
@@ -162,7 +164,7 @@ public class HashedTimingQueueTest {
 	}
 
 	@Test
-	public void tracksAllFiringTimesAcrossUnregistrations() {
+	public void tracksAllFiringTimesAcrossDequeue() {
 		Transition transition = buildTransition("T1", 2);
 		executablePetriNet.testTransitions.add(transition); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
@@ -171,8 +173,7 @@ public class HashedTimingQueueTest {
 		assertEquals(3, timing.getAllFiringTimes().size());
 		assertEquals(5l, (long) timing.getAllFiringTimes().iterator().next());
 		timing.dequeue(transition, executablePetriNet.getState()); 
-//		timing.dequeueAndRebuild(transition, executablePetriNet.getState()); 
-//		assertTrue(timing.dequeue(transition)); 
+		// for timing.dequeueAndRebuild, see ExecutablePetriNetTest
 		assertEquals(2, timing.getAllFiringTimes().size());
 		assertEquals(7l, (long) timing.getAllFiringTimes().iterator().next());
 	}

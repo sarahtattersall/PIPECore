@@ -163,7 +163,7 @@ public class HashedTimingQueue extends TimingQueue {
 	 */
 	public boolean dequeueAndRebuild(Transition transition, State state) {
 		boolean dequeued = dequeue(transition, state); 
-		rebuild(state); 
+		rebuild(state, false); // pending already verified in dequeue
 		return dequeued; 
 	}
 
@@ -184,7 +184,13 @@ public class HashedTimingQueue extends TimingQueue {
 	 * @param state of the executable Petri net 
 	 */
 	public void rebuild(State state) {
-		verifyPendingTransitionsStillActive(state);
+		rebuild(state, true);
+	}
+
+	private void rebuild(State state, boolean verifyPending) {
+		if (verifyPending) {
+			verifyPendingTransitionsStillActive(state);
+		}
 		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions(state));
 	}
 
