@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 /**
  * This class is defining the logic how a Petri Net is evaluated.
@@ -104,7 +106,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 		if (enabledTransitions.isEmpty()) {
 			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
 		}
-		return enabledTransitions;
+		Set<Transition> copyEnabledTransitions = new HashSet<Transition>(enabledTransitions); 
+		return copyEnabledTransitions;
+//		return enabledTransitions;
 	}
 	public Set<Transition> getEnabledImmediateOrTimedTransitions() {
 		return getEnabledImmediateOrTimedTransitions(executablePetriNet.getState()); 
@@ -245,11 +249,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      */
     protected void updateAffectedTransitionsStatus(State state) {
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
-    	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
+    	for (Transition transition : ((Sets.difference(markedEnabledTransitions, enabled)).copyInto(new HashSet<Transition>()))) {
     		transition.disable();
     		markedEnabledTransitions.remove(transition);
     	}
-    	for (Transition transition : Sets.difference(enabled, markedEnabledTransitions)) {
+    	for (Transition transition : ((Sets.difference(enabled, markedEnabledTransitions)).copyInto(new HashSet<Transition>()))) {
     		transition.enable();
     		markedEnabledTransitions.add(transition);
     	}
