@@ -25,6 +25,7 @@ public interface AnimationLogic {
      */
     Transition getRandomEnabledTransition(TimingQueue state);
     public Transition getRandomEnabledTransition(State state);
+    public Transition getRandomEnabledTransition();
 
     /**
      * Calculates successor states of a given state

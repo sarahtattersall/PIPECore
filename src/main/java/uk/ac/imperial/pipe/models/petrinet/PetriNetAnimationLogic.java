@@ -178,6 +178,25 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	   int index = getRandom().nextInt(enabledTransitions.size());
 	   return enabledTransitionsArray[index]; 
    }
+   /**
+    *
+    * @return a random transition which is enabled given the Petri nets current state.
+    * 
+    * First, is looking for all immediate transitions.
+    * Only if there are none, current timed transitions are used.
+    * 
+    * @param state Must be a valid state for the Petri net this class represents
+    */
+   @Override
+   public Transition getRandomEnabledTransition() {
+	   Set<Transition> enabledTransitions = getEnabledImmediateOrTimedTransitions();
+	   if (enabledTransitions.isEmpty()) {
+		   return null;
+	   }
+	   Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
+	   int index = getRandom().nextInt(enabledTransitions.size());
+	   return enabledTransitionsArray[index]; 
+   }
 
 
     /**

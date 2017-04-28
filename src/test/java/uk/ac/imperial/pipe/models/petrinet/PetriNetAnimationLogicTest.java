@@ -252,42 +252,24 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     
 	@Test
 	public void timedTransitionExecutesFollowingDelay() throws PetriNetComponentException {
-		buildTimedPetriNet(1000, 40000);
-//		successorState = buildSuccessorsAndCheckSize(0, state);
-		assertEquals(0, successors.size());
-		animator.advanceNetToTime( timedState, 41000 );
-		successors = animationLogic.getSuccessors( timedState );
-		assertEquals(1, successors.size());
-		successor = successors.keySet().iterator().next();
-		
-		checkCountForPlace(2, "P0");
-		checkCountForPlace(1, "P1");
-		
-		animator.advanceNetToTime( successor, 42000);
-		successors = animationLogic.getSuccessors(successor);
-		assertEquals(1, successors.size());
-		successor = successors.keySet().iterator().next();
-		
-		checkCountForPlace(1, "P0");
-		checkCountForPlace(2, "P1");
-	
-//		executablePetriNet.setCurrentTime(initTime);
-//		executablePetriNet.getTimingQueue().rebuild(state); 
-//		successorState = buildSuccessorsAndCheckSize(1, state);
-//        checkCountForPlaceState(1, "P0");
-
-		
-		
+		buildTimedPetriNetState(1000, 40000);
+		successorState = buildSuccessorsAndCheckSize(0, state);
+		animator.advanceNetToTime( 41000 );
+		successorState = buildSuccessorsAndCheckSize(1, state);
+		checkCountForPlaceState(2, "P0");
+		checkCountForPlaceState(1, "P1");
+		animator.advanceNetToTime( 42000);
+		successorState = buildSuccessorsAndCheckSize(1, successorState);
+		checkCountForPlaceState(1, "P0");
+		checkCountForPlaceState(2, "P1");
 	}
 	
 	@Test
 	public void timedTransitionWithZeroDelayExecutesImmediately() throws PetriNetComponentException {
-		buildTimedPetriNet(0, 40000);
-		successors = animationLogic.getSuccessors( timedState );
-		assertEquals(1, successors.size());
-		successor = successors.keySet().iterator().next();
-		checkCountForPlace(2, "P0");
-		checkCountForPlace(1, "P1");
+		buildTimedPetriNetState(0, 40000);
+		successorState = buildSuccessorsAndCheckSize(1, state);
+		checkCountForPlaceState(2, "P0");
+		checkCountForPlaceState(1, "P1");
 	}
 	
 	protected void checkCountForPlaceState(Integer count, String place) {
@@ -345,6 +327,19 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
                 ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 		return petriNet;
 	}
+	protected PetriNet buildTimedPetriNetState(int delay, long initTime) throws PetriNetComponentException {
+		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+			APlace.withId("P0").and(3, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
+			ATimedTransition.withId("T0").andDelay(delay)).and(
+			ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
+			ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
+		state = buildExecutablePetriNetAndAnimationAndState(petriNet);
+		executablePetriNet.getTimingQueue().resetTimeAndRebuildTimedTransitions(initTime); 
+		executablePetriNet.getTimingQueue().rebuild(state); 
+		successorsState = animationLogic.getSuccessors(state);
+		return petriNet;
+	}
+	//old
 	protected PetriNet buildTimedPetriNet(int delay, long initTime) throws PetriNetComponentException {
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
 		APlace.withId("P0").and(3, "Default").tokens()).and(APlace.withId("P1").and(0, "Default").tokens()).and(
@@ -352,19 +347,11 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).andFinally(
 		ANormalArc.withSource("T0").andTarget("P1").and("1", "Default").token());
 		executablePetriNet = petriNet.getExecutablePetriNet();
-//		executablePetriNet.setCurrentTime(initTime);
-//		executablePetriNet.getTimingQueue().rebuild(executablePetriNet.getState()); 
 		executablePetriNet.getTimingQueue().resetTimeAndRebuildTimedTransitions(initTime);
 		animator = new PetriNetAnimator(executablePetriNet);
 		animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 		timedState = executablePetriNet.getTimingQueue();
 		successors = animationLogic.getSuccessors(timedState);
-//		state = buildExecutablePetriNetAndAnimationAndState(petriNet);
-//		executablePetriNet.setCurrentTime(initTime);
-//		executablePetriNet.getTimingQueue().rebuild(state); 
-//		successorState = buildSuccessorsAndCheckSize(1, state);
-
-		//TOMS animationLogic.registerEnabledTimedTransitions(timedState);
 		return petriNet;
 	}
 	
@@ -707,17 +694,10 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     public void infinityLogic() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimingQueue timedState = executablePetriNet.getTimingQueue();
-        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 
-        Map<TimingQueue, Collection<Transition>> successors = animationLogic.getSuccessors(timedState);
-
-        assertEquals(1, successors.size());
-        TimingQueue successor = successors.keySet().iterator().next();
-
-        int actualP1 = successor.getState().getTokens("P0").get("Default");
-        assertEquals(Integer.MAX_VALUE, actualP1);
+        state = buildExecutablePetriNetAndAnimationAndState(petriNet);
+		buildSuccessorsAndCheckSize(1, state);
+		checkCountForPlaceState(Integer.MAX_VALUE, "P0");
     }
     @Test
     public void clearsWhenExecutablePetriNetRefreshes() throws Exception {
