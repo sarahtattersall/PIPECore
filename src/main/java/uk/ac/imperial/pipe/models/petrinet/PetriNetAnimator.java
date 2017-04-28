@@ -4,9 +4,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import uk.ac.imperial.state.State;
 
 
@@ -16,7 +13,7 @@ import uk.ac.imperial.state.State;
  */
 public final class PetriNetAnimator implements Animator {
 
-	private static Logger logger = LogManager.getLogger(PetriNetAnimator.class);  
+//	private static Logger logger = LogManager.getLogger(PetriNetAnimator.class);  
     /**
      * Executable Petri net to animate
      */
@@ -24,14 +21,13 @@ public final class PetriNetAnimator implements Animator {
     /**
      * Underlying animation logic, which returns logic as Markov Chain states
      */
-    //TODO: getEnabledTimedTransitions is needed here but should go into the AL interface?
     private final PetriNetAnimationLogic animationLogic;
 
     /**
      * Saved State of the underlying
      * Petri net so that it can be reapplied to the Petri net at any time
      */
-    private TimingQueue savedState;
+    private State savedState;
 
     public PetriNetAnimator(ExecutablePetriNet executablePetriNet) {
     	this.executablePetriNet = executablePetriNet;
@@ -45,7 +41,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void saveState() {
-    	savedState = executablePetriNet.getTimingQueue().makeCopy();
+    	savedState = executablePetriNet.getState(); 
     }
 
     /**
@@ -53,7 +49,7 @@ public final class PetriNetAnimator implements Animator {
      */
     @Override
     public void reset() {
-    	executablePetriNet.setTimedState(savedState);
+    	executablePetriNet.setState(savedState);
     	animationLogic.stopAnimation();  
     }
 
@@ -61,10 +57,9 @@ public final class PetriNetAnimator implements Animator {
      *
      * @return a random transition which is enabled given the Petri nets current state
      */
-// TODO: Clean up – Moved to AL
     @Override
     public Transition getRandomEnabledTransition() {
-    	return animationLogic.getRandomEnabledTransition(executablePetriNet.getTimingQueue());
+    	return animationLogic.getRandomEnabledTransition(executablePetriNet.getState());
     }
 
     /**
@@ -75,7 +70,6 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public Set<Transition> getEnabledTransitions() {
         return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getState());
-//        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
     }
 
    /**
@@ -84,12 +78,8 @@ public final class PetriNetAnimator implements Animator {
     *
     * @param transition transition to fire
     */
-    // TODO: Clean-up
     public void fireTransition(Transition transition) {
-    	animationLogic.getFiredState(transition);  // don't call directly, so affected transitions are updated ? 
-//    	animationLogic.getFiredState(transition, this.executablePetriNet.getState());  // don't call directly, so affected transitions are updated ? 
-//    	animationLogic.getFiredState(this.executablePetriNet.getTimingQueue(), transition);  // don't call directly, so affected transitions are updated ? 
-//    	this.executablePetriNet.fireTransition(transition, this.executablePetriNet.getTimedState() );
+    	animationLogic.getFiredState(transition);  
     }
 
     /**
@@ -99,24 +89,24 @@ public final class PetriNetAnimator implements Animator {
     // TODO: Has to be moved to ExecutablePetriNet - or later better TimedState?.
     @Override
     public void fireTransitionBackwards(Transition transition) {
-        TimingQueue timedState = executablePetriNet.getTimingQueue();
+        TimingQueue timingQueue = executablePetriNet.getTimingQueue();
         // TODO: Move time backward!? = put transition back onto stack
         //Increment previous places
         for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
             Place place = arc.getSource();
-            adjustCount(timedState, arc, place, false);
+            adjustCount(timingQueue, arc, place, false);
         }
         //Decrement new places
         for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
             Place place = arc.getTarget(); 
-            adjustCount(timedState, arc, place, true);
+            adjustCount(timingQueue, arc, place, true);
         }
     }
-	protected void adjustCount(TimingQueue timedState,
+	protected void adjustCount(TimingQueue timingQueue,
 			Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean decrement) {
 		for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
 		    String tokenId = entry.getKey();
-		    double weight = getWeight(timedState, entry);
+		    double weight = getWeight(timingQueue, entry);
 		    int currentCount = place.getTokenCount(tokenId);
 		    int adjust = (decrement) ? -1 : 1; 
 		    int newCount = currentCount + adjust * ((int) weight);
@@ -124,17 +114,15 @@ public final class PetriNetAnimator implements Animator {
 		}
 	}
 
-	protected double getWeight(TimingQueue timedState,
+	protected double getWeight(TimingQueue timingQueue,
 			Map.Entry<String, String> entry) {
 		String functionalWeight = entry.getValue();
-		return executablePetriNet.getArcWeight(functionalWeight, timedState );
+		return executablePetriNet.getArcWeight(functionalWeight, timingQueue );
 	}
 
 	/**
 	 * Fire all currently enabled immediate transitions
 	 * and afterwards the enabled timed transitions which are due to fire.
-	 * 
-	 * @param TimingQueue timedState
 	 */
 	//FIXME:  halting problem :/
 	public void fireAllCurrentEnabledTransitions() {
@@ -149,7 +137,7 @@ public final class PetriNetAnimator implements Animator {
 	 * Fire all currently enabled immediate transitions
 	 * and afterwards the enabled timed transitions which are due to fire.
 	 * 
-	 * @param TimingQueue timedState
+	 * @param state against which transitions are to be fired 
 	 */
 	//FIXME:  halting problem :/
 	public void fireAllCurrentEnabledTransitions(State state) {
@@ -161,77 +149,12 @@ public final class PetriNetAnimator implements Animator {
 			fireAllCurrentEnabledTransitions(state);
 		}
 	}
-	/**
-	 * Fire all currently enabled immediate transitions
-	 * and afterwards the enabled timed transitions which are due to fire.
-	 * 
-	 * @param TimingQueue timedState
-	 */
-	//FIXME:  halting problem :/
-	public void fireAllCurrentEnabledTransitions(TimingQueue timedState) {
-		Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
-		if (nextTransition != null) {
-			fireTransitionPotentiallyTimed(timedState, nextTransition);
-			Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
-//    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
-			timedState.queueEnabledTimedTransitions(enabledTransitions);
-			fireAllCurrentEnabledTransitions(timedState);
-		}
-	}
-    //FIXME:  move this, and collapse firing with unregistering 
-	private void fireTransitionPotentiallyTimed(TimingQueue timedState,
-			Transition nextTransition) {
-		this.executablePetriNet.fireTransition(nextTransition, timedState);
-		// TODO: Removing from timed transition table has to go somewhere else
-		if (nextTransition.isTimed()) {
-			timedState.unregisterTimedTransition(nextTransition, timedState.getCurrentTime() );
-		}
-	}
-
-    /**
-     * Fire a single enabled transition (immediate - or a timed one which is due when
-     * there is no immediate transition left).
-     * 
-     * @param TimingQueue timedState
-     */
-    public boolean fireOneEnabledTransition(TimingQueue timedState) {
-    	Transition nextTransition = animationLogic.getRandomEnabledTransition( timedState );
-    	if (nextTransition != null) {
-    		fireTransitionPotentiallyTimed(timedState, nextTransition);
-    		Set<Transition> enabledTransitions = this.executablePetriNet.getEnabledTimedTransitions();
-//    		Set<Transition> enabledTransitions = timedState.getEnabledTimedTransitions();
-        	timedState.queueEnabledTimedTransitions(enabledTransitions);
-    		return true;
-    	} else {
-    		return false;
-    	}
-    }
     
     /**
      * Advance current time of the Petri Network.
      * Fire all immediate transitions and afterwards step through time
      * always firing the timed transitions that become due to fire.
-     */
-    public void advanceNetToTime(TimingQueue timedState, long newTime) {
-    	if (newTime > timedState.getCurrentTime() ) {
-        	fireAllCurrentEnabledTransitions(timedState);
-        	while ( timedState.hasUpcomingTimedTransition() ) {
-        		long nextFiringTime = timedState.getNextFiringTime();
-        		if (nextFiringTime < newTime) {
-        			timedState.setCurrentTime(timedState.getNextFiringTime());
-        			fireAllCurrentEnabledTransitions(timedState);
-        		} else {
-        			timedState.setCurrentTime(newTime);
-        			break;
-        		}
-        	}
-        	timedState.setCurrentTime(newTime);
-    	}
-    }
-    /**
-     * Advance current time of the Petri Network.
-     * Fire all immediate transitions and afterwards step through time
-     * always firing the timed transitions that become due to fire.
+     * @param newTime to advance the net to
      */
     public void advanceNetToTime(long newTime) {
     	TimingQueue timingQueue = executablePetriNet.getTimingQueue(); 
@@ -254,6 +177,8 @@ public final class PetriNetAnimator implements Animator {
      * Advance current time of the Petri Network.
      * Fire all immediate transitions and afterwards step through time
      * always firing the timed transitions that become due to fire.
+     * @param state against which to calculate
+     * @param newTime to advance the net to
      */
     public void advanceNetToTime(State state, long newTime) {
     	TimingQueue timingQueue = executablePetriNet.getTimingQueue(); 
@@ -272,13 +197,6 @@ public final class PetriNetAnimator implements Animator {
     		timingQueue.setCurrentTime(newTime);
     	}
     }
-//	while (timingQueue.hasUpcomingTimedTransition()) {
-//		timingQueue.setCurrentTime(timingQueue.getNextFiringTime()); 
-//		Set<Transition> transitions = timingQueue.getCurrentlyEnabledTimedTransitions();
-//		for (Transition transition : transitions) {
-//			state = executablePetriNet.fireTransition(transition, state); 
-//			timingQueue.dequeueAndRebuild(transition, state);
-
     
     @Override
     public void setRandom(Random random) {

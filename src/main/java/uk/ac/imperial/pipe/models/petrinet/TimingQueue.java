@@ -31,17 +31,12 @@ public abstract class TimingQueue {
 		return state;
 	}
 
-	public void setState(State state) {
-		this.state = state;
-	}
 	    
 	public long getCurrentTime() {
 		return this.currentTime;
 	}
 	    
 	public abstract void resetTimeAndRebuildTimedTransitions(long newInitTime);
-	
-	public abstract TimingQueue makeCopy();
 	
 	public abstract long getNextFiringTime();
 	

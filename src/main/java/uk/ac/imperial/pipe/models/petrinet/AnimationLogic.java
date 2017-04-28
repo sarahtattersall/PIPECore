@@ -14,7 +14,7 @@ import uk.ac.imperial.state.State;
  */
 public interface AnimationLogic {
     /**
-     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
+     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(State)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all enabled transitions
      */
@@ -23,7 +23,6 @@ public interface AnimationLogic {
     /**
      * @return a random transition that can fire
      */
-    Transition getRandomEnabledTransition(TimingQueue state);
     public Transition getRandomEnabledTransition(State state);
     public Transition getRandomEnabledTransition();
 
@@ -49,7 +48,6 @@ public interface AnimationLogic {
      * @param transition to be fired
      * @return the successor state after firing the transition
      */
-    public TimingQueue getFiredState(TimingQueue state, Transition transition);
     public State getFiredState(Transition transition, State state);
     public State getFiredState(Transition transition);
 

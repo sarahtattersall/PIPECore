@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
@@ -15,10 +14,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import uk.ac.imperial.state.HashedState;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
-
 
 import com.google.common.collect.Sets;
 
@@ -73,7 +70,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * First, is looking for all immediate transitions.
      * Only if there are none, current timed transitions are used.
      * 
-     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(TimingQueue)}
+     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(State)}
      * @param state Must be a valid state for the Petri net this class represents
      * @return all transitions that are enabled in the given state
      */
@@ -92,29 +89,9 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     
     /**
      * Replaces getEnabledTransitions; intended for internal use and testing
-     * @param timingQueue
+     * @param state against which transitions are to be evaluated 
      * @return enabled immediate transitions, if any; else enabled timed transitions 
      */
-	public Set<Transition> getEnabledImmediateOrTimedTransitions(
-			TimingQueue timingQueue) {
-		// TODO: Turn on cached immediate transitions for current state.
-    	//if (cachedEnabledTransitions.containsKey(state)) {
-        //    return cachedEnabledTransitions.get(state);
-        //}
-    	// First: get current enabled immediate transitions.
-		Set<Transition> enabledTransitions = 
-				executablePetriNet.maximumPriorityTransitions(
-				executablePetriNet.getEnabledImmediateTransitions());
-//        Set<Transition> enabledTransitions = timedState.getEnabledImmediateTransitions();
-        cachedEnabledImmediateTransitions.put(timingQueue, enabledTransitions);
-        // Second: Checking timed transitions which should fire by now when there are no
-        // immediate transitions left.
-        if (enabledTransitions.isEmpty()) {
-        	//TODO:  may have to pass in a state? 
-        	enabledTransitions = timingQueue.getCurrentlyEnabledTimedTransitions(); 
-        }
-        return enabledTransitions;
-	}
 	public Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
 		// TODO: Turn on cached immediate transitions for current state.
 		//if (cachedEnabledTransitions.containsKey(state)) {
@@ -134,31 +111,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	}
 
 	
-    /**
-    *
-    * @return a random transition which is enabled given the Petri nets current state.
-    * 
-    * First, is looking for all immediate transitions.
-	* Only if there are none, current timed transitions are used.
-	* 
-    * @param state Must be a valid state for the Petri net this class represents
-    */
-   @Override
-   public Transition getRandomEnabledTransition(TimingQueue timedState) {
-//       // TODO: Check if it is still enabled 
-//       // and whenever a place is losing tokens it should be checked if
-//       // a timed transitions becomes disabled again.
-//       // APPROACH: for enabled timed transitions put 
-//       // observed places in a map and for every changed place do a lookup if this might affect
-//       // a timed transition.
-	   Set<Transition> enabledTransitions = getEnabledImmediateOrTimedTransitions(timedState);
-       if (enabledTransitions.isEmpty()) {
-    	   return null;
-       }
-       Transition[] enabledTransitionsArray = enabledTransitions.toArray(new Transition[]{}); 
-       int index = getRandom().nextInt(enabledTransitions.size());
-       return enabledTransitionsArray[index]; 
-   }
    /**
     *
     * @return a random transition which is enabled given the Petri nets current state.
@@ -252,38 +204,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	}
 
     /**
-     * @param state to be evaluated
-     * @param transition  to be fired 
-     * @return Map of places whose token counts differ from those in the initial state
-     */
-    //TODO:  refactor to ExecutablePetriNet 
-    // This clearly has to move - it depends very much on the implementation e.g. of TimedState.
-    // Maybe into TimedState?
-    @Override
-    public TimingQueue getFiredState(TimingQueue timedState, Transition transition) {
-    	// TODO: Turn on HashedStateBuilder
-    	TimingQueue returnState = timedState.makeCopy();
-    	
-        Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(returnState);
-        
-        if (enabled.contains(transition)) {
-        	// Has to be guaranteed!
-        	this.executablePetriNet.setTimedState(timedState);
-        	this.executablePetriNet.fireTransition(transition, returnState);
-        	//TODO keep refactoring....
-        	//builder = ((AbstractTransition) transition).fire(executablePetriNet, timedState.getState(), builder);
-//            fireTransition(state, transition, builder);
-        	
-        }
-//        // NEW - the Fired Timed Transitions have to be removed from the enabled map.
-//        State returnState = builder.build();
-        // Check all timed and waiting transitions, if they are still active.
-        //TODO how does this work if not updating EPN's timing queue?  
-        verifyPendingTransitionsStillActive(returnState);
-        updateAffectedTransitionsStatus(returnState);
-        return ( returnState );
-    }
-    /**
      * @param transition  to be fired 
      * @param state to be evaluated
      * @return Map of places whose token counts differ from those in the initial state
@@ -318,38 +238,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     	updateAffectedTransitionsStatus(returnState);
     	return ( returnState );
     }
-	//old
-	protected void verifyPendingTransitionsStillActive(TimingQueue timedState) {
-		Iterator<Long> nextFiringTimes = timedState.getAllFiringTimes().iterator();
-		while (nextFiringTimes.hasNext()) {
-			long nextFiringTime = nextFiringTimes.next();
-			Iterator<Transition> checkStillEnabled = timedState.getEnabledTransitionsAtTime(nextFiringTime).iterator();	
-			while (checkStillEnabled.hasNext()) {
-				Transition nextChecked = checkStillEnabled.next();
-//        		if (!(returnState.isEnabled( nextChecked ) )) {
-				if (!(this.executablePetriNet.isEnabled( nextChecked,timedState.getState() ) )) { // ok
-					//System.out.println(nextChecked);
-					timedState.unregisterTimedTransition(nextChecked, nextFiringTime);
-				}
-			}
-		}
-	}
 
-    /**
-     * Computes transitions which need to be disabled because they are no longer enabled and
-     * those that need to be enabled because they have been newly enabled.
-     */
-    protected void updateAffectedTransitionsStatus(TimingQueue state) {
-    	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
-    	for (Transition transition : Sets.difference(markedEnabledTransitions, enabled)) {
-    		transition.disable();
-    		markedEnabledTransitions.remove(transition);
-    	}
-    	for (Transition transition : Sets.difference(enabled, markedEnabledTransitions)) {
-    		transition.enable();
-    		markedEnabledTransitions.add(transition);
-    	}
-    }
     /**
      * Computes transitions which need to be disabled because they are no longer enabled and
      * those that need to be enabled because they have been newly enabled.
@@ -403,7 +292,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	@Override
 	public void startAnimation() {
 		initMarkedEnabledTransitions();  
-    	updateAffectedTransitionsStatus(executablePetriNet.getTimingQueue()); 
+    	updateAffectedTransitionsStatus(executablePetriNet.getState()); 
 	}
 
 	protected void initMarkedEnabledTransitions() {

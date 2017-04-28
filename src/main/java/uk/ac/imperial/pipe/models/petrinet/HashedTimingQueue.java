@@ -39,14 +39,11 @@ public class HashedTimingQueue extends TimingQueue {
 	public String toString() { 
 		return "(" + this.state + ", " + this.enabledTimedTransitions + ", " + this.currentTime + ")"; 
 	}
-
+	//TODO:  refactor and delete
 	public State getState() {
 		return state;
 	}
 
-	public void setState(State state) {
-		this.state = state;
-	}
 	/**
 	 * For the current time, returns all timed transitions that are enabled to fire
 	 * @return set of transitions that are enabled to fire for the current time
@@ -110,14 +107,6 @@ public class HashedTimingQueue extends TimingQueue {
 		return (this.enabledTimedTransitions.ceilingKey( this.currentTime ) != null);
 	}
 	
-	public TimingQueue makeCopy() {
-		HashedStateBuilder builder = new HashedStateBuilder();
-        for (String placeId : this.state.getPlaces()) {
-            //Copy tokens
-            builder.placeWithTokens(placeId, this.state.getTokens(placeId));
-        }
-	    return (new HashedTimingQueue(executablePetriNet, builder.build(), this.enabledTimedTransitions, this.currentTime));
-	}
 	/**
 	 * verifies whether a given transition does not exist anywhere in the timing queue 
 	 * @param transition to be verified

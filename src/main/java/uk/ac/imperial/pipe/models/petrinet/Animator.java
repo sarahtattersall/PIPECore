@@ -25,7 +25,7 @@ public interface Animator {
      * @return a random transition that can fire
      */
 // TODO: Should be given by animation logic.
-    Transition getRandomEnabledTransition();
+    public Transition getRandomEnabledTransition();
 
     /**
      * Finds all of the transitions which are enabled

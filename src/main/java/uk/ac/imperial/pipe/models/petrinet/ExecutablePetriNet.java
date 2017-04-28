@@ -186,8 +186,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 	
 	public TimingQueue getTimingQueue() {
-		// Refresh State - TODO: not sure necessary to reassign all the time
-		timingQueue.setState( getState() );
 		return timingQueue;
 	}
 	
@@ -340,9 +338,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     private int getMaxPriority(Iterable<Transition> transitions) {
         int maxPriority = 0;
         for (Transition transition : transitions) {
-//            if (!transition.isTimed()) {  // duplicate, or is this needed? 
                 maxPriority = Math.max(maxPriority, transition.getPriority());
-//            }
         }
         return maxPriority;
     }
@@ -419,83 +415,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	
-	/**
-	 * @return all Places currently in the Petri net
-	 */
-	@Override
-	public Collection<Place> getPlaces() {
-		refresh(); 
-		return super.getPlaces();
-	}
-	/**
-	 * An outbound arc of a transition is any arc that starts at the transition
-	 * and connects elsewhere
-	 *
-	 * @param transition to find outbound arcs for
-	 * @return arcs that are outbound from transition
-	 */
-	@Override
-	public Collection<OutboundArc> outboundArcs(Transition transition) {
-		refresh(); 
-		return super.outboundArcs(transition);
-	}
-	/**
-	 * @return all transitions in the Petri net
-	 */
-	@Override
-	public Collection<Transition> getTransitions() {
-		refresh(); 
-		return super.getTransitions();
-	}
-	/**
-	 * @return Petri net's collection of arcs
-	 */
-	@Override
-	public Collection<Arc<? extends Connectable, ? extends Connectable>> getArcs() {
-		refresh(); 
-		return super.getArcs();
-	}
-	/**
-	 *
-	 * @return all outbound arcs in the Petri net
-	 */
-	@Override
-	public Collection<OutboundArc> getOutboundArcs() {
-		refresh(); 
-		return super.getOutboundArcs();
-	}
-	/**
-	 *
-	 * @return all inbound arcs in the Petri net
-	 */
-	@Override
-	public Collection<InboundArc> getInboundArcs() {
-		refresh(); 
-		return super.getInboundArcs();
-	}
-	/**
-	 * @return Petri net's list of tokens
-	 */	
-	@Override
-	public Collection<Token> getTokens() {
-		refresh(); 
-		return super.getTokens();
-	}
-	/**
-	 * @return annotations stored in the Petri net
-	 */
-	@Override 
-	public Collection<Annotation> getAnnotations() {
-		refresh(); 
-		return super.getAnnotations();
-	}
-	/**
-	 * @return rate parameters stored in the Petri net
-	 */
-	public Collection<RateParameter> getRateParameters() {
-		refresh(); 
-		return super.getRateParameters();
-	}
 	/**
 	 * Fire a transition, returning the State resulting from consuming tokens from the sources of the 
 	 * inbound arcs and producing tokens on the targets of the outbound arcs.  
@@ -628,69 +547,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		}
 	}
 
-	/**
-	 * Fire a specific transition for the given TimedState.
-	 */
-	protected void fireTransition(Transition transition, TimingQueue timedState) {
-		//TODO: Clean up - should the timedState be copied first to the network
-		// then the transition fired - and then the timedState set again?
-		transition.fire(); 
-		//TODO: shouldn't this go into fire?
-//		consumeInboundTokens(transition);
-//		this.state = consumeInboundTokens(transition); // new
-		consumeInboundTokens(transition, timedState);
-//		produceOutboundTokens(transition);
-//		this.state = produceOutboundTokens(transition); // new
-		produceOutboundTokens(transition, timedState);
-		timedState.setState( this.getState() );
-		if (transition.isTimed()) {
-//			timedState.verifyPendingTransitionsStillActive(this.getState());
-			timedState.unregisterTimedTransition(transition, timedState.getCurrentTime() );
-    	}
-    	timedState.queueEnabledTimedTransitions( getEnabledTimedTransitions() );
-//    	timedState.registerEnabledTimedTransitions( timedState.getEnabledTimedTransitions() );
-	}
-	protected void consumeInboundTokens(Transition transition, TimingQueue timedState) {
-		consumeInboundTokens(transition, timedState.getState()); 
-	}
-	// old
-	protected void consumeInboundTokens(Transition transition, State state) {
-		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
-			Place place = arc.getSource();
-			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-				if (arc.getType() == ArcType.NORMAL) {
-					String tokenId = entry.getKey();
-					String functionalWeight = entry.getValue();
-					double weight = getArcWeight(functionalWeight, state);
-					int currentCount = place.getTokenCount(tokenId);
-					//int newCount = currentCount + (int) weight;
-					// TODO: This is still strange as a place has also always a marking associated.
-					place.setTokenCount(tokenId, subtractWeight(currentCount, (int) weight));
-					//timedState.setState( this.getState() );
-				}
-			}
-		}
-	}
-
-
-	protected void produceOutboundTokens(Transition transition, TimingQueue timedState) {
-		produceOutboundTokens(transition, timedState.getState());
-	}
-	// old
-	protected void produceOutboundTokens(Transition transition, State state) {
-		for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
-			Place place = arc.getTarget(); 
-			for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-				String tokenId = entry.getKey();
-				String functionalWeight = entry.getValue();
-				double weight = getArcWeight(functionalWeight, state);
-				int currentCount = place.getTokenCount(tokenId);
-				//int newCount = oldCount - (int) weight;
-				place.setTokenCount(tokenId, addWeight(currentCount, (int) weight ));
-			}
-		}
-	}
-	
 	/** 
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
      * from it if this is the case
@@ -743,7 +599,84 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         }
         return result; 
     }
-	
+	/**
+	 * @return all Places currently in the Petri net
+	 */
+	@Override
+	public Collection<Place> getPlaces() {
+		refresh(); 
+		return super.getPlaces();
+	}
+	/**
+	 * An outbound arc of a transition is any arc that starts at the transition
+	 * and connects elsewhere
+	 *
+	 * @param transition to find outbound arcs for
+	 * @return arcs that are outbound from transition
+	 */
+	@Override
+	public Collection<OutboundArc> outboundArcs(Transition transition) {
+		refresh(); 
+		return super.outboundArcs(transition);
+	}
+	/**
+	 * @return all transitions in the Petri net
+	 */
+	@Override
+	public Collection<Transition> getTransitions() {
+		refresh(); 
+		return super.getTransitions();
+	}
+	/**
+	 * @return Petri net's collection of arcs
+	 */
+	@Override
+	public Collection<Arc<? extends Connectable, ? extends Connectable>> getArcs() {
+		refresh(); 
+		return super.getArcs();
+	}
+	/**
+	 *
+	 * @return all outbound arcs in the Petri net
+	 */
+	@Override
+	public Collection<OutboundArc> getOutboundArcs() {
+		refresh(); 
+		return super.getOutboundArcs();
+	}
+	/**
+	 *
+	 * @return all inbound arcs in the Petri net
+	 */
+	@Override
+	public Collection<InboundArc> getInboundArcs() {
+		refresh(); 
+		return super.getInboundArcs();
+	}
+	/**
+	 * @return Petri net's list of tokens
+	 */	
+	@Override
+	public Collection<Token> getTokens() {
+		refresh(); 
+		return super.getTokens();
+	}
+	/**
+	 * @return annotations stored in the Petri net
+	 */
+	@Override 
+	public Collection<Annotation> getAnnotations() {
+		refresh(); 
+		return super.getAnnotations();
+	}
+	/**
+	 * @return rate parameters stored in the Petri net
+	 */
+	public Collection<RateParameter> getRateParameters() {
+		refresh(); 
+		return super.getRateParameters();
+	}
+
 	/**
 	 * @param transition to calculate inbound arc for
 	 * @return arcs that are inbound to transition, that is arcs that come into the transition
