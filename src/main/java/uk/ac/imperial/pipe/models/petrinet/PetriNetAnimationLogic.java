@@ -210,32 +210,15 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * <p>
      * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
      * #(P0) to refer to the number of tokens before firing. </p>
-     *
+     * <p>This method invokes {@link #getSuccessors(State, true)} </p>
      * @param state to be evaluated
      * @return all successors of this state
      */
     @Override
-    public Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue timingQueue) {
-    	TimingQueue startState = timingQueue.makeCopy();
-    	
-    	//Set<Transition> enabledTransitions = startState.getEnabledTimedTransitionsNew();
-    	//startState.registerEnabledTimedTransitions(enabledTransitions);
-    	// TODO: successor has to be adapted.
-        Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(timingQueue);
-        logger.debug("Get Succ: " + timingQueue);
-        if (enabled.size() > 0) {
-        	logger.debug("Enabled : " + enabled.iterator().next());
-        }
-        Map<TimingQueue, Collection<Transition>> successors = new HashMap<>();
-        for (Transition transition : enabled) {
-            TimingQueue successor = getFiredState( startState, transition);
-            if (!successors.containsKey(successor)) {
-                successors.put(successor, new LinkedList<Transition>());
-            }
-            successors.get(successor).add(transition);
-        }
-        return successors;
+    public Map<State, Collection<Transition>> getSuccessors(State state) {
+    	return getSuccessors(state, true);
     }
+
     /**
      * Creates a map for the successor of the given state after firing the
      * transition.
@@ -249,22 +232,24 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * #(P0) to refer to the number of tokens before firing. </p>
      *
      * @param state to be evaluated
+     * @param updateState whether the State of the executable Petri net will be updated or left unchanged
      * @return all successors of this state
      */
-    @Override
-    public Map<State, Collection<Transition>> getSuccessors(State state) {
-    	State startState = (new HashedStateBuilder(state)).build(); 
-    	Collection<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
+	public Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState) {
+		State startState = (new HashedStateBuilder(state)).build(); 
+    	Collection<Transition> enabled = (updateState)  
+    			? getEnabledImmediateOrTimedTransitions()
+    			: getEnabledImmediateOrTimedTransitions(state);
     	Map<State, Collection<Transition>> successors = new HashMap<>();
     	for (Transition transition : enabled) {
-    		State successor = getFiredState( transition, startState);
+    		State successor = getFiredState( transition, startState, updateState);
     		if (!successors.containsKey(successor)) {
     			successors.put(successor, new LinkedList<Transition>());
     		}
     		successors.get(successor).add(transition);
     	}
     	return successors;
-    }
+	}
 
     /**
      * @param state to be evaluated

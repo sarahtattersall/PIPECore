@@ -29,12 +29,19 @@ public interface AnimationLogic {
 
     /**
      * Calculates successor states of a given state
-     *
+     * equivalent to {@link #getSuccessors(State, true)}
      * @param state to be evaluated
      * @return successors of the given state
      */
-    Map<TimingQueue, Collection<Transition>> getSuccessors(TimingQueue state);
     Map<State, Collection<Transition>> getSuccessors(State state);
+    /**
+     * Calculates successor states of a given state
+     *
+     * @param state to be evaluated
+     * @param updateState whether the State of the executable Petri net should be updated or left unchanged
+     * @return successors of the given state
+     */
+    Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState);
 
     /**
      *
