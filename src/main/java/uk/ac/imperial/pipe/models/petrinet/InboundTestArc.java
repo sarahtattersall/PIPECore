@@ -26,6 +26,7 @@ public class InboundTestArc extends InboundArc {
      * @param state
      * @return true if the arc can fire
      */
+    //FIXME  this won't work as anticipated if one color has non-zero and another has zero.  
 	@Override
 	public boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
 		Map<String, Integer> tokens = state.getTokens(getSource().getId());

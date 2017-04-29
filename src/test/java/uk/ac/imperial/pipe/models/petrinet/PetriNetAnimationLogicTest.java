@@ -7,7 +7,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +30,7 @@ import uk.ac.imperial.pipe.dsl.AnInhibitorArc;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.runner.TimedPetriNetRunner;
+import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 import utils.AbstractTestLog4J2;
 
@@ -360,8 +363,66 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 		executablePetriNet.getTimingQueue().rebuild(state); 
 		return petriNet;
 	}
-
     @Test
+    public void complexColorNetFiresBothColorsReachingExpectedStates() throws PetriNetComponentException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                AToken.called("Red").withColor(Color.RED)).and(
+                APlace.withId("P0").containing(1, "Default").token().and(1, "Red").token()).and(
+                APlace.withId("P1")).
+                and(AnImmediateTransition.withId("T0")).
+                and(AnImmediateTransition.withId("T1")).
+                and(AnImmediateTransition.withId("T2")).
+                and(AnImmediateTransition.withId("T3")).
+        and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token().and("0", "Red").token()).
+        and(ANormalArc.withSource("P0").andTarget("T1").with("1", "Red").token().and("0", "Default").token()).
+        and(ANormalArc.withSource("P1").andTarget("T2").with("1", "Default").token().and("0", "Red").token()).
+        and(ANormalArc.withSource("P1").andTarget("T3").with("1", "Red").token().and("0", "Default").token()).
+        and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token().and("0", "Red").token()).
+        and(ANormalArc.withSource("T1").andTarget("P1").with("1", "Red").token().and("0", "Default").token()).
+        and(ANormalArc.withSource("T2").andTarget("P0").with("1", "Default").token().and("0", "Red").token()).
+        andFinally(ANormalArc.withSource("T3").andTarget("P0").with("1", "Red").token().and("0", "Default").token());
+//                and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token()).
+//                and(ANormalArc.withSource("P0").andTarget("T1").with("1", "Red").token()).
+//                and(ANormalArc.withSource("P1").andTarget("T2").with("1", "Default").token()).
+//                and(ANormalArc.withSource("P1").andTarget("T3").with("1", "Red").token()).
+//                and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()).
+//                and(ANormalArc.withSource("T1").andTarget("P1").with("1", "Red").token()).
+//                and(ANormalArc.withSource("T2").andTarget("P0").with("1", "Default").token()).
+//                andFinally(ANormalArc.withSource("T3").andTarget("P0").with("1", "Red").token());
+        State originalState = buildExecutablePetriNetAndAnimationAndState(petriNet);
+		successors = animationLogic.getSuccessors(originalState, false);
+		State successor0 = new SB().add("P1", "Default", 1, "Red", 0).add("P0", "Default", 0, "Red", 1).getState();
+		State successor1 = new SB().add("P1", "Default", 0, "Red", 1).add("P0", "Default", 1, "Red", 0).getState();
+		assertTrue(successors.get(successor0).contains(getT("T0")));
+		assertTrue(successors.get(successor1).contains(getT("T1")));
+
+		// test the successors of each of the two states
+		successors = animationLogic.getSuccessors(successor0, false);
+		State successor01 = new SB().add("P1", "Default", 1, "Red", 1).add("P0", "Default", 0, "Red", 0).getState();
+		assertTrue(successors.get(successor01).contains(getT("T1")));
+		assertTrue(successors.get(originalState).contains(getT("T2")));
+		successors = animationLogic.getSuccessors(successor1, false);
+		assertTrue(successors.get(successor01).contains(getT("T0")));
+		assertTrue(successors.get(originalState).contains(getT("T3")));
+		// test the successors of P1 with both tokens
+		successors = animationLogic.getSuccessors(successor01, false);
+		assertTrue(successors.get(successor0).contains(getT("T3")));
+		assertTrue(successors.get(successor1).contains(getT("T2")));
+//  Transition / State combinations    
+//      t0 0 
+//      T0 01
+//      t1 1
+//      T1 01
+//      T2 OS
+//      T2 1 
+//      T3 0
+//      T3 OS
+    }
+
+    private Transition getT(String transition) throws PetriNetComponentNotFoundException {
+		return executablePetriNet.getComponent(transition, Transition.class);
+	}
+	@Test
     public void multiColorArcsCanFire() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AToken.called("Red").withColor(Color.RED)).and(
@@ -419,6 +480,19 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         assertFalse(arc.canFire(executablePetriNet, timedState.getState() )); 
         Collection<Transition> transitions = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
         assertEquals(0, transitions.size());
+    }
+    @Test
+    public void arcweightThatHasEvaluatesToZeroDoesNotEnableTransition() throws PetriNetComponentException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+                AToken.called("Red").withColor(Color.RED)).and(
+                APlace.withId("P0").containing(0, "Default").token().and(1, "Red").token()).and(
+                APlace.withId("P1")).and(AnImmediateTransition.withId("T0")).and(
+                ANormalArc.withSource("P0").andTarget("T0").with("0", "Default").token().and("1", "Red").tokens()).
+        andFinally(ANormalArc.withSource("T0").andTarget("P1").with("0", "Default").tokens().and("1", "Red").token());
+    	executablePetriNet = petriNet.getExecutablePetriNet();
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	InboundArc arc = executablePetriNet.inboundArcs(t0).iterator().next(); 
+    	assertTrue(arc.canFire(executablePetriNet, executablePetriNet.getState())); 
     }
 
     @Test
@@ -528,6 +602,16 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         Collection<Transition> enabled = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
         assertThat(enabled).doesNotContain(transition);
     }
+    
+//    public PetriNet createSimplePetriNet(int tokenWeight) throws PetriNetComponentException {
+//        String arcWeight = Integer.toString(tokenWeight);
+//        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+//                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
+//                AnImmediateTransition.withId("T1")).and(
+//                ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
+//                ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
+//    }
+
 
     @Test
     public void correctlyIdentifiesEnabledTransitionRequiringTwoTokens() throws PetriNetComponentException {
@@ -654,5 +738,25 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 //        public Map<TimedState, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 
     }
-    
+    // concise state builder
+    private class SB {
+		private HashedStateBuilder builder; 
+		public SB() {
+			builder = new HashedStateBuilder();
+		}
+    	public SB add(String place, String token1, int count1) {
+    		builder.placeWithToken(place, token1, count1);
+    		return this; 
+		}
+		public SB add(String place, String token1, int count1, String token2, int count2) {
+			HashMap<String, Integer> tokens = new HashMap<String,Integer>(); 
+			tokens.put(token1, count1); 
+			tokens.put(token2, count2); 
+    		builder.placeWithTokens(place, tokens); 
+    		return this; 
+		}
+		public State getState() {
+			return builder.build(); 
+		}
+    }
 }
