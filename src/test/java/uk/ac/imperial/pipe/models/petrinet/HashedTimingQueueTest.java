@@ -125,6 +125,8 @@ public class HashedTimingQueueTest {
 		assertEquals(3, timing.getCurrentTime());
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
 		timing.resetTimeAndRebuildTimedTransitions(1l);
+//	should be rebuild(state); limitation of the fake.  		
+		timing.queueEnabledTimedTransitions(executablePetriNet.getEnabledTimedTransitions());
 		assertEquals(1, timing.getCurrentTime());
 		assertEquals("new time, but still two transitions",
 				2, timing.enabledTimedTransitions.size()); 

@@ -253,7 +253,7 @@ public class HashedTimingQueue extends TimingQueue {
 	}
 	public void setCurrentTime(long newTime) {
 		this.currentTime = newTime;
-		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
+//		queueEnabledTimedTransitions( this.executablePetriNet.getEnabledTimedTransitions() );
 	}
 
 
