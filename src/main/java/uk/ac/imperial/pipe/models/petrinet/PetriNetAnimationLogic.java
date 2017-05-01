@@ -86,7 +86,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 //  presumably the user accepts the risk of firing transitions in an order that wouldn't be used by this class.     
     @Override
     public Set<Transition> getEnabledTransitions(State state) {
-    	return getEnabledImmediateOrTimedTransitions(state);
+    	return getEnabledImmediateOrTimedTransitions(state, new HashedTimingQueue(executablePetriNet, state, 0));
     }
     
     /**
