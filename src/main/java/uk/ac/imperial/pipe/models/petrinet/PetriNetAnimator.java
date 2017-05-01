@@ -2,7 +2,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 import uk.ac.imperial.state.State;
 
@@ -60,17 +59,6 @@ public final class PetriNetAnimator implements Animator {
     @Override
     public Transition getRandomEnabledTransition() {
     	return animationLogic.getRandomEnabledTransition(executablePetriNet.getState());
-    }
-
-    /**
-     * @deprecated use {@link #getRandomEnabledTransition()}
-     * @return all enabled transitions for the Petri nets current underlying state
-     */
-    @Deprecated
-    @Override
-    public Set<Transition> getEnabledTransitions() {
-        return animationLogic.getEnabledImmediateOrTimedTransitions();
-//        return animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getState());
     }
 
    /**

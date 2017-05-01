@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import uk.ac.imperial.pipe.runner.Runner;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -34,7 +35,6 @@ import com.google.common.collect.Sets.SetView;
  * 	- current time of PN 
  *  
  */
-//TODO reallocate this logic; previously:  "It does not alter the state of the Petri net."
 public final class PetriNetAnimationLogic implements AnimationLogic, PropertyChangeListener {
 
 	private static Logger logger = LogManager.getLogger(PetriNetAnimationLogic.class);  
@@ -69,70 +69,73 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	}
 
     /**
-     * First, is looking for all immediate transitions.
-     * Only if there are none, current timed transitions are used.
-     * 
-     * @deprecated  can lead to confusion between immediate and timed transitions.  Use {@link #getRandomEnabledTransition(State)}
-     * @param state Must be a valid state for the Petri net this class represents
-     * @return all transitions that are enabled in the given state
-     */
-//TODO: I propose to make this method private (at least from the interface)
-// In my opinion, the AnimationLogic is following the right sequence of which transitions can
-// be fired. The animator only accesses it through the getNextRandomTransition.
-// Or if you really want to mess around you can getImmediateTransitions and getTimedTransitions 
-// and do whatever you want with it. But putting them all in one place will surely lead
-// to someone using it the wrong way.  
-//Malte:  note that the GUI (TransitionAnimationHandler) allows the user to fire any arbitrary enabled transition
-//  presumably the user accepts the risk of firing transitions in an order that wouldn't be used by this class.     
+     * Returns the set of enabled transitions for the given State, i.e.,  
+     * the set of enabled transitions that could fire at the current time, following the normal Petri net firing rules.
+     * Specifically, this means that the highest priority immediate transitions are returned.  
+     * If there are no enabled immediate transitions, then the timed transitions that can fire 
+     * at the current time ({@link ExecutablePetriNet.#getCurrentTime()}) are returned.  This method is 
+     * primarily useful for analysis purposes.
+     * </p><p>
+     * To retrieve a random transition that is eligible for firing under the normal Petri net firing rules, use
+     * {@link AnimationLogic#getRandomEnabledTransition()} or {@link AnimationLogic#getRandomEnabledTransition(State)} 
+     * This is the typical use case for executing a Petri net, either by the PIPE GUI, or through a {@link Runner}.
+     * </p><p>Alternatively, and only for analysis purposes, the entire set of transitions that are enabled for the given 
+     * State can be returned by using {@link SimpleAnimationLogic}. (Note that this class is not suitable for animation.) 
+     * </p> 
+     * @see SimpleAnimationLogic
+     * @param state Must be a valid state for the executable Petri net
+     * @return all enabled transitions that are eligible for firing under normal Petri net firing rules
+     */    
     @Override
     public Set<Transition> getEnabledTransitions(State state) {
-    	return getEnabledImmediateOrTimedTransitions(state, new HashedTimingQueue(executablePetriNet, state, 0));
+    	return getEnabledImmediateOrTimedTransitions(state, new HashedTimingQueue(executablePetriNet, state, 0), false);
     }
     
-    /**
-     * Replaces getEnabledTransitions; intended for internal use and testing
-     * @param state against which transitions are to be evaluated 
-     * @return enabled immediate transitions, if any; else enabled timed transitions 
-     */
-	public Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
-		// TODO: Turn on cached immediate transitions for current state.
-		//if (cachedEnabledTransitions.containsKey(state)) {
-		//    return cachedEnabledTransitions.get(state);
-		//}
-		Set<Transition> enabledTransitions = 
-				executablePetriNet.maximumPriorityTransitions(
-				executablePetriNet.getEnabledImmediateTransitions(state)); 
-		cachedEnabledImmediateTransitionsState.put(state, enabledTransitions);
-		if (enabledTransitions.isEmpty()) {
-			enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to timedQ 
-		}
-		// getSuccessors iterates through this collection, but if its executablePetriNet.getCurrentlyEnabledTimedTransitions()
-		// the timedQueue.dequeue process removes elements from the collection, so make a copy to avoid
-		// ConcurrentModificationException.
-		Set<Transition> copyEnabledTransitions = new HashSet<Transition>(enabledTransitions); 
-		return copyEnabledTransitions;
-//		return enabledTransitions;
+	protected Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
+		return getEnabledImmediateOrTimedTransitions(state, null, true); 
 	}
-	public Set<Transition> getEnabledImmediateOrTimedTransitions() {
+	protected Set<Transition> getEnabledImmediateOrTimedTransitions() {
 		return getEnabledImmediateOrTimedTransitions(executablePetriNet.getState()); 
 	}
     private Set<Transition> getEnabledImmediateOrTimedTransitions(State state,
-			HashedTimingQueue timingQueue) {
-		Set<Transition> enabledTransitions = 
-				executablePetriNet.maximumPriorityTransitions(
-				executablePetriNet.getEnabledImmediateTransitions(state)); 
+			HashedTimingQueue timingQueue, boolean updateState) {
+    	// TODO: Turn on cached immediate transitions for current state.
+    	//if (cachedEnabledTransitions.containsKey(state)) {
+    	//    return cachedEnabledTransitions.get(state);
+    	//}
+		Set<Transition> enabledTransitions = getOnlyMaximumPriorityEnabledImmediateTransitions(state); 
 		cachedEnabledImmediateTransitionsState.put(state, enabledTransitions);
-		if (enabledTransitions.isEmpty()) {
-			if (timingQueue.hasUpcomingTimedTransition()) {
-				timingQueue.setCurrentTime(timingQueue.getNextFiringTime()); 
-				enabledTransitions  = timingQueue.getCurrentlyEnabledTimedTransitions();
-			}
-		}
+		enabledTransitions = getCurrentTimedTransitionsIfImmediateTransitionsEmpty(
+				timingQueue, updateState, enabledTransitions);
 		// getSuccessors iterates through this collection, but if its executablePetriNet.getCurrentlyEnabledTimedTransitions()
 		// the timedQueue.dequeue process removes elements from the collection, so make a copy to avoid
 		// ConcurrentModificationException.
 		Set<Transition> copyEnabledTransitions = new HashSet<Transition>(enabledTransitions); 
 		return copyEnabledTransitions;
+	}
+
+	protected Set<Transition> getOnlyMaximumPriorityEnabledImmediateTransitions(
+			State state) {
+		Set<Transition> enabledTransitions = 
+				executablePetriNet.maximumPriorityTransitions(
+				executablePetriNet.getEnabledImmediateTransitions(state));
+		return enabledTransitions;
+	}
+
+	protected Set<Transition> getCurrentTimedTransitionsIfImmediateTransitionsEmpty(
+			HashedTimingQueue timingQueue, boolean updateState,
+			Set<Transition> enabledTransitions) {
+		if (enabledTransitions.isEmpty()) {
+			if (updateState) {
+				enabledTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions(); // delegates to EPN timingQ 
+			} else {
+				if (timingQueue.hasUpcomingTimedTransition()) {
+					timingQueue.setCurrentTime(timingQueue.getNextFiringTime()); 
+					enabledTransitions  = timingQueue.getCurrentlyEnabledTimedTransitions();
+				}
+			}
+		}
+		return enabledTransitions;
 	}
 
 	
@@ -176,48 +179,36 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
    }
 
 
-    /**
-     * Creates a map for the successor of the given state after firing the
-     * transition.
-     * calculating the decremented token counts and then calculating the incremented
-     * token counts.
-     * <p>
-     * We cannot set the token counts in the decrement phase in case an increment
-     * depends on this value. </p>
-     * <p>
-     * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
-     * #(P0) to refer to the number of tokens before firing. </p>
-     * <p>This method invokes {@link #getSuccessors(State, true)} </p>
-     * @param state to be evaluated
-     * @return all successors of this state
-     */
+   /**
+    * Calculates successor states of a given state of the executable Petri net.  This will both calculate 
+    * the successors, as well as update the current State of the executable Petri net to the first successor found.  
+    * This is equivalent to {@link #getSuccessors(State, true)}.  Although useful for testing in cases where 
+    * there is expected to be 0 or 1 successor, in general this 
+    * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, false)}. 
+    * 
+    * @param state to be evaluated
+    * @return successors of the given state 
+    */
     @Override
     public Map<State, Collection<Transition>> getSuccessors(State state) {
     	return getSuccessors(state, true);
     }
 
     /**
-     * Creates a map for the successor of the given state after firing the
-     * transition.
-     * calculating the decremented token counts and then calculating the incremented
-     * token counts.
-     * <p>
-     * We cannot set the token counts in the decrement phase in case an increment
-     * depends on this value. </p>
-     * <p>
-     * E.g. if P0 -- T0 -- P1 and T0 -- P1 has a weight of #(P0) then we expect
-     * #(P0) to refer to the number of tokens before firing. </p>
+     * Calculates successor states of a given state.  When updateState is false (the normal case), the successor
+     * states will be calculated, but the State of the executable Petri net is left unchanged.  
+     * When updateState is true, this is equivalent to {@link #getSuccessors(State)}. 
      *
      * @param state to be evaluated
-     * @param updateState whether the State of the executable Petri net will be updated or left unchanged
-     * @return all successors of this state
+     * @param updateState whether the State of the executable Petri net should be updated or left unchanged
+     * @return successors of the given state
      */
 	public Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState) {
 		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, state, 0); 
 		State startState = (new HashedStateBuilder(state)).build(); 
     	Collection<Transition> enabled = (updateState)  
     			? getEnabledImmediateOrTimedTransitions()
-    			: getEnabledImmediateOrTimedTransitions(state, timingQueue);
+    			: getEnabledImmediateOrTimedTransitions(state, timingQueue, false);
     	Map<State, Collection<Transition>> successors = new HashMap<>();
     	for (Transition transition : enabled) {
     		State successor = getFiredState( transition, startState, updateState);
@@ -237,7 +228,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * @param state to be evaluated
      * @return Map of places whose token counts differ from those in the initial state
      */
-    //TODO:  refactor to ExecutablePetriNet 
     @Override
     public State getFiredState(Transition transition, State state) {
     	return getFiredState(transition, state, false);
@@ -247,7 +237,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * @param transition  to be fired 
      * @return Map of places whose token counts differ from those in the initial state
      */
-    //TODO:  refactor to ExecutablePetriNet 
     @Override
     public State getFiredState(Transition transition) {
     	return getFiredState(transition, executablePetriNet.getState(), true);

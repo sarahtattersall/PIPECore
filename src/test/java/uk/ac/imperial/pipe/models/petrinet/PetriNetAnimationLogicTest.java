@@ -603,15 +603,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         assertThat(enabled).doesNotContain(transition);
     }
     
-//    public PetriNet createSimplePetriNet(int tokenWeight) throws PetriNetComponentException {
-//        String arcWeight = Integer.toString(tokenWeight);
-//        return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-//                APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2")).and(
-//                AnImmediateTransition.withId("T1")).and(
-//                ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens()).andFinally(
-//                ANormalArc.withSource("T1").andTarget("P2").with(arcWeight, "Default").tokens());
-//    }
-
 
     @Test
     public void correctlyIdentifiesEnabledTransitionRequiringTwoTokens() throws PetriNetComponentException {
