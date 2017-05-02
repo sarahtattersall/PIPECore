@@ -140,8 +140,7 @@ public interface Transition extends Connectable, PropertyChangeListener  {
     boolean isEnabled();
 
     /**
-    * Execute actions specific to this transition.  Invoked by {@link AbstractTransition#fire(ExecutablePetriNet, uk.ac.imperial.state.State, uk.ac.imperial.state.HashedStateBuilder)}
-    * @see AbstractTransition  
+    * Execute actions specific to this transition.  
     */
 
 	public void fire();

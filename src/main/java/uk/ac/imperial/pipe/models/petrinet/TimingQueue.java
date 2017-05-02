@@ -4,11 +4,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
 
-import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 public class TimingQueue {
@@ -242,31 +241,4 @@ public class TimingQueue {
 		this.currentTime = newTime;
 	}
 
-	    
-//	public long getCurrentTime() {
-//		return this.currentTime;
-//	}
-//	    
-//	public abstract void resetTimeAndRebuildTimedTransitions(long newInitTime);
-//	
-//	public abstract long getNextFiringTime();
-//	
-//	public abstract boolean hasUpcomingTimedTransition();
-//	
-//	public abstract Set<Transition> getCurrentlyEnabledTimedTransitions();
-//	
-//    public abstract void queueEnabledTimedTransitions(Set<Transition> enabledTransitions);
-//	public abstract void rebuild(State state);
-//    
-//	protected abstract Set<Long> getAllFiringTimes();
-//	
-//	protected abstract Set<Transition> getEnabledTransitionsAtTime(long nextTime);
-//	
-//    public abstract void setCurrentTime(long newTime);
-//
-//    public abstract void verifyPendingTransitionsStillActive(State state);
-//    
-//    public abstract boolean unregisterTimedTransition(Transition transition, long atTime);
-//
-//    public abstract boolean dequeueAndRebuild(Transition transition, State state); 
 }
