@@ -325,7 +325,7 @@ public class ExecutablePetriNetTest {
 				.getExecutablePetriNet();
 		State state = executablePetriNet.getState(); 
 		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
-		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState(), 0); 
+		TimingQueue timingQueue = new TimingQueue(executablePetriNet, 0); 
 		assertEquals("2 times registered in timingQueue",2, timingQueue.getAllFiringTimes().size());
 		assertEquals("...and in the EPN",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
 		timingQueue.setCurrentTime(5); 
@@ -367,7 +367,7 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
     			.getExecutablePetriNet();
     	State state = executablePetriNet.getState(); 
-    	HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState(), 0);
+    	TimingQueue timingQueue = new TimingQueue(executablePetriNet, 0);
     	assertTrue(timingQueue.hasUpcomingTimedTransition());
     	int round = 0; 
     	while (timingQueue.hasUpcomingTimedTransition()) {

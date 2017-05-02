@@ -103,7 +103,6 @@ public interface AnimationLogic {
      * @see #getFiredState(Transition)  
      * @param state to be evaluated
      * @param transition to be fired
-     * of this AnimationLogic 
      * @return the successor state after firing the transition
      */
     //TODO consider throwing if the specified Transition is not eligible to be fired under the firing rules
@@ -113,13 +112,23 @@ public interface AnimationLogic {
      * Executable Petri Net.  ({@link ExecutablePetriNet.#getState()})
      * @see #getFiredState(Transition, State)  
      * @param transition to be fired
-     * of this AnimationLogic 
      * @return the successor state after firing the transition
      */
     //TODO consider throwing if the specified Transition is not eligible to be fired under the firing rules
     public State getFiredState(Transition transition);
 
-
+    /**
+     * Get the State that generated the current state of executable Petri net through the firing 
+     * of the specified Transition  ({@link ExecutablePetriNet.#getState()}).  
+     * This is the reverse of #getFiredState(Transition), i.e., executing these two operations in 
+     * either order from an arbitrary starting point should return the Executable Petri Net to that 
+     * starting point (if there is a valid preceding state).     
+     * @param transition to be fired
+     * @return the predecessor state prior to firing the transition
+     */
+    public State getBackwardsFiredState(Transition transition);
+    
+    
     /**
      * Clears any caching done in the animation logic
      * This method helps with memory usage once you know

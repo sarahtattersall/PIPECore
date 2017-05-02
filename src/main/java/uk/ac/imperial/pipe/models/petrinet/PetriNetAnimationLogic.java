@@ -3,7 +3,6 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,15 +11,11 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import uk.ac.imperial.pipe.runner.Runner;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
 import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 
 /**
  * This class is defining the logic how a Petri Net is evaluated.
@@ -37,7 +32,7 @@ import com.google.common.collect.Sets.SetView;
  */
 public final class PetriNetAnimationLogic implements AnimationLogic, PropertyChangeListener {
 
-	private static Logger logger = LogManager.getLogger(PetriNetAnimationLogic.class);  
+//	private static Logger logger = LogManager.getLogger(PetriNetAnimationLogic.class);  
 
     /**
      * Executable Petri net this class represents the logic for
@@ -48,8 +43,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * Needs to be concurrent thus to handle multiple calls to methods using this data structure
      * from different threads running in analysis modules
      */
-    public Map<TimingQueue, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
-    public Map<State, Set<Transition>> cachedEnabledImmediateTransitionsState = new ConcurrentHashMap<>();
+    public Map<State, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 	
 	/**
 	 * Random for use in random firing.   
@@ -88,7 +82,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      */    
     @Override
     public Set<Transition> getEnabledTransitions(State state) {
-    	return getEnabledImmediateOrTimedTransitions(state, new HashedTimingQueue(executablePetriNet, state, 0), false);
+    	return getEnabledImmediateOrTimedTransitions(state, new TimingQueue(executablePetriNet, state, 0), false);
     }
     
 	protected Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
@@ -98,13 +92,13 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 		return getEnabledImmediateOrTimedTransitions(executablePetriNet.getState()); 
 	}
     private Set<Transition> getEnabledImmediateOrTimedTransitions(State state,
-			HashedTimingQueue timingQueue, boolean updateState) {
+			TimingQueue timingQueue, boolean updateState) {
     	// TODO: Turn on cached immediate transitions for current state.
     	//if (cachedEnabledTransitions.containsKey(state)) {
     	//    return cachedEnabledTransitions.get(state);
     	//}
 		Set<Transition> enabledTransitions = getOnlyMaximumPriorityEnabledImmediateTransitions(state); 
-		cachedEnabledImmediateTransitionsState.put(state, enabledTransitions);
+		cachedEnabledImmediateTransitions.put(state, enabledTransitions);
 		enabledTransitions = getCurrentTimedTransitionsIfImmediateTransitionsEmpty(
 				timingQueue, updateState, enabledTransitions);
 		// getSuccessors iterates through this collection, but if its executablePetriNet.getCurrentlyEnabledTimedTransitions()
@@ -123,7 +117,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	}
 
 	protected Set<Transition> getCurrentTimedTransitionsIfImmediateTransitionsEmpty(
-			HashedTimingQueue timingQueue, boolean updateState,
+			TimingQueue timingQueue, boolean updateState,
 			Set<Transition> enabledTransitions) {
 		if (enabledTransitions.isEmpty()) {
 			if (updateState) {
@@ -180,11 +174,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 
 
    /**
-    * Calculates successor states of a given state of the executable Petri net.  This will both calculate 
-    * the successors, as well as update the current State of the executable Petri net to the first successor found.  
-    * This is equivalent to {@link #getSuccessors(State, true)}.  Although useful for testing in cases where 
-    * there is expected to be 0 or 1 successor, in general this 
-    * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, false)}. 
+    * Calculates successor states of a given state of the executable Petri net, leaving the current State 
+    * of the executable Petri net unchanged. This is equivalent to {@link #getSuccessors(State, true)}.   
     * 
     * @param state to be evaluated
     * @return successors of the given state 
@@ -195,24 +186,30 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     }
 
     /**
-     * Calculates successor states of a given state.  When updateState is false (the normal case), the successor
-     * states will be calculated, but the State of the executable Petri net is left unchanged.  
-     * When updateState is true, this is equivalent to {@link #getSuccessors(State)}. 
-     *
+     * Calculates successor states of a given state.  When leaveStateUnchanged is true (the normal case), the successor
+     * states will be calculated, but the State of the executable Petri net is left unchanged.
+     * <p>  
+     * When leaveStateUnchanged is false, the successors will be calculated and the current State of the 
+     * executable Petri net will be updated.  Although useful for testing in cases where 
+     * there is expected to be 0 or 1 successor, in general this 
+     * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, true)}, which is 
+     * equivalent to {@link #getSuccessors(State)}. 
+     * </p>
      * @param state to be evaluated
-     * @param updateState whether the State of the executable Petri net should be updated or left unchanged
-     * @return successors of the given state
+     * @param leaveStateUnchanged whether the State of the executable Petri net should be left unchanged or updated
+     * @return map of successors of the given state, where State -&gt; Collection of transitions that can fire to generate that state
      */
-	public Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState) {
-		HashedTimingQueue timingQueue = new HashedTimingQueue(executablePetriNet, state, 0); 
+	public Map<State, Collection<Transition>> getSuccessors(State state, boolean leaveStateUnchanged) {
+		TimingQueue timingQueue = new TimingQueue(executablePetriNet, state, 0); 
 		State startState = (new HashedStateBuilder(state)).build(); 
-    	Collection<Transition> enabled = (updateState)  
-    			? getEnabledImmediateOrTimedTransitions()
-    			: getEnabledImmediateOrTimedTransitions(state, timingQueue, false);
+		boolean updateState = !leaveStateUnchanged;
+    	Collection<Transition> enabled = (leaveStateUnchanged)  
+    			? getEnabledImmediateOrTimedTransitions(state, timingQueue, false)
+		    	: getEnabledImmediateOrTimedTransitions();
     	Map<State, Collection<Transition>> successors = new HashMap<>();
     	for (Transition transition : enabled) {
     		State successor = getFiredState( transition, startState, updateState);
-    		if (!updateState) {
+    		if (leaveStateUnchanged) {
     			timingQueue.dequeueAndRebuild(transition, successor); 
     		}
     		if (!successors.containsKey(successor)) {
@@ -223,19 +220,24 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     	return successors;
 	}
 
-	/**
-     * @param transition  to be fired 
+    /**
+     * Get the State that results from firing the specified Transition, given the provided State 
+     * of the Executable Petri Net. 
+     * @see #getFiredState(Transition)  
      * @param state to be evaluated
-     * @return Map of places whose token counts differ from those in the initial state
+     * @param transition to be fired
+     * @return the successor state after firing the transition
      */
     @Override
     public State getFiredState(Transition transition, State state) {
     	return getFiredState(transition, state, false);
     }
     /**
-     * @param state to be evaluated
-     * @param transition  to be fired 
-     * @return Map of places whose token counts differ from those in the initial state
+     * Get the State that results from firing the specified Transition in the current State of the  
+     * Executable Petri Net.  ({@link ExecutablePetriNet.#getState()})
+     * @see #getFiredState(Transition, State)  
+     * @param transition to be fired
+     * @return the successor state after firing the transition
      */
     @Override
     public State getFiredState(Transition transition) {
@@ -252,6 +254,18 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     	updateAffectedTransitionsStatus(returnState);
     	return ( returnState );
     }
+    /**
+     * Get the State that generated the current state of executable Petri net through the firing 
+     * of the specified Transition  ({@link ExecutablePetriNet.#getState()}).  
+     * This is the reverse of #getFiredState(Transition), i.e., executing these two operations in 
+     * either order from an arbitrary starting point should return the Executable Petri Net to that 
+     * starting point (if there is a valid preceding state).     
+     * @param transition to be fired
+     * @return the predecessor state prior to firing the transition
+     */
+	public State getBackwardsFiredState(Transition transition) {
+		return executablePetriNet.fireTransitionBackwards(transition); 
+	}
 
     /**
      * Computes transitions which need to be disabled because they are no longer enabled and
@@ -297,7 +311,6 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	public void propertyChange(PropertyChangeEvent evt) {
 		clear();
 	}
-    //TODO consider moving to animator
 	@Override
 	public void stopAnimation() {
 		for (Transition transition : markedEnabledTransitions) {

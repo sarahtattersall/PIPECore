@@ -90,8 +90,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		timingQueue = buildTimingQueue(initTime);
 	}
 
-	protected HashedTimingQueue buildTimingQueue(long initTime) {
-		return new HashedTimingQueue(this, state, initTime);
+	protected TimingQueue buildTimingQueue(long initTime) {
+		return new TimingQueue(this, initTime);
 	}
 	
 	public ExecutablePetriNet(PetriNet petriNet) {
@@ -206,10 +206,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
         }
 	}
 	
-	public void setTimedState(TimingQueue timedState) {
-		setState(timedState.getState());
-		this.timingQueue = timedState;
-	}
     /**
      * Returns the enabled immediate Transitions for the current State ({@link #getState()}) 
      * of this executable Petri net, evaluated against the structure of this executable Petri net.
@@ -514,20 +510,36 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return stateProduced; 
 	}
 	protected State consumeInboundTokens(HashedStateBuilder builder, Transition transition, State state, boolean updatePlace) {
+		return inboundTokens(builder, transition, state, updatePlace, false); 
+	}
+	protected State produceInboundTokens(HashedStateBuilder builder, Transition transition, State state, boolean updatePlace) {
+		return inboundTokens(builder, transition, state, updatePlace, true); 
+	}
+
+	protected State inboundTokens(HashedStateBuilder builder,
+			Transition transition, State state, boolean updatePlace, boolean add) {
 		for (Arc<Place, Transition> arc : this.inboundArcs(transition)) {
 			Place place = arc.getSource();
 			if (arc.getType() == ArcType.NORMAL) {
-				updateTokensInStateAndPerhapsPlace(arc, state, state, updatePlace, builder, place, false);
+				updateTokensInStateAndPerhapsPlace(arc, state, state, updatePlace, builder, place, add);
 			}
 		}
-		return builder.build(); 
+		return builder.build();
 	}
 	protected State produceOutboundTokens(HashedStateBuilder builder, Transition transition, State originalState, boolean updatePlace) {
+		return outboundTokens(builder, transition, originalState, updatePlace, true); 
+	}
+	protected State consumeOutboundTokens(HashedStateBuilder builder, Transition transition, State originalState, boolean updatePlace) {
+		return outboundTokens(builder, transition, originalState, updatePlace, false); 
+	}
+
+	protected State outboundTokens(HashedStateBuilder builder,
+			Transition transition, State originalState, boolean updatePlace, boolean add) {
 		for (Arc<Transition, Place> arc : this.outboundArcs(transition)) {
 			Place place = arc.getTarget(); 
-			updateTokensInStateAndPerhapsPlace(arc, originalState, builder.build(), updatePlace, builder, place, true);
+			updateTokensInStateAndPerhapsPlace(arc, originalState, builder.build(), updatePlace, builder, place, add);
 		}
-		return builder.build(); 
+		return builder.build();
 	}
 
 	protected void updateTokensInStateAndPerhapsPlace(
@@ -546,7 +558,64 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			}
 		}
 	}
+	/**
+	 * Returns the State of the executable Petri net that generated the current State through the firing of the 
+	 * specified transition.  Note that if the transition is an external transition, it is fired, but no current 
+	 * mechanism exists to alert the external transition that it is being fired "backwards".  Note also that the 
+	 * timing queue is rebuilt with its state as of the state prior to the firing of the transition; behavior 
+	 * if the current time has changed since the transition was originally fired is undefined.   
+	 *
+	 * @param transition to be "unfired"
+	 * @return State prior to the firing of the transition
+	 */
+	//TODO:  handle external transition firing backwards
+	//TODO:  test impact on timing queue
+	public State fireTransitionBackwards(Transition transition) {
+		HashedStateBuilder builder = new HashedStateBuilder(state); 
+		produceInboundTokens(builder, transition, state, true);
+		consumeOutboundTokens(builder, transition, state, true);   
+		State stateProduced = builder.build(); 
+		getTimingQueue().dequeueAndRebuild(transition, stateProduced); 
+		transition.fire();   
+		return stateProduced; 
 
+//	    TimingQueue timingQueue = getTimingQueue();
+//	    // TODO: Move time backward!? = put transition back onto stack
+//	    //Increment previous places
+//	    for (Arc<Place, Transition> arc : inboundArcs(transition)) {
+//	        Place place = arc.getSource();
+//	        adjustCount(timingQueue, arc, place, true);
+//	    }
+//	    //Decrement new places
+//	    for (Arc<Transition, Place> arc : outboundArcs(transition)) {
+//	        Place place = arc.getTarget(); 
+//	        adjustCount(timingQueue, arc, place, false);
+//	    }
+//		return null;
+	}
+
+//}
+//protected void adjustCount(TimingQueue timingQueue,
+//		Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean increment) {
+//	for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
+//	    String tokenId = entry.getKey();
+//	    double weight = getWeight(timingQueue, entry);
+//	    int currentCount = place.getTokenCount(tokenId);
+//	    int adjust = (decrement) ? -1 : 1; 
+//	    int newCount = currentCount + adjust * ((int) weight);
+//	    place.setTokenCount(tokenId, newCount);
+//	}
+//}
+//
+//protected double getWeight(TimingQueue timingQueue,
+//		Map.Entry<String, String> entry) {
+//	String functionalWeight = entry.getValue();
+//	return executablePetriNet.getArcWeight(functionalWeight, timingQueue );
+//}
+
+	
+	
+	
 	/** 
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
      * from it if this is the case
@@ -589,15 +658,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     		throw new RuntimeException("Could not parse arc weight: "+weight);
     	}
     	return result; 
-    }
-    //TODO remove TQ
-    public double getArcWeight(String weight, TimingQueue timedState) {
-    	double result =  this.evaluateExpression(timedState.getState(), weight); 
-        if (result == -1.0) {
-            //TODO: 
-            throw new RuntimeException("Could not parse arc weight: "+weight);
-        }
-        return result; 
     }
 	/**
 	 * @return all Places currently in the Petri net
@@ -723,6 +783,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
+
 
 
 }

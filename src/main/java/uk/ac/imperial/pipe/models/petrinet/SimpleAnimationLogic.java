@@ -164,5 +164,14 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 		throw new UnsupportedOperationException("SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
 	}
 
+	/**
+	 * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
+	 * @throws UnsupportedOperationException
+	 */
+	@Override
+	public State getBackwardsFiredState(Transition transition) {
+		throw new UnsupportedOperationException("SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
+	}
+
 
 }

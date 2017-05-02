@@ -13,12 +13,11 @@ import org.junit.Test;
 import uk.ac.imperial.state.HashedState;
 import uk.ac.imperial.state.State;
 
-public class HashedTimingQueueTest {
+public class TimingQueueTest {
 
-	private HashedTimingQueue timing;
+	private TimingQueue timing;
 	private TestingExecutablePetriNet executablePetriNet;
 	private Map<String, Map<String, Integer>> stateMap;
-	private State state;
 
 	@Before
 	public void setUp() throws Exception {
@@ -33,19 +32,18 @@ public class HashedTimingQueueTest {
 		Map<String, Integer> tokenMap = new HashMap<>(); 
 		tokenMap.put("default", 1); 
 		stateMap.put("P0", tokenMap); 
-		state = new HashedState(stateMap); 
 	}
 	
 	@Test
 	public void testNoTransitionsGivesEmptyCache() {
-		timing = new HashedTimingQueue(executablePetriNet, state, 3); 
+		timing = new TimingQueue(executablePetriNet, 3); 
 		assertEquals(0, timing.enabledTimedTransitions.size()); 
 	}
 	@Test
 	public void enabledTransitionsAreCachedByNextFiringTime() {
 		executablePetriNet.testTransitions.add(new DiscreteTransition("T1")); 
 		executablePetriNet.testTransitions.add(new DiscreteTransition("T2")); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals("one entry, because both transitions fire at same time",
 				1, timing.enabledTimedTransitions.size()); 
 		assertEquals("transitions fire at 3 ms",
@@ -57,7 +55,7 @@ public class HashedTimingQueueTest {
 	public void differentTransitionDelaysGiveDifferentFiringTimes() {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 0)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals("two entries, one for each delay",
 				2, timing.enabledTimedTransitions.size()); 
 		assertEquals(1, timing.enabledTimedTransitions.get(3l).size()); 
@@ -70,7 +68,7 @@ public class HashedTimingQueueTest {
 		Transition transition = buildTransition("T1", 0);
 		executablePetriNet.testTransitions.add(transition); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
 		timing.dequeue(transition, executablePetriNet.getState());
 		// for timing.dequeueAndRebuild, see ExecutablePetriNetTest
@@ -83,7 +81,7 @@ public class HashedTimingQueueTest {
 		Transition transition = buildTransition("T1", 0);
 		Transition transitionNotAdded = buildTransition("T99", 0);
 		executablePetriNet.testTransitions.add(transition); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertTrue(timing.dequeueAndRebuild(transition, executablePetriNet.getState())); 
 		assertFalse("not in the EPN, so not dequeued",
 				timing.dequeueAndRebuild(transitionNotAdded, executablePetriNet.getState())); 
@@ -92,7 +90,7 @@ public class HashedTimingQueueTest {
 	public void onceTransitionIsAddedLaterChangesToDelayAreIgnored() {
 		Transition transition = buildTransition("T1", 5);
 		executablePetriNet.testTransitions.add(transition); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals("T1", timing.enabledTimedTransitions.get(8l).iterator().next().getId()); 
 		assertFalse("transition is in the timing map",
 				timing.checkIfTransitionNotRegistered(transition)); 
@@ -105,7 +103,7 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T3", 0)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 2);
+		timing = new TimingQueue(executablePetriNet, 2);
 		assertEquals("current time is 2, with one entry",
 				1, timing.getCurrentlyEnabledTimedTransitions().size());
 		assertEquals("T3", timing.getCurrentlyEnabledTimedTransitions().iterator().next().getId());
@@ -121,7 +119,7 @@ public class HashedTimingQueueTest {
 	public void resetsTimeAndRebuildTransitionsBasedOnTheNewTime() {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 0)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(3, timing.getCurrentTime());
 		assertEquals(2, timing.enabledTimedTransitions.size()); 
 		timing.resetTimeAndRebuildTimedTransitions(1l);
@@ -138,7 +136,7 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 0)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 8)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(3, timing.getCurrentTime());
 		assertEquals(3, timing.getNextFiringTime());
 		timing.setCurrentTime(5); 
@@ -149,7 +147,7 @@ public class HashedTimingQueueTest {
 	@Test
 	public void knowsWhetherAnyFiringTimesRemain() {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 2)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertTrue(timing.hasUpcomingTimedTransition()); 
 		timing.setCurrentTime(5); 
 		assertTrue("transition at current time is still upcoming",
@@ -159,7 +157,7 @@ public class HashedTimingQueueTest {
 	}
 	@Test
 	public void emptyTimingQueueReturnsAppropriateResponses() {
-		timing = new HashedTimingQueue(executablePetriNet, state, 3); 
+		timing = new TimingQueue(executablePetriNet, 3); 
 		assertEquals(-1l, timing.getNextFiringTime()); 
 		assertEquals(0, timing.getAllFiringTimes().size()); 
 		assertFalse(timing.hasUpcomingTimedTransition()); 
@@ -171,7 +169,7 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(transition); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T3", 8)); 
-		timing = new HashedTimingQueue(executablePetriNet, executablePetriNet.getState() , 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(3, timing.getAllFiringTimes().size());
 		assertEquals(5l, (long) timing.getAllFiringTimes().iterator().next());
 		timing.dequeue(transition, executablePetriNet.getState()); 
@@ -184,7 +182,7 @@ public class HashedTimingQueueTest {
 		executablePetriNet.testTransitions.add(buildTransition("T1", 4)); 
 		executablePetriNet.testTransitions.add(buildTransition("T2", 0)); 
 		executablePetriNet.testTransitions.add(buildTransition("T3", 4)); 
-		timing = new HashedTimingQueue(executablePetriNet, state, 3);
+		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(1, timing.getEnabledTransitionsAtTime(3).size());
 		assertEquals("T2", timing.getEnabledTransitionsAtTime(3).iterator().next().getId());
 		assertEquals(2, timing.getEnabledTransitionsAtTime(7).size());
@@ -225,7 +223,7 @@ public class HashedTimingQueueTest {
 		
 		//skip recursive call in the EPN constructor
 		@Override
-		protected HashedTimingQueue buildTimingQueue(long initTime) {
+		protected TimingQueue buildTimingQueue(long initTime) {
 			return null; 
 		}
 		

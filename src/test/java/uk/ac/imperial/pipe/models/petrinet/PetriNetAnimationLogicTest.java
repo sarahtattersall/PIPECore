@@ -180,7 +180,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         buildSuccessorsAndCheckSize(0, successor);
 	}
 	protected State buildSuccessorsAndCheckSize(int size, State state) {
-		successors = animationLogic.getSuccessors(state);
+		successors = animationLogic.getSuccessors(state, false);
         assertEquals(size, successors.size());
         if (size > 0) {
         	successor = successors.keySet().iterator().next();
@@ -390,22 +390,22 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
 //                and(ANormalArc.withSource("T2").andTarget("P0").with("1", "Default").token()).
 //                andFinally(ANormalArc.withSource("T3").andTarget("P0").with("1", "Red").token());
         State originalState = buildExecutablePetriNetAndAnimationAndState(petriNet);
-		successors = animationLogic.getSuccessors(originalState, false);
+		successors = animationLogic.getSuccessors(originalState);
 		State successor0 = new SB().add("P1", "Default", 1, "Red", 0).add("P0", "Default", 0, "Red", 1).getState();
 		State successor1 = new SB().add("P1", "Default", 0, "Red", 1).add("P0", "Default", 1, "Red", 0).getState();
 		assertTrue(successors.get(successor0).contains(getT("T0")));
 		assertTrue(successors.get(successor1).contains(getT("T1")));
 
 		// test the successors of each of the two states
-		successors = animationLogic.getSuccessors(successor0, false);
+		successors = animationLogic.getSuccessors(successor0);
 		State successor01 = new SB().add("P1", "Default", 1, "Red", 1).add("P0", "Default", 0, "Red", 0).getState();
 		assertTrue(successors.get(successor01).contains(getT("T1")));
 		assertTrue(successors.get(originalState).contains(getT("T2")));
-		successors = animationLogic.getSuccessors(successor1, false);
+		successors = animationLogic.getSuccessors(successor1);
 		assertTrue(successors.get(successor01).contains(getT("T0")));
 		assertTrue(successors.get(originalState).contains(getT("T3")));
 		// test the successors of P1 with both tokens
-		successors = animationLogic.getSuccessors(successor01, false);
+		successors = animationLogic.getSuccessors(successor01);
 		assertTrue(successors.get(successor0).contains(getT("T3")));
 		assertTrue(successors.get(successor1).contains(getT("T2")));
 //  Transition / State combinations    
@@ -475,9 +475,9 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     			AnImmediateTransition.withId("T0")).andFinally(
     			ANormalArc.withSource("P0").andTarget("T0").with("#(P0)", "Default").token());
     	executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimingQueue timedState = executablePetriNet.getTimingQueue();
+        State state = executablePetriNet.getState();
         InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
-        assertFalse(arc.canFire(executablePetriNet, timedState.getState() )); 
+        assertFalse(arc.canFire(executablePetriNet, state )); 
         Collection<Transition> transitions = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
         assertEquals(0, transitions.size());
     }
@@ -717,7 +717,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        TimingQueue state = executablePetriNet.getTimingQueue();
+        State state = executablePetriNet.getState();
         animationLogic = new PetriNetAnimationLogic(executablePetriNet);
         Set<Transition> transitions = new HashSet<>(); 
         transitions.add(petriNet.getComponent("T0", Transition.class));
@@ -726,7 +726,6 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         executablePetriNet.refreshRequired();
         executablePetriNet.refresh();
         assertEquals("cache should be cleared",0, animationLogic.cachedEnabledImmediateTransitions.size());
-//        public Map<TimedState, Set<Transition>> cachedEnabledImmediateTransitions = new ConcurrentHashMap<>();
 
     }
     // concise state builder

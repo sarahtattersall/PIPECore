@@ -75,39 +75,11 @@ public final class PetriNetAnimator implements Animator {
      * Undo the firing of the transition
      * @param transition transition to fire backwards
      */
-    // TODO: Has to be moved to ExecutablePetriNet - or later better TimedState?.
     @Override
     public void fireTransitionBackwards(Transition transition) {
-        TimingQueue timingQueue = executablePetriNet.getTimingQueue();
-        // TODO: Move time backward!? = put transition back onto stack
-        //Increment previous places
-        for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(transition)) {
-            Place place = arc.getSource();
-            adjustCount(timingQueue, arc, place, false);
-        }
-        //Decrement new places
-        for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(transition)) {
-            Place place = arc.getTarget(); 
-            adjustCount(timingQueue, arc, place, true);
-        }
+    	animationLogic.getBackwardsFiredState(transition); 
     }
-	protected void adjustCount(TimingQueue timingQueue,
-			Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean decrement) {
-		for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-		    String tokenId = entry.getKey();
-		    double weight = getWeight(timingQueue, entry);
-		    int currentCount = place.getTokenCount(tokenId);
-		    int adjust = (decrement) ? -1 : 1; 
-		    int newCount = currentCount + adjust * ((int) weight);
-		    place.setTokenCount(tokenId, newCount);
-		}
-	}
 
-	protected double getWeight(TimingQueue timingQueue,
-			Map.Entry<String, String> entry) {
-		String functionalWeight = entry.getValue();
-		return executablePetriNet.getArcWeight(functionalWeight, timingQueue );
-	}
 
 	/**
 	 * Fire all currently enabled immediate transitions
