@@ -230,6 +230,9 @@ public class PetriNet extends AbstractPetriNet {
         for (OutboundArc arc : outboundArcs(transition)) {
             removeArc(arc);
         }
+        for (InboundArc arc : inboundArcs(transition)) {
+            removeArc(arc);
+        }
         transitionOutboundArcs.removeAll(transition.getId());
         transitionInboundArcs.removeAll(transition.getId());
         changeSupport.firePropertyChange(DELETE_TRANSITION_CHANGE_MESSAGE, transition, null);
@@ -461,7 +464,7 @@ public class PetriNet extends AbstractPetriNet {
    public ExecutablePetriNet getExecutablePetriNet() {
 		if (executablePetriNet == null) {
 			executablePetriNet = new ExecutablePetriNet(this); 
-			addPropertyChangeListener(executablePetriNet); 
+			addPropertyChangeListener(executablePetriNet);
 		}
 		else executablePetriNet.refresh(); 
 		return executablePetriNet;

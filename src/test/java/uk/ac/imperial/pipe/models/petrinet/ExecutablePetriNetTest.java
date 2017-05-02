@@ -13,7 +13,9 @@ import static org.mockito.Mockito.verify;
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,6 +34,7 @@ import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.tuple.Tuple;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -122,7 +125,7 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = net.getExecutablePetriNet();
     	Place epnp1 = executablePetriNet.getComponent("P1", Place.class); 
     	epnp1.setTokenCount("Default", 2); 
-    	assertEquals(new Double(2.0), executablePetriNet.evaluateExpressionAgainstCurrentState("#(P1)")); 
+    	assertEquals(new Double(2.0), executablePetriNet.evaluateExpression("#(P1)")); 
 	}
     @Test
     public void evaluatesFunctionalExpressionGivenState() throws Exception {
@@ -139,7 +142,7 @@ public class ExecutablePetriNetTest {
     	executablePetriNet = net.getExecutablePetriNet();
     	Place epnp1 = executablePetriNet.getComponent("P1", Place.class); 
     	epnp1.setTokenCount("Default", 2); 
-    	assertEquals(new Double(-1.0), executablePetriNet.evaluateExpressionAgainstCurrentState("Fred(P1)")); 
+    	assertEquals(new Double(-1.0), executablePetriNet.evaluateExpression("Fred(P1)")); 
     }
     @Test
     public void stateCanBeExtractedAndThenReappliedResettingBothExecutableAndSourcePetriNets() throws Exception {
@@ -222,8 +225,298 @@ public class ExecutablePetriNetTest {
     	// rootP0 still has a reference to place, but not vice versa, so rootP0 should be garbage-collectable
     	checkConnectableHasListener("...so would token changes to old executable, but those won't happen", true, rootP0, place);
 	}
+    @Test
+    public void returnsTupleOfOnlyEnabledImmediateAndTimedTransitions() throws Exception {
+    	PetriNet petriNet = buildNetWithImmediateAndTimedTransitionsSomeEnabled(); 
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+    	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions();
+    	checkT0ImmediateAndT2TimedEnabled(tuple); 
+    }
+    @Test
+    public void returnsEnabledTransitionsForProvidedState() throws Exception {
+        executablePetriNet = buildNetWithImmediateAndTimedTransitionsSomeEnabled().getExecutablePetriNet();
+        State state = executablePetriNet.getState(); 
+        Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+        assertTrue(executablePetriNet.isEnabled(t0));
+        executablePetriNet.fireTransition(t0); 
+        assertFalse("T0 no longer enabled in EPN",executablePetriNet.isEnabled(t0));
+    	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions(state);
+    	// although T0 in EPN is disabled, sets of enabled transitions for State are not affected
+    	checkT0ImmediateAndT2TimedEnabled(tuple); 
+    	assertTrue("...but T0 still enabled in State",executablePetriNet.isEnabled(t0,state));
+    }
 
-    protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
+	protected void checkT0ImmediateAndT2TimedEnabled(
+			Tuple<Set<Transition>, Set<Transition>> tuple) {
+		Set<Transition> immediateTransitions = tuple.tuple1;
+    	Set<Transition> timedTransitions = tuple.tuple2; 
+    	assertEquals("only 1 of the 2 immediate transitions is enabled",
+    			1,immediateTransitions.size());
+    	assertEquals("T0", immediateTransitions.iterator().next().getId()); 
+    	assertEquals("T2", timedTransitions.iterator().next().getId());
+	}
+    private PetriNet buildNetWithImmediateAndTimedTransitionsSomeEnabled() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+			APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1"))
+				.and(AnImmediateTransition.withId("T0"))
+				.and(AnImmediateTransition.withId("T1"))
+				.and(ATimedTransition.withId("T2"))
+				.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+				.and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+				.andFinally(ANormalArc.withSource("P0").andTarget("T2").with("1", "Default").token());
+    	return petriNet; 
+    }
+    @Test
+    public void returnsOnlyTransitionsThatHaveMaximumPriority() throws Exception {
+    	PetriNet petriNet = buildNetWithTransitionsOfMultiplePriorities(); 
+    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+    	Collection<Transition> allTransitions = executablePetriNet.getTransitions();
+    	Set<Transition> maxPriorityTransitions = executablePetriNet.maximumPriorityTransitions(allTransitions); 
+    	assertEquals(2,maxPriorityTransitions.size());
+    	assertEquals("T3", maxPriorityTransitions.iterator().next().getId()); 
+    }
+    private PetriNet buildNetWithTransitionsOfMultiplePriorities() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+    			.and(AnImmediateTransition.withId("T0").andPriority(1))
+				.and(AnImmediateTransition.withId("T1").andPriority(1))
+				.and(AnImmediateTransition.withId("T2").andPriority(2))
+				.and(AnImmediateTransition.withId("T3").andPriority(3))
+				.andFinally(AnImmediateTransition.withId("T4").andPriority(3));
+    	return petriNet; 
+	}
+	@Test
+	public void timedTransitionsUnderControlOfTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		assertEquals(0, executablePetriNet.getCurrentTime()); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(0, currentTimedTransitions.size()); 
+		executablePetriNet.setCurrentTime(5); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals("T2", currentTimedTransitions.iterator().next().getId()); 
+		executablePetriNet.setCurrentTime(10); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals("T3", currentTimedTransitions.iterator().next().getId()); 
+	}
+	@Test
+	public void fireTimedTransitionsWithUpdatesToTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(1, currentTimedTransitions.size()); 
+		Transition t2 = currentTimedTransitions.iterator().next(); 
+		executablePetriNet.fireTransition(t2);
+		assertEquals(0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		executablePetriNet.setCurrentTime(10); 
+		currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(1, currentTimedTransitions.size()); 
+		Transition t3 = currentTimedTransitions.iterator().next(); 
+		State finalState = executablePetriNet.fireTransition(t3);
+		assertEquals(0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals("timing queue reflects current time",10, executablePetriNet.getCurrentTime());
+    	checkStateAndPlaces("both input places empty",finalState,"P0",0,"P2",0);
+	}
+	@Test
+	public void fireTimedTransitionsUsingSeparateTimingQueueWithoutUpdatesToEPNTimingQueue() throws Exception {
+		executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+				.getExecutablePetriNet();
+		State state = executablePetriNet.getState(); 
+		checkState("two marked input places",executablePetriNet.getState(),"P0",1,"P2",1);
+		TimingQueue timingQueue = new TimingQueue(executablePetriNet, 0); 
+		assertEquals("2 times registered in timingQueue",2, timingQueue.getAllFiringTimes().size());
+		assertEquals("...and in the EPN",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+		timingQueue.setCurrentTime(5); 
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = timingQueue.getCurrentlyEnabledTimedTransitions();
+		Transition t2 = currentTimedTransitions.iterator().next(); 
+		State stateT2 = executablePetriNet.fireTransition(t2, state);
+		assertTrue(timingQueue.dequeueAndRebuild(t2, stateT2));
+		assertEquals("local timing queue knows we fired transition",
+				0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals("...but EPN does not",
+				1, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		long nextTime = timingQueue.getNextFiringTime();
+		// or, timingQueue.setCurrentTime(10) and tq.getCurrentlyEnabledTimedTransitions()
+		assertEquals(10, nextTime); 
+		Transition t3 = timingQueue.getEnabledTransitionsAtTime(nextTime).iterator().next(); 
+		State stateT3 = executablePetriNet.fireTransition(t3, stateT2);
+		assertTrue(timingQueue.dequeueAndRebuild(t3, stateT3));
+		assertEquals("no times left to fire",0, timingQueue.getAllFiringTimes().size());
+		assertEquals("EPN timing queue untouched",2, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+	}
+    private PetriNet buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+			APlace.withId("P0").and(1, "Default").token())
+				.and(APlace.withId("P1")).and(APlace.withId("P2").and(1, "Default").token())
+				.and(AnImmediateTransition.withId("T1")) // immediate, but not enabled (P1 empty)
+				.and(ATimedTransition.withId("T0")) // timed, but not enabled (P1 empty)
+				.and(ATimedTransition.withId("T2").andDelay(5)) // enabled (P0 marked)
+				.and(ATimedTransition.withId("T3").andDelay(10)) // enabled (P2 marked)
+				.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())  
+				.and(ANormalArc.withSource("P0").andTarget("T2").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T0").with("1", "Default").token())
+				.and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+				.andFinally(ANormalArc.withSource("P2").andTarget("T3").with("1", "Default").token());
+    	return petriNet; 
+    }
+    @Test
+    public void timedTransitionsFiredUnderTimingQueueControl() throws Exception {
+    	executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState(); 
+    	TimingQueue timingQueue = new TimingQueue(executablePetriNet, 0);
+    	assertTrue(timingQueue.hasUpcomingTimedTransition());
+    	int round = 0; 
+    	while (timingQueue.hasUpcomingTimedTransition()) {
+    		timingQueue.setCurrentTime(timingQueue.getNextFiringTime()); 
+    		Set<Transition> transitions = timingQueue.getCurrentlyEnabledTimedTransitions();
+    		for (Transition transition : transitions) {
+    			state = executablePetriNet.fireTransition(transition, state); 
+    			timingQueue.dequeueAndRebuild(transition, state);
+    			checkTimingQueue(++round, transition, timingQueue); 
+    		}
+    	}
+    }
+    @Test
+    public void timedTransitionsFiredUnderExecutablePetriNetControl() throws Exception {
+    	executablePetriNet = buildNetMultipleTimedTransitionsDifferentTimesSomeEnabled()
+    			.getExecutablePetriNet();
+    	int round = 0; 
+    	while (executablePetriNet.getTimingQueue().hasUpcomingTimedTransition()) {
+    		executablePetriNet.setCurrentTime(executablePetriNet.getTimingQueue().getNextFiringTime()); 
+    		Set<Transition> transitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+    		for (Transition transition : transitions) {
+    			executablePetriNet.fireTransition(transition); 
+    			checkTimingQueue(++round, transition, executablePetriNet.getTimingQueue()); 
+    		}
+    	}
+    }
+	private void checkTimingQueue(int round, Transition transition,
+			TimingQueue timingQueue) {
+		if (round == 1) {
+			assertEquals(5, timingQueue.getCurrentTime()); 
+			assertEquals("T2", transition.getId()); 
+			assertEquals(0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		} else 
+		if (round == 2) {
+			assertEquals(10, timingQueue.getCurrentTime()); 
+			assertEquals("T3", transition.getId()); 
+			assertEquals(0, timingQueue.getCurrentlyEnabledTimedTransitions().size());
+		} else {
+			fail("should not have more than 2 rounds"); 
+		}
+	}
+	@Test
+	public void twoEnabledTimedTransitionsBothDisabledWhenOneFires() throws Exception {
+		executablePetriNet = buildNetTwoTimedTransitions()
+				.getExecutablePetriNet();
+		assertEquals(1, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+		executablePetriNet.setCurrentTime(5); 
+		Set<Transition> currentTimedTransitions = executablePetriNet.getCurrentlyEnabledTimedTransitions();
+		assertEquals(2, currentTimedTransitions.size()); 
+		Transition t0 = currentTimedTransitions.iterator().next(); 
+		executablePetriNet.fireTransition(t0);
+		assertEquals("both T0 and T1 no longer enabled",
+				0, executablePetriNet.getCurrentlyEnabledTimedTransitions().size());
+		assertEquals(0, executablePetriNet.getTimingQueue().getAllFiringTimes().size());
+	}
+    private PetriNet buildNetTwoTimedTransitions() throws PetriNetComponentException {
+    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+    			APlace.withId("P0").and(1, "Default").token())
+    			.and(ATimedTransition.withId("T0").andDelay(5)) 
+    			.and(ATimedTransition.withId("T1").andDelay(5)) 
+    			.and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())  
+    			.andFinally(ANormalArc.withSource("P0").andTarget("T1").with("1", "Default").token());
+    	return petriNet; 
+    }
+    @Test
+    public void consumesAndProducesTokensUpdatingStateOnly() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	HashedStateBuilder builder = new HashedStateBuilder(state); 
+    	checkState(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(builder, t0, state, false); 
+    	checkState(consumeState0,"P0",0,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State produceState0 = executablePetriNet.produceOutboundTokens(builder, t0, consumeState0, false); 
+    	checkState(produceState0,"P0",0,"P1", 1);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(builder, t1, produceState0, false); 
+    	checkState(consumeState1,"P0",0,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    	State produceState1 = executablePetriNet.produceOutboundTokens(builder, t1, consumeState1, false); 
+    	checkState(produceState1,"P0",1,"P1", 0);
+    	checkState(executablePetriNet.getState(),"P0",1,"P1", 0);
+    }
+    @Test
+    public void consumesAndProducesTokensUpdatingStateAndPlaces() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	HashedStateBuilder builder = new HashedStateBuilder(state); 
+    	checkState(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class); 
+    	State consumeState0 = executablePetriNet.consumeInboundTokens(builder, t0, state, true); 
+    	checkStateAndPlaces(consumeState0,"P0",0,"P1", 0);
+    	State produceState0 = executablePetriNet.produceOutboundTokens(builder, t0, consumeState0, true); 
+    	checkStateAndPlaces(produceState0,"P0",0,"P1", 1);
+    	State consumeState1 = executablePetriNet.consumeInboundTokens(builder, t1, produceState0, true); 
+    	checkStateAndPlaces(consumeState1,"P0",0,"P1", 0);
+    	State produceState1 = executablePetriNet.produceOutboundTokens(builder, t1, consumeState1, true); 
+    	checkStateAndPlaces(produceState1,"P0",1,"P1", 0);
+    }
+    @Test
+    public void fireTransitionConsumesAndProducesTokensUpdatingStateOnly() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkStateAndPlaces("initial state and EPN are the same",state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	State returnedState = executablePetriNet.fireTransition(t0, state); 
+    	checkState(returnedState,"P0",0,"P1",1);
+    	checkState("underlying EPN unchanged",executablePetriNet.getState(),"P0",1,"P1", 0);
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class);
+    	State finalState = executablePetriNet.fireTransition(t1, returnedState); 
+    	checkStateAndPlaces("final state matches original state",finalState,"P0",1,"P1",0);
+    }
+    @Test
+    public void fireTransitionConsumesAndProducesTokensUpdatingStateAndPlaces() throws Exception {
+    	executablePetriNet = buildSimpleNet()
+    			.getExecutablePetriNet();
+    	State state = executablePetriNet.getState();
+    	checkStateAndPlaces(state,"P0",1,"P1", 0);
+    	Transition t0 = executablePetriNet.getComponent("T0", Transition.class); 
+    	State returnedState = executablePetriNet.fireTransition(t0); 
+    	checkStateAndPlaces("as state not passed but taken from EPN, both state & places always match",
+    			returnedState,"P0",0,"P1",1);
+    	Transition t1 = executablePetriNet.getComponent("T1", Transition.class);
+    	State finalState = executablePetriNet.fireTransition(t1); 
+    	checkStateAndPlaces("final state matches original state",finalState,"P0",1,"P1",0);
+    }
+	private void checkStateAndPlaces(String comment, State state, String place0, int count0,
+			String place1, int count1) {
+		checkState(comment, state, place0, count0, place1, count1); 
+		checkState(comment, executablePetriNet.getState(), place0, count0, place1, count1); 
+	}
+	private void checkStateAndPlaces(State state, String place0, int count0,
+			String place1, int count1) {
+		checkStateAndPlaces("", state, place0, count0, place1, count1); 
+	}
+	private void checkState(String comment,State state, String place0, int count0, String place1, int count1) {
+		assertEquals(comment,count0, (int) state.getTokens(place0).get("Default"));
+		assertEquals(comment,count1, (int) state.getTokens(place1).get("Default"));
+	}
+	private void checkState(State state, String place0, int count0, String place1, int count1) {
+		checkState("", state, place0, count0, place1, count1); 
+	}
+	protected void checkConnectableHasListener(boolean expected, Connectable connectable, Connectable listeningConnectable) {
     	checkConnectableHasListener("", expected, connectable, listeningConnectable);
     }
 	protected void checkConnectableHasListener(String comment, boolean expected, Connectable connectable, Connectable listeningConnectable) {
@@ -240,7 +533,7 @@ public class ExecutablePetriNetTest {
 	private PetriNet buildSimpleNet() throws PetriNetComponentException {
 		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
                 APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
-                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
+                AnImmediateTransition.withId("T0")).and(AnImmediateTransition.withId("T1"))
                 .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
                 .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
                 .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())

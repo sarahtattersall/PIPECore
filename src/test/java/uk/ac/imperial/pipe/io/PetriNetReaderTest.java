@@ -10,14 +10,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Map;
 
@@ -172,6 +168,7 @@ public class PetriNetReaderTest {
     @Test
     public void createsMarkingIfNoTokensSet() throws JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getNoPlaceTokenPath()));
+//        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getNoPlaceTokenPath()));
         assertThat(petriNet.getPlaces()).isNotEmpty();
         Place place = petriNet.getPlaces().iterator().next();
         assertThat(place.getTokenCounts()).containsEntry(DEFAULT_TOKEN, 0);
@@ -251,6 +248,9 @@ public class PetriNetReaderTest {
     	//XML has unparsed tags 
         reader = new PetriNetIOImpl(true, true);  // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getInhibitorArcFile()));
+//=======
+//        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInhibitorArcFile()));
+//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
         assertThat(petriNet.getArcs()).extracting("type").containsExactly(ArcType.INHIBITOR);
     }
 
@@ -298,6 +298,7 @@ public class PetriNetReaderTest {
     @Test
     public void rateParameterReferencesPlace()
     		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+//<<<<<<< b3c5fc1ed238e32bdc5d64e94dcbc86ac8fd9c84
     	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getRateParameterReferencesPlaceFile()));
         assertThat(petriNet.getRateParameters()).extracting("id","expression").containsExactly(
                 tuple("rate1",  "#(P0)"));
@@ -352,5 +353,4 @@ public class PetriNetReaderTest {
     			PetriNetIOImpl.FILE_NOT_FOUND); 
     	reader.determineFileType(XMLUtils.getNonExistentFile());  
     }
-    
 }

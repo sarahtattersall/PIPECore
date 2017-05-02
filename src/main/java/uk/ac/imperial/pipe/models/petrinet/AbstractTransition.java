@@ -56,62 +56,16 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 * Angle at which this transition should be displayed
 	 */
 	protected int angle = 0;
+	
+	int delay = 0;
+	//long nextFiringTime = Long.MIN_VALUE;
+	
 	public AbstractTransition(String id, String name) {
 		super(id, name);
 	}
 
 	public AbstractTransition(AbstractConnectable connectable) {
 		super(connectable);
-	}
-	/**
-	 * invoked whenever a transition fires
-	 * @param executablePetriNet in which this transition exists
-	 * @param state of the petri Net
-	 * @param builder of states
-	 * @return builder of states 
-	 */
-	public HashedStateBuilder fire(ExecutablePetriNet executablePetriNet, State state,
-			HashedStateBuilder builder) {
-		//TODO instance of EPN should not be initialized here; move to setExecut.... or constructor
-		this.executablePetriNet = executablePetriNet; 
-		this.state = state; 
-		this.builder = builder; 
-		fire(); 
-		consumeInboundTokens();
-
-		State temporaryState = builder.build();
-
-		produceOutboundTokens(temporaryState);
-		return builder; 
-	}
-
-
-	protected void produceOutboundTokens(State temporaryState) {
-		for (Arc<Transition, Place> arc : executablePetriNet.outboundArcs(this)) {
-		    String placeId = arc.getTarget().getId();
-		    Map<String, String> arcWeights = arc.getTokenWeights();
-		    for (Map.Entry<String, String> entry : arcWeights.entrySet()) {
-		        String tokenId = entry.getKey();
-		        int currentCount = temporaryState.getTokens(placeId).get(tokenId);
-		        int arcWeight = (int) getArcWeight(executablePetriNet, state, entry.getValue());
-		        builder.placeWithToken(placeId, tokenId, addWeight(currentCount, arcWeight));
-		    }
-		}
-	}
-
-	protected void consumeInboundTokens() {
-		for (Arc<Place, Transition> arc : executablePetriNet.inboundArcs(this)) {
-		    String placeId = arc.getSource().getId();
-		    Map<String, String> arcWeights = arc.getTokenWeights();
-		    for (Map.Entry<String, Integer> entry : state.getTokens(placeId).entrySet()) {
-		        String tokenId = entry.getKey();
-		        if (arcWeights.containsKey(tokenId)) {
-		            int currentCount = entry.getValue();
-		            int arcWeight = (int) getArcWeight(executablePetriNet, state, arcWeights.get(tokenId));
-		            builder.placeWithToken(placeId, tokenId, subtractWeight(currentCount, arcWeight));
-		        }
-		    }
-		}
 	}
     /**
      * Treats Integer.MAX_VALUE as infinity and so will not subtract the weight
@@ -231,7 +185,7 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	}
 
 	private Double getRateGivenCurrentState(ExecutablePetriNet executablePetriNet) {
-		return executablePetriNet.evaluateExpressionAgainstCurrentState(getRateExpr());
+		return executablePetriNet.evaluateExpression(getRateExpr());
 	}
 
 	/**
@@ -423,6 +377,10 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	    if (!rate.equals(that.rate)) {
 	        return false;
 	    }
+
+	    if (delay != that.delay) {
+	    		return false;
+	    }
 	
 	    return true;
 	}
@@ -590,4 +548,15 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 
 
 
+	@Override
+	public void setDelay(int delay) {
+		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
+		this.delay = delay; 
+	}
+
+	@Override
+	public int getDelay() {
+		return delay;
+	}
+	
 }

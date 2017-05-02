@@ -64,6 +64,7 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
         String target = adaptedArc.getTarget();
         boolean normalArc = true; 
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
+        
         if (adaptedArc.getType().equals("inhibitor")) {
         	normalArc = false; 
         }

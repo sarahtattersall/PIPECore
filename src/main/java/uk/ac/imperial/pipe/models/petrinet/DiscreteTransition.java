@@ -8,7 +8,7 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 /**
  * Discrete implementation of a transition
  */
-public final class DiscreteTransition extends AbstractTransition implements Transition {
+public class DiscreteTransition extends AbstractTransition implements Transition {
 
     /**
      * Constructor with default rate and priority
@@ -51,6 +51,8 @@ public final class DiscreteTransition extends AbstractTransition implements Tran
         this.timed = transition.timed;
         this.rate = transition.rate;
         this.priority = transition.priority;
+        this.delay = transition.delay;
+        //this.nextFiringTime = transition.nextFiringTime;
     }
 
     /**

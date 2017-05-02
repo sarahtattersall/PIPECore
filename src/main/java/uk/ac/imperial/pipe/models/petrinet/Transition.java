@@ -140,10 +140,24 @@ public interface Transition extends Connectable, PropertyChangeListener  {
     boolean isEnabled();
 
     /**
-    * Execute actions specific to this transition.  Invoked by {@link AbstractTransition#fire(ExecutablePetriNet, uk.ac.imperial.state.State, uk.ac.imperial.state.HashedStateBuilder)}
-    * @see AbstractTransition  
+    * Execute actions specific to this transition.  
     */
 
 	public void fire();
-
+	
+	/**
+	 * For {@link DiscreteTimedTransition}, specify the amount of time, in milliseconds, 
+	 * that this transition will wait, once it's enabled, before firing.
+	 * Note that this is not deterministic; all that is guaranteed is that a minimum of delay milliseconds
+	 * will elapse; there is no fixed upper limit on the amount of elapsed time before firing.
+	 * @param delay
+	 */
+    public void setDelay(int delay);
+    
+    /**
+     * 
+     * @return delay, in milliseconds, that this transition will wait, once enabled, before firing
+     */
+	public int getDelay();
+	
 }

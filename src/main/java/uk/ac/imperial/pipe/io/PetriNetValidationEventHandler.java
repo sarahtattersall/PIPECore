@@ -37,7 +37,6 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 		this.event = event;
 		// ValidationEventHandler says we must exit on fatal error
 		if (event.getSeverity() == event.FATAL_ERROR) return false;
-		
 		boolean unexpectedElement = saveAndCheckUnexpectedElement(event);
 		if ((unexpectedElement) && (!continueProcessing)) {
 			return true;  // continue only if saw unexpected element 
@@ -110,6 +109,9 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	}
 
 	public String formatEvent() {
+//=======
+//	public String printEvent() {
+//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
 		ValidationEventLocator locator = event.getLocator(); 
 		StringBuffer sb = new StringBuffer(); 
 		sb.append("PetriNetValidationEventHandler received a ValidationEvent, probably during processing by PetriNetIOImpl.  Details: "); 
@@ -154,5 +156,4 @@ public class PetriNetValidationEventHandler implements ValidationEventHandler {
 	public final void setXmlFileType(XmlFileEnum xmlFileType) {
 		this.xmlFileType = xmlFileType;
 	}
-
 }
