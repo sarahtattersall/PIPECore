@@ -10,6 +10,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.state.HashedState;
 import uk.ac.imperial.state.State;
 
@@ -18,6 +19,9 @@ public class TimingQueueTest {
 	private TimingQueue timing;
 	private TestingExecutablePetriNet executablePetriNet;
 	private Map<String, Map<String, Integer>> stateMap;
+	private Transition t1;
+	private Transition t2;
+	private Transition t3;
 
 	@Before
 	public void setUp() throws Exception {
@@ -100,20 +104,19 @@ public class TimingQueueTest {
 	}
 	@Test
 	public void returnsTransitionsForTheCurrentAbsoluteTime() {
-		executablePetriNet.testTransitions.add(buildTransition("T1", 4)); 
-		executablePetriNet.testTransitions.add(buildTransition("T2", 4)); 
-		executablePetriNet.testTransitions.add(buildTransition("T3", 0)); 
+		buildThreeTransitions(4, 4, 0);
 		timing = new TimingQueue(executablePetriNet, 2);
 		assertEquals("current time is 2, with one entry",
 				1, timing.getCurrentlyEnabledTimedTransitions().size());
-		assertEquals("T3", timing.getCurrentlyEnabledTimedTransitions().iterator().next().getId());
+		assertTrue(timing.getCurrentlyEnabledTimedTransitions().contains(t3));
 		timing.setCurrentTime(3); 
 		assertEquals("current time is 3, with no entries",
 				0, timing.getCurrentlyEnabledTimedTransitions().size());
 		timing.setCurrentTime(6); 
 		assertEquals("current time is 6, with two entries",
 				2, timing.getCurrentlyEnabledTimedTransitions().size());
-		assertEquals("T1", timing.getCurrentlyEnabledTimedTransitions().iterator().next().getId());
+		assertTrue(timing.getCurrentlyEnabledTimedTransitions().contains(t1));
+		assertTrue(timing.getCurrentlyEnabledTimedTransitions().contains(t2));
 	}
 	@Test
 	public void resetsTimeAndRebuildTransitionsBasedOnTheNewTime() {
@@ -178,17 +181,25 @@ public class TimingQueueTest {
 		assertEquals(7l, (long) timing.getAllFiringTimes().iterator().next());
 	}
 	@Test
-	public void returnsTheTransitionsThatWillFireAtGivenTime() {
-		executablePetriNet.testTransitions.add(buildTransition("T1", 4)); 
-		executablePetriNet.testTransitions.add(buildTransition("T2", 0)); 
-		executablePetriNet.testTransitions.add(buildTransition("T3", 4)); 
+	public void returnsTheTransitionsThatWillFireAtGivenTime() throws PetriNetComponentNotFoundException {
+		buildThreeTransitions(4, 0, 4); 
 		timing = new TimingQueue(executablePetriNet, 3);
 		assertEquals(1, timing.getEnabledTransitionsAtTime(3).size());
-		assertEquals("T2", timing.getEnabledTransitionsAtTime(3).iterator().next().getId());
+		assertTrue(timing.getEnabledTransitionsAtTime(3).contains(t2));
 		assertEquals(2, timing.getEnabledTransitionsAtTime(7).size());
-		assertEquals("T1", timing.getEnabledTransitionsAtTime(7).iterator().next().getId());
+		assertTrue(timing.getEnabledTransitionsAtTime(7).contains(t1));
+		assertTrue(timing.getEnabledTransitionsAtTime(7).contains(t3));
 		assertEquals("empty set returned for nonexistent time",
 				0, timing.getEnabledTransitionsAtTime(5).size());
+	}
+
+	private void buildThreeTransitions(int delay1, int delay2, int delay3) {
+		t1 = buildTransition("T1", delay1);
+		t2 = buildTransition("T2", delay2);
+		t3 = buildTransition("T3", delay3);
+		executablePetriNet.testTransitions.add(t1); 
+		executablePetriNet.testTransitions.add(t2); 
+		executablePetriNet.testTransitions.add(t3);
 	}
 
 	

@@ -273,8 +273,11 @@ public class ExecutablePetriNetTest {
     	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
     	Collection<Transition> allTransitions = executablePetriNet.getTransitions();
     	Set<Transition> maxPriorityTransitions = executablePetriNet.maximumPriorityTransitions(allTransitions); 
+    	Transition t3 = executablePetriNet.getComponent("T3", Transition.class);
+    	Transition t4 = executablePetriNet.getComponent("T4", Transition.class);
     	assertEquals(2,maxPriorityTransitions.size());
-    	assertEquals("T3", maxPriorityTransitions.iterator().next().getId()); 
+    	assertTrue(maxPriorityTransitions.contains(t3)); 
+    	assertTrue(maxPriorityTransitions.contains(t4)); 
     }
     private PetriNet buildNetWithTransitionsOfMultiplePriorities() throws PetriNetComponentException {
     	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
