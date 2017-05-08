@@ -69,6 +69,20 @@ public class PlaceRemovalEligibilityCommandTest {
 		assertFalse(result.hasResult()); 
 	}
 	@Test
+	public void nonexistentplaceCantBeRemoved() throws Exception {
+		net = createSimpleNetOneArc(1);  
+		net2 = createSimpleNet(2);  
+		buildHierarchyWithInterfacePlaces(); 
+		command = new PlaceRemovalEligibilityCommand(new DiscretePlace("P99")); 
+		result = include2.self(command);
+		assertTrue(result.hasResult()); 
+		assertEquals(1, result.getEntries().size()); 
+		Iterator<ResultEntry<InterfacePlaceAction>> iterator = result.getEntries().iterator();
+		ResultEntry<InterfacePlaceAction> entry = iterator.next(); 
+		assertEquals("Place P99 cannot be removed from IncludeHierarchy a" +
+				" because no MergeInterfaceStatus was found for it in the IncludeHierarchy; probable logic error", entry.message);
+	}
+	@Test
 	public void placeWithArcsIsNotEligibleToBeRemoved() throws Exception {
 		net = createSimpleNetOneArc(1);  
 		net2 = createSimpleNet(2);  
