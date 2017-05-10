@@ -31,9 +31,14 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      */
     protected double nameYOffset = 35;
 
+	protected boolean original = true;
+
+	protected Connectable linkedConnectable;
+
     protected AbstractConnectable(String id, String name) {
         this.id = id;
         this.name = name;
+		setLinkedConnectable(this);
     }
 
     /**
@@ -42,14 +47,33 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      * @param connectable component to copy
      */
     protected AbstractConnectable(AbstractConnectable connectable) {
-        this.id = connectable.id;
-        this.name = connectable.name;
-        this.x = connectable.x;
-        this.y = connectable.y;
-        this.nameXOffset = connectable.nameXOffset;
-        this.nameYOffset = connectable.nameYOffset;
+    	this(connectable, false); 
     }
 
+	protected AbstractConnectable(AbstractConnectable connectable, boolean linkClone) {
+		this.id = connectable.id;
+		this.name = connectable.name;
+		this.x = connectable.x;
+		this.y = connectable.y;
+		this.nameXOffset = connectable.nameXOffset;
+		this.nameYOffset = connectable.nameYOffset;
+		buildLinkedConnectable(connectable, linkClone);
+	}
+
+	private void buildLinkedConnectable(AbstractConnectable connectable, boolean linkClone) {
+		if (linkClone) {
+			original = false;
+			linkedConnectable = connectable; 
+			connectable.setLinkedConnectable(this);
+		} else {
+			original = true; 
+			linkedConnectable = this; 
+		}
+	}
+
+    
+    
+    
     @Override
     public int hashCode() {
         int result;
@@ -228,4 +252,16 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         this.y = y;
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, oldValue, y);
     }
+
+	public void setLinkedConnectable(Connectable linkedConnectable) {
+		this.linkedConnectable = linkedConnectable;
+	}
+
+	public Connectable getLinkedConnectable() {
+		return linkedConnectable;
+	}
+
+	public boolean isOriginal() {
+		return original;
+	}
 }
