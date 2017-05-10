@@ -66,4 +66,10 @@ public interface Connectable extends PlaceablePetriNetComponent {
      * I.e it is not a temporary connectable
      */
      boolean isEndPoint();
+
+	boolean isOriginal();
+
+	Connectable getLinkedConnectable();
+
+	void setLinkedConnectable(Connectable linkedConnectable);
 }

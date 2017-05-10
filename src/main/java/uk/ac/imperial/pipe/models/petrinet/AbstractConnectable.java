@@ -60,7 +60,7 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 		buildLinkedConnectable(connectable, linkClone);
 	}
 
-	private void buildLinkedConnectable(AbstractConnectable connectable, boolean linkClone) {
+	private void buildLinkedConnectable(Connectable connectable, boolean linkClone) {
 		if (linkClone) {
 			original = false;
 			linkedConnectable = connectable; 
@@ -253,14 +253,17 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, oldValue, y);
     }
 
+	@Override
 	public void setLinkedConnectable(Connectable linkedConnectable) {
 		this.linkedConnectable = linkedConnectable;
 	}
 
+	@Override
 	public Connectable getLinkedConnectable() {
 		return linkedConnectable;
 	}
 
+	@Override
 	public boolean isOriginal() {
 		return original;
 	}

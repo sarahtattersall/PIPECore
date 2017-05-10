@@ -7,7 +7,7 @@ import org.junit.Test;
 public class AbstractConnectableTest {
 
 	private AbstractConnectable connectable;
-	private AbstractConnectable cloned;
+	private Connectable cloned;
 	@Test
 	public void connectableKnowsItIsOriginal() {
 		connectable = new TestingConnectable("A", "A"); 
@@ -58,7 +58,7 @@ public class AbstractConnectableTest {
 		connectable = new TestingConnectable("A", "A"); 
 		cloned = new TestingConnectable(connectable, true); 
 		assertEquals(cloned, connectable.getLinkedConnectable()); 
-		AbstractConnectable cloned2 = new TestingConnectable(connectable, true); 
+		Connectable cloned2 = new TestingConnectable(connectable, true); 
 		assertEquals(cloned2, connectable.getLinkedConnectable()); 
 	}
 }

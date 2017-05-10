@@ -24,7 +24,7 @@ public class TestingConnectable extends AbstractConnectable {
 		if (!super.equals(o)) {
 			return false; 
 		}
-		AbstractConnectable that = (AbstractConnectable) o;
+		Connectable that = (Connectable) o;
 		if (that.isOriginal() != isOriginal()) {
 			return false; 
 		}
