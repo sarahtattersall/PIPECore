@@ -160,20 +160,31 @@ public abstract class AbstractClonePetriNet {
 	 * @param place original place
 	 */
 	public void visit(Place place) {
-	    PlaceCloner cloner = new PlaceCloner();
+	    Place newPlace = buildPlace(place);
+	    addPlaceToNet(place, newPlace);
+	}
+
+	protected void addPlaceToNet(Place place, Place newPlace) {
+		// place available for override
+		newPetriNet.addPlace(newPlace);
+	}
+
+	protected Place buildPlace(Place place) {
+		PlaceCloner cloner = new PlaceCloner();
 	    try {
 	        place.accept(cloner);
 	    } catch (PetriNetComponentException e) {
 	        LOGGER.log(Level.SEVERE, e.getMessage());
 	    }
 	    Place newPlace = cloner.cloned;
+	    prepareExecutablePetriNetPlaceProcessing(place, newPlace); 
 	    for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
 	        newPlace.setTokenCount(entry.getKey(), entry.getValue());
 	    }
-	    newPetriNet.addPlace(newPlace);
 	    newPlace.addPropertyChangeListener(place); 
 	    place.addPropertyChangeListener(newPlace); 
 	    places.put(place.getId(), newPlace);
+		return newPlace;
 	}
 
 	/**
@@ -248,6 +259,8 @@ public abstract class AbstractClonePetriNet {
 	}
     
     protected abstract void prefixIdWithQualifiedName(PetriNetComponent component);
+    
+    protected abstract void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace); 
     
     protected void rebuildNameWithQualifiedNames(Arc<? extends Connectable, ? extends Connectable> newArc) {
     	newArc.setId(newArc.getSource().getId() + " TO " + newArc.getTarget().getId());

@@ -5,44 +5,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
-import uk.ac.imperial.pipe.models.petrinet.Arc;
-import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
-import uk.ac.imperial.pipe.models.petrinet.Connectable;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.InboundArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundInhibitorArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundTestArc;
-import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NoOpInterfaceStatus;
-import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
-import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.name.FileNameVisitor;
-import uk.ac.imperial.pipe.models.petrinet.name.NormalNameVisitor;
-import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 
 /**
  * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy} 
  */
 public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	
-	/**
-	 * Class logger
-	 */
-	private static final Logger LOGGER = Logger.getLogger(CloneExecutablePetriNet.class.getName());
+//	/**
+//	 * Class logger
+//	 */
+//	private static final Logger LOGGER = Logger.getLogger(CloneExecutablePetriNet.class.getName());
 
 	
     /**
@@ -59,15 +42,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	 */
 	private IncludeHierarchy currentIncludeHierarchy;
 
-//	private List<InterfacePlace> interfacePlaces;
-
 	private Map<String, Place> pendingPlaces = new HashMap<>();
-	
-	
-
-//	private List<InboundArc> convertedInboundArcs;
-//
-//	private List<OutboundArc> convertedOutboundArcs;
 
 	private List<Place> pendingPlacesToDelete = new ArrayList<>();
 
@@ -127,36 +102,25 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
     	}
     	replaceInterfacePlacesWithOriginalPlaces();
 	}
-	/**
-	 * Clones and adds the new place to the new Petri net
-	 * 
-	 * @param place original place
-	 */
-	public void visit(Place place) {
-	    PlaceCloner cloner = new PlaceCloner();
-	    try {
-	        place.accept(cloner);
-	    } catch (PetriNetComponentException e) {
-	        LOGGER.log(Level.SEVERE, e.getMessage());
-	    }
-	    Place newPlace = cloner.cloned;
-	    if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
+	@Override
+	protected void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace) {
+		if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
 	    	prefixIdWithQualifiedName(newPlace); 
-	    }
-	    for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
-	        newPlace.setTokenCount(entry.getKey(), entry.getValue());
 	    }
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
             newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
             pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
         }
-        savePlacesForPostProcessing(place, newPlace);
-	    newPetriNet.addPlace(newPlace);
-	    newPlace.addPropertyChangeListener(place); 
-	    place.addPropertyChangeListener(newPlace); 
-	    places.put(place.getId(), newPlace);
+        updatePendingPlaces(place, newPlace); 
+        updatePendingPlacesToDelete(place, newPlace);
 	}
 
+	@Override
+	protected void addPlaceToNet(Place place, Place newPlace) {
+		super.addPlaceToNet(place, newPlace);
+		newPetriNet.getPlaceCloneMap().put(place, newPlace);
+	}
+	
 	private void buildPendingPlacesForInterfacePlaceConversion() {
 		IncludeIterator iterator = includeHierarchy.iterator(); 
 		IncludeHierarchy include = null; 
@@ -170,17 +134,6 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 				}
 			}
 		}
-	}
-	/**
-     *
-     * Clones the petri net by visiting all its components and adding them to the new Petri net
-     *
-     * @return cloned Petri net
-     */
-    void savePlacesForPostProcessing(Place place, Place newPlace) {
-		updatePendingPlaces(place, newPlace); 
-		updatePendingPlacesToDelete(place, newPlace);
-		newPetriNet.getPlaceCloneMap().put(place, newPlace);
 	}
 	protected void updatePendingPlacesToDelete(Place place, Place newPlace) {
 		if (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway) {
@@ -199,9 +152,6 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
     /**
      * Create a unique name for the {@link PetriNetComponent} by prefixing it with the 
      * fully qualified name from the {@link IncludeHierarchy} being currently processed.  
-     * <p>
-     * This method is used as part of the process of refreshing an {@link ExecutablePetriNet}:  {@link #refreshFromIncludeHierarchy(ExecutablePetriNet)}
-     * </p>
      * @param component to be prefixed 
      */
     @Override
@@ -227,30 +177,6 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		}
 		
 	}
-
-    /**
-     * Used to clone a name into the new Petri net
-     */
-    class NameCloner implements NormalNameVisitor, FileNameVisitor {
-
-        /**
-         * Clones a PetriNetFileName
-         * @param name of the Petri net 
-         */
-        @Override
-        public void visit(PetriNetFileName name) {
-            newPetriNet.setName(new PetriNetFileName(name.getFile()));
-        }
-
-        /**
-         * Clones a NormalPetriNetName
-         * @param name name to visit
-         */
-        @Override
-        public void visit(NormalPetriNetName name) {
-            newPetriNet.setName(new NormalPetriNetName(name.getName()));
-        }
-    }
 
 	protected Map<String, Place> getPendingPlacesForInterfacePlaceConversion() {
 		return pendingPlaces;
