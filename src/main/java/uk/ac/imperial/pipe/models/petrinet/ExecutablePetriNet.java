@@ -69,6 +69,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private boolean refreshRequired;
 	private State state;
 	private TimingQueue timingQueue;
+	private Map<Place, Place> placeCloneMap = new HashMap<>(); 
 	
     /**
      * Functional weight parser
@@ -143,6 +144,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		transitionOutboundArcs = HashMultimap.create();
 		transitionInboundArcs = HashMultimap.create();
 		
+		placeCloneMap = new HashMap<>(); 
 		
 		componentMaps = new HashMap<>();
 		initialiseIdMap(); 
@@ -782,6 +784,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	public boolean isRefreshRequired() {
 		return refreshRequired;
+	}
+
+	public Map<Place,Place> getPlaceCloneMap() {
+		return placeCloneMap;
 	}
 
 

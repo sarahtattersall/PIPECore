@@ -17,6 +17,7 @@ import uk.ac.imperial.pipe.dsl.ARateParameter;
 import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
@@ -35,6 +36,9 @@ import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 public class ClonePetriNetTest {
     PetriNet oldPetriNet;
     PetriNet clonedPetriNet;
+	private PetriNet net2;
+	private IncludeHierarchy includes;
+	private ExecutablePetriNet executablePetriNet;
 
     @Before
     public void setUp() throws PetriNetComponentException {
@@ -118,14 +122,7 @@ public class ClonePetriNetTest {
     //TODO test for arcweights 
     @Test
     public void convertsArcsFromInterfacePlaceToNewOriginPlace() throws Exception {
-    	buildSimpleNet(); 
-    	oldPetriNet.setName(new NormalPetriNetName("net")); 
-    	PetriNet net2 = buildTestNet(); 
-    	IncludeHierarchy includes = new IncludeHierarchy(oldPetriNet, "top");
-    	includes.include(net2, "a");  
-    	oldPetriNet.setIncludeHierarchy(includes);
-    	ExecutablePetriNet executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
-    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
+    	buildIncludeHierarchyAndRefreshExecutablePetriNet(); 
     	checkExecutableHasSumOfOldPNAndNet2Components(net2, executablePetriNet); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
     	includes.getInclude("a").addToInterface(originPlace, true, false, false, false); 
@@ -145,6 +142,30 @@ public class ClonePetriNetTest {
     	assertEquals(1, ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size());
     	assertEquals("a.P0", ClonePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().values().iterator().next().getId());
     }
+    @Test
+    public void buildsMapOfOldAndClonedPlacesInExecutablePetriNet() throws Exception {
+    	buildSimpleNet();
+    	executablePetriNet = oldPetriNet.getExecutablePetriNet();
+    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet);
+    	assertEquals(2, executablePetriNet.getPlaceCloneMap().size());
+    	Place P0 = oldPetriNet.getComponent("P0", Place.class);
+    	Place P1 = oldPetriNet.getComponent("P1", Place.class);
+    	Place clonedP0 = executablePetriNet.getComponent("P0", Place.class);
+    	Place clonedP1 = executablePetriNet.getComponent("P1", Place.class);
+    	assertEquals(clonedP0, executablePetriNet.getPlaceCloneMap().get(P0)); 
+    	assertEquals(clonedP1, executablePetriNet.getPlaceCloneMap().get(P1)); 
+    }
+	private void buildIncludeHierarchyAndRefreshExecutablePetriNet()
+			throws PetriNetComponentException, IncludeException {
+		buildSimpleNet(); 
+    	oldPetriNet.setName(new NormalPetriNetName("net")); 
+    	net2 = buildTestNet(); 
+    	includes = new IncludeHierarchy(oldPetriNet, "top");
+    	includes.include(net2, "a");  
+    	oldPetriNet.setIncludeHierarchy(includes);
+    	executablePetriNet = new ExecutablePetriNet(oldPetriNet); 
+    	ClonePetriNet.refreshFromIncludeHierarchy(executablePetriNet);
+	}
 	protected void checkExecutableHasSumOfOldPNAndNet2Components(PetriNet net2,
 			ExecutablePetriNet executablePetriNet) {
 		assertEquals(2, oldPetriNet.getPlaces().size()); 

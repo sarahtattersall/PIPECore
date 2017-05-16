@@ -88,7 +88,15 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         verify(visitor).visit(place);
     }
 
+    @Test
+    public void copyConstructorCanLinkToClone() throws PetriNetComponentException {
+    	DiscretePlace clone = new DiscretePlace(place, true); 
+    	assertEquals(clone, place.getLinkedConnectable()); 
+    	assertEquals(place, clone.getLinkedConnectable());
 
+    	clone = new DiscretePlace(place, false); 
+    }
+    
     @Test
     public void calculatesCorrectArcAttachmentPointsDirectlyBelow() {
         int x1 = 0;

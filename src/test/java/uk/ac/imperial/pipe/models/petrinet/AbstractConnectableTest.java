@@ -27,6 +27,14 @@ public class AbstractConnectableTest {
 		assertEquals("A", cloned.getId()); 
 	}
 	@Test
+	public void ifNotLinkedJustReturnsSelfAndCloneIsExactCopy() {
+		connectable = new TestingConnectable("A", "A"); 
+		cloned = new TestingConnectable(connectable, false); 
+		assertEquals(connectable, connectable.getLinkedConnectable()); 
+		assertEquals(cloned, cloned.getLinkedConnectable()); 
+		assertEquals(connectable, cloned); 
+	}
+	@Test
 	public void cloneKnowsItsOriginal() {
 		connectable = new TestingConnectable("A", "A"); 
 		cloned = new TestingConnectable(connectable, true); 
@@ -61,4 +69,6 @@ public class AbstractConnectableTest {
 		Connectable cloned2 = new TestingConnectable(connectable, true); 
 		assertEquals(cloned2, connectable.getLinkedConnectable()); 
 	}
+	
+	
 }
