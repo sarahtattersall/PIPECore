@@ -10,17 +10,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.HashMultimap;
+
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.runner.Runner;
 import uk.ac.imperial.pipe.tuple.Tuple;
-import uk.ac.imperial.pipe.visitor.ClonePetriNet;
+import uk.ac.imperial.pipe.visitor.CloneExecutablePetriNet;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
-
-import com.google.common.collect.HashMultimap;
 
 /**
  * Makes a {@link PetriNet} available for execution, i.e., animation or analysis.  
@@ -69,7 +69,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	private boolean refreshRequired;
 	private State state;
 	private TimingQueue timingQueue;
-	private Map<Place, Place> placeCloneMap = new HashMap<>(); 
+ 
 	
     /**
      * Functional weight parser
@@ -131,7 +131,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	private void refreshIncludeHierarchyComponents() {
-		ClonePetriNet.refreshFromIncludeHierarchy(this);
+		CloneExecutablePetriNet.refreshFromIncludeHierarchy(this);
 	}
 	private void initializeMaps() {
 		transitions = new HashMap<>();
@@ -785,11 +785,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	public boolean isRefreshRequired() {
 		return refreshRequired;
 	}
-
-	public Map<Place,Place> getPlaceCloneMap() {
-		return placeCloneMap;
-	}
-
 
 
 }

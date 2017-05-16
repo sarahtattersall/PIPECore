@@ -75,13 +75,17 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
 	protected  Map<String, Annotation> annotations = new HashMap<>();
 	/**
 	 * A tokens that will contain the maps specified above.
-	 * It's ID is the class type to tokens
+	 * Its ID is the class type to tokens
 	 * Sadly need to cast to get the exact tokens back out of it. If you know of a better way to
 	 * do this then please change it. It is used to easily get a Petri net component of type T
 	 * by id.
 	 */
 	protected Map<Class<? extends PetriNetComponent>, Map<String, ? extends PetriNetComponent>> componentMaps = new HashMap<>();
-
+	/**
+	 * Map of places to their clones, for use by ExecutablePetriNet
+	 */
+	protected Map<Place, Place> placeCloneMap = new HashMap<>();
+	
 	/**
 	 * Petri net name
 	 */
@@ -564,7 +568,17 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
        FunctionalResults<Double> results = parseExpression(expression);
        return results.getComponents();
    }
+   /**
+    * @return Map of original Place to the current clone of that Place
+    */
+   
+	public Map<Place,Place> getPlaceCloneMap() {
+		return placeCloneMap;
+	}
 
+
+
+   
 	/**
      * Parse the functional expression via the under lying Petri net state
      *
