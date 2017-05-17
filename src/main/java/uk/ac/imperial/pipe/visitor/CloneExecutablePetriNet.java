@@ -47,6 +47,8 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	private List<Place> pendingPlacesToDelete = new ArrayList<>();
 
 	Map<String, Place> pendingNewHomePlaces = new HashMap<>(); 
+
+	protected ExecutablePetriNet newPetriNet;
 	
 	protected static CloneExecutablePetriNet cloneInstance;
 
@@ -183,5 +185,9 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	}
 	protected static CloneExecutablePetriNet getInstanceForTesting() {
 		return cloneInstance;
+	}
+	@Override
+	protected AbstractPetriNet getNewPetriNet() {
+		return newPetriNet;
 	}
 }

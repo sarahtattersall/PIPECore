@@ -45,10 +45,6 @@ public abstract class AbstractClonePetriNet {
 	 */
 	protected PetriNet petriNet;
 	/**
-	 * Cloned Petri net 
-	 */
-	protected AbstractPetriNet newPetriNet;
-	/**
 	 * cloned rate parameters
 	 */
 	private final Map<String, RateParameter> rateParameters = new HashMap<>();
@@ -60,6 +56,12 @@ public abstract class AbstractClonePetriNet {
 	 * cloned transitions
 	 */
 	private final Map<String, Transition> transitions = new HashMap<>();
+	
+	/**
+	 * @return the cloned Petri net
+	 *  
+	 */
+	protected abstract AbstractPetriNet getNewPetriNet();
 	
 
 	/**
@@ -113,7 +115,7 @@ public abstract class AbstractClonePetriNet {
 	 */
 	public void visit(Token token) {
 	    Token newToken = new ColoredToken(token);
-	    newPetriNet.addToken(newToken);
+	    getNewPetriNet().addToken(newToken);
 	}
 
 	/**
@@ -129,7 +131,7 @@ public abstract class AbstractClonePetriNet {
 	    }
 	    RateParameter rateParameter = cloner.cloned;
 	    try {
-	        newPetriNet.addRateParameter(rateParameter);
+	    	getNewPetriNet().addRateParameter(rateParameter);
 	        rateParameters.put(rateParameter.getId(), rateParameter);
 	    } catch (InvalidRateException e) {
 	        LOGGER.log(Level.SEVERE, e.getMessage());
@@ -150,7 +152,7 @@ public abstract class AbstractClonePetriNet {
 	    }
 	    Annotation newAnnotation = cloner.cloned;
 	    prefixIdWithQualifiedName(newAnnotation);
-	    newPetriNet.addAnnotation(newAnnotation);
+	    getNewPetriNet().addAnnotation(newAnnotation);
 	
 	}
 
@@ -166,7 +168,7 @@ public abstract class AbstractClonePetriNet {
 
 	protected void addPlaceToNet(Place place, Place newPlace) {
 		// place available for override
-		newPetriNet.addPlace(newPlace);
+		getNewPetriNet().addPlace(newPlace);
 	}
 
 	protected Place buildPlace(Place place) {
@@ -206,7 +208,7 @@ public abstract class AbstractClonePetriNet {
 	    }
 	    newTransition.addPropertyChangeListener(transition); 
 	    transitions.put(transition.getId(), newTransition);
-	    newPetriNet.addTransition(newTransition);
+	    getNewPetriNet().addTransition(newTransition);
 	}
 
 	/**
@@ -216,7 +218,7 @@ public abstract class AbstractClonePetriNet {
 	public void visit(InboundArc arc) {
 	    InboundArc newArc = buildInboundArc(arc, places.get(arc.getSource().getId()), transitions.get(arc.getTarget().getId()));
 	    rebuildNameWithQualifiedNames(newArc);
-	    newPetriNet.addArc(newArc);
+	    getNewPetriNet().addArc(newArc);
 	}
 
 	/**
@@ -226,7 +228,7 @@ public abstract class AbstractClonePetriNet {
 	public void visit(OutboundArc arc) {
 	    OutboundArc newArc = buildOutboundArc(arc, transitions.get(arc.getSource().getId()), places.get(arc.getTarget().getId()));
 	    rebuildNameWithQualifiedNames(newArc);
-	    newPetriNet.addArc(newArc);
+	    getNewPetriNet().addArc(newArc);
 	}
 	protected InboundArc buildInboundArc(InboundArc arc, Place source, Transition target) {
         InboundArc newArc;
@@ -275,7 +277,7 @@ public abstract class AbstractClonePetriNet {
          */
         @Override
         public void visit(PetriNetFileName name) {
-            newPetriNet.setName(new PetriNetFileName(name.getFile()));
+        	getNewPetriNet().setName(new PetriNetFileName(name.getFile()));
         }
 
         /**
@@ -284,7 +286,7 @@ public abstract class AbstractClonePetriNet {
          */
         @Override
         public void visit(NormalPetriNetName name) {
-            newPetriNet.setName(new NormalPetriNetName(name.getName()));
+        	getNewPetriNet().setName(new NormalPetriNetName(name.getName()));
         }
     }
 

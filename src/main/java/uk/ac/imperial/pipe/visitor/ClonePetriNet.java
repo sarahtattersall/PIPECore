@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.visitor;
 
+import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
@@ -10,6 +11,8 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
  * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy} 
  */
 public final class ClonePetriNet extends AbstractClonePetriNet {
+	
+	protected PetriNet newPetriNet;
 	
 	protected static ClonePetriNet cloneInstance;
 	/**
@@ -48,6 +51,10 @@ public final class ClonePetriNet extends AbstractClonePetriNet {
 	}
 	@Override
 	protected void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace) {
+	}
+	@Override
+	protected AbstractPetriNet getNewPetriNet() {
+		return newPetriNet;
 	}
 
 }
