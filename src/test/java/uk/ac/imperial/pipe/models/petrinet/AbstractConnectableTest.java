@@ -69,6 +69,23 @@ public class AbstractConnectableTest {
 		Connectable cloned2 = new TestingConnectable(connectable, true); 
 		assertEquals(cloned2, connectable.getLinkedConnectable()); 
 	}
+	@Test
+	public void isOrClonedFromTestsObjectEqualityOnOriginalOrItsClone() {
+		connectable = new TestingConnectable("A", "A"); 
+		cloned = new TestingConnectable(connectable, true);
+		assertTrue(cloned.isOrClonedFrom(connectable)); 
+		assertTrue(connectable.isOrClonedFrom(connectable)); 
+		assertTrue(cloned.isOrClonedFrom(cloned)); 
+		assertTrue(connectable.isOrClonedFrom(cloned)); 
+	}
+	@Test
+	public void anotherConnectablePassesLogicalEqualsButNotisOrClonedFrom() {
+		connectable = new TestingConnectable("A", "A"); 
+		cloned = new TestingConnectable(connectable, true);
+		TestingConnectable connectable2 = new TestingConnectable("A", "A"); 
+		assertTrue("passes logical equals",connectable2.equals(connectable)); 
+		assertFalse("...but not isOrClonedFrom",connectable2.isOrClonedFrom(connectable)); 
+	}
 	
 	
 }

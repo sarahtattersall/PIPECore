@@ -267,4 +267,12 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 	public boolean isOriginal() {
 		return original;
 	}
+	
+	@Override
+	public boolean isOrClonedFrom(Connectable connectable) {
+		if (this == connectable) {
+			return true; 
+		} 
+		return (getLinkedConnectable() == connectable); 
+	}
 }
