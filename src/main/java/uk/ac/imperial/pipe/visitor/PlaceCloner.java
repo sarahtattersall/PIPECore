@@ -20,7 +20,7 @@ public final class PlaceCloner implements DiscretePlaceVisitor {
      */
     @Override
     public void visit(DiscretePlace discretePlace) {
-        cloned = new DiscretePlace(discretePlace);
+        cloned = new DiscretePlace(discretePlace, true);
     }
 
 }

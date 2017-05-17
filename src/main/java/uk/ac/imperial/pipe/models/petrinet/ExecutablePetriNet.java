@@ -786,5 +786,22 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		return refreshRequired;
 	}
 
+	public void updateHomePlacesInMergeInterfaceStatus(IncludeHierarchy includeHierarchy) {
+		Collection<Place> interfacePlaces = null;
+		IncludeIterator iterator = includeHierarchy.iterator(); 
+		Place homePlace = null;
+		Place clonePlace = null;
+		while (iterator.hasNext()) {
+			interfacePlaces = iterator.next().getInterfacePlaces();  
+			for (Place place : interfacePlaces) {
+				homePlace = place.getStatus().getMergeInterfaceStatus().getHomePlace(); 
+				clonePlace = getPlaceCloneMap().get(homePlace); 
+				if (clonePlace != null) {
+					place.getStatus().getMergeInterfaceStatus().setHomePlace(clonePlace);
+				}
+			}
+		}
+	}
+
 
 }

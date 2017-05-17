@@ -23,6 +23,7 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.visitor.CloneExecutablePetriNet;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MergeInterfaceStatusHomeTest {
@@ -197,6 +198,7 @@ public class MergeInterfaceStatusHomeTest {
 		assertTrue(aPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
 		topPlace = includes.getInterfacePlace("b.P0"); 
 		includes.addAvailablePlaceToPetriNet(topPlace);
+//		CloneExecutablePetriNet.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
 		assertEquals(1, net.getPlaces().size());
 		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
 	}

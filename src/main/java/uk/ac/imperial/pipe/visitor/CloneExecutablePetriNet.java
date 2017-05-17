@@ -102,6 +102,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
     		this.petriNet = currentIncludeHierarchy.getPetriNet(); 
     		visitAllComponents();
     	}
+    	newPetriNet.updateHomePlacesInMergeInterfaceStatus(includeHierarchy);  
     	replaceInterfacePlacesWithOriginalPlaces();
 	}
 	@Override
@@ -109,7 +110,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
 	    	prefixIdWithQualifiedName(newPlace); 
 	    }
-		newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
+//		newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
             pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
         }
