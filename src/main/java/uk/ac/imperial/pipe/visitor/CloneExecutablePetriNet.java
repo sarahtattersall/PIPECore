@@ -109,8 +109,8 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
 	    	prefixIdWithQualifiedName(newPlace); 
 	    }
+		newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
-            newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
             pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
         }
         updatePendingPlaces(place, newPlace); 
