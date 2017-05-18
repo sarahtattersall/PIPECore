@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.petrinet.unfold;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
-import uk.ac.imperial.pipe.visitor.PlaceCloner;
+import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 import uk.ac.imperial.pipe.visitor.TransitionCloner;
 
 import java.awt.Color;
@@ -244,7 +244,7 @@ public final class Expander {
         if (newPlaces.containsKey(id)) {
             return newPlaces.get(id);
         }
-        PlaceCloner cloner = new PlaceCloner();
+        PlaceBuilder cloner = new PlaceBuilder();
         try {
             original.accept(cloner);
         } catch (PetriNetComponentException e) {

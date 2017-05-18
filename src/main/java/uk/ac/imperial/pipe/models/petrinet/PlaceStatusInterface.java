@@ -131,7 +131,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 		}
 	}
 
-	protected Result<InterfacePlaceAction> buildInputOnlyArcConstraint() {
+	public Result<InterfacePlaceAction> buildInputOnlyArcConstraint() {
 		if (inputOnly) {
 			if (outputOnly) {
 				result.addMessage(PLACE_STATUS+SET_INPUT_ONLY_ARC_CONSTRAINT+ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 
@@ -149,7 +149,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 		return result;
 	}
 
-	protected Result<InterfacePlaceAction> buildOutputOnlyArcConstraint() {
+	public Result<InterfacePlaceAction> buildOutputOnlyArcConstraint() {
 		if (outputOnly) {
 			if (inputOnly) {
 				result.addMessage(PLACE_STATUS+SET_OUTPUT_ONLY_CONSTRAINT+ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY); 

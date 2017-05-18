@@ -172,7 +172,7 @@ public abstract class AbstractClonePetriNet {
 	}
 
 	protected Place buildPlace(Place place) {
-		PlaceCloner cloner = new PlaceCloner();
+		PlaceBuilder cloner = new PlaceBuilder();
 	    try {
 	        place.accept(cloner);
 	    } catch (PetriNetComponentException e) {

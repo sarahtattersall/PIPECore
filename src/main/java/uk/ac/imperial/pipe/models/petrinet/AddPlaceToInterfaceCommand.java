@@ -2,7 +2,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.visitor.PlaceCloner;
+import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 
 public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
 
@@ -54,7 +54,7 @@ public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<
 	//TODO refactor, using the PlaceStatusInterface(PlaceStatus) constructor.  see also Merge...Available.add(PN).  
 	protected Place buildPlaceWithAvailableStatus(IncludeHierarchy includeHierarchy) {
 		Place newPlace;
-		PlaceCloner cloner = new PlaceCloner();
+		PlaceBuilder cloner = new PlaceBuilder();
 		try {
 		    homePlace.accept(cloner);
 		} catch (PetriNetComponentException e) {
