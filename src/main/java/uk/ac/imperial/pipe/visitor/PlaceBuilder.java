@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
@@ -19,7 +20,9 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
      */
     public Place cloned = null;
 	private IncludeHierarchy includeHierarchy;
-	private Build build; 
+	private Build build;
+	private ExecutablePetriNet executablePetriNet;
+	private CloneExecutablePetriNet cloneInstance; 
 
     /**
      * Constructor to build a Place where Place.getStatus().getMergeInterfaceStatus()
@@ -36,6 +39,12 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	build = Build.SIMPLE; 
 	}
     
+	public PlaceBuilder(ExecutablePetriNet executablePetriNet, CloneExecutablePetriNet cloneInstance) {
+		this.executablePetriNet = executablePetriNet; 
+		this.cloneInstance = cloneInstance;
+		build = Build.CLONE; 
+	}
+
 	/**
      * Clones a discrete place
      * @param discretePlace to be visited 
@@ -65,12 +74,23 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
 			((PlaceStatusInterface) cloned.getStatus()).buildOutputOnlyArcConstraint();  
 		}
 		cloned.setId(mergeStatus.getAwayId()); 
+		addEachPlaceAsListenerForTokenChanges(discretePlace); 
 	}
+
     private void buildClone(DiscretePlace discretePlace) {
-    	
+    	cloned = new DiscretePlace(discretePlace, true);
+    	addEachPlaceAsListenerForTokenChanges(discretePlace); 
+	    cloneInstance.prepareExecutablePetriNetPlaceProcessing(discretePlace, cloned); 
+	    cloneInstance.updatePlace(discretePlace, cloned);
     }
+
+    
     private void buildSimple(DiscretePlace discretePlace) {
     	cloned = new DiscretePlace(discretePlace, true);
+    }
+    private void addEachPlaceAsListenerForTokenChanges(DiscretePlace discretePlace) {
+    	discretePlace.addPropertyChangeListener(cloned); 
+    	cloned.addPropertyChangeListener(discretePlace);
     }
 	private enum Build {
     	SIMPLE,

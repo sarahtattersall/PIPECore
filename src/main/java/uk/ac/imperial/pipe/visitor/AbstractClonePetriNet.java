@@ -180,13 +180,18 @@ public abstract class AbstractClonePetriNet {
 	    }
 	    Place newPlace = cloner.cloned;
 	    prepareExecutablePetriNetPlaceProcessing(place, newPlace); 
-	    for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
+	    updatePlace(place, newPlace);
+		return newPlace;
+	}
+
+
+	protected void updatePlace(Place place, Place newPlace) {
+		for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
 	        newPlace.setTokenCount(entry.getKey(), entry.getValue());
 	    }
 	    newPlace.addPropertyChangeListener(place); 
 	    place.addPropertyChangeListener(newPlace); 
 	    places.put(place.getId(), newPlace);
-		return newPlace;
 	}
 
 	/**

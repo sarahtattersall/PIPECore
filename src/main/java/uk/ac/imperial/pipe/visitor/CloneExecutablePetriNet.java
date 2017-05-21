@@ -42,7 +42,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	 */
 	private IncludeHierarchy currentIncludeHierarchy;
 
-	private Map<String, Place> pendingPlaces = new HashMap<>();
+	private Map<String, Place> pendingAwayPlaces = new HashMap<>();
 
 	private List<Place> pendingPlacesToDelete = new ArrayList<>();
 
@@ -94,7 +94,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
      * and adding each component to the new collection in the ExecutablePetriNet.   
      */
     private void clonePetriNetToExecutablePetriNet() {
-    	buildPendingPlacesForInterfacePlaceConversion(); 
+    	buildPendingAwayPlacesForInterfacePlaceConversion(); 
     	IncludeIterator iterator = includeHierarchy.iterator(); 
     	currentIncludeHierarchy = null; 
     	while (iterator.hasNext()) {
@@ -110,11 +110,11 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
 	    	prefixIdWithQualifiedName(newPlace); 
 	    }
-//		newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace); 
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
             pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
+            newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace);
         }
-        updatePendingPlaces(place, newPlace); 
+        updatePendingAwayPlacesWithNewPlace(place, newPlace); 
         updatePendingPlacesToDelete(place, newPlace);
 	}
 
@@ -124,7 +124,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		newPetriNet.getPlaceCloneMap().put(place, newPlace);
 	}
 	
-	private void buildPendingPlacesForInterfacePlaceConversion() {
+	private void buildPendingAwayPlacesForInterfacePlaceConversion() {
 		IncludeIterator iterator = includeHierarchy.iterator(); 
 		IncludeHierarchy include = null; 
 		AbstractPetriNet net = null; 
@@ -133,7 +133,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 			net = include.getPetriNet(); 
 			for (Place place : net.getPlaces()) {
 				if (place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway) {
-					pendingPlaces.put(place.getStatus().getMergeInterfaceStatus().getAwayId(), place ); // a.P1 / homePlace P1
+					pendingAwayPlaces.put(place.getStatus().getMergeInterfaceStatus().getAwayId(), place ); // a.P1 / homePlace P1
 				}
 			}
 		}
@@ -144,10 +144,10 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		}
 	}
 
-    private void updatePendingPlaces(Place place, Place newPlace) {
-    	for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
+    private void updatePendingAwayPlacesWithNewPlace(Place place, Place newPlace) {
+    	for (Entry<String, Place> entry : pendingAwayPlaces.entrySet()) {
     		if (entry.getValue().equals(place)) {
-    			pendingPlaces.put(entry.getKey(), newPlace); 
+    			pendingAwayPlaces.put(entry.getKey(), newPlace); 
     		}
 		}
 	}
@@ -172,7 +172,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 
 	private void convertAwayPlaceArcsToUseOriginalPlaces() {
 		Place newPlace = null;
-		for (Entry<String, Place> entry : pendingPlaces.entrySet()) {
+		for (Entry<String, Place> entry : pendingAwayPlaces.entrySet()) {
 			if (!(entry.getValue().getStatus().getMergeInterfaceStatus() instanceof NoOpInterfaceStatus)) {
 				newPlace = pendingNewHomePlaces.get(entry.getKey()); 
 				newPetriNet.convertArcsToUseNewPlace(entry.getValue(), newPlace);
@@ -181,8 +181,11 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		
 	}
 
-	protected Map<String, Place> getPendingPlacesForInterfacePlaceConversion() {
-		return pendingPlaces;
+	protected Map<String, Place> getPendingAwayPlacesForInterfacePlaceConversion() {
+		return pendingAwayPlaces;
+	}
+	protected Map<String, Place> getPendingNewHomePlaces() {
+		return pendingNewHomePlaces;
 	}
 	protected static CloneExecutablePetriNet getInstanceForTesting() {
 		return cloneInstance;

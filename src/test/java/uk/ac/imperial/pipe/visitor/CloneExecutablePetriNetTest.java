@@ -78,11 +78,11 @@ public class CloneExecutablePetriNetTest {
     	CloneExecutablePetriNet.refreshFromIncludeHierarchy(executablePetriNet); 
     	assertEquals("...but interface places not copied to executable PN",
     			4,executablePetriNet.getPlaces().size()); 
-    	Place newPlace = CloneExecutablePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().get("a.P0"); 
+    	Place newPlace = CloneExecutablePetriNet.getInstanceForTesting().getPendingAwayPlacesForInterfacePlaceConversion().get("a.P0"); 
     	originPlace.setId("a.P0");  
     	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
-    	assertEquals(1, CloneExecutablePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().size());
-    	assertEquals("a.P0", CloneExecutablePetriNet.getInstanceForTesting().getPendingPlacesForInterfacePlaceConversion().values().iterator().next().getId());
+    	assertEquals(1, CloneExecutablePetriNet.getInstanceForTesting().getPendingAwayPlacesForInterfacePlaceConversion().size());
+    	assertEquals("a.P0", CloneExecutablePetriNet.getInstanceForTesting().getPendingAwayPlacesForInterfacePlaceConversion().values().iterator().next().getId());
     }
     
     @Test

@@ -1,24 +1,29 @@
 package uk.ac.imperial.pipe.visitor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
+import java.beans.PropertyChangeListener;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
-import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
-import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
@@ -39,6 +44,10 @@ public class PlaceBuilderTest {
 	private MergeInterfaceStatus mergeStatus;
 	private Place aPlace;
 	private Place topPlace;
+
+	private ExecutablePetriNet executablePetriNet;
+	private CloneExecutablePetriNet cloneInstance;
+
 	
 	@Before
 	public void setup() throws Exception {
@@ -57,11 +66,47 @@ public class PlaceBuilderTest {
 		homePlace = net3.getComponent("P0", Place.class); 
 		include3.addToInterface(homePlace, true, false, false, false); 
 		mergeStatus = homePlace.getStatus().getMergeInterfaceStatus();  
+		executablePetriNet = net.getExecutablePetriNet();
+		cloneInstance = CloneExecutablePetriNet.getInstanceForTesting();
 	}
 
 	@Test
-	public void buildsCloneAsLinkedConnectableWithPlaceStatus() throws Exception {
+	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
+		builder = new PlaceBuilder(executablePetriNet, cloneInstance);
+		homePlace.accept(builder);
+		Place cloned = builder.cloned;
+		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  
+		assertEquals("top.a.b.P0", cloned.getId());
+		assertTrue(cloned.isOrClonedFrom(homePlace));
+		homePlace.setTokenCount("red", 2);
+		assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+		Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
+		assertTrue(cloned == clonedHome);
+		assertTrue(homePlace == clonedHome.getLinkedConnectable());
+		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
+		assertFalse(cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned));
+		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
 	}
+	@Test
+	public void buildsCloneOfAwayPlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
+//		fail("refactor visit place, and then write me");
+//		builder = new PlaceBuilder(executablePetriNet, cloneInstance);
+//		homePlace.accept(builder);
+//		Place cloned = builder.cloned;
+//		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  
+//		assertEquals("top.a.b.P0", cloned.getId());
+//		assertTrue(cloned.isOrClonedFrom(homePlace));
+//		homePlace.setTokenCount("red", 2);
+//		assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+//		Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
+//		assertTrue(cloned == clonedHome);
+//		assertTrue(homePlace == clonedHome.getLinkedConnectable());
+//		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
+//		assertFalse(cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned));
+//		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
+	}
+	
+	
 	@Test
 	public void buildsAvailablePlaceFromHomePlace() throws Exception {
 		builder = new PlaceBuilder(includes);
@@ -71,8 +116,20 @@ public class PlaceBuilderTest {
 		assertTrue(availablePlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable);  
 		assertEquals("b.P0", availablePlace.getId());
 		assertFalse("not a linked connectable",availablePlace.isOrClonedFrom(homePlace));
-		//TODO test that listens for property changes
 	}
+	@Test
+	public void buildsAvailablePlaceAndHomePlaceMirrorTokensT() throws Exception {
+		builder = new PlaceBuilder(includes);
+		homePlace.accept(builder);
+		Place availablePlace = builder.cloned;
+		homePlace.setTokenCount("blue", 3);
+		assertEquals("available place listens to home", 3, availablePlace.getTokenCount("blue"));
+		availablePlace.setTokenCount("blue", 4);
+		assertEquals("...and vice versa", 4, homePlace.getTokenCount("blue"));
+	}
+
+    
+    
 	protected PetriNet buildNetNoArc(int i) throws PetriNetComponentException {
 		PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
 				APlace.withId("P1")).andFinally(AnImmediateTransition.withId("T0"));

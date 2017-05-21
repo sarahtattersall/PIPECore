@@ -7,7 +7,7 @@ import java.beans.PropertyChangeSupport;
  * Abstract class that implements change support for PIPE
  */
 public abstract class AbstractPetriNetPubSub {
-    protected PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    public final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
     /**
      *
