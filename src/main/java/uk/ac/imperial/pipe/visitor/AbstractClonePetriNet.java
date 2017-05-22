@@ -63,6 +63,8 @@ public abstract class AbstractClonePetriNet {
 	 */
 	protected abstract AbstractPetriNet getNewPetriNet();
 	
+	protected abstract AbstractClonePetriNet getInstance();
+
 
 	/**
 	 * Visit the components of the source PetriNet, and add a cloned version of the component, (possibly with modifications), 
@@ -162,26 +164,19 @@ public abstract class AbstractClonePetriNet {
 	 * @param place original place
 	 */
 	public void visit(Place place) {
-	    Place newPlace = buildPlace(place);
+	    PlaceBuilder builder = new PlaceBuilder(getInstance());
+	    try {
+	        place.accept(builder);
+	    } catch (PetriNetComponentException e) {
+	        LOGGER.log(Level.SEVERE, e.getMessage());
+	    }
+	    Place newPlace = builder.cloned;
 	    addPlaceToNet(place, newPlace);
 	}
 
 	protected void addPlaceToNet(Place place, Place newPlace) {
 		// place available for override
 		getNewPetriNet().addPlace(newPlace);
-	}
-
-	protected Place buildPlace(Place place) {
-		PlaceBuilder cloner = new PlaceBuilder();
-	    try {
-	        place.accept(cloner);
-	    } catch (PetriNetComponentException e) {
-	        LOGGER.log(Level.SEVERE, e.getMessage());
-	    }
-	    Place newPlace = cloner.cloned;
-	    prepareExecutablePetriNetPlaceProcessing(place, newPlace); 
-	    updatePlace(place, newPlace);
-		return newPlace;
 	}
 
 

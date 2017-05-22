@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.visitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.beans.PropertyChangeListener;
@@ -67,12 +68,12 @@ public class PlaceBuilderTest {
 		include3.addToInterface(homePlace, true, false, false, false); 
 		mergeStatus = homePlace.getStatus().getMergeInterfaceStatus();  
 		executablePetriNet = net.getExecutablePetriNet();
-		cloneInstance = CloneExecutablePetriNet.getInstanceForTesting();
+		cloneInstance = CloneExecutablePetriNet.cloneInstance;
 	}
 
 	@Test
 	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
-		builder = new PlaceBuilder(executablePetriNet, cloneInstance);
+		builder = new PlaceBuilder(cloneInstance);
 		homePlace.accept(builder);
 		Place cloned = builder.cloned;
 		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  

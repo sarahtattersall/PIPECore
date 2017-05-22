@@ -43,9 +43,11 @@ public final class ClonePetriNet extends AbstractClonePetriNet {
         visitAllComponents();
         return (PetriNet) newPetriNet;   
     }
-	protected static ClonePetriNet getInstanceForTesting() {
+	@Override
+	protected ClonePetriNet getInstance() {
 		return cloneInstance;
 	}
+
 	@Override
 	protected void prefixIdWithQualifiedName(PetriNetComponent component) {
 	}

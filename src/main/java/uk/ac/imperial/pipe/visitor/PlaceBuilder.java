@@ -2,7 +2,6 @@ package uk.ac.imperial.pipe.visitor;
 
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
@@ -21,8 +20,7 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     public Place cloned = null;
 	private IncludeHierarchy includeHierarchy;
 	private Build build;
-	private ExecutablePetriNet executablePetriNet;
-	private CloneExecutablePetriNet cloneInstance; 
+	private AbstractClonePetriNet cloneInstance; 
 
     /**
      * Constructor to build a Place where Place.getStatus().getMergeInterfaceStatus()
@@ -39,8 +37,7 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	build = Build.SIMPLE; 
 	}
     
-	public PlaceBuilder(ExecutablePetriNet executablePetriNet, CloneExecutablePetriNet cloneInstance) {
-		this.executablePetriNet = executablePetriNet; 
+	public <T extends AbstractClonePetriNet> PlaceBuilder(T  cloneInstance) {
 		this.cloneInstance = cloneInstance;
 		build = Build.CLONE; 
 	}
@@ -99,5 +96,4 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	
     }
 }
-//listenForTokenCountChanges(newPlace);
 

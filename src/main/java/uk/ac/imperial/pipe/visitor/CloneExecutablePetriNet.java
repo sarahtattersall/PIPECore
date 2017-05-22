@@ -50,7 +50,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 
 	protected ExecutablePetriNet newPetriNet;
 	
-	protected static CloneExecutablePetriNet cloneInstance;
+	public static CloneExecutablePetriNet cloneInstance;
 
 	/**
 	 * Rebuilds an {@link ExecutablePetriNet} from the set of {@link PetriNet} defined in its {@link IncludeHierarchy}.
@@ -187,7 +187,8 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	protected Map<String, Place> getPendingNewHomePlaces() {
 		return pendingNewHomePlaces;
 	}
-	protected static CloneExecutablePetriNet getInstanceForTesting() {
+	@Override
+	protected CloneExecutablePetriNet getInstance() {
 		return cloneInstance;
 	}
 	@Override
