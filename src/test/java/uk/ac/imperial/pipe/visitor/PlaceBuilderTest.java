@@ -105,6 +105,26 @@ public class PlaceBuilderTest {
 //		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
 //		assertFalse(cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned));
 //		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
+		
+//		newPlace = cloner.cloned;
+//		newPlace.getStatus().setIncludeHierarchy(includeHierarchy); 
+//		MergeInterfaceStatus mergeStatus = 
+//				new MergeInterfaceStatusAvailable(homePlace, newPlace.getStatus(),  newPlace.getStatus().getMergeInterfaceStatus().getAwayId());  
+//		newPlace.getStatus().setMergeInterfaceStatus(mergeStatus); 
+//		newPlace.getStatus().setExternal(false); 
+//		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
+//			newPlace.getStatus().setInputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
+//		}
+//		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
+//			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
+//		}
+//		
+//		newPlace.setId(mergeStatus.getAwayId()); 
+//		listenForTokenCountChanges(newPlace);
+//		return newPlace;
+
 	}
 	
 	

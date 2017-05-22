@@ -51,33 +51,14 @@ public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<
 		}
 		return awayPlace;
 	}
-	//TODO refactor, using the PlaceStatusInterface(PlaceStatus) constructor.  see also Merge...Available.add(PN).  
 	protected Place buildPlaceWithAvailableStatus(IncludeHierarchy includeHierarchy) {
-		Place newPlace;
-		PlaceBuilder cloner = new PlaceBuilder();
+		PlaceBuilder cloner = new PlaceBuilder(includeHierarchy);
 		try {
 		    homePlace.accept(cloner);
 		} catch (PetriNetComponentException e) {
 			e.printStackTrace(); 
 		}
-		newPlace = cloner.cloned;
-		newPlace.getStatus().setIncludeHierarchy(includeHierarchy); 
-		MergeInterfaceStatus mergeStatus = 
-				new MergeInterfaceStatusAvailable(homePlace, newPlace.getStatus(),  newPlace.getStatus().getMergeInterfaceStatus().getAwayId());  
-		newPlace.getStatus().setMergeInterfaceStatus(mergeStatus); 
-		newPlace.getStatus().setExternal(false); 
-		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
-			newPlace.getStatus().setInputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
-		}
-		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
-			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
-		}
-		
-		newPlace.setId(mergeStatus.getAwayId()); 
-		listenForTokenCountChanges(newPlace);
-		return newPlace;
+		return cloner.cloned;
 	}
 
 	private void listenForTokenCountChanges(Place place) {
