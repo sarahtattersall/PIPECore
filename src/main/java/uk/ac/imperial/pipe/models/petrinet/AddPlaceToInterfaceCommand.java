@@ -58,7 +58,7 @@ public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<
 		} catch (PetriNetComponentException e) {
 			e.printStackTrace(); 
 		}
-		return cloner.cloned;
+		return cloner.built;
 	}
 
 	private void listenForTokenCountChanges(Place place) {

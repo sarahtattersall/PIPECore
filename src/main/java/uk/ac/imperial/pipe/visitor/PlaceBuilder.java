@@ -5,22 +5,26 @@ import uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 
 /**
- * Clones a place by visiting the place and calling the correct
+ * Builds a place by visiting the place and calling the correct
  * constructor for each concrete implementation of {@link uk.ac.imperial.pipe.models.petrinet.Place}
+ * Some constructors modify an existing Place, rather than build a new one.  
  */
 public final class PlaceBuilder implements DiscretePlaceVisitor {
     /**
-     * Cloned place, null before visit is called
+     * Built place, null before visit is called
      */
-    public Place cloned = null;
+    public Place built = null;
 	private IncludeHierarchy includeHierarchy;
 	private Build build;
-	private AbstractClonePetriNet cloneInstance; 
+	private AbstractClonePetriNet cloneInstance;
+	private PlaceStatus placeStatus; 
 
     /**
      * Constructor to build a Place where Place.getStatus().getMergeInterfaceStatus()
@@ -32,10 +36,16 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	this.includeHierarchy = includeHierarchy; 
     	build = Build.AVAILABLE; 
 	}
+    public PlaceBuilder(PlaceStatus placeStatus) {
+    	this.placeStatus = placeStatus; 
+    	build = Build.AWAY; 
+    }
 
     public PlaceBuilder() {
     	build = Build.SIMPLE; 
 	}
+    
+    
     
 	public <T extends AbstractClonePetriNet> PlaceBuilder(T  cloneInstance) {
 		this.cloneInstance = cloneInstance;
@@ -50,49 +60,91 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     public void visit(DiscretePlace discretePlace) {
     	switch (build) {
 		case AVAILABLE: buildAvailable(discretePlace); break;
+		case AWAY: convertAvailableToAway(discretePlace); break;
 		case CLONE:  buildClone(discretePlace); break;
 		case SIMPLE: buildSimple(discretePlace);	break;
 		}
     }
-    private void buildAvailable(DiscretePlace discretePlace) {
-    	cloned = new DiscretePlace(discretePlace, false);
-    	cloned.getStatus().setIncludeHierarchy(includeHierarchy);
+	private void buildAvailable(DiscretePlace discretePlace) {
+    	built = new DiscretePlace(discretePlace, false);
+    	built.getStatus().setIncludeHierarchy(includeHierarchy);
+    	built.getStatus().setExternal(false); 
 		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAvailable(
-				discretePlace, cloned.getStatus(),  
-				cloned.getStatus().getMergeInterfaceStatus().getAwayId());  
-		cloned.getStatus().setMergeInterfaceStatus(mergeStatus); 
-		cloned.getStatus().setExternal(false); 
-		if (discretePlace.getStatus().isInputOnlyArcConstraint()) { 
-			cloned.getStatus().setInputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) cloned.getStatus()).buildInputOnlyArcConstraint();  
-		}
-		else if (discretePlace.getStatus().isOutputOnlyArcConstraint()) {
-			cloned.getStatus().setOutputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) cloned.getStatus()).buildOutputOnlyArcConstraint();  
-		}
-		cloned.setId(mergeStatus.getAwayId()); 
+				discretePlace, built.getStatus(),  
+				built.getStatus().getMergeInterfaceStatus().getAwayId());  
+		built.getStatus().setMergeInterfaceStatus(mergeStatus); 
+		buildArcConstraints(discretePlace, built.getStatus());
+		built.setId(mergeStatus.getAwayId()); 
 		addEachPlaceAsListenerForTokenChanges(discretePlace); 
 	}
+	private void convertAvailableToAway(DiscretePlace homePlace) {
+		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, 
+				homePlace.getStatus().getMergeInterfaceStatus().getAwayId());  
+	    placeStatus.setMergeInterfaceStatus(mergeStatus); 
+	    buildArcConstraints(homePlace, placeStatus);
+	}
+
+    
+    
+    
+//	Result<InterfacePlaceAction> result = new Result<>();  
+//	petriNet.addPlace(placeStatus.getPlace()); 
+//	MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);  
+//    placeStatus.setMergeInterfaceStatus(mergeStatus); 
+////	placeStatus.setExternal(false); 
+//	if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
+//		placeStatus.setInputOnlyArcConstraint(true); 
+//		((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
+//	}
+//	else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
+//		placeStatus.setOutputOnlyArcConstraint(true); 
+//		((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
+//	}
+//
+// 
+//	return result;
+
+	private void buildArcConstraints(Place discretePlace, PlaceStatus placeStatus) {
+		if (discretePlace.getStatus().isInputOnlyArcConstraint()) { 
+			placeStatus.setInputOnlyArcConstraint(true); 
+			((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
+		}
+		else if (discretePlace.getStatus().isOutputOnlyArcConstraint()) {
+			placeStatus.setOutputOnlyArcConstraint(true); 
+			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
+		}
+	}
+//	private void buildArcConstraints(Place discretePlace, Place newPlace) {
+//		if (discretePlace.getStatus().isInputOnlyArcConstraint()) { 
+//			newPlace.getStatus().setInputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
+//		}
+//		else if (discretePlace.getStatus().isOutputOnlyArcConstraint()) {
+//			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
+//		}
+//	}
 
     private void buildClone(DiscretePlace discretePlace) {
-    	cloned = new DiscretePlace(discretePlace, true);
+    	built = new DiscretePlace(discretePlace, true);
     	addEachPlaceAsListenerForTokenChanges(discretePlace); 
-	    cloneInstance.prepareExecutablePetriNetPlaceProcessing(discretePlace, cloned); 
-	    cloneInstance.updatePlace(discretePlace, cloned);
+	    cloneInstance.prepareExecutablePetriNetPlaceProcessing(discretePlace, built); 
+	    cloneInstance.updatePlace(discretePlace, built);
     }
 
     
     private void buildSimple(DiscretePlace discretePlace) {
-    	cloned = new DiscretePlace(discretePlace, true);
+    	built = new DiscretePlace(discretePlace, true);
     }
     private void addEachPlaceAsListenerForTokenChanges(DiscretePlace discretePlace) {
-    	discretePlace.addPropertyChangeListener(cloned); 
-    	cloned.addPropertyChangeListener(discretePlace);
+    	discretePlace.addPropertyChangeListener(built); 
+    	built.addPropertyChangeListener(discretePlace);
     }
 	private enum Build {
     	SIMPLE,
     	CLONE,
-    	AVAILABLE;
+    	AVAILABLE,
+    	AWAY;
     	
     }
 }

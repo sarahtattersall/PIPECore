@@ -170,7 +170,7 @@ public abstract class AbstractClonePetriNet {
 	    } catch (PetriNetComponentException e) {
 	        LOGGER.log(Level.SEVERE, e.getMessage());
 	    }
-	    Place newPlace = builder.cloned;
+	    Place newPlace = builder.built;
 	    addPlaceToNet(place, newPlace);
 	}
 

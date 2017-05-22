@@ -1,13 +1,15 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -18,6 +20,7 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 //TODO break out tests for AddPlaceStatusCommand
+@RunWith(MockitoJUnitRunner.class)
 public class MergeInterfaceStatusAvailableTest {
 
 	private IncludeHierarchy includes;
@@ -26,6 +29,10 @@ public class MergeInterfaceStatusAvailableTest {
 	private PlaceStatus status;
 	private IncludeHierarchyCommand<Place> command;
 	private IncludeHierarchy include2;
+	
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
 	
 	@Before
 	public void setUp() throws Exception {
@@ -52,6 +59,20 @@ public class MergeInterfaceStatusAvailableTest {
 		assertTrue(result.hasResult()); 
 		assertEquals("MergeInterfaceStatusAvailable.remove: not supported for Available status.  " +
 				"Must be issued by MergeInterfaceStatusHome against the home include hierarchy.", result.getMessage()); 
+	}
+	@Test
+	public void availableStatusAddConvertsToAwayStatus() throws Exception {
+		try {
+			net.getComponent("a.P10", Place.class); 
+			fail("shouldn't exist"); 
+		} catch (Exception e) {}
+    	Place place = includes.getInterfacePlace("a.P10"); 
+		MergeInterfaceStatus status = place.getStatus().getMergeInterfaceStatus();
+		assertTrue(status instanceof MergeInterfaceStatusAvailable);
+		Result<InterfacePlaceAction> result = status.add(net);
+		assertFalse(result.hasResult()); 
+		assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
+		assertNotNull(net.getComponent("a.P10", Place.class)); 
 	}
 	//TODO verifyReturnsResultIfIncludeHierarchyIsDifferentFromOneToWhichThisStatusBelongs
 	

@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 
 public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
 
@@ -18,24 +19,17 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 	public Result<InterfacePlaceAction> remove(IncludeHierarchy includeHierarchy) {
 		return buildNotSupportedResult("remove", "Available");
 	}
-	//TODO refactor...
 	@Override
 	public Result<InterfacePlaceAction> add(PetriNet petriNet) {
 		Result<InterfacePlaceAction> result = new Result<>();  
-		petriNet.addPlace(placeStatus.getPlace()); 
-		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);  
-        placeStatus.setMergeInterfaceStatus(mergeStatus); 
-//		placeStatus.setExternal(false); 
-		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
-			placeStatus.setInputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
+		petriNet.addPlace(placeStatus.getPlace());
+		PlaceBuilder builder = new PlaceBuilder(placeStatus);
+		try {
+		    homePlace.accept(builder);
+		} catch (PetriNetComponentException e) {
+			//TODO test exception 
+			result.addEntry("Unable to add available place "+awayId+" to Petri net: "+petriNet.getName()+"; probable logic error.  Details: "+e.getMessage(), null); 
 		}
-		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
-			placeStatus.setOutputOnlyArcConstraint(true); 
-			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
-		}
-
-	 
 		return result;
 	}
 

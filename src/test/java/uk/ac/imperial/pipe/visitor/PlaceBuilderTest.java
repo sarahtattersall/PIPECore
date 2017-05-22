@@ -2,6 +2,7 @@ package uk.ac.imperial.pipe.visitor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -22,12 +23,15 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
+import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
+import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
+import uk.ac.imperial.pipe.models.petrinet.Result;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 public class PlaceBuilderTest {
@@ -75,7 +79,7 @@ public class PlaceBuilderTest {
 	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
 		builder = new PlaceBuilder(cloneInstance);
 		homePlace.accept(builder);
-		Place cloned = builder.cloned;
+		Place cloned = builder.built;
 		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  
 		assertEquals("top.a.b.P0", cloned.getId());
 		assertTrue(cloned.isOrClonedFrom(homePlace));
@@ -90,6 +94,30 @@ public class PlaceBuilderTest {
 	}
 	@Test
 	public void buildsCloneOfAwayPlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
+    	Place place = includes.getInterfacePlace("b.P0"); 
+		MergeInterfaceStatus status = place.getStatus().getMergeInterfaceStatus();
+		Result<InterfacePlaceAction> result = status.add(net);
+		assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
+		// clone....
+		//		Result<InterfacePlaceAction> result = new Result<>();  
+//		petriNet.addPlace(placeStatus.getPlace()); 
+//		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);  
+//        placeStatus.setMergeInterfaceStatus(mergeStatus); 
+////		placeStatus.setExternal(false); 
+//		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
+//			placeStatus.setInputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
+//		}
+//		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
+//			placeStatus.setOutputOnlyArcConstraint(true); 
+//			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
+//		}
+//
+//	 
+//		return result;
+
+		assertNotNull(net.getComponent("b.P0", Place.class)); 
+
 //		fail("refactor visit place, and then write me");
 //		builder = new PlaceBuilder(executablePetriNet, cloneInstance);
 //		homePlace.accept(builder);
@@ -132,7 +160,7 @@ public class PlaceBuilderTest {
 	public void buildsAvailablePlaceFromHomePlace() throws Exception {
 		builder = new PlaceBuilder(includes);
 		homePlace.accept(builder);
-		Place availablePlace = builder.cloned;
+		Place availablePlace = builder.built;
 		assertEquals(includes, availablePlace.getStatus().getIncludeHierarchy());
 		assertTrue(availablePlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable);  
 		assertEquals("b.P0", availablePlace.getId());
@@ -142,7 +170,7 @@ public class PlaceBuilderTest {
 	public void buildsAvailablePlaceAndHomePlaceMirrorTokensT() throws Exception {
 		builder = new PlaceBuilder(includes);
 		homePlace.accept(builder);
-		Place availablePlace = builder.cloned;
+		Place availablePlace = builder.built;
 		homePlace.setTokenCount("blue", 3);
 		assertEquals("available place listens to home", 3, availablePlace.getTokenCount("blue"));
 		availablePlace.setTokenCount("blue", 4);

@@ -252,7 +252,7 @@ public final class Expander {
         }
 
 
-        Place place = cloner.cloned;
+        Place place = cloner.built;
 
         Map<String, Integer> newTokenCounts = new HashMap<>();
         if (tokenCount > 0) {
