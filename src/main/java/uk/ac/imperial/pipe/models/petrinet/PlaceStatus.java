@@ -1,5 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
 
 public interface PlaceStatus {
 
@@ -39,6 +40,7 @@ public interface PlaceStatus {
 	public void buildMergeStatus(String type);
 	
 	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy);
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces);
 
 
 	//TODO implement paintComponent from PlaceView, or equivalent 

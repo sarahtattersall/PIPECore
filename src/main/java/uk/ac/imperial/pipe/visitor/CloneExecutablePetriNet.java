@@ -108,10 +108,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	@Override
 	protected void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace) {
 		newPlace.getStatus().prefixIdWithQualifiedName(currentIncludeHierarchy);
-        if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
-            pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
-            newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace);
-        }
+		newPlace.getStatus().updateHomePlace(pendingNewHomePlaces);
         updatePendingAwayPlacesWithNewPlace(place, newPlace); 
         updatePendingPlacesToDelete(place, newPlace);
 	}

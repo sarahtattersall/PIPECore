@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 public interface MergeInterfaceStatus extends InterfaceStatus {
 
 	public static final String AWAY = "away";
@@ -23,6 +25,7 @@ public interface MergeInterfaceStatus extends InterfaceStatus {
 	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy);
 
 	public MergeInterfaceStatus copy(PlaceStatus placeStatus);
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces);
 	
 
 

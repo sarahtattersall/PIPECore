@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 public class PlaceStatusNormal implements PlaceStatus {
 
 	private Place place;
@@ -107,6 +109,10 @@ public class PlaceStatusNormal implements PlaceStatus {
 	@Override
 	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
 		mergeInterfaceStatus.prefixIdWithQualifiedName(currentIncludeHierarchy);
+	}
+
+	@Override
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces) {
 	}
 
 }

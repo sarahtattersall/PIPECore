@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 
@@ -55,6 +57,10 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 	@Override
 	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
 		currentIncludeHierarchy.prefixComponentIdWithQualifiedName(placeStatus.getPlace());
+	}
+
+	@Override
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces) {
 	}
 
 }

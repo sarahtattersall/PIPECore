@@ -33,6 +33,7 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
 import uk.ac.imperial.pipe.models.petrinet.Result;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
+import uk.ac.imperial.pipe.tuple.Tuple;
 
 public class PlaceBuilderTest {
 
@@ -74,36 +75,35 @@ public class PlaceBuilderTest {
 		executablePetriNet = net.getExecutablePetriNet();
 		cloneInstance = CloneExecutablePetriNet.cloneInstance;
 	}
-
 	@Test
 	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
 		builder = new PlaceBuilder(cloneInstance);
-		homePlace.accept(builder);
-		Place cloned = builder.built;
-		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  
-		assertEquals("top.a.b.P0", cloned.getId());
-		assertTrue(cloned.isOrClonedFrom(homePlace));
-		homePlace.setTokenCount("red", 2);
-		assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+		Place cloned = checkCloneHasRightMergeClassAndIdAndRespondsToTokenChanges(
+				homePlace, MergeInterfaceStatusHome.class, "top.a.b.P0");
 		Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
-		assertTrue(cloned == clonedHome);
+		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
 		assertTrue(homePlace == clonedHome.getLinkedConnectable());
+		assertTrue(cloned == clonedHome);
 		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
 		assertFalse("false but misleading; pendingAwayPlaces only initially populated when refreshing EPN.",
 				cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned)); 
-		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
+	}
+	public Place checkCloneHasRightMergeClassAndIdAndRespondsToTokenChanges(Place originalPlace, Class<? extends MergeInterfaceStatus> mergeClass,
+			String placeId) throws Exception {
+		builder = new PlaceBuilder(cloneInstance);
+		originalPlace.accept(builder);
+		Place cloned = builder.built;
+		assertEquals(cloned.getStatus().getMergeInterfaceStatus().getClass(), mergeClass);  
+		assertEquals(placeId, cloned.getId());
+		assertTrue(cloned.isOrClonedFrom(originalPlace));
+		originalPlace.setTokenCount("red", 2);
+		assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+		return cloned;
 	}
 	@Test
 	public void buildsCloneOfAwayPlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
     	makeTopPlaceAnAwayPlace();
-    	builder = new PlaceBuilder(cloneInstance);
-    	topPlace.accept(builder);
-    	Place cloned = builder.built;
-    	assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);  
-    	assertEquals("b.P0", cloned.getId());
-    	assertTrue(cloned.isOrClonedFrom(topPlace));
-    	topPlace.setTokenCount("red", 2);
-    	assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+    	Place cloned = checkCloneHasRightMergeClassAndIdAndRespondsToTokenChanges(topPlace, MergeInterfaceStatusAway.class, "b.P0");
     	Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
     	assertTrue("available place already points to cloned home place, even befoe away conversion",
     			homePlace == clonedHome.getLinkedConnectable());

@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 public class PlaceStatusInterface implements PlaceStatus {
 
 	private static final String ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY = "arc constraint may not be both input only and output only.";
@@ -240,6 +242,10 @@ public class PlaceStatusInterface implements PlaceStatus {
 	@Override
 	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
 		mergeStatus.prefixIdWithQualifiedName(currentIncludeHierarchy); 
+	}
+	@Override
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces) {
+		mergeStatus.updateHomePlace(pendingNewHomePlaces); 
 	}
 
 

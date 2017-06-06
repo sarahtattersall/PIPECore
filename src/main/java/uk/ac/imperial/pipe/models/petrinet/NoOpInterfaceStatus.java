@@ -1,5 +1,7 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<InterfacePlaceAction>  
   	implements InterfaceStatus, MergeInterfaceStatus{
 
@@ -77,6 +79,10 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	@Override
 	public MergeInterfaceStatus copy(PlaceStatus placeStatus) {
 		return new NoOpInterfaceStatus(placeStatus);
+	}
+
+	@Override
+	public void updateHomePlace(Map<String, Place> pendingNewHomePlaces) {
 	}
 
 

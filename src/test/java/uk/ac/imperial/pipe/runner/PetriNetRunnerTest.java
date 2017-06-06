@@ -334,19 +334,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner = new PetriNetRunner(includePath); 
 		runner.setSeed(456327998101l);
 		runner.addPropertyChangeListener(this); 
-		for (Place place : ((PetriNetRunner) runner).executablePetriNet.getPlaces()) {
-			System.out.println(place.getId());
-			
-		}
-		
 		runner.listenForTokenChanges(this, "a.P1");
 		targetPlaceId = "a.P1"; 
 		TestingContext test = new TestingContext(7, "", false);
 		runner.setTransitionContext("a.b.T0", test); 
     	runner.setFiringLimit(10); 
 		runner.run(); 
-		// Changed name from testnet7 to net7 as transitions can't necessarily access their
-		// higher level EPNs.
 		assertEquals("net7", test.getUpdatedContext()); 
 	}	
 	@Test
