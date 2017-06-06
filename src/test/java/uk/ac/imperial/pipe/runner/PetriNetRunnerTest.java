@@ -334,6 +334,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 		runner = new PetriNetRunner(includePath); 
 		runner.setSeed(456327998101l);
 		runner.addPropertyChangeListener(this); 
+		for (Place place : ((PetriNetRunner) runner).executablePetriNet.getPlaces()) {
+			System.out.println(place.getId());
+			
+		}
+		
 		runner.listenForTokenChanges(this, "a.P1");
 		targetPlaceId = "a.P1"; 
 		TestingContext test = new TestingContext(7, "", false);

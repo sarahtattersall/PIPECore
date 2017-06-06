@@ -390,6 +390,7 @@ public class IncludeHierarchyTest extends AbstractMapEntryTest {
     	assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
     	includes.addAvailablePlaceToPetriNet(topPlace);
     	assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway); 
+    	assertEquals("a.P0", topPlace.getId()); 
 	}
     @Test
 	public void throwsIfInterfacePlaceBeingAddedToPetriNetIsNotAvailable() throws Exception {

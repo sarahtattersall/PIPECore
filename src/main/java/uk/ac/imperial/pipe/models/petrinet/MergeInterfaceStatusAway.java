@@ -10,6 +10,12 @@ public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus imple
 	}
 
 	@Override
+	public MergeInterfaceStatus copy(PlaceStatus placeStatus) {
+		return new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);
+	}
+
+	
+	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
 		return new Result<InterfacePlaceAction>();
 	}
@@ -42,5 +48,9 @@ public class MergeInterfaceStatusAway extends AbstractMergeInterfaceStatus imple
 	@Override
 	public String getXmlType() {
 		return AWAY;
+	}
+
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
 	}	
 }

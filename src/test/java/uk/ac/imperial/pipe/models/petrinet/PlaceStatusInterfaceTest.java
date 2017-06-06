@@ -46,7 +46,7 @@ public class PlaceStatusInterfaceTest {
 	}
 	@Test
 	public void NoOpStatusReturnsEmptyResult() throws Exception {
-		InterfaceStatus interfaceStatus = new NoOpInterfaceStatus(); 
+		InterfaceStatus interfaceStatus = new NoOpInterfaceStatus(null); 
 		assertFalse(interfaceStatus.add(null).hasResult()); 
 		assertFalse(interfaceStatus.remove(null).hasResult()); 
 	}

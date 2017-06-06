@@ -10,6 +10,15 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 	}
 
 	@Override
+	public MergeInterfaceStatus copy(PlaceStatus placeStatus) {
+		MergeInterfaceStatusHome mergeInterfaceStatus = new MergeInterfaceStatusHome(homePlace, placeStatus);
+		mergeInterfaceStatus.awayId = this.awayId; 
+		return mergeInterfaceStatus; 
+	}
+
+	
+	
+	@Override
 	public boolean canRemove() {
 		return true;
 	}
@@ -17,7 +26,7 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy)  {
 		buildAwayId(includeHierarchy.getUniqueNameAsPrefix()); 
-		IncludeHierarchyCommand<InterfacePlaceAction> command = new AddPlaceToInterfaceCommand(homePlace, includeHierarchy);
+		IncludeHierarchyCommand<InterfacePlaceAction> command = new ConvertPlaceToMergeStatusHomeCommand(homePlace, includeHierarchy);
 		Result<InterfacePlaceAction> result = includeHierarchy.self(command);  
 		try {
 			result = includeHierarchy.getInterfacePlaceAccessScope().execute(command);
@@ -83,4 +92,8 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 		return new NoArcConstraint();
 	}
 
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
+		currentIncludeHierarchy.prefixComponentIdWithQualifiedName(placeStatus.getPlace());
+	}
 }

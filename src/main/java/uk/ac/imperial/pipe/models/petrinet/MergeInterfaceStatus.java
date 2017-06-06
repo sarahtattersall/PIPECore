@@ -20,6 +20,10 @@ public interface MergeInterfaceStatus extends InterfaceStatus {
 
 	public String getXmlType();
 	
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy);
+
+	public MergeInterfaceStatus copy(PlaceStatus placeStatus);
+	
 
 
 }

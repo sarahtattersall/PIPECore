@@ -37,6 +37,8 @@ public interface PlaceStatus {
 
 	public String getMergeXmlType();
 	public void buildMergeStatus(String type);
+	
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy);
 
 
 	//TODO implement paintComponent from PlaceView, or equivalent 

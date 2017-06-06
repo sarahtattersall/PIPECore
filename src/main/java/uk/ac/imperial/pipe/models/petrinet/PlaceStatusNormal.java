@@ -7,8 +7,8 @@ public class PlaceStatusNormal implements PlaceStatus {
 	private ArcConstraint arcConstraint;
 
 	public PlaceStatusNormal(Place place) {
-		this.place = place;
-		this.mergeInterfaceStatus = new NoOpInterfaceStatus(); 
+		this.place = place; 
+		this.mergeInterfaceStatus = new NoOpInterfaceStatus(this); 
 		this.arcConstraint = new NoArcConstraint(); 
 	}
 
@@ -104,5 +104,9 @@ public class PlaceStatusNormal implements PlaceStatus {
 		return arcConstraint;
 	}
 
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
+		mergeInterfaceStatus.prefixIdWithQualifiedName(currentIncludeHierarchy);
+	}
 
 }

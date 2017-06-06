@@ -11,8 +11,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 	private boolean external;
 	private boolean inputOnly;
 	private boolean outputOnly;
-	private MergeInterfaceStatus mergeStatus = new NoOpInterfaceStatus();
-//	private MergeInterfaceStatus mergeStatus; 
+	private MergeInterfaceStatus mergeStatus; 
 	private IncludeHierarchy includeHierarchy;
 	private boolean mergeChanged;
 	private boolean inputOnlyChanged;
@@ -24,15 +23,16 @@ public class PlaceStatusInterface implements PlaceStatus {
 	public PlaceStatusInterface(Place place) {
 		this(place, null); //TODO delete 
 	}
-	//TODO constructor should be aware of the source and destination merge status, and set fields accordingly.  
+	//TODO determine whether constructor should create new arc constraint  
 	public PlaceStatusInterface(PlaceStatus placeStatus, Place place) {
 		this.place = place; 
 		this.includeHierarchy = placeStatus.getIncludeHierarchy(); 
+		mergeStatus = new NoOpInterfaceStatus(this);
 		setMergeStatus(placeStatus.isMergeStatus());
 		setExternal(placeStatus.isExternal());
 		setInputOnlyArcConstraint(placeStatus.isInputOnlyArcConstraint());
 		setOutputOnlyArcConstraint(placeStatus.isOutputOnlyArcConstraint());
-		setMergeInterfaceStatus(placeStatus.getMergeInterfaceStatus()); 
+		setMergeInterfaceStatus(placeStatus.getMergeInterfaceStatus().copy(this)); 
 		setArcConstraint(placeStatus.getArcConstraint()); 
 		resetUpdate(); 
 	}
@@ -41,6 +41,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 		this.place = place; 
 		this.includeHierarchy = includeHierarchy; 
 		setMergeStatus(false); 
+		mergeStatus = new NoOpInterfaceStatus(this);
 		setExternal(false); 
 		setInputOnlyArcConstraint(false); 
 		setOutputOnlyArcConstraint(false); 
@@ -50,6 +51,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 	 * Null constructor used by XML marshalling
 	 */
 	public PlaceStatusInterface() {
+		mergeStatus = new NoOpInterfaceStatus(this);
 	}
 
 	private void resetUpdate() {
@@ -115,7 +117,7 @@ public class PlaceStatusInterface implements PlaceStatus {
 			result = mergeStatus.add(includeHierarchy); 
 		}
 		else {
-			mergeStatus = new NoOpInterfaceStatus();
+			mergeStatus = new NoOpInterfaceStatus(this);
 		}
 		return result;
 	}
@@ -234,6 +236,10 @@ public class PlaceStatusInterface implements PlaceStatus {
 
 	protected boolean hasExternalChanged() {
 		return externalChanged;
+	}
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
+		mergeStatus.prefixIdWithQualifiedName(currentIncludeHierarchy); 
 	}
 
 

@@ -4,6 +4,12 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
   	implements InterfaceStatus, MergeInterfaceStatus{
 
 	private ArcConstraint arcConstraint = new NoArcConstraint();
+	private PlaceStatus placeStatus;
+
+	public NoOpInterfaceStatus(PlaceStatus placeStatus) {
+		this.placeStatus = placeStatus; 
+		
+	}
 
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
@@ -53,16 +59,6 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	public final void setAwayId(String awayId) {
 	}
 
-//	@Override
-//	public boolean acceptInboundArc() {
-//		return true;
-//	}
-//
-//	@Override
-//	public boolean acceptOutboundArc() {
-//		return true;
-//	}
-
 	@Override
 	public void setArcConstraint(ArcConstraint arcConstraint) {
 		this.arcConstraint = arcConstraint; 
@@ -71,6 +67,16 @@ public class NoOpInterfaceStatus extends AbstractIncludeHierarchyCommand<Interfa
 	@Override
 	public ArcConstraint getArcConstraint() {
 		return arcConstraint;
+	}
+
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
+		currentIncludeHierarchy.prefixComponentIdWithQualifiedName(placeStatus.getPlace());
+	}
+
+	@Override
+	public MergeInterfaceStatus copy(PlaceStatus placeStatus) {
+		return new NoOpInterfaceStatus(placeStatus);
 	}
 
 

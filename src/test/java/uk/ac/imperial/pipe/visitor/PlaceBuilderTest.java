@@ -89,70 +89,33 @@ public class PlaceBuilderTest {
 		assertTrue(cloned == clonedHome);
 		assertTrue(homePlace == clonedHome.getLinkedConnectable());
 		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
-		assertFalse(cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned));
+		assertFalse("false but misleading; pendingAwayPlaces only initially populated when refreshing EPN.",
+				cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned)); 
 		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
 	}
 	@Test
 	public void buildsCloneOfAwayPlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
-    	Place place = includes.getInterfacePlace("b.P0"); 
-		MergeInterfaceStatus status = place.getStatus().getMergeInterfaceStatus();
+    	makeTopPlaceAnAwayPlace();
+    	builder = new PlaceBuilder(cloneInstance);
+    	topPlace.accept(builder);
+    	Place cloned = builder.built;
+    	assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);  
+    	assertEquals("b.P0", cloned.getId());
+    	assertTrue(cloned.isOrClonedFrom(topPlace));
+    	topPlace.setTokenCount("red", 2);
+    	assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
+    	Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
+    	assertTrue("available place already points to cloned home place, even befoe away conversion",
+    			homePlace == clonedHome.getLinkedConnectable());
+    	assertFalse(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
+	}
+
+	private void makeTopPlaceAnAwayPlace() {
+		topPlace = includes.getInterfacePlace("b.P0"); 
+		MergeInterfaceStatus status = topPlace.getStatus().getMergeInterfaceStatus();
 		Result<InterfacePlaceAction> result = status.add(net);
-		assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
-		// clone....
-		//		Result<InterfacePlaceAction> result = new Result<>();  
-//		petriNet.addPlace(placeStatus.getPlace()); 
-//		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);  
-//        placeStatus.setMergeInterfaceStatus(mergeStatus); 
-////		placeStatus.setExternal(false); 
-//		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
-//			placeStatus.setInputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
-//		}
-//		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
-//			placeStatus.setOutputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
-//		}
-//
-//	 
-//		return result;
-
-		assertNotNull(net.getComponent("b.P0", Place.class)); 
-
-//		fail("refactor visit place, and then write me");
-//		builder = new PlaceBuilder(executablePetriNet, cloneInstance);
-//		homePlace.accept(builder);
-//		Place cloned = builder.cloned;
-//		assertTrue(cloned.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);  
-//		assertEquals("top.a.b.P0", cloned.getId());
-//		assertTrue(cloned.isOrClonedFrom(homePlace));
-//		homePlace.setTokenCount("red", 2);
-//		assertEquals("clone listens for token changes",2, cloned.getTokenCount("red"));
-//		Place clonedHome = cloned.getStatus().getMergeInterfaceStatus().getHomePlace(); 
-//		assertTrue(cloned == clonedHome);
-//		assertTrue(homePlace == clonedHome.getLinkedConnectable());
-//		assertTrue(cloned == cloneInstance.pendingNewHomePlaces.get(cloned.getStatus().getMergeInterfaceStatus().getAwayId()));
-//		assertFalse(cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().containsValue(cloned));
-//		assertTrue(cloneInstance.getPendingNewHomePlaces().containsValue(cloned));
-		
-//		newPlace = cloner.cloned;
-//		newPlace.getStatus().setIncludeHierarchy(includeHierarchy); 
-//		MergeInterfaceStatus mergeStatus = 
-//				new MergeInterfaceStatusAvailable(homePlace, newPlace.getStatus(),  newPlace.getStatus().getMergeInterfaceStatus().getAwayId());  
-//		newPlace.getStatus().setMergeInterfaceStatus(mergeStatus); 
-//		newPlace.getStatus().setExternal(false); 
-//		if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
-//			newPlace.getStatus().setInputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
-//		}
-//		else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
-//			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
-//		}
-//		
-//		newPlace.setId(mergeStatus.getAwayId()); 
-//		listenForTokenCountChanges(newPlace);
-//		return newPlace;
-
+		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
+		assertEquals("b.P0", topPlace.getId()); 
 	}
 	
 	

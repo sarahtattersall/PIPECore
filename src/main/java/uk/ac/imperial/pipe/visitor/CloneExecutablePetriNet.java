@@ -107,9 +107,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	}
 	@Override
 	protected void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace) {
-		if (!(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway)) {
-	    	prefixIdWithQualifiedName(newPlace); 
-	    }
+		newPlace.getStatus().prefixIdWithQualifiedName(currentIncludeHierarchy);
         if (newPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome) {
             pendingNewHomePlaces.put(newPlace.getStatus().getMergeInterfaceStatus().getAwayId(), newPlace); 
             newPlace.getStatus().getMergeInterfaceStatus().setHomePlace(newPlace);
@@ -159,8 +157,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
      */
     @Override
     protected void prefixIdWithQualifiedName(PetriNetComponent component) {
-    	component.setId(currentIncludeHierarchy.
-    			getFullyQualifiedNameAsPrefix()+component.getId());
+    	currentIncludeHierarchy.prefixComponentIdWithQualifiedName(component); 
     }
 	private void replaceInterfacePlacesWithOriginalPlaces() {
 		convertAwayPlaceArcsToUseOriginalPlaces();

@@ -27,12 +27,8 @@ public class MergeInterfaceStatusAvailableTest {
 	private PetriNet net;
 	private Place place;
 	private PlaceStatus status;
-	private IncludeHierarchyCommand<Place> command;
 	private IncludeHierarchy include2;
 	
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
 	
 	@Before
 	public void setUp() throws Exception {

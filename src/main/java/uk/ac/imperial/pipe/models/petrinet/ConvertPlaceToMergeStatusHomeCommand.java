@@ -4,12 +4,12 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 
-public class AddPlaceToInterfaceCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
+public class ConvertPlaceToMergeStatusHomeCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
 
 	private IncludeHierarchy home;
 	private Place homePlace;
 
-	public AddPlaceToInterfaceCommand(Place homePlace, IncludeHierarchy home) {
+	public ConvertPlaceToMergeStatusHomeCommand(Place homePlace, IncludeHierarchy home) {
 		this.homePlace = homePlace; 
 		this.home = home; 
 	}

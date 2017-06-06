@@ -84,25 +84,6 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
 	    buildArcConstraints(homePlace, placeStatus);
 	}
 
-    
-    
-    
-//	Result<InterfacePlaceAction> result = new Result<>();  
-//	petriNet.addPlace(placeStatus.getPlace()); 
-//	MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAway(homePlace, placeStatus, awayId);  
-//    placeStatus.setMergeInterfaceStatus(mergeStatus); 
-////	placeStatus.setExternal(false); 
-//	if (homePlace.getStatus().isInputOnlyArcConstraint()) { 
-//		placeStatus.setInputOnlyArcConstraint(true); 
-//		((PlaceStatusInterface) placeStatus).buildInputOnlyArcConstraint();  
-//	}
-//	else if (homePlace.getStatus().isOutputOnlyArcConstraint()) {
-//		placeStatus.setOutputOnlyArcConstraint(true); 
-//		((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
-//	}
-//
-// 
-//	return result;
 
 	private void buildArcConstraints(Place discretePlace, PlaceStatus placeStatus) {
 		if (discretePlace.getStatus().isInputOnlyArcConstraint()) { 
@@ -114,17 +95,6 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
 			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
 		}
 	}
-//	private void buildArcConstraints(Place discretePlace, Place newPlace) {
-//		if (discretePlace.getStatus().isInputOnlyArcConstraint()) { 
-//			newPlace.getStatus().setInputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) newPlace.getStatus()).buildInputOnlyArcConstraint();  
-//		}
-//		else if (discretePlace.getStatus().isOutputOnlyArcConstraint()) {
-//			newPlace.getStatus().setOutputOnlyArcConstraint(true); 
-//			((PlaceStatusInterface) newPlace.getStatus()).buildOutputOnlyArcConstraint();  
-//		}
-//	}
-
     private void buildClone(DiscretePlace discretePlace) {
     	built = new DiscretePlace(discretePlace, true);
     	addEachPlaceAsListenerForTokenChanges(discretePlace); 

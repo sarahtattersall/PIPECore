@@ -468,6 +468,10 @@ public class IncludeHierarchy implements Comparable<IncludeHierarchy> {
 	public void setFullyQualifiedName(String fullyQualifiedName) {
 		this.fullyQualifiedName = fullyQualifiedName; 
 	}
+	public void prefixComponentIdWithQualifiedName(PetriNetComponent component) {
+    	component.setId(this.getFullyQualifiedNameAsPrefix()+component.getId());
+	}
+
 
 	public void addToInterface(Place place, boolean merge, boolean external, boolean inputOnly,
 			boolean outputOnly) throws IncludeException {

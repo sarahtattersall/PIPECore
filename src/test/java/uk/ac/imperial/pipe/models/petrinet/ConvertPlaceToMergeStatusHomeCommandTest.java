@@ -18,13 +18,13 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
-public class AddPlaceToInterfaceCommandTest {
+public class ConvertPlaceToMergeStatusHomeCommandTest {
 
 	private IncludeHierarchy includes;
 	private PetriNet net;
 	private Place place;
 	private PlaceStatus status;
-	private AddPlaceToInterfaceCommand command;
+	private ConvertPlaceToMergeStatusHomeCommand command;
 	
 	@Before
 	public void setUp() throws Exception {
@@ -37,7 +37,7 @@ public class AddPlaceToInterfaceCommandTest {
 	@Test
 	public void placeAddedToInterfaceInHomeIncludHierarchy() throws Exception {
 		assertEquals(0, includes.getInterfacePlaceMap().size());
-		command = new AddPlaceToInterfaceCommand(place, includes);
+		command = new ConvertPlaceToMergeStatusHomeCommand(place, includes);
 		Result<InterfacePlaceAction> result = command.execute(includes);
 		assertFalse(result.hasResult());
 		assertEquals(1, includes.getInterfacePlaceMap().size());
@@ -53,7 +53,7 @@ public class AddPlaceToInterfaceCommandTest {
 		MergeInterfaceStatusHome mergeStatus = new MergeInterfaceStatusHome(place, place.getStatus()); 
 		mergeStatus.buildAwayId("a."); 
 		place.getStatus().setMergeInterfaceStatus(mergeStatus); 
-		command = new AddPlaceToInterfaceCommand(place, includes);
+		command = new ConvertPlaceToMergeStatusHomeCommand(place, includes);
 		Result<InterfacePlaceAction> result = command.execute(include2);
 		assertFalse(result.hasResult());
 		assertEquals("not added to home include hieararchy",0, includes.getInterfacePlaceMap().size());

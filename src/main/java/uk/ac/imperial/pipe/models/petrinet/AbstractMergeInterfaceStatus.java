@@ -13,6 +13,7 @@ public abstract class AbstractMergeInterfaceStatus implements MergeInterfaceStat
 		this.arcConstraint = new NoArcConstraint();
 	}
 
+	
 	public AbstractMergeInterfaceStatus(Place homePlace,
 			PlaceStatus placeStatus, String awayId) {
 		this(homePlace, placeStatus); 

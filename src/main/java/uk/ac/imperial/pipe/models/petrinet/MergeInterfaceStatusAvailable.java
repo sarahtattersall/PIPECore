@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.models.petrinet;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 
-public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus implements MergeInterfaceStatus {
+public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus {
 
 
 	public MergeInterfaceStatusAvailable(Place homePlace, PlaceStatus placeStatus, String awayId) {
@@ -11,6 +11,15 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 		
 	}
 
+	@Override
+	public MergeInterfaceStatus copy(PlaceStatus placeStatus) {
+		return new MergeInterfaceStatusAvailable(homePlace, placeStatus, awayId);
+	}
+
+
+
+
+	
 	@Override
 	public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
 		return new Result<InterfacePlaceAction>();
@@ -43,6 +52,9 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 		return null;
 	}
 
-
+	@Override
+	public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy) {
+		currentIncludeHierarchy.prefixComponentIdWithQualifiedName(placeStatus.getPlace());
+	}
 
 }
