@@ -61,6 +61,9 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 	}
 
 	private void buildLinkedConnectable(Connectable connectable, boolean linkClone) {
+		if (!connectable.isOriginal()) {
+			throw new IllegalArgumentException("Cannot create a cloned Connectable from another clone: "+connectable.getId());
+		}
 		if (linkClone) {
 			original = false;
 			linkedConnectable = connectable; 
@@ -275,4 +278,23 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 		} 
 		return (getLinkedConnectable() == connectable); 
 	}
+
+	@Override
+	public String getOriginalId() {
+		return getOriginaOrLinkedId(true);
+	}
+	@Override
+	public String getUniqueId() {
+		return getOriginaOrLinkedId(false);
+	}
+
+	private String getOriginaOrLinkedId(boolean original) {
+		if (isOriginal() == original) {
+			return getId(); 
+		} else if (getLinkedConnectable().isOriginal() == original) {
+			return getLinkedConnectable().getId(); 
+		}
+		else return getId();
+	}
+	
 }

@@ -467,6 +467,10 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
 	@Override
 	public void setStatus(PlaceStatus status) {
+		if ((status.getPlace() != null) && !(status.getPlace() == this)) {
+			throw new IllegalArgumentException("PlaceStatus can only be assigned with same Place (if not null) as this Place\n"+
+		"This place: "+getId()+".  Place from status: "+status.getPlace().getId()+"."); 
+		}
 		this.status = status; 
 	}
 

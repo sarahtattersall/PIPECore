@@ -214,6 +214,9 @@ public class PlaceStatusInterface implements PlaceStatus {
 
 	@Override
 	public void setPlace(Place place) {
+		if ((place.getStatus() != null) && (place.getStatus() != this)) {
+			throw new IllegalArgumentException("PlaceStatus for Place "+place.getId()+" (if not null) must be same as this PlaceStatus");
+		}
 		this.place = place; 
 		mergeStatus.setHomePlace(place); 
 		//update MergeStatus

@@ -2,9 +2,18 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
 
 public class AbstractConnectableTest {
+
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	private AbstractConnectable connectable;
 	private Connectable cloned;
@@ -85,6 +94,24 @@ public class AbstractConnectableTest {
 		TestingConnectable connectable2 = new TestingConnectable("A", "A"); 
 		assertTrue("passes logical equals",connectable2.equals(connectable)); 
 		assertFalse("...but not isOrClonedFrom",connectable2.isOrClonedFrom(connectable)); 
+	}
+	@Test
+	public void bothConnectablesReturnOriginalIdOrQualifiedId() {
+		connectable = new TestingConnectable("A", "A"); 
+		cloned = new TestingConnectable(connectable, true);
+		cloned.setId("root.A");
+		assertEquals("original knows its id","A",connectable.getOriginalId()); 
+		assertEquals("as does the clone ","A",cloned.getOriginalId()); 
+		assertEquals("clone knows its unique id","root.A",cloned.getUniqueId()); 
+		assertEquals("as does the original","root.A",connectable.getUniqueId()); 
+	}
+	@Test
+	public void throwsAttemptingToCloneAClone() {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("Cannot create a cloned Connectable from another clone: A");
+		connectable = new TestingConnectable("A", "A"); 
+		TestingConnectable cloned = new TestingConnectable(connectable, true);
+		TestingConnectable cloned2 = new TestingConnectable(cloned, true);
 	}
 	
 	

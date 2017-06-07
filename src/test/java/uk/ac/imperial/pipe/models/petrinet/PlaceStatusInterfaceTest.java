@@ -1,8 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -17,6 +15,7 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 
 //TODO test changes to status for existing nets and components
 // ....e.g., change to inputOnly for a place that already has outbound arcs
@@ -38,6 +37,30 @@ public class PlaceStatusInterfaceTest {
 		buildNet(); 
 		includes = new IncludeHierarchy(net, "top");
 		status = new PlaceStatusInterface(place, includes);  
+		place.setStatus(status);
+	}
+	@Test
+	public void throwsIfPlaceOfPlaceStatusIsNotTheSameAsThePlaceForWhichThisIsStatus() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("PlaceStatus can only be assigned with same Place (if not null) as this Place\n"+
+				"This place: P99.  Place from status: P0.");
+		DiscretePlace place2 = new DiscretePlace("P99"); 
+		status = new PlaceStatusInterface(place, includes);  
+		place2.setStatus(status);
+	}
+	@Test
+	public void throwsWhenSettingPlaceIfPlaceDoesNotHaveThisPlaceStatus() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("PlaceStatus for Place P99 (if not null) must be same as this PlaceStatus");
+		DiscretePlace place2 = new DiscretePlace("P99"); 
+		status.setPlace(place2);
+	}
+	@Test
+	public void throwsWhenCopyingPlaceStatusIfSettingPlaceIfPlaceDoesNotHaveThisPlaceStatus() throws Exception {
+		expectedException.expect(IllegalArgumentException.class);
+		expectedException.expectMessage("PlaceStatus for Place P99 (if not null) must be same as this PlaceStatus");
+		DiscretePlace place2 = new DiscretePlace("P99"); 
+		status.setPlace(place2);
 	}
 	@Test
 	public void defaultsToNoOpInterfaceStatusForMergeAndExternalAndInputAndOutput() throws Exception {
@@ -133,10 +156,9 @@ public class PlaceStatusInterfaceTest {
 	public void inputOnlyAcceptsOnlyInboundArcsAndThrowsForOutboundArcs() throws Exception {
 		expectedException.expect(IllegalArgumentException.class);
 		expectedException.expectMessage("Place has an inputOnly ArcConstraint, and will only accept InboundArcs: P0");
+		Place place = buildPlaceWithStatus(); 
 		status.setInputOnlyArcConstraint(true); 
 		status.update(); 
-		Place place = net.getComponent("P0", Place.class); 
-		place.setStatus(status); 
 		Transition transition = net.getComponent("T0", Transition.class);
 		InboundArc inbound = new InboundNormalArc(place, transition, new HashMap<String, String>());
 		assertEquals("P0", inbound.getSource().getId()); 
@@ -148,16 +170,21 @@ public class PlaceStatusInterfaceTest {
 	public void outputOnlyAcceptsOnlyOutboundArcsAndThrowsForInboundArcs() throws Exception {
 		expectedException.expect(IllegalArgumentException.class);
 		expectedException.expectMessage("Place has an outputOnly ArcConstraint, and will only accept OutboundArcs: P0");
+		Place place = buildPlaceWithStatus(); 
 		status.setOutputOnlyArcConstraint(true); 
 		status.update(); 
-		Place place = net.getComponent("P0", Place.class); 
-		place.setStatus(status); 
 		Transition transition = net.getComponent("T0", Transition.class);
 		OutboundArc outbound = new OutboundNormalArc(transition, place, new HashMap<String, String>());
 		assertEquals("P0", outbound.getTarget().getId()); 
 		
 		@SuppressWarnings("unused")
 		InboundArc inbound = new InboundNormalArc(place, transition, new HashMap<String, String>());
+	}
+	private Place buildPlaceWithStatus() throws PetriNetComponentNotFoundException {
+		Place place = net.getComponent("P0", Place.class); 
+		status = new PlaceStatusInterface(place, includes);  
+		place.setStatus(status);
+		return place;
 	}
 	protected void buildNet() throws PetriNetComponentException {
 		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(

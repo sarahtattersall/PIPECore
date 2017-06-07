@@ -22,8 +22,8 @@ public class RemovePlaceFromInterfaceCommand extends AbstractIncludeHierarchyCom
 	
 	protected void removeFromHomeIncludeHierarchy(
 			IncludeHierarchy includeHierarchy) {
-		if (includeHierarchy.getInterfacePlace(homePlace.getId()) != null)
-			includeHierarchy.removeFromInterface(homePlace.getId());
+		if (includeHierarchy.getInterfacePlace(homePlace.getOriginalId()) != null) 
+			includeHierarchy.removeFromInterface(homePlace.getOriginalId());
 	}
 
 	protected void removeFromAwayIncludeHierarchy(IncludeHierarchy includeHierarchy) {

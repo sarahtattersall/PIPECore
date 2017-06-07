@@ -1,8 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.awt.Color;
 import java.util.HashMap;
@@ -116,10 +114,14 @@ public class MergeInterfaceStatusHomeTest {
 		InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
 		net.add(arcIn); 
 		assertEquals(1, net.getArcs().size()); 
-		expectedException.expect(PetriNetComponentException.class); 
-		expectedException.expectMessage("Cannot delete P0:\n" +
-				"Place b.P0 cannot be removed from IncludeHierarchy top because it is referenced in arc b.P0 TO T0"); 
-		net3.removePlace(homePlace); 
+		try {
+			net3.removePlace(homePlace);
+			fail("should throw"); 
+		} catch (PetriNetComponentException e) {
+			assertEquals("Cannot delete P0:\n" +
+				"Place b.P0 cannot be removed from IncludeHierarchy top because it is referenced in arc b.P0 TO T0\n",
+				e.getMessage()); 
+		}
 		assertEquals(1, includes.getInterfacePlaceMap().size());
 		assertEquals(1, include2.getInterfacePlaceMap().size());
 		assertEquals(1, include3.getInterfacePlaceMap().size());
@@ -135,11 +137,11 @@ public class MergeInterfaceStatusHomeTest {
 		net3.removePlace(homePlace); 
 		assertEquals(0, includes.getInterfacePlaceMap().size());
 		assertEquals(0, include2.getInterfacePlaceMap().size());
-		assertEquals(0, include3.getInterfacePlaceMap().size());
+		assertEquals(0, include3.getInterfacePlaceMap().size()); 
 		assertEquals(0, net.getPlaces().size());   
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals("P0 deleted",1, net3.getPlaces().size());
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); 
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); // FIXME
 		expectedException.expect(PetriNetComponentNotFoundException.class); 
 		net3.getComponent("P0", Place.class); 
 	}
@@ -151,11 +153,11 @@ public class MergeInterfaceStatusHomeTest {
 		assertFalse(result.hasResult()); 
 		assertEquals(0, includes.getInterfacePlaceMap().size());
 		assertEquals(0, include2.getInterfacePlaceMap().size());
-		assertEquals(0, include3.getInterfacePlaceMap().size());
+		assertEquals(0, include3.getInterfacePlaceMap().size());  
 		assertEquals(0, net.getPlaces().size());
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals(2, net3.getPlaces().size());
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); 
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); // FIXME 
 	}
 	@Test
 	public void noInterfacePlacesRemovedIfInUseEitherHomeOrAway() throws Exception {

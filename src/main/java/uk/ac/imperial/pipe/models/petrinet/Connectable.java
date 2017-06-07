@@ -79,4 +79,8 @@ public interface Connectable extends PlaceablePetriNetComponent {
 	 * or if it is this Connectable's linked Connectable ({@link #getLinkedConnectable()})
 	 */
 	public boolean isOrClonedFrom(Connectable connectable);
+
+	public String getOriginalId();
+
+	public String getUniqueId();
 }

@@ -46,7 +46,6 @@ public class PlaceRemovalEligibilityCommand extends AbstractIncludeHierarchyComm
 	private Place findCurrentPlaceForHomePlace(IncludeHierarchy includeHierarchy) {
 		Place targetPlace = null; 
 		for (Place place : includeHierarchy.getInterfacePlaces()) {
-//			if (place.getStatus().getMergeInterfaceStatus().getHomePlace().equals(this.place)) {
 			if (place.getStatus().getMergeInterfaceStatus().getHomePlace().isOrClonedFrom(this.place)) {
 				targetPlace = place; 
 			}
