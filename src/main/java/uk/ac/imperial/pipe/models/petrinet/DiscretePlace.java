@@ -163,7 +163,9 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     @Override
     public void setCapacity(int capacity) {
+    	int oldValue = this.capacity; 
         this.capacity = capacity;
+        changeSupport.firePropertyChange(CAPACITY_CHANGE_MESSAGE, oldValue, capacity);
     }
 
     /**

@@ -27,6 +27,10 @@ public interface Place extends Connectable, PropertyChangeListener {
      * Message fired when mirroring token changes in another place 
      */
     public static final String TOKEN_CHANGE_MIRROR_MESSAGE = "tokens mirrored";
+    /**
+     * Message fired when the place capacity changes
+     */
+    public static final String CAPACITY_CHANGE_MESSAGE = "capacity";
 
     double getMarkingXOffset();
 

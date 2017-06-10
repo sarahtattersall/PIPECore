@@ -281,6 +281,22 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         place.setTokenCount("Default", 7);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
+    @Test
+    public void notifiesObserverOnIdChange() {
+    	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
+    	place.addPropertyChangeListener(mockListener);
+    	place.setId("P2");
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnCapacityChange() {
+    	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
+    	
+    	place.addPropertyChangeListener(mockListener);
+    	
+    	place.setCapacity(2);
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
 
     @Test
     public void notifiesObserverOnTokenMapChange() {
