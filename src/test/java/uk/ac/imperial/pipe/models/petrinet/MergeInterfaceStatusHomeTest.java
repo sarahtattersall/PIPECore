@@ -92,7 +92,7 @@ public class MergeInterfaceStatusHomeTest {
 		setup(false); 
 		Transition t0 = new DiscreteTransition("T0"); 
 		net.addTransition(t0); 
-		buildAvailableAndAwayPlaces(); 
+		buildAvailableAndAwayPlaces(true); 
 		InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
 		net.add(arcIn); 
 		assertEquals(1, net.getArcs().size()); 
@@ -110,7 +110,7 @@ public class MergeInterfaceStatusHomeTest {
 		setup(false); 
 		Transition t0 = new DiscreteTransition("T0"); 
 		net.addTransition(t0); 
-		buildAvailableAndAwayPlaces(); 
+		buildAvailableAndAwayPlaces(true); 
 		InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
 		net.add(arcIn); 
 		assertEquals(1, net.getArcs().size()); 
@@ -133,7 +133,7 @@ public class MergeInterfaceStatusHomeTest {
 	@Test
 	public void homePlaceInUseCanStillBeDeletedIfNoAwayPlacesAreInUse() throws Exception {
 		setup(false); 
-		buildAvailableAndAwayPlaces(); 
+		buildAvailableAndAwayPlaces(true); 
 		net3.removePlace(homePlace); 
 		assertEquals(0, includes.getInterfacePlaceMap().size());
 		assertEquals(0, include2.getInterfacePlaceMap().size());
@@ -141,14 +141,22 @@ public class MergeInterfaceStatusHomeTest {
 		assertEquals(0, net.getPlaces().size());   
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals("P0 deleted",1, net3.getPlaces().size());
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); // FIXME
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); 
 		expectedException.expect(PetriNetComponentNotFoundException.class); 
 		net3.getComponent("P0", Place.class); 
 	}
 	@Test
 	public void availableAndAwayInterfacePlacesRemovedIfNotInUse() throws Exception {
+		checkAvailableAndAwayInterfacePlacesRemovedIfNotInUse(false);
+	}
+	@Test
+	public void availableAndAwayInterfacePlacesRemovedIfNotInUseWithRefresh() throws Exception {
+		checkAvailableAndAwayInterfacePlacesRemovedIfNotInUse(true);
+	}
+	public void checkAvailableAndAwayInterfacePlacesRemovedIfNotInUse(boolean refresh)
+			throws IncludeException, PetriNetComponentException, PetriNetComponentNotFoundException {
 		setup(false); 
-		buildAvailableAndAwayPlaces(); 
+		buildAvailableAndAwayPlaces(refresh); 
 		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface);  
 		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); 
 		Result<InterfacePlaceAction> result = mergeStatus.remove(include3); 
@@ -167,9 +175,17 @@ public class MergeInterfaceStatusHomeTest {
 	}
 	@Test
 	public void noInterfacePlacesRemovedIfInUseEitherHomeOrAway() throws Exception {
+		checkNoInterfacePlacesRemovedIfInUseEitherHomeOrAway(false); 
+	}
+	@Test
+	public void noInterfacePlacesRemovedIfInUseEitherHomeOrAwayWithRefresh() throws Exception {
+		checkNoInterfacePlacesRemovedIfInUseEitherHomeOrAway(true); 
+	}
+	public void checkNoInterfacePlacesRemovedIfInUseEitherHomeOrAway(boolean refresh)
+			throws PetriNetComponentNotFoundException, IncludeException, PetriNetComponentException {
 		Transition t0 = new DiscreteTransition("T0"); 
 		net.addTransition(t0); 
-		buildAvailableAndAwayPlaces(); 
+		buildAvailableAndAwayPlaces(refresh); 
         InboundArc arcIn = new InboundNormalArc(topPlace, t0, new HashMap<String, String>());
         net.add(arcIn); 
         assertEquals(1, net.getArcs().size()); 
@@ -186,9 +202,9 @@ public class MergeInterfaceStatusHomeTest {
 		assertEquals(1, net.getPlaces().size());
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals(2, net3.getPlaces().size());
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface); 
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface);
 	}
-	protected void buildAvailableAndAwayPlaces()
+	protected void buildAvailableAndAwayPlaces(boolean refresh)
 			throws PetriNetComponentNotFoundException, IncludeException {
 		homePlace = net3.getComponent("P0", Place.class); 
 		assertEquals(0, net.getPlaces().size());
@@ -206,7 +222,9 @@ public class MergeInterfaceStatusHomeTest {
 		assertTrue(aPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
 		topPlace = includes.getInterfacePlace("b.P0"); 
 		includes.addAvailablePlaceToPetriNet(topPlace);
-		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
+		if (refresh) {
+			ExecutablePetriNetCloner.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
+		}
 		assertEquals(1, net.getPlaces().size());
 		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
 	}
