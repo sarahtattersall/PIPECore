@@ -175,7 +175,6 @@ public abstract class AbstractPetriNetCloner {
 	}
 
 	protected void addPlaceToNet(Place place, Place newPlace) {
-		// place available for override
 		getNewPetriNet().addPlace(newPlace);
 	}
 
@@ -184,10 +183,9 @@ public abstract class AbstractPetriNetCloner {
 		for (Map.Entry<String, Integer> entry : place.getTokenCounts().entrySet()) {
 	        newPlace.setTokenCount(entry.getKey(), entry.getValue());
 	    }
-	    newPlace.addPropertyChangeListener(place); 
-	    place.addPropertyChangeListener(newPlace); 
 	    places.put(place.getId(), newPlace);
 	}
+
 
 	/**
 	 * Clones and adds the new transition to the new Petri net

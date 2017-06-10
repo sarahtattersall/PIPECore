@@ -75,9 +75,15 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 		}  
 		result = includeHierarchy.self(removalCommand);
 		if (!result.hasResult()) {
-			homePlace.setStatus(new PlaceStatusNormal(homePlace)); 
+			resetStatusToNormal(); 
 		}
 		return result;
+	}
+
+	private void resetStatusToNormal() {
+		homePlace.setStatus(new PlaceStatusNormal(homePlace)); 
+		Place linkedPlace = (Place) homePlace.getLinkedConnectable(); 
+		linkedPlace.setStatus(new PlaceStatusNormal(linkedPlace));
 	}
 
 	@Override

@@ -624,16 +624,16 @@ public class ExecutablePetriNetTest {
     	expectInterfacePlaceArcNotFound("top.T1 TO a.P2", OutboundArc.class);  
     	expectInterfacePlaceArcNotFound("a.P1 TO top.T1", InboundArc.class);  
 	}
-	protected void checkNewHomePlace(String awayPlace)
+	protected void checkNewHomePlace(String awayId)
 			throws PetriNetComponentNotFoundException {
-		String newId = "top."+awayPlace; 
+		String newId = "top."+awayId; 
 		Place exPlace = executablePetriNet.getComponent(newId, Place.class); 
 		assertTrue(exPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);
 		assertEquals(exPlace, exPlace.getStatus().getMergeInterfaceStatus().getHomePlace());
-		assertEquals(awayPlace, exPlace.getStatus().getMergeInterfaceStatus().getAwayId());
+		assertEquals(awayId, exPlace.getStatus().getMergeInterfaceStatus().getAwayId());
 		int count = 0; 
 		for (Place place : executablePetriNet.getPlaces()) {
-			if ((place.getStatus() instanceof PlaceStatusInterface) && (place.getStatus().getMergeInterfaceStatus().getAwayId().equals(awayPlace))) {
+			if ((place.getStatus() instanceof PlaceStatusInterface) && (place.getStatus().getMergeInterfaceStatus().getAwayId().equals(awayId))) {
 				count++; 
 			}
 		}

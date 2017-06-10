@@ -149,10 +149,8 @@ public class MergeInterfaceStatusHomeTest {
 	public void availableAndAwayInterfacePlacesRemovedIfNotInUse() throws Exception {
 		setup(false); 
 		buildAvailableAndAwayPlaces(); 
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface); // FIXME 
-		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); // FIXME 
-//		System.out.println(homePlace.getOriginalId());
-//		System.out.println(homePlace.getUniqueId());
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface);  
+		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); 
 		Result<InterfacePlaceAction> result = mergeStatus.remove(include3); 
 		assertFalse(result.hasResult()); 
 		assertEquals(0, includes.getInterfacePlaceMap().size());
@@ -161,8 +159,11 @@ public class MergeInterfaceStatusHomeTest {
 		assertEquals(0, net.getPlaces().size());
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals(2, net3.getPlaces().size());
-//		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); // FIXME 
-		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); // FIXME 
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal);  
+//TODO consider not relying on linkedConnectable (this isn't the same one as is being referenced in Merge..Home.resetStatusToNormal()
+//     perhaps homePlace is never updated, as it is not needed once the EPN is built; homePlace only needed by IncludeHierarchy
+//     and PetriNet.  
+//		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusNormal); 
 	}
 	@Test
 	public void noInterfacePlacesRemovedIfInUseEitherHomeOrAway() throws Exception {
@@ -205,7 +206,7 @@ public class MergeInterfaceStatusHomeTest {
 		assertTrue(aPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
 		topPlace = includes.getInterfacePlace("b.P0"); 
 		includes.addAvailablePlaceToPetriNet(topPlace);
-//		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
+		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
 		assertEquals(1, net.getPlaces().size());
 		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
 	}
