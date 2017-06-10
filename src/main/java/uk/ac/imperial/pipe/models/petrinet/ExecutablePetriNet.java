@@ -85,7 +85,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
 	public ExecutablePetriNet(PetriNet petriNet, long initTime) {
 		this.petriNet = petriNet;
-		includeHierarchy = petriNet.getIncludeHierarchy(); 
+		getIncludeHierarchyFromPetriNet(petriNet);
 		refreshRequired = true;
 		refresh(); 
 		timingQueue = buildTimingQueue(initTime);
@@ -131,6 +131,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	private void refreshIncludeHierarchyComponents() {
+		getIncludeHierarchyFromPetriNet(petriNet); 
 		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(this);
 	}
 	private void initializeMaps() {
@@ -802,6 +803,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 			}
 		}
 	}
-
+	private void getIncludeHierarchyFromPetriNet(PetriNet petriNet) {
+		       includeHierarchy = petriNet.getIncludeHierarchy();
+	}
 
 }
