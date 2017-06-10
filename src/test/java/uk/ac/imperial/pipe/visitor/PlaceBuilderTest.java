@@ -52,7 +52,7 @@ public class PlaceBuilderTest {
 	private Place topPlace;
 
 	private ExecutablePetriNet executablePetriNet;
-	private CloneExecutablePetriNet cloneInstance;
+	private ExecutablePetriNetCloner cloneInstance;
 
 	
 	@Before
@@ -73,7 +73,7 @@ public class PlaceBuilderTest {
 		include3.addToInterface(homePlace, true, false, false, false); 
 		mergeStatus = homePlace.getStatus().getMergeInterfaceStatus();  
 		executablePetriNet = net.getExecutablePetriNet();
-		cloneInstance = CloneExecutablePetriNet.cloneInstance;
+		cloneInstance = ExecutablePetriNetCloner.cloneInstance;
 	}
 	@Test
 	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {

@@ -18,7 +18,7 @@ import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
 import uk.ac.imperial.pipe.parsers.StateEvalVisitor;
 import uk.ac.imperial.pipe.runner.Runner;
 import uk.ac.imperial.pipe.tuple.Tuple;
-import uk.ac.imperial.pipe.visitor.CloneExecutablePetriNet;
+import uk.ac.imperial.pipe.visitor.ExecutablePetriNetCloner;
 import uk.ac.imperial.state.HashedStateBuilder;
 import uk.ac.imperial.state.State;
 
@@ -101,7 +101,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
 	/**
 	 * This will cause the executable Petri net to be immediately re-built from the underlying 
-	 * source Petri net, using {@link uk.ac.imperial.pipe.visitor.ClonePetriNet} 
+	 * source Petri net, using {@link uk.ac.imperial.pipe.visitor.PetriNetCloner} 
 	 * Assumes that {@link #refreshRequired() refreshRequired} has been called since the last refresh.  
 	 * <p>
 	 * In addition to cloning the source Petri net, a listener is added for each place in the 
@@ -131,7 +131,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	}
 
 	private void refreshIncludeHierarchyComponents() {
-		CloneExecutablePetriNet.refreshFromIncludeHierarchy(this);
+		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(this);
 	}
 	private void initializeMaps() {
 		transitions = new HashMap<>();

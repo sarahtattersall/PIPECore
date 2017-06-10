@@ -10,25 +10,25 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 /**
  * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy} 
  */
-public final class ClonePetriNet extends AbstractClonePetriNet {
+public final class PetriNetCloner extends AbstractPetriNetCloner {
 	
 	protected PetriNet newPetriNet;
 	
-	protected static ClonePetriNet cloneInstance;
+	protected static PetriNetCloner cloneInstance;
 	/**
 	 *
 	 * @param petriNet to be cloned
 	 * @return  cloned Petri net
 	 */
 	public static PetriNet clone(PetriNet petriNet) {
-		cloneInstance = new ClonePetriNet(petriNet);
+		cloneInstance = new PetriNetCloner(petriNet);
 		return cloneInstance.clonePetriNet();
 	}
     /**
      * private constructor
      * @param petriNet petri net to clone
      */
-    private ClonePetriNet(PetriNet petriNet) {
+    private PetriNetCloner(PetriNet petriNet) {
         this.petriNet = petriNet;
         newPetriNet = new PetriNet();
     }
@@ -44,7 +44,7 @@ public final class ClonePetriNet extends AbstractClonePetriNet {
         return (PetriNet) newPetriNet;   
     }
 	@Override
-	protected ClonePetriNet getInstance() {
+	protected PetriNetCloner getInstance() {
 		return cloneInstance;
 	}
 

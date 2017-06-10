@@ -21,7 +21,7 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
-import uk.ac.imperial.pipe.visitor.CloneExecutablePetriNet;
+import uk.ac.imperial.pipe.visitor.ExecutablePetriNetCloner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MergeInterfaceStatusHomeTest {
@@ -149,6 +149,10 @@ public class MergeInterfaceStatusHomeTest {
 	public void availableAndAwayInterfacePlacesRemovedIfNotInUse() throws Exception {
 		setup(false); 
 		buildAvailableAndAwayPlaces(); 
+		assertTrue(homePlace.getStatus() instanceof PlaceStatusInterface); // FIXME 
+		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); // FIXME 
+//		System.out.println(homePlace.getOriginalId());
+//		System.out.println(homePlace.getUniqueId());
 		Result<InterfacePlaceAction> result = mergeStatus.remove(include3); 
 		assertFalse(result.hasResult()); 
 		assertEquals(0, includes.getInterfacePlaceMap().size());
@@ -157,6 +161,7 @@ public class MergeInterfaceStatusHomeTest {
 		assertEquals(0, net.getPlaces().size());
 		assertEquals(3, net2.getPlaces().size());
 		assertEquals(2, net3.getPlaces().size());
+//		assertTrue(((Place) homePlace.getLinkedConnectable()).getStatus() instanceof PlaceStatusInterface); // FIXME 
 		assertTrue(homePlace.getStatus() instanceof PlaceStatusNormal); // FIXME 
 	}
 	@Test
@@ -200,7 +205,7 @@ public class MergeInterfaceStatusHomeTest {
 		assertTrue(aPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
 		topPlace = includes.getInterfacePlace("b.P0"); 
 		includes.addAvailablePlaceToPetriNet(topPlace);
-//		CloneExecutablePetriNet.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
+//		ExecutablePetriNetCloner.refreshFromIncludeHierarchy(net.getExecutablePetriNet());
 		assertEquals(1, net.getPlaces().size());
 		assertTrue(topPlace.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
 	}

@@ -34,12 +34,12 @@ import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetName;
 
-public abstract class AbstractClonePetriNet {
+public abstract class AbstractPetriNetCloner {
 
 	/**
 	 * Class logger
 	 */
-	private static final Logger LOGGER = Logger.getLogger(ClonePetriNet.class.getName());
+	private static final Logger LOGGER = Logger.getLogger(PetriNetCloner.class.getName());
 	/**
 	 * Original Petri net to clone
 	 */
@@ -63,7 +63,7 @@ public abstract class AbstractClonePetriNet {
 	 */
 	protected abstract AbstractPetriNet getNewPetriNet();
 	
-	protected abstract AbstractClonePetriNet getInstance();
+	protected abstract AbstractPetriNetCloner getInstance();
 
 
 	/**

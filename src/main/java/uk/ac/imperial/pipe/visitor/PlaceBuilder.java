@@ -23,7 +23,7 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     public Place built = null;
 	private IncludeHierarchy includeHierarchy;
 	private Build build;
-	private AbstractClonePetriNet cloneInstance;
+	private AbstractPetriNetCloner cloneInstance;
 	private PlaceStatus placeStatus; 
 
     /**
@@ -47,7 +47,7 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     
     
     
-	public <T extends AbstractClonePetriNet> PlaceBuilder(T  cloneInstance) {
+	public <T extends AbstractPetriNetCloner> PlaceBuilder(T  cloneInstance) {
 		this.cloneInstance = cloneInstance;
 		build = Build.CLONE; 
 	}

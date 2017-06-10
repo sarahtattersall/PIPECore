@@ -33,7 +33,7 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 import uk.ac.imperial.pipe.models.petrinet.name.PetriNetFileName;
 
-public class ClonePetriNetTest {
+public class PetriNetClonerTest {
     PetriNet oldPetriNet;
     PetriNet clonedPetriNet;
 	private PetriNet net2;
@@ -58,20 +58,20 @@ public class ClonePetriNetTest {
     @Test
     public void cloneEquality() {
         oldPetriNet.setName(new NormalPetriNetName("Petri net 0"));
-        clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+        clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
         assertEquals(oldPetriNet, clonedPetriNet);
     }
 
     @Test
     public void clonePetriNetNoName() {
-        clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+        clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
         assertEquals(oldPetriNet, clonedPetriNet);
     }
 
     @Test
     public void cloneEqualityWithFileName() {
         oldPetriNet.setName(new PetriNetFileName(new File("Petri net 0")));
-        clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+        clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
         assertEquals(oldPetriNet, clonedPetriNet);
     }
 
@@ -79,7 +79,7 @@ public class ClonePetriNetTest {
     @Test
     public void clonesArcWithNewSourceAndTarget() throws PetriNetComponentNotFoundException {
         oldPetriNet.setName(new NormalPetriNetName("Petri net 0"));
-        clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+        clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
         InboundArc arc = clonedPetriNet.getComponent("P0 TO T0", InboundArc.class);
         Place clonedP0 = clonedPetriNet.getComponent("P0", Place.class);
         Transition clonedT0 = clonedPetriNet.getComponent("T0", Transition.class);
@@ -99,7 +99,7 @@ public class ClonePetriNetTest {
 		oldPetriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
 				APlace.withId("P0").and(1, "Default").token()).andFinally(
 				ARateParameter.withId("rate1").andExpression(rateExpression)); 
-    	clonedPetriNet = ClonePetriNet.clone(oldPetriNet);
+    	clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
     	RateParameter rate = clonedPetriNet.getComponent("rate1", RateParameter.class);
     	assertEquals(rateExpression, rate.getExpression());
 	}

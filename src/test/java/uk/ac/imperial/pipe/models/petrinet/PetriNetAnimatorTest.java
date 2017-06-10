@@ -33,7 +33,7 @@ import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.visitor.ClonePetriNet;
+import uk.ac.imperial.pipe.visitor.PetriNetCloner;
 //<<<<<<< 0e5245da7684e9b205c7f7b8cd2102aa8601f94b
 import utils.AbstractTestLog4J2;
 //=======
@@ -323,7 +323,7 @@ public class PetriNetAnimatorTest extends AbstractTestLog4J2 {
     //@Test
     public void restoresPetriNet() throws PetriNetComponentException {
         PetriNet petriNet = createSimplePetriNet(1);
-        PetriNet copy = ClonePetriNet.clone(petriNet);
+        PetriNet copy = PetriNetCloner.clone(petriNet);
         ExecutablePetriNet epn = petriNet.getExecutablePetriNet(); 
         ExecutablePetriNet copyepn = copy.getExecutablePetriNet();
         assertEquals(copyepn, epn);

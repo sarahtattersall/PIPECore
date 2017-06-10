@@ -20,7 +20,7 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 /**
  * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy} 
  */
-public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
+public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
 	
 //	/**
 //	 * Class logger
@@ -33,12 +33,12 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
      */
 	boolean refreshingExecutablePetriNet = false;
 	/**
-	 * The {@link IncludeHierarchy} of a target {@link ExecutablePetriNet} during {@link CloneExecutablePetriNet#refreshFromIncludeHierarchy(ExecutablePetriNet)}
+	 * The {@link IncludeHierarchy} of a target {@link ExecutablePetriNet} during {@link ExecutablePetriNetCloner#refreshFromIncludeHierarchy(ExecutablePetriNet)}
 	 */
 	private IncludeHierarchy includeHierarchy;
 
 	/**
-	 * The {@link IncludeHierarchy} of the {@link PetriNet} currently being processed during {@link CloneExecutablePetriNet#refreshFromIncludeHierarchy(ExecutablePetriNet)}
+	 * The {@link IncludeHierarchy} of the {@link PetriNet} currently being processed during {@link ExecutablePetriNetCloner#refreshFromIncludeHierarchy(ExecutablePetriNet)}
 	 */
 	private IncludeHierarchy currentIncludeHierarchy;
 
@@ -50,7 +50,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 
 	protected ExecutablePetriNet newPetriNet;
 	
-	public static CloneExecutablePetriNet cloneInstance;
+	public static ExecutablePetriNetCloner cloneInstance;
 
 	/**
 	 * Rebuilds an {@link ExecutablePetriNet} from the set of {@link PetriNet} defined in its {@link IncludeHierarchy}.
@@ -73,7 +73,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 	 * @param targetExecutablePetriNet to be refreshed 
 	 */
 	public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
-		cloneInstance = new CloneExecutablePetriNet(targetExecutablePetriNet);
+		cloneInstance = new ExecutablePetriNetCloner(targetExecutablePetriNet);
 		cloneInstance.clonePetriNetToExecutablePetriNet();
 	}
     /**
@@ -81,7 +81,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
      * @param targetExecutablePetriNet to be refreshed from the PetriNets of its IncludeHierarchy
      * @return  cloned Petri net
      */
-    private CloneExecutablePetriNet(ExecutablePetriNet targetExecutablePetriNet) {
+    private ExecutablePetriNetCloner(ExecutablePetriNet targetExecutablePetriNet) {
 		this.newPetriNet = targetExecutablePetriNet; 
 		this.includeHierarchy = targetExecutablePetriNet.getIncludeHierarchy(); 
 		this.refreshingExecutablePetriNet = true;
@@ -182,7 +182,7 @@ public final class CloneExecutablePetriNet extends AbstractClonePetriNet {
 		return pendingNewHomePlaces;
 	}
 	@Override
-	protected CloneExecutablePetriNet getInstance() {
+	protected ExecutablePetriNetCloner getInstance() {
 		return cloneInstance;
 	}
 	@Override
