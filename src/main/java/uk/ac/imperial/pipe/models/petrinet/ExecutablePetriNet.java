@@ -384,7 +384,16 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
-		refreshRequired = true; 
+		if ((evt.getPropertyName().equals(Transition.ANGLE_CHANGE_MESSAGE)) 
+			|| (evt.getPropertyName().equals(Transition.ENABLED_CHANGE_MESSAGE))
+			|| (evt.getPropertyName().equals(Transition.DISABLED_CHANGE_MESSAGE))
+//			|| (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE))
+//			|| (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MIRROR_MESSAGE))
+			)	{
+			// ignore non-structural changes 
+		} else {
+			refreshRequired = true; 
+		}
 	}
 	/**
 	 * Evaluates an expression against the current State ({@link #getState()}. 
@@ -752,6 +761,9 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
 	public boolean isRefreshRequired() {
 		return refreshRequired;
+	}
+	protected void setRefreshNotRequiredForTesting() {
+		refreshRequired = false;
 	}
 
 	public void updateHomePlacesInMergeInterfaceStatus(IncludeHierarchy includeHierarchy) {

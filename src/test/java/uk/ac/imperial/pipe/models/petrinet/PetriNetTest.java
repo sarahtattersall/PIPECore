@@ -45,6 +45,10 @@ public class PetriNetTest {
 	
 	private ExecutablePetriNet executablePetriNet;
 
+	private Transition transition;
+
+	private Place place;
+
     @Before
     public void setUp() {
         net = new PetriNet();
@@ -172,26 +176,95 @@ public class PetriNetTest {
         verify(mockListener, never()).propertyChange(any(PropertyChangeEvent.class));
 
     }
+    
     @Test
-    public void changingPlaceIdForcesExecutablePetriNetRefresh() {
-    	Place place = buildPlace();
-    	assertFalse(executablePetriNet.isRefreshRequired()); 
-    	place.setId("P2"); 
-    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    public void changingStructuralTransitionPropertiesForcesExecutablePetriNetRefresh() {
+    	buildTransition();
+    	transition.setId("T99");
+    	verifyRefreshRequiredAndRebuildTransition();
+    	transition.setPriority(5);
+    	verifyRefreshRequiredAndRebuildTransition();
+    	transition.setRate(new NormalRate("3"));
+    	verifyRefreshRequiredAndRebuildTransition();
+    	transition.setTimed(true);
+    	verifyRefreshRequiredAndRebuildTransition();
+    	transition.setInfiniteServer(true);
+    	verifyRefreshRequiredAndRebuildTransition();
+    	transition.setTimed(true); // cant set delay unless timed
+    	executablePetriNet.setRefreshNotRequiredForTesting();
+    	transition.setDelay(4);
+    	verifyRefreshRequiredAndRebuildTransition();
     }
     @Test
-    public void changingCapacityForcesExecutablePetriNetRefresh() {
-    	Place place = buildPlace();
-    	assertFalse(executablePetriNet.isRefreshRequired()); 
-    	place.setCapacity(2); 
-    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    public void changingNonStructuralTransitionPropertiesDoesNotForceExecutablePetriNetRefresh() {
+    	buildTransition();
+    	transition.enable();
+    	verifyNoRefreshRequiredAndRebuildTransition();
+    	transition.disable();
+    	verifyNoRefreshRequiredAndRebuildTransition();
+    	transition.setAngle(45);
+    	verifyNoRefreshRequiredAndRebuildTransition();
     }
-	protected Place buildPlace() {
-		Place place = new DiscretePlace("P1", "P1");
-    	net.addPlace(place);
-    	executablePetriNet = net.getExecutablePetriNet();
-		return place;
+	private void verifyRefreshRequiredAndRebuildTransition() {
+    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    	buildTransition();
 	}
+	private void verifyNoRefreshRequiredAndRebuildTransition() {
+		assertFalse(executablePetriNet.isRefreshRequired()); 
+		buildTransition();
+	}
+	private void buildTransition() {
+		net = new PetriNet();
+    	transition = new DiscreteTransition("T0"); 
+    	net.addTransition(transition);
+    	executablePetriNet = net.getExecutablePetriNet();
+    	assertFalse(executablePetriNet.isRefreshRequired()); 
+	}
+    @Test
+    public void changingStructuralPlacePropertiesForcesExecutablePetriNetRefresh() {
+    	buildPlace();
+    	place.setId("P2"); 
+    	verifyRefreshRequiredAndRebuildPlace();
+    	place.setCapacity(3); 
+    	verifyRefreshRequiredAndRebuildPlace();
+    }
+//FIXME	@Test
+    public void changingNonStructuralPlacePropertiesDoesNotForceExecutablePetriNetRefresh() {
+		buildPlace();
+		//TODO triggers both TOKEN_CHANGE_MESSAGE and TOKEN_CHANGE_MIRROR_MESSAGE; should it?
+		place.setTokenCount("default", 2);  
+    	verifyNoRefreshRequiredAndRebuildPlace();
+    }
+	private void verifyRefreshRequiredAndRebuildPlace() {
+		assertTrue(executablePetriNet.isRefreshRequired()); 
+		buildPlace();
+	}
+	private void verifyNoRefreshRequiredAndRebuildPlace() {
+		assertFalse(executablePetriNet.isRefreshRequired()); 
+		buildPlace();
+	}
+	protected void buildPlace() {
+		net = new PetriNet();
+		place = new DiscretePlace("P1", "P1");
+		net.addPlace(place);
+		executablePetriNet = net.getExecutablePetriNet();
+		assertFalse(executablePetriNet.isRefreshRequired()); 
+	}
+//
+//	@Test
+//    public void changingPlaceIdForcesExecutablePetriNetRefresh() {
+//    	buildPlace();
+//    	assertFalse(executablePetriNet.isRefreshRequired()); 
+//    	place.setId("P2"); 
+//    	assertTrue(executablePetriNet.isRefreshRequired()); 
+//    }
+//    @Test
+//    public void changingCapacityForcesExecutablePetriNetRefresh() {
+//    	buildPlace();
+//    	assertFalse(executablePetriNet.isRefreshRequired()); 
+//    	place.setCapacity(2); 
+//    	assertTrue(executablePetriNet.isRefreshRequired()); 
+//    }
     @Test
     public void changingAnythingNotifiesExecutablePetriNet() {
     	ExecutablePetriNet epn = net.getExecutablePetriNet();

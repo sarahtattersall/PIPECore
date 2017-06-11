@@ -49,7 +49,12 @@ public interface PetriNetComponent {
      * @param listener listener which will process all events of the implementing class
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
-
+    /**
+    *
+    * @param propertyName name of the events to be listened for
+    * @param listener listener which will process propertyName events of the implementing class
+    */
+   public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
     /**
      *
      * @param listener listener to no longer listen to events in the implementing class

@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
@@ -44,6 +45,9 @@ public class DiscretePlaceTest implements PropertyChangeListener {
 
 	private IncludeHierarchy includes;
 
+	@Mock
+	private PropertyChangeListener mockListener;
+
 
     @Before
     public void setUp() {
@@ -51,7 +55,6 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     	net = new PetriNet(); 
     	net.addPlace(place);
     	includes = new IncludeHierarchy(net, "top"); 
-
     }
 
     @Test
@@ -274,26 +277,19 @@ public class DiscretePlaceTest implements PropertyChangeListener {
 
     @Test
     public void notifiesObserverOnTokenChange() {
-        PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
-
         place.addPropertyChangeListener(mockListener);
-
         place.setTokenCount("Default", 7);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
     @Test
     public void notifiesObserverOnIdChange() {
-    	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
     	place.addPropertyChangeListener(mockListener);
     	place.setId("P2");
     	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
     @Test
     public void notifiesObserverOnCapacityChange() {
-    	PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
-    	
     	place.addPropertyChangeListener(mockListener);
-    	
     	place.setCapacity(2);
     	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
@@ -301,10 +297,8 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     @Test
     public void notifiesObserverOnTokenMapChange() {
         Map<String, Integer> tokenCounts = new HashMap<>();
-        PropertyChangeListener mockListener = mock(PropertyChangeListener.class);
         tokenCounts.put("Default", 7);
         place.addPropertyChangeListener(mockListener);
-
         place.setTokenCounts(tokenCounts);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }

@@ -158,7 +158,9 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 	 */
 	@Override
 	public void setRate(Rate rate) {
-	    this.rate = rate;
+		Rate old = this.rate;
+		this.rate = rate;
+		changeSupport.firePropertyChange(RATE_CHANGE_MESSAGE, old, rate);
 	}
 
 	/**
@@ -545,13 +547,12 @@ public abstract class AbstractTransition extends AbstractConnectable implements 
 			disable(); 
 		}
 	}
-
-
-
 	@Override
 	public void setDelay(int delay) {
 		if (!isTimed()) throw new IllegalStateException("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
+		int old = this.delay; 
 		this.delay = delay; 
+	    changeSupport.firePropertyChange(DELAY_CHANGE_MESSAGE, old, delay);
 	}
 
 	@Override

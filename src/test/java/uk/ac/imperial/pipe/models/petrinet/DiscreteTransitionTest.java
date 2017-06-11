@@ -1,17 +1,24 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.awt.Color;
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -19,19 +26,17 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransition;
-import uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor;
-import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
-import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.Transition;
-import uk.ac.imperial.pipe.models.petrinet.TransitionVisitor;
 
+@RunWith(MockitoJUnitRunner.class)
 public class DiscreteTransitionTest {
 
 
     private ExecutablePetriNet executablePetriNet;
 	private Transition transition;
+	
+	@Mock
+	private PropertyChangeListener mockListener;
+
 	
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -39,6 +44,7 @@ public class DiscreteTransitionTest {
 	@Before
 	public void setUp() throws Exception {
 		transition = new DiscreteTransition("id", "name");
+    	transition.addPropertyChangeListener(mockListener);
 	}
 	@Test
     public void calculatesCorrectArcConnectionForTransitionAbove() {
@@ -281,4 +287,38 @@ public class DiscreteTransitionTest {
 		expectedException.expectMessage("AbstractTransition.setDelay:  delay cannot be set if Transition is not timed.");
 		transition.setDelay(1000);
 	}
+    @Test
+    public void notifiesObserverOnIdChange() {
+    	transition.setId("T99");
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnPriorityChange() {
+    	transition.setPriority(4);
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnRateChange() {
+    	transition.setRate(new NormalRate("2"));
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnTimedChange() {
+    	transition.setTimed(false); // no change from default, so doesn't fire a change event
+    	transition.setTimed(true);
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnInfiniteChange() {
+    	transition.setInfiniteServer(false); // no change from default, so doesn't fire a change event
+    	transition.setInfiniteServer(true);
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnDelayChange() {
+    	transition.setTimed(true);
+    	transition.setDelay(10);
+    	verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
+    }
+
 }

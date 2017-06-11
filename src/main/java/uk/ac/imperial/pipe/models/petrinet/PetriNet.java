@@ -215,6 +215,7 @@ public class PetriNet extends AbstractPetriNet {
 //    	if (!transitions.containsValue(transition)) {
         if (addComponentToMap(transition, transitions)) {
             transition.addPropertyChangeListener(new NameChangeArcListener());
+//            transition.addPropertyChangeListener(Transition.ID_CHANGE_MESSAGE, getExecutablePetriNetBare());
             addAndNotifyListeners(transition, transitions, NEW_TRANSITION_CHANGE_MESSAGE);
         }
     }

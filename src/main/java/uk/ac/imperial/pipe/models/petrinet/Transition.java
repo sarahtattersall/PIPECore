@@ -37,6 +37,10 @@ public interface Transition extends Connectable, PropertyChangeListener  {
      */
     String DISABLED_CHANGE_MESSAGE = "disabled";
     /**
+     * Message fired when the delay changes
+     */
+    String DELAY_CHANGE_MESSAGE = "delay";
+    /**
      * Height of the transition
      */
     int TRANSITION_HEIGHT = 30;
