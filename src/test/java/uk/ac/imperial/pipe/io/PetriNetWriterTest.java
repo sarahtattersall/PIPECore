@@ -265,8 +265,8 @@ public class PetriNetWriterTest extends XMLTestCase {
         transition.setInfiniteServer(false);
         transition.setPriority(1);
 
+        petriNet.addRateParameter(rateParameter); // must precede adding transition that references it
         petriNet.addTransition(transition);
-        petriNet.addRateParameter(rateParameter);
 
         assertResultsEqual(XMLUtils.getTransitionRateParameterFile(), petriNet);
     }
@@ -284,8 +284,8 @@ public class PetriNetWriterTest extends XMLTestCase {
     	transition.setInfiniteServer(false);
     	transition.setPriority(1);
     	
-    	petriNet.addTransition(transition);
     	petriNet.addRateParameter(rateParameter);
+    	petriNet.addTransition(transition);
     	
     	assertResultsEqual(XMLUtils.getExternalTransitionRateParameterFile(), petriNet);
     }

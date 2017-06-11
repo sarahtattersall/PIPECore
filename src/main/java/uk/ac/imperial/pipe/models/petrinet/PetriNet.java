@@ -461,14 +461,26 @@ public class PetriNet extends AbstractPetriNet {
        return getComponentIds().contains(id);
    }
 
-   public ExecutablePetriNet getExecutablePetriNet() {
-		if (executablePetriNet == null) {
-			executablePetriNet = new ExecutablePetriNet(this); 
-			addPropertyChangeListener(executablePetriNet);
-		}
-		else executablePetriNet.refresh(); 
-		return executablePetriNet;
+   @Override
+   protected <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
+	   component.addPropertyChangeListener(getExecutablePetriNetBare());
+	   super.addAndNotifyListeners(component, components, newMessage); 
 	}
+
+   
+   public ExecutablePetriNet getExecutablePetriNet() {
+	   getExecutablePetriNetBare().refresh(); 
+	   //TODO move this into ExecutablePetriNet
+	   getExecutablePetriNetBare().getTimingQueue().rebuild(getExecutablePetriNetBare().getState());
+	   return executablePetriNet;
+	}
+   protected ExecutablePetriNet getExecutablePetriNetBare() {
+	   if (executablePetriNet == null) {
+		   executablePetriNet = new ExecutablePetriNet(this); 
+		   addPropertyChangeListener(executablePetriNet);
+	   }
+	   return executablePetriNet;
+   }
 
     /**
      *

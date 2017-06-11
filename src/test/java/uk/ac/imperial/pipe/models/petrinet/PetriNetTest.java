@@ -41,8 +41,9 @@ public class PetriNetTest {
     
     
 	private Place oldPlace;
-
 	private Place newPlace;
+	
+	private ExecutablePetriNet executablePetriNet;
 
     @Before
     public void setUp() {
@@ -116,6 +117,8 @@ public class PetriNetTest {
     public void addingArcNotifiesObservers() {
         Place place = new DiscretePlace("P0", "P0");
         Transition transition = new DiscreteTransition("T0", "T0");
+        net.addPlace(place);
+        net.addTransition(transition); 
         net.addPropertyChangeListener(mockListener);
         InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
@@ -127,6 +130,8 @@ public class PetriNetTest {
     public void addingDuplicateArcDoesNotNotifyObservers() {
         Place place = new DiscretePlace("P0", "P0");
         Transition transition = new DiscreteTransition("T0", "T0");
+        net.addPlace(place);
+        net.addTransition(transition); 
         InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
         net.addPropertyChangeListener(mockListener);
@@ -137,9 +142,12 @@ public class PetriNetTest {
 
     @Test
     public void removingArcNotifiesObservers() {
-        net.addPropertyChangeListener(mockListener);
         Place place = new DiscretePlace("P0", "P0");
         Transition transition = new DiscreteTransition("T0", "T0");
+        net.addPlace(place);
+        net.addTransition(transition); 
+        net.addPropertyChangeListener(mockListener);
+
         InboundArc mockArc = new InboundNormalArc(place, transition, new HashMap<String, String>());
         net.addArc(mockArc);
         net.removeArc(mockArc);
@@ -163,6 +171,34 @@ public class PetriNetTest {
         net.addTransition(transition);
         verify(mockListener, never()).propertyChange(any(PropertyChangeEvent.class));
 
+    }
+    @Test
+    public void changingPlaceIdForcesExecutablePetriNetRefresh() {
+    	Place place = buildPlace();
+    	assertFalse(executablePetriNet.isRefreshRequired()); 
+    	place.setId("P2"); 
+    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    }
+    @Test
+    public void changingCapacityForcesExecutablePetriNetRefresh() {
+    	Place place = buildPlace();
+    	assertFalse(executablePetriNet.isRefreshRequired()); 
+    	place.setCapacity(2); 
+    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    }
+	protected Place buildPlace() {
+		Place place = new DiscretePlace("P1", "P1");
+    	net.addPlace(place);
+    	executablePetriNet = net.getExecutablePetriNet();
+		return place;
+	}
+    @Test
+    public void changingAnythingNotifiesExecutablePetriNet() {
+    	ExecutablePetriNet epn = net.getExecutablePetriNet();
+    	assertFalse(epn.isRefreshRequired()); 
+    	Place place = new DiscretePlace("P1", "P1");
+    	net.addPlace(place);
+    	assertTrue(epn.isRefreshRequired()); 
     }
 
     @Test
@@ -303,6 +339,8 @@ public class PetriNetTest {
     public void genericRemoveMethodRemovesArc() throws PetriNetComponentException {
         Place place = new DiscretePlace("source", "source");
         Transition transition = new DiscreteTransition("target", "target");
+        net.addPlace(place);
+        net.addTransition(transition); 
         Map<String, String> weights = new HashMap<>();
         InboundNormalArc arc = new InboundNormalArc(place, transition, weights);
         net.addArc(arc);
@@ -478,21 +516,26 @@ public class PetriNetTest {
 
     @Test
     public void canGetArcById() throws PetriNetComponentNotFoundException {
-        Place p = new DiscretePlace("P0", "P0");
-        Transition t = new DiscreteTransition("T0", "T0");
-        InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
-        net.addArc(a);
-        assertEquals(a, net.getComponent(a.getId(), InboundArc.class));
+        Place place = new DiscretePlace("P0", "P0");
+        Transition transition = new DiscreteTransition("T0", "T0");
+        net.addPlace(place);
+        net.addTransition(transition); 
+
+        InboundArc arc = new InboundNormalArc(place, transition, new HashMap<String, String>());
+        net.addArc(arc);
+        assertEquals(arc, net.getComponent(arc.getId(), InboundArc.class));
     }
 
     @Test
     public void canGetArcByIdAfterNameChange() throws PetriNetComponentNotFoundException {
-        Place p = new DiscretePlace("P0", "P0");
-        Transition t = new DiscreteTransition("T0", "T0");
-        InboundArc a = new InboundNormalArc(p, t, new HashMap<String, String>());
-        net.addArc(a);
-        a.setId("A1");
-        assertEquals(a, net.getComponent(a.getId(), InboundArc.class));
+        Place place = new DiscretePlace("P0", "P0");
+        Transition transition = new DiscreteTransition("T0", "T0");
+        net.addPlace(place);
+        net.addTransition(transition); 
+        InboundArc arc = new InboundNormalArc(place, transition, new HashMap<String, String>());
+        net.addArc(arc);
+        arc.setId("A1");
+        assertEquals(arc, net.getComponent(arc.getId(), InboundArc.class));
     }
 
     @Test

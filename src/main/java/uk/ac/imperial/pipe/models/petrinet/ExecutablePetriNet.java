@@ -90,14 +90,14 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refresh(); 
 		timingQueue = buildTimingQueue(initTime);
 	}
+	public ExecutablePetriNet(PetriNet petriNet) {
+		this(petriNet, 0);
+	}
 
 	protected TimingQueue buildTimingQueue(long initTime) {
 		return new TimingQueue(this, initTime);
 	}
 	
-	public ExecutablePetriNet(PetriNet petriNet) {
-		this(petriNet, 0);
-	}
 	
 	/**
 	 * This will cause the executable Petri net to be immediately re-built from the underlying 
@@ -582,41 +582,8 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		transition.fire();   
 		return stateProduced; 
 
-//	    TimingQueue timingQueue = getTimingQueue();
-//	    // TODO: Move time backward!? = put transition back onto stack
-//	    //Increment previous places
-//	    for (Arc<Place, Transition> arc : inboundArcs(transition)) {
-//	        Place place = arc.getSource();
-//	        adjustCount(timingQueue, arc, place, true);
-//	    }
-//	    //Decrement new places
-//	    for (Arc<Transition, Place> arc : outboundArcs(transition)) {
-//	        Place place = arc.getTarget(); 
-//	        adjustCount(timingQueue, arc, place, false);
-//	    }
-//		return null;
 	}
 
-//}
-//protected void adjustCount(TimingQueue timingQueue,
-//		Arc<? extends Connectable,? extends Connectable> arc, Place place, boolean increment) {
-//	for (Map.Entry<String, String> entry : arc.getTokenWeights().entrySet()) {
-//	    String tokenId = entry.getKey();
-//	    double weight = getWeight(timingQueue, entry);
-//	    int currentCount = place.getTokenCount(tokenId);
-//	    int adjust = (decrement) ? -1 : 1; 
-//	    int newCount = currentCount + adjust * ((int) weight);
-//	    place.setTokenCount(tokenId, newCount);
-//	}
-//}
-//
-//protected double getWeight(TimingQueue timingQueue,
-//		Map.Entry<String, String> entry) {
-//	String functionalWeight = entry.getValue();
-//	return executablePetriNet.getArcWeight(functionalWeight, timingQueue );
-//}
-
-	
 	
 	
 	/** 
