@@ -31,6 +31,7 @@ public final class PetriNetCloner extends AbstractPetriNetCloner {
     private PetriNetCloner(PetriNet petriNet) {
         this.petriNet = petriNet;
         newPetriNet = new PetriNet();
+        simpleClone = true; 
     }
 
 	/**

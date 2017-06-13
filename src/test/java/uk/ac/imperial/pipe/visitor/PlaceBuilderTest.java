@@ -76,6 +76,18 @@ public class PlaceBuilderTest {
 		cloneInstance = ExecutablePetriNetCloner.cloneInstance;
 	}
 	@Test
+	public void buildsSimpleCopyWithoutLinkedConnectable() throws Exception {
+		DiscretePlace place = new DiscretePlace("P10");
+		builder = new PlaceBuilder(cloneInstance, true); // needed so place can be added 
+		place.accept(builder);
+		DiscretePlace builtPlace = (DiscretePlace) builder.built;
+		assertEquals("P10", builtPlace.getId());
+		assertTrue(builtPlace.isOriginal());
+		assertTrue(builtPlace == builtPlace.getLinkedConnectable());
+		assertEquals("built place not listening for token changes",0, place.changeSupport.getPropertyChangeListeners().length);
+		assertEquals("original place not listening for token changes",0, builtPlace.changeSupport.getPropertyChangeListeners().length);
+	}
+	@Test
 	public void buildsCloneOfHomePlaceAsLinkedConnectableWithPlaceStatus() throws Exception {
 		builder = new PlaceBuilder(cloneInstance);
 		Place cloned = checkCloneHasRightMergeClassAndIdAndRespondsToTokenChanges(

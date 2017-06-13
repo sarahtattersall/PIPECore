@@ -48,10 +48,19 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     
     
 	public <T extends AbstractPetriNetCloner> PlaceBuilder(T  cloneInstance) {
-		this.cloneInstance = cloneInstance;
-		build = Build.CLONE; 
+		this(cloneInstance, false);
+//		this.cloneInstance = cloneInstance;
+//		build = Build.CLONE; 
 	}
 
+	public <T extends AbstractPetriNetCloner> PlaceBuilder(T cloneInstance, boolean simpleClone) {
+		this.cloneInstance = cloneInstance;
+		if (simpleClone) {
+			build = Build.CLONE_FOR_PETRI_NET; 
+		} else {
+			build = Build.CLONE_FOR_EXECUTABLE_PETRI_NET; 
+		}
+	}
 	/**
      * Clones a discrete place
      * @param discretePlace to be visited 
@@ -61,8 +70,9 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	switch (build) {
 		case AVAILABLE: buildAvailable(discretePlace); break;
 		case AWAY: convertAvailableToAway(discretePlace); break;
-		case CLONE:  buildClone(discretePlace); break;
-		case SIMPLE: buildSimple(discretePlace);	break;
+		case CLONE_FOR_PETRI_NET:  buildCloneForPetriNet(discretePlace, false); break;
+		case CLONE_FOR_EXECUTABLE_PETRI_NET:  buildCloneForExecutablePetriNet(discretePlace); break;
+		case SIMPLE: buildSimple(discretePlace, false);	break;
 		}
     }
 	private void buildAvailable(DiscretePlace discretePlace) {
@@ -95,16 +105,19 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
 			((PlaceStatusInterface) placeStatus).buildOutputOnlyArcConstraint();  
 		}
 	}
-    private void buildClone(DiscretePlace discretePlace) {
-    	built = new DiscretePlace(discretePlace, true);
+    private void buildCloneForExecutablePetriNet(DiscretePlace discretePlace) {
+    	buildCloneForPetriNet(discretePlace, true);
     	addEachPlaceAsListenerForTokenChanges(discretePlace); 
 	    cloneInstance.prepareExecutablePetriNetPlaceProcessing(discretePlace, built); 
-	    cloneInstance.updatePlace(discretePlace, built);
     }
 
     
-    private void buildSimple(DiscretePlace discretePlace) {
-    	built = new DiscretePlace(discretePlace, true);
+    private void buildCloneForPetriNet(DiscretePlace discretePlace, boolean linkClone) {
+    	buildSimple(discretePlace, linkClone);
+    	cloneInstance.updatePlace(discretePlace, built);
+    }
+    private void buildSimple(DiscretePlace discretePlace, boolean linkClone) {
+    	built = new DiscretePlace(discretePlace, linkClone);
     }
     private void addEachPlaceAsListenerForTokenChanges(DiscretePlace discretePlace) {
     	discretePlace.addPropertyChangeListener(built); 
@@ -112,7 +125,8 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     }
 	private enum Build {
     	SIMPLE,
-    	CLONE,
+    	CLONE_FOR_EXECUTABLE_PETRI_NET,
+    	CLONE_FOR_PETRI_NET,
     	AVAILABLE,
     	AWAY;
     	
