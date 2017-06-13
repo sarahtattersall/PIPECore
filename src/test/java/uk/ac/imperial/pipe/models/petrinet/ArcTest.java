@@ -14,10 +14,13 @@ import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 
 import java.awt.geom.Point2D;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -30,6 +33,9 @@ public class ArcTest {
 
     @Mock
     Transition mockTarget;
+
+    @Mock
+	private PropertyChangeListener mockListener;
 
     Arc<Place, Transition> arc;
 
@@ -236,4 +242,33 @@ public class ArcTest {
         arc.getNextPoint(point);
     }
 
+    @Test
+    public void notifiesObserverOnWeightChange() {
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+    	arc.addPropertyChangeListener(mockListener);
+    	arc.setWeight("default", "2");
+    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnSourceChange() {
+    	when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
+    	when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+    	arc.addPropertyChangeListener(mockListener);
+    	arc.setSource(new DiscretePlace("P0"));  // also forces ID to be rebuilt
+    	verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
+    }
+    @Test
+    public void notifiesObserverOnTargetChange() {
+    	when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
+    	when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+    	arc.addPropertyChangeListener(mockListener);
+    	arc.setTarget(new DiscreteTransition("T0"));  // also forces ID to be rebuilt
+    	verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
+    }
+    
+    
 }

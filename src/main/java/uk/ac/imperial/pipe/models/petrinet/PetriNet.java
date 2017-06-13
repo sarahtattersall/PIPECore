@@ -166,13 +166,6 @@ public class PetriNet extends AbstractPetriNet {
         this.validated = validated;
     }
 
-    /**
-     * Resets the Petri net name
-     */
-    //TODO: DELETE IF DONT USE PNML
-    public void resetPNML() {
-        pnmlName = null;
-    }
 
     /**
      * Adds place to the Petri net
@@ -183,8 +176,26 @@ public class PetriNet extends AbstractPetriNet {
     public void addPlace(Place place) {
     	if (addComponentToMap(place, places)) {
             setInitialTokenCountsToZero(place);
+            place.addPropertyChangeListener(Place.CAPACITY_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            place.addPropertyChangeListener(Place.ID_CHANGE_MESSAGE, getExecutablePetriNetBare());
+//            super.addAndNotifyListeners(place, places, NEW_PLACE_CHANGE_MESSAGE);
             addAndNotifyListeners(place, places, NEW_PLACE_CHANGE_MESSAGE);
         }
+    }
+    
+    @Override
+    public void addArc(InboundArc inboundArc) {
+    	super.addArc(inboundArc);
+    	inboundArc.addPropertyChangeListener(Arc.SOURCE_CHANGE_MESSAGE, getExecutablePetriNetBare());
+    	inboundArc.addPropertyChangeListener(Arc.TARGET_CHANGE_MESSAGE, getExecutablePetriNetBare());
+    	inboundArc.addPropertyChangeListener(Arc.WEIGHT_CHANGE_MESSAGE, getExecutablePetriNetBare());
+    }
+    @Override
+    public void addArc(OutboundArc outboundArc) {
+    	super.addArc(outboundArc);
+    	outboundArc.addPropertyChangeListener(Arc.SOURCE_CHANGE_MESSAGE, getExecutablePetriNetBare());
+    	outboundArc.addPropertyChangeListener(Arc.TARGET_CHANGE_MESSAGE, getExecutablePetriNetBare());
+    	outboundArc.addPropertyChangeListener(Arc.WEIGHT_CHANGE_MESSAGE, getExecutablePetriNetBare());
     }
 	@Override
 	public void removeArc(InboundArc arc) {
@@ -212,11 +223,15 @@ public class PetriNet extends AbstractPetriNet {
      */
     @Override
     public void addTransition(Transition transition) {
-//    	if (!transitions.containsValue(transition)) {
         if (addComponentToMap(transition, transitions)) {
             transition.addPropertyChangeListener(new NameChangeArcListener());
-//            transition.addPropertyChangeListener(Transition.ID_CHANGE_MESSAGE, getExecutablePetriNetBare());
-            addAndNotifyListeners(transition, transitions, NEW_TRANSITION_CHANGE_MESSAGE);
+            transition.addPropertyChangeListener(Transition.ID_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            transition.addPropertyChangeListener(Transition.PRIORITY_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            transition.addPropertyChangeListener(Transition.RATE_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            transition.addPropertyChangeListener(Transition.DELAY_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            transition.addPropertyChangeListener(Transition.INFINITE_SEVER_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            transition.addPropertyChangeListener(Transition.TIMED_CHANGE_MESSAGE, getExecutablePetriNetBare());
+            super.addAndNotifyListeners(transition, transitions, NEW_TRANSITION_CHANGE_MESSAGE);
         }
     }
 
@@ -464,7 +479,7 @@ public class PetriNet extends AbstractPetriNet {
 
    @Override
    protected <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
-	   component.addPropertyChangeListener(getExecutablePetriNetBare());
+	   component.addPropertyChangeListener(getExecutablePetriNetBare()); //TODO drop this when each component is separately listening
 	   super.addAndNotifyListeners(component, components, newMessage); 
 	}
 

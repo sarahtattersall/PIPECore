@@ -15,6 +15,7 @@ import uk.ac.imperial.pipe.models.petrinet.*;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
@@ -48,6 +49,8 @@ public class PetriNetTest {
 	private Transition transition;
 
 	private Place place;
+
+	private InboundNormalArc arc;
 
     @Before
     public void setUp() {
@@ -250,6 +253,58 @@ public class PetriNetTest {
 		executablePetriNet = net.getExecutablePetriNet();
 		assertFalse(executablePetriNet.isRefreshRequired()); 
 	}
+    @Test
+    public void changingStructuralArcPropertiesForcesExecutablePetriNetRefresh() throws Exception {
+    	buildArc();
+    	arc.setSource(new DiscretePlace("P1"));
+    	verifyRefreshRequiredAndRebuildArc();
+    	arc.setTarget(new DiscreteTransition("T1"));
+    	verifyRefreshRequiredAndRebuildArc();
+    	arc.setWeight("red", "2");
+    	verifyRefreshRequiredAndRebuildArc();
+    }
+//FIXME    @Test
+    //	   component.addPropertyChangeListener(getExecutablePetriNetBare()); //TODO drop this when each component is separately listening
+    public void changingNonStructuralArcPropertiesDoesNotForceExecutablePetriNetRefresh() throws Exception {
+    	buildArcForIntermediatePointTests();
+    	arc.addIntermediatePoint(null);
+    	verifyNoRefreshRequiredAndRebuildArc();
+    	arc.removeIntermediatePoint(null);
+    	verifyNoRefreshRequiredAndRebuildArc();
+    }
+	private void verifyRefreshRequiredAndRebuildArc() throws Exception {
+    	assertTrue(executablePetriNet.isRefreshRequired()); 
+    	buildArc();
+	}
+	private void verifyNoRefreshRequiredAndRebuildArc() throws Exception {
+		assertFalse(executablePetriNet.isRefreshRequired()); 
+		buildArcForIntermediatePointTests();
+	}
+	private void buildArc() throws PetriNetComponentException {
+		buildNetWithOldAndNewPlaces("P0", "T0");
+		arc = (InboundNormalArc) net.getComponent("P0 TO T0", InboundArc.class); 
+    	executablePetriNet = net.getExecutablePetriNet();
+    	assertFalse(executablePetriNet.isRefreshRequired()); 
+	}
+	private void buildArcForIntermediatePointTests() throws PetriNetComponentException {
+		net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0"))
+    			.andFinally(AnImmediateTransition.withId("T0")); 
+		arc = new InboundNormalArc(net.getComponent("P0", Place.class), 
+				net.getComponent("T0", Transition.class), new HashMap<String, String>()) {
+			@Override
+			public void addIntermediatePoint(ArcPoint point) {
+				changeSupport.firePropertyChange(NEW_INTERMEDIATE_POINT_CHANGE_MESSAGE, null, point);
+			}
+			@Override
+			public void removeIntermediatePoint(ArcPoint point) {
+				changeSupport.firePropertyChange(DELETE_INTERMEDIATE_POINT_CHANGE_MESSAGE, point, null);			
+			}
+		};
+		net.addArc(arc);
+		executablePetriNet = net.getExecutablePetriNet();
+		assertFalse(executablePetriNet.isRefreshRequired()); 
+	}
+
 //
 //	@Test
 //    public void changingPlaceIdForcesExecutablePetriNetRefresh() {
