@@ -34,11 +34,11 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
      */
     public PlaceBuilder(IncludeHierarchy includeHierarchy) {
     	this.includeHierarchy = includeHierarchy; 
-    	build = Build.AVAILABLE; 
+    	build = Build.AVAILABLE_PLACE; 
 	}
     public PlaceBuilder(PlaceStatus placeStatus) {
     	this.placeStatus = placeStatus; 
-    	build = Build.AWAY; 
+    	build = Build.AWAY_PLACE; 
     }
 
     public PlaceBuilder() {
@@ -49,8 +49,6 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     
 	public <T extends AbstractPetriNetCloner> PlaceBuilder(T  cloneInstance) {
 		this(cloneInstance, false);
-//		this.cloneInstance = cloneInstance;
-//		build = Build.CLONE; 
 	}
 
 	public <T extends AbstractPetriNetCloner> PlaceBuilder(T cloneInstance, boolean simpleClone) {
@@ -68,8 +66,8 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     @Override
     public void visit(DiscretePlace discretePlace) {
     	switch (build) {
-		case AVAILABLE: buildAvailable(discretePlace); break;
-		case AWAY: convertAvailableToAway(discretePlace); break;
+		case AVAILABLE_PLACE: buildAvailable(discretePlace); break;
+		case AWAY_PLACE: convertAvailableToAway(discretePlace); break;
 		case CLONE_FOR_PETRI_NET:  buildCloneForPetriNet(discretePlace, false); break;
 		case CLONE_FOR_EXECUTABLE_PETRI_NET:  buildCloneForExecutablePetriNet(discretePlace); break;
 		case SIMPLE: buildSimple(discretePlace, false);	break;
@@ -127,8 +125,8 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	SIMPLE,
     	CLONE_FOR_EXECUTABLE_PETRI_NET,
     	CLONE_FOR_PETRI_NET,
-    	AVAILABLE,
-    	AWAY;
+    	AVAILABLE_PLACE,
+    	AWAY_PLACE;
     	
     }
 }
