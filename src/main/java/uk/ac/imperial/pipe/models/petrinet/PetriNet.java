@@ -262,7 +262,6 @@ public class PetriNet extends AbstractPetriNet {
      */
     @Override
     public void addToken(Token token) {
-//    	if (!tokens.containsValue(token)) {
         if (addComponentToMap(token, tokens)) {
             updateAllPlacesWithCountZeroForThisToken(token);
             token.addPropertyChangeListener(new TokenNameChanger());
@@ -479,7 +478,8 @@ public class PetriNet extends AbstractPetriNet {
 
    @Override
    protected <T extends PetriNetComponent> void addAndNotifyListeners(T component, Map<String, T> components, String newMessage) {
-	   component.addPropertyChangeListener(getExecutablePetriNetBare()); //TODO drop this when each component is separately listening
+//	   component.addPropertyChangeListener(getExecutablePetriNetBare()); //TODO drop this when each component is separately listening
+	   getExecutablePetriNetBare().refreshRequired();
 	   super.addAndNotifyListeners(component, components, newMessage); 
 	}
 
