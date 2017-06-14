@@ -150,11 +150,11 @@ public interface Transition extends Connectable, PropertyChangeListener  {
 	public void fire();
 	
 	/**
-	 * For {@link DiscreteTimedTransition}, specify the amount of time, in milliseconds, 
+	 * For {@link DiscreteTransition}, specify the amount of time, in milliseconds, 
 	 * that this transition will wait, once it's enabled, before firing.
 	 * Note that this is not deterministic; all that is guaranteed is that a minimum of delay milliseconds
 	 * will elapse; there is no fixed upper limit on the amount of elapsed time before firing.
-	 * @param delay
+	 * @param delay before firing transition
 	 */
     public void setDelay(int delay);
     

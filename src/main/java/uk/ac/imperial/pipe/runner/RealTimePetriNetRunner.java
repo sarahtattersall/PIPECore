@@ -54,6 +54,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	/**
 	 * Fires all immediate and due timed transitions as well as providing the next 
 	 * time a timed transition would be up for firing.
+	 * @param newTime to be set as the current time
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
 		TimingQueue currentState = this.executablePetriNet.getTimingQueue();
@@ -77,6 +78,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 
 	/**
 	 * Run the ExecutablePetriNet for a given duration in real time.
+	 * @param duration for the EPN to be executed
 	 */
 	public void stepPetriNetSynchronized(int duration) {
 		logger.info("run ExecutablePetriNet "+executablePetriNet.getName().getName());
@@ -137,6 +139,7 @@ public class RealTimePetriNetRunner extends TimedPetriNetRunner {
 	 * Get the semaphore that controls access to the PN structure:
 	 * Places and transitions are only allowed to change when the Runner is not actively
 	 * changing the state of the network.
+	 * @return semaphore that contrls access to PN structure 
 	 */
 	public static Semaphore getPetriNetRunnerSemaphore(){
 		return semaphore;

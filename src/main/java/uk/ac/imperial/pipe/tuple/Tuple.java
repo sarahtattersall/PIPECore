@@ -4,8 +4,8 @@ package uk.ac.imperial.pipe.tuple;
  * Python-esque mechanism to simply create and return a pair of values 
  * @author stevedoubleday
  *
- * @param <T1>
- * @param <T2>
+ * @param <T1> type of the first parameter in the Tuple
+ * @param <T2> type of the second parameter in the Tuple
  */
 
 public class Tuple <T1, T2> {

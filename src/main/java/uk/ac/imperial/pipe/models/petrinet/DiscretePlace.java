@@ -66,7 +66,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     /**
      * Copy constructor
      * @param place to be copied
-     * @param whether the new place should be linked to the old place, e.g., when being cloned
+     * @param linkClone whether the new place should be linked to the old place, e.g., when being cloned
      */
     public DiscretePlace(DiscretePlace place, boolean linkClone) {
     	super(place, linkClone);

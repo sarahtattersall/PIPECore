@@ -67,13 +67,14 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * the set of enabled transitions that could fire at the current time, following the normal Petri net firing rules.
      * Specifically, this means that the highest priority immediate transitions are returned.  
      * If there are no enabled immediate transitions, then the timed transitions that can fire 
-     * at the current time ({@link ExecutablePetriNet.#getCurrentTime()}) are returned.  This method is 
+     * at the current time ({@link ExecutablePetriNet#getCurrentTime()}) are returned.  This method is 
      * primarily useful for analysis purposes.
-     * </p><p>
+     * <p>
      * To retrieve a random transition that is eligible for firing under the normal Petri net firing rules, use
      * {@link AnimationLogic#getRandomEnabledTransition()} or {@link AnimationLogic#getRandomEnabledTransition(State)} 
      * This is the typical use case for executing a Petri net, either by the PIPE GUI, or through a {@link Runner}.
-     * </p><p>Alternatively, and only for analysis purposes, the entire set of transitions that are enabled for the given 
+     * </p>
+     * <p>Alternatively, and only for analysis purposes, the entire set of transitions that are enabled for the given 
      * State can be returned by using {@link SimpleAnimationLogic}. (Note that this class is not suitable for animation.) 
      * </p> 
      * @see SimpleAnimationLogic
@@ -153,13 +154,11 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	   return enabledTransitionsArray[index]; 
    }
    /**
-    *
-    * @return a random transition which is enabled given the Petri nets current state.
+    * returns a random enabled transition
     * 
-    * First, is looking for all immediate transitions.
+    * First, look for all immediate transitions.
     * Only if there are none, current timed transitions are used.
-    * 
-    * @param state Must be a valid state for the Petri net this class represents
+    * @return a random transition which is enabled given the Petri nets current state.
     */
    @Override
    public Transition getRandomEnabledTransition() {
@@ -175,7 +174,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 
    /**
     * Calculates successor states of a given state of the executable Petri net, leaving the current State 
-    * of the executable Petri net unchanged. This is equivalent to {@link #getSuccessors(State, true)}.   
+    * of the executable Petri net unchanged. This is equivalent to {@link #getSuccessors(State, boolean)} 
+    * where leaveStateUnchanged is true.   
     * 
     * @param state to be evaluated
     * @return successors of the given state 
@@ -192,8 +192,8 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
      * When leaveStateUnchanged is false, the successors will be calculated and the current State of the 
      * executable Petri net will be updated.  Although useful for testing in cases where 
      * there is expected to be 0 or 1 successor, in general this 
-     * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, true)}, which is 
-     * equivalent to {@link #getSuccessors(State)}. 
+     * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, boolean)} 
+     * where leaveStateUnchanged is true, which is equivalent to {@link #getSuccessors(State)}. 
      * </p>
      * @param state to be evaluated
      * @param leaveStateUnchanged whether the State of the executable Petri net should be left unchanged or updated
@@ -234,7 +234,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     }
     /**
      * Get the State that results from firing the specified Transition in the current State of the  
-     * Executable Petri Net.  ({@link ExecutablePetriNet.#getState()})
+     * Executable Petri Net.  ({@link ExecutablePetriNet#getState()})
      * @see #getFiredState(Transition, State)  
      * @param transition to be fired
      * @return the successor state after firing the transition
@@ -256,7 +256,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     }
     /**
      * Get the State that generated the current state of executable Petri net through the firing 
-     * of the specified Transition  ({@link ExecutablePetriNet.#getState()}).  
+     * of the specified Transition  ({@link ExecutablePetriNet#getState()}).  
      * This is the reverse of #getFiredState(Transition), i.e., executing these two operations in 
      * either order from an arbitrary starting point should return the Executable Petri Net to that 
      * starting point (if there is a valid preceding state).     
@@ -270,6 +270,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
     /**
      * Computes transitions which need to be disabled because they are no longer enabled and
      * those that need to be enabled because they have been newly enabled.
+     * @param state to reference when disabling transitions
      */
     protected void updateAffectedTransitionsStatus(State state) {
     	Set<Transition> enabled = getEnabledImmediateOrTimedTransitions(state);
@@ -302,7 +303,7 @@ public final class PetriNetAnimationLogic implements AnimationLogic, PropertyCha
 	/**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to provide deterministic pseudo-random firing pattern
 	 */
 	public void setRandom(Random random) {
 		this.random = random;

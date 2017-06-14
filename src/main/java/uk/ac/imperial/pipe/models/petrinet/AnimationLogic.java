@@ -21,8 +21,8 @@ import uk.ac.imperial.state.State;
  * <li> someProcessing(State state):  performs some processing against the given state, as if it were the state of 
  * the ExecutablePetriNet.  The current State of the ExecutablePetriNet, however, is neither referenced nor updated. 
  * </ul>    
- * </p>This interface has two implementations.  For most use cases, including normal analysis and execution, use
- * {@link PetriNetAnimationLogic}.  For some limited analysis purposes, {@link SimpleAnimationLogic} may be appropriate.
+ * <p>This interface has two implementations.  For most use cases, including normal analysis and execution, use
+ * {@link PetriNetAnimationLogic}.  For some limited analysis purposes, {@link SimpleAnimationLogic} may be appropriate.</p>
  * 
  * @see PetriNet
  * @see ExecutablePetriNet
@@ -40,11 +40,11 @@ public interface AnimationLogic {
      * the set of enabled transitions that could fire at the current time, following the normal Petri net firing rules.
      * Specifically, this means that the highest priority immediate transitions are returned.  
      * If there are no enabled immediate transitions, then the timed transitions that can fire 
-     * at the current time ({@link ExecutablePetriNet.#getCurrentTime()}) are returned.
+     * at the current time ({@link ExecutablePetriNet#getCurrentTime()}) are returned.
      * To retrieve a random transition that is eligible for firing under these rules, use
      * {@link AnimationLogic#getRandomEnabledTransition()} or {@link AnimationLogic#getRandomEnabledTransition(State)} 
      * </p><p>Only for analysis purposes, the entire set of transitions that are enabled for the given State
-     * can be returned by using {@link SimpleAnimationLogic.#getEnabledTransitions(State)}.  
+     * can be returned by using {@link SimpleAnimationLogic#getEnabledTransitions(State)}.  
      * This method is not suitable for animation. 
      * </p> 
      *    
@@ -66,7 +66,7 @@ public interface AnimationLogic {
     public Transition getRandomEnabledTransition(State state);
     /**
      * From the enabled transitions, returns one from the current State of the Executable Petri Net 
-     * ({@link ExecutablePetriNet.#getState()})
+     * ({@link ExecutablePetriNet#getState()})
      * <p>
      * The transition which is returned is controlled pseudo-randomly, and can be made deterministic by 
      * providing a seed:  {@link #setRandom(Random)}. </p>
@@ -78,9 +78,11 @@ public interface AnimationLogic {
     /**
      * Calculates successor states of a given state of the executable Petri net.  This will both calculate 
      * the successors, as well as update the current State of the executable Petri net to the first successor found.  
-     * This is equivalent to {@link #getSuccessors(State, true)}.  Although useful for testing in cases where 
+     * This is equivalent to {@link #getSuccessors(State, boolean)} where updateState is true.  
+     * Although useful for testing in cases where 
      * there is expected to be 0 or 1 successor, in general this 
-     * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, false)}. 
+     * is unlikely to be the desired behavior; more likely is {@link #getSuccessors(State, boolean)},
+     * where updateState is false  
      * 
      * @param state to be evaluated
      * @return successors of the given state 
@@ -89,7 +91,7 @@ public interface AnimationLogic {
     /**
      * Calculates successor states of a given state.  When updateState is false (the normal case), the successor
      * states will be calculated, but the State of the executable Petri net is left unchanged.  
-     * When updateState is true, this is equivalent to {@link #getSuccessors(State)}. 
+     * When updateState is true, this is equivalent to {@link #getSuccessors(State)}			
      *
      * @param state to be evaluated
      * @param updateState whether the State of the executable Petri net should be updated or left unchanged
@@ -109,7 +111,7 @@ public interface AnimationLogic {
     public State getFiredState(Transition transition, State state);
     /**
      * Get the State that results from firing the specified Transition in the current State of the  
-     * Executable Petri Net.  ({@link ExecutablePetriNet.#getState()})
+     * Executable Petri Net.  ({@link ExecutablePetriNet#getState()})
      * @see #getFiredState(Transition, State)  
      * @param transition to be fired
      * @return the successor state after firing the transition
@@ -119,8 +121,8 @@ public interface AnimationLogic {
 
     /**
      * Get the State that generated the current state of executable Petri net through the firing 
-     * of the specified Transition  ({@link ExecutablePetriNet.#getState()}).  
-     * This is the reverse of #getFiredState(Transition), i.e., executing these two operations in 
+     * of the specified Transition  ({@link ExecutablePetriNet#getState()})  
+     * This is the reverse of {@link #getFiredState(Transition)}, i.e., executing these two operations in 
      * either order from an arbitrary starting point should return the Executable Petri Net to that 
      * starting point (if there is a valid preceding state).     
      * @param transition to be fired
@@ -139,7 +141,7 @@ public interface AnimationLogic {
     /**
 	 * Generate predictable results for repeated testing of a given Petri net by providing a Random built from the same long seed for each run.  
 	 * Otherwise, a new Random will be used on each execution, leading to different firing patterns. 
-	 * @param random
+	 * @param random to generate deterministic pseudo-random firing pattern
 	 */
 	public void setRandom(Random random);
 	/**

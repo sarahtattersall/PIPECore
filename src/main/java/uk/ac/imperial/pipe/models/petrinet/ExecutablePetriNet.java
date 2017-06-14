@@ -39,12 +39,12 @@ import uk.ac.imperial.state.State;
  * For Petri nets with timed transitions, the order of execution of timed transitions is defined by the  
  * {@link TimingQueue} ({@link #getTimingQueue()}).  The current state and timing of the Petri net are used 
  * by the PIPE GUI, and {@link Runner}.  Analysis of the Petri net, however, may require processing multiple
- * different States, other than the current State.  Therefore, many methods have two flavors:
+ * different States, other than the current State.  Therefore, many methods have two flavors:</p>
  * <ul>
  * <li> someProcessing():  performs some processing against the current State.  This may include updating the current State.
  * <li> someProcessing(State state):  performs some processing against the given state.  The current State is neither referenced nor updated. 
  * </ul>    
- * </p><p>
+ * <p>
  * Processing of the executable Petri net may take different forms, defined as different implementations of {@link AnimationLogic}.
  * Step-by-step execution (firing of individual transitions) is controlled by the {@link Animator}.
  * </p><p>
@@ -81,6 +81,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize 
      * the structure of the two Petri nets.
 	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
+	 * @param initTime time in milliseconds to be set as current time. 
 	 */
 	
 	public ExecutablePetriNet(PetriNet petriNet, long initTime) {
@@ -90,6 +91,12 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 		refresh(); 
 		timingQueue = buildTimingQueue(initTime);
 	}
+    /**
+     * Creates a new executable Petri net based upon a source Petri net.  Performs an immediate 
+     * {@link #refreshRequired() refreshRequired} and {@link #refresh() refresh} to synchronize 
+     * the structure of the two Petri nets.  Defaults the initial time of the EPN to 0.  
+	 * @param petriNet -- the source Petri net whose structure this executable Petri net mirrors. 
+	 */
 	public ExecutablePetriNet(PetriNet petriNet) {
 		this(petriNet, 0);
 	}
@@ -227,9 +234,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * To retrieve the enabled immediate Transitions for the current State, use {@link #getEnabledImmediateTransitions()}.
      * If the current State ({@link #getState()}) of the executable Petri net is passed to this method, 
      * it will return results identical to {@link #getEnabledImmediateTransitions()}.      
+     * @param state to be evaluated 
+     * @return all the enabled immediate transitions in the executable petri net for the given state
      * @see #getEnabledTimedTransitions(State)
      * @see #getEnabledImmediateAndTimedTransitions(State) 
-     * @return all the enabled immediate transitions in the executable petri net for the given state
      */
     public Set<Transition> getEnabledImmediateTransitions(State state) {
     	return getEnabledImmediateAndTimedTransitions(state).tuple1; 
@@ -240,7 +248,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * This method ignores the current time ({@link #getCurrentTime()}); to retrieve only the subset of the enabled 
      * timed Transitions that could fire at the current time, use {@link #getCurrentlyEnabledTimedTransitions()}.
      * To retrieve the enabled timed Transitions for a given State, 
-     * use {@link #getEnabledImmediateTransitions(State)}.    
+     * use {@link #getEnabledTimedTransitions(State)}.    
      * @see #getCurrentlyEnabledTimedTransitions()
      * @see #getEnabledImmediateTransitions()
      * @see #getEnabledImmediateAndTimedTransitions() 
@@ -256,11 +264,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * If the current State ({@link #getState()}) of the executable Petri net is passed to this method, 
      * it will return results identical to {@link #getEnabledTimedTransitions()}.
      * This method ignores the current time ({@link #getCurrentTime()}); to retrieve only the subset of the enabled 
-     * timed Transitions that could fire at the current time, use {@link #getCurrentlyEnabledTimedTransitions(State)}.
-     * @see #getCurrentlyEnabledTimedTransitions(State)
+     * timed Transitions that could fire at the current time and with the current state, 
+     * use {@link #getCurrentlyEnabledTimedTransitions()}.
+     * @param state to be evaluated
+     * @return all the enabled timed transitions in the executable petri net for the given state
+     * @see #getCurrentlyEnabledTimedTransitions()
      * @see #getEnabledImmediateTransitions(State)
      * @see #getEnabledImmediateAndTimedTransitions(State) 
-     * @return all the enabled timed transitions in the executable petri net for the given state
      */
     public Set<Transition> getEnabledTimedTransitions(State state) {
     	return getEnabledImmediateAndTimedTransitions(state).tuple2; 
@@ -273,7 +283,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * use {@link #getEnabledImmediateAndTimedTransitions(State)}    
      * @see #getEnabledImmediateTransitions()
      * @see #getEnabledTimedTransitions()
-     * @return a Tuple: immediate enabled transitions, timed enabled transitions
+     * @return tuple: immediate enabled transitions, timed enabled transitions
      */
     public Tuple<Set<Transition>, Set<Transition>> getEnabledImmediateAndTimedTransitions() {
     	return getEnabledImmediateAndTimedTransitions(this.state); 
@@ -285,9 +295,10 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * To retrieve the enabled immediate and timed Transitions for the current State ({@link #getState()}), 
      * use {@link #getEnabledImmediateAndTimedTransitions()}.  If the current State of the executable Petri net
      * is passed to this method, it will return results identical to {@link #getEnabledImmediateAndTimedTransitions()}.      
+     * @param state to be evaluated
+     * @return a Tuple: immediate enabled transitions, timed enabled transitions
      * @see #getEnabledImmediateTransitions()
      * @see #getEnabledTimedTransitions()
-     * @return a Tuple: immediate enabled transitions, timed enabled transitions
      */
 	public Tuple<Set<Transition>, Set<Transition>> getEnabledImmediateAndTimedTransitions(State state) {
     	Set<Transition> immediateTransitions = new HashSet<>();
@@ -304,6 +315,15 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     	return new Tuple<Set<Transition>, Set<Transition>>(immediateTransitions, timedTransitions); 
 	}
     
+	/**
+	 * Returns the subset of the enabled timed Transitions that could fire at the current time 
+	 * and with the current state.  Normal processing, as defined in {@link AnimationLogic}, would consist of 
+	 * firing all the transitions returned from this method, then advancing the current time of this 
+	 * ExecutablePetriNet to the next available time, and then invoking this method again. 
+	 * @see AnimationLogic
+	 * @see PetriNetAnimationLogic
+	 * @return set of transitions that are enabled to fire at the current time
+	 */
 	public Set<Transition> getCurrentlyEnabledTimedTransitions() {
 		return timingQueue.getCurrentlyEnabledTimedTransitions();
 	}
@@ -320,7 +340,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     /**
      * determines the maximum priority of a collection of transitions, and only returns the transitions with 
      * that maximum priority 
-     * @param collection of transitions to be evaluated
+     * @param transitions collection to be evaluated
      * @return set of transitions that have the maximum priority of all transitions evaluated
      */
 	public Set<Transition> maximumPriorityTransitions(
@@ -385,16 +405,6 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	@Override
 	public void propertyChange(PropertyChangeEvent evt) {
 			refreshRequired = true; 
-//		if ((evt.getPropertyName().equals(Transition.ANGLE_CHANGE_MESSAGE)) 
-//			|| (evt.getPropertyName().equals(Transition.ENABLED_CHANGE_MESSAGE))
-//			|| (evt.getPropertyName().equals(Transition.DISABLED_CHANGE_MESSAGE))
-////			|| (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE))
-////			|| (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MIRROR_MESSAGE))
-//			)	{
-//			// ignore non-structural changes 
-//		} else {
-//			refreshRequired = true; 
-//		}
 	}
 	/**
 	 * Evaluates an expression against the current State ({@link #getState()}. 
@@ -446,13 +456,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * <li>timing queue is updated to reflect any changes to the state of timed transitions
 	 * <li>the transition is fired
 	 * </ul>
-	 * If the transition is an {@link ExternalTransition} it will have access to the executable petri net
+	 * <p>If the transition is an {@link ExternalTransition} it will have access to the executable petri net
 	 * after the inbound tokens are consumed and the outbound tokens are produced.  This does not match 
 	 * a common sense interpretation of the semantics of "firing" (consume, fire, produce), but has the practical effect 
 	 * of ensuring the executable petri net is in a consistent state when external transition is given 
 	 * access to it. </p>   
 	 * <p>Calculation of token counts during token production depends on both the original state 
-	 * and on the state after tokens are consumed.  
+	 * and on the state after tokens are consumed.</p>   
 	 * <ul>
 	 * <li>Token production depends on the original state when the outbound arc has a functional expression.
 	 * Suppose we have a net: P0 -&gt; T0 -$gt; P1 and T0 -$gt; P1 has a weight of #(P0).  
@@ -460,7 +470,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * <li>Token production depends on the state after tokens are consumed for calculation of capacity.
      * Suppose we have a net: P0 -&gt; T0 -$gt; P0 and P0 has capacity 1.
      * The token in P0 must be consumed before the capacity calculation to allow the outbound arc to produce a token.
-     * </ul></p>
+     * </ul>
 	 * @param transition to be fired
 	 * @return state that results from firing the transition
 	 */
@@ -489,13 +499,13 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 	 * <li>timing queue is updated to reflect any changes to the state of timed transitions
 	 * <li>the transition is fired
 	 * </ul>
-	 * If the transition is an {@link ExternalTransition} it will have access to the executable petri net
+	 * <p>If the transition is an {@link ExternalTransition} it will have access to the executable petri net
 	 * after the inbound tokens are consumed and the outbound tokens are produced.  This does not match 
 	 * a common sense interpretation of the semantics of "firing" (consume, fire, produce), but has the practical effect 
 	 * of ensuring the executable petri net is in a consistent state when external transition is given 
 	 * access to it. </p>   
 	 * <p>Calculation of token counts during token production depends on both the original state 
-	 * and on the state after tokens are consumed.  
+	 * and on the state after tokens are consumed.</p>  
 	 * <ul>
 	 * <li>Token production depends on the original state when the outbound arc has a functional expression.
 	 * Suppose we have a net: P0 -&gt; T0 -$gt; P1 and T0 -$gt; P1 has a weight of #(P0).  
@@ -503,7 +513,7 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * <li>Token production depends on the state after tokens are consumed for calculation of capacity.
      * Suppose we have a net: P0 -&gt; T0 -$gt; P0 and P0 has capacity 1.
      * The token in P0 must be consumed before the capacity calculation to allow the outbound arc to produce a token.
-     * </ul></p>
+     * </ul>
 	 * @param transition to be fired
 	 * @param state prior to the firing of the transition
 	 * @return state that results from firing the transition

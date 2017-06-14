@@ -33,6 +33,8 @@ public class TimedPetriNetRunner extends PetriNetRunner {
 	/**
 	 * Fires all immediate and due timed transitions as well as providing the next 
 	 * time a timed transition would be up for firing.
+	 * @param newTime to set as the current time
+	 * @return next time in milliseconds at which this net will fire
 	 */
 	public long fireAllCurrentEnabledTransitionsAndGetNextFiringTime(long newTime) {
 		TimingQueue currentState = this.executablePetriNet.getTimingQueue();

@@ -73,9 +73,9 @@ public class TimingQueue {
 		setCurrentTime(newInitTime);
 	}
 	/**
-	 * @return the next time at which at least one transition will fire.  
 	 * If the current time has at least one transition, the current time will be returned. 
 	 * If the timing queue is empty, returns -1.   
+	 * @return the next time at which at least one transition will fire.  
 	 */
 	public long getNextFiringTime() {
 		if (enabledTimedTransitions.size() > 0) {
@@ -85,15 +85,16 @@ public class TimingQueue {
 		}
 	}
 	/**
-	 * @return set of all times at which transitions are scheduled to fire, including times 
 	 * that have already past.   
+	 * @return set of all times at which transitions are scheduled to fire, including times 
 	 */
 	protected Set<Long> getAllFiringTimes() {
 		return this.enabledTimedTransitions.keySet();
 	}
 	/**
-	 * @return set of all transitions scheduled to fire at the given time, or an empty set,
 	 * if the time does not exist in the timing queue.  
+	 * @param nextTime the next time to evaluate
+	 * @return set of all transitions scheduled to fire at the given time, or an empty set,
 	 */
 	protected Set<Transition> getEnabledTransitionsAtTime(long nextTime) {
 		if (this.enabledTimedTransitions.containsKey(nextTime)) {

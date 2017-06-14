@@ -49,7 +49,7 @@ public final class ATestArc implements DSLCreator<Arc<? extends Connectable, ? e
     /**
      * Required target for an arc
      *
-     * @param target
+     * @param target of the arc
      * @return builder
      */
     public ATestArc andTarget(String target) {
@@ -59,10 +59,10 @@ public final class ATestArc implements DSLCreator<Arc<? extends Connectable, ? e
 
 
     /**
-     * @param tokens map of created tokens with id -> Token
-     * @param places map of created places with id -> Connectable
-     * @param transitions
-     * @param rateParameters
+     * @param tokens map of created tokens with id -&gt; Token
+     * @param places map of created places with id -&gt; Connectable
+     * @param transitions map of transitions
+     * @param rateParameters map of rate parameters
      * @return inhibitor arc
      */
     @Override

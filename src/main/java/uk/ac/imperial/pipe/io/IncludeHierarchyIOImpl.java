@@ -104,7 +104,7 @@ public class IncludeHierarchyIOImpl implements  IncludeHierarchyIO {
      *
      * @param stream to write to
      * @param builder IncludeHierarchyBuilder to be written
-     * @throws JAXBException 
+     * @throws JAXBException if builder cannot be marshalled 
      */
 	@Override
 	public void writeTo(Writer stream, IncludeHierarchyBuilder builder) throws JAXBException  {

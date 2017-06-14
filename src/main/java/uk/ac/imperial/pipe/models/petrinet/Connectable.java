@@ -74,7 +74,7 @@ public interface Connectable extends PlaceablePetriNetComponent {
 	void setLinkedConnectable(Connectable linkedConnectable);
 	/**
 	 * 
-	 * @param connectable
+	 * @param connectable to be linked to this one
 	 * @return true if this is the same Connectable, 
 	 * or if it is this Connectable's linked Connectable ({@link #getLinkedConnectable()})
 	 */

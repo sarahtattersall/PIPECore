@@ -29,7 +29,6 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     /**
      * Constructor to build a Place where Place.getStatus().getMergeInterfaceStatus()
      * is {@link MergeInterfaceStatusAvailable}, based on a place that has {@link MergeInterfaceStatusHome}
-     * @param homePlace  home place to clone 
      * @param includeHierarchy  where this place will be Available
      */
     public PlaceBuilder(IncludeHierarchy includeHierarchy) {

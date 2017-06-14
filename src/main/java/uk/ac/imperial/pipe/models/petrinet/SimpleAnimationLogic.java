@@ -34,14 +34,14 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 	}
 
     /**
-     * This is a limited implementation of {@link AnimationLogic.#getEnabledTransitions(State)}, 
+     * This is a limited implementation of {@link AnimationLogic#getEnabledTransitions(State)}, 
      * suitable only for some types of analysis.
      * Returns the entire set of enabled transitions for the given State, including both immediate transitions
      * (all priorities) and timed transitions (all possible firing times).    
      * This method is not suitable for animation; i.e., firing a transition returned by this method may put the 
      * Petri net in a state that would not normally be reachable.  
      * <p>For the set of transitions enabled under normal Petri net firing rules, see 
-     * {@link PetriNetAnimationLogic.#getEnabledTransitions(State)}. 
+     * {@link PetriNetAnimationLogic#getEnabledTransitions(State)}. 
      * To retrieve a random transition that is eligible for firing under the normal Petri net firing rules, use
      * {@link PetriNetAnimationLogic#getRandomEnabledTransition()} or 
      * {@link PetriNetAnimationLogic#getRandomEnabledTransition(State)} 
@@ -63,14 +63,17 @@ public final class SimpleAnimationLogic implements AnimationLogic {
     
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @param state to be evaluated 
+     * @return set of transitions
+     * @throws UnsupportedOperationException when called
      */
 	public Set<Transition> getEnabledImmediateOrTimedTransitions(State state) {
 		throw new UnsupportedOperationException("SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
 	}
 	/**
 	 * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-	 * @throws UnsupportedOperationException
+	 * @return set of transitions
+	 * @throws UnsupportedOperationException when called
 	 */
 	public Set<Transition> getEnabledImmediateOrTimedTransitions() {
 		throw new UnsupportedOperationException("SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
@@ -78,7 +81,9 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 	
    /**
     * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-    * @throws UnsupportedOperationException
+    * @param state to be evaluated 
+    * @return random transition
+    * @throws UnsupportedOperationException when called
     */
    @Override
    public Transition getRandomEnabledTransition(State state) {
@@ -86,7 +91,8 @@ public final class SimpleAnimationLogic implements AnimationLogic {
    }
    /**
     * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-    * @throws UnsupportedOperationException
+    * @return random transition
+    * @throws UnsupportedOperationException when called
     */
    @Override
    public Transition getRandomEnabledTransition() {
@@ -96,7 +102,9 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
    /**
     * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-    * @throws UnsupportedOperationException
+    * @param state to be evaluated 
+    * @return map of state and transitions
+    * @throws UnsupportedOperationException when called
     */
     @Override
     public Map<State, Collection<Transition>> getSuccessors(State state) {
@@ -105,7 +113,10 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @param state to be evaluated 
+     * @param updateState if state should be updated
+     * @return map of state and transitions
+     * @throws UnsupportedOperationException when called
      */
 	public Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState) {
 		throw new UnsupportedOperationException("SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
@@ -113,7 +124,9 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
 	/**
 	 * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-	 * @throws UnsupportedOperationException
+	 * @param state to be evaluated
+	 * @return state after firing 
+	 * @throws UnsupportedOperationException when called
 	 */
     @Override
     public State getFiredState(Transition transition, State state) {
@@ -122,7 +135,9 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @param transition to be evaluated 
+     * @return state after firing 
+     * @throws UnsupportedOperationException when called
      */
     @Override
     public State getFiredState(Transition transition) {
@@ -131,7 +146,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
     
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @throws UnsupportedOperationException when called
      */
     @Override
     public void clear() {
@@ -139,7 +154,8 @@ public final class SimpleAnimationLogic implements AnimationLogic {
     }
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @param random for pseudo-random firing
+     * @throws UnsupportedOperationException when called
      */
     @Override
 	public void setRandom(Random random) {
@@ -148,7 +164,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @throws UnsupportedOperationException
+     * @throws UnsupportedOperationException when called
      */
 	@Override
 	public void stopAnimation() {
@@ -157,7 +173,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
 	/**
 	 * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-	 * @throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException when called
 	 */
 	@Override
 	public void startAnimation() {
@@ -166,7 +182,9 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
 	/**
 	 * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-	 * @throws UnsupportedOperationException
+	 * @param transition to be evaluated
+	 * @return state after firing
+	 * @throws UnsupportedOperationException when called
 	 */
 	@Override
 	public State getBackwardsFiredState(Transition transition) {
