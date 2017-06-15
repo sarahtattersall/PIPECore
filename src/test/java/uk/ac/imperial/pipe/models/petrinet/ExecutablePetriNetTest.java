@@ -245,6 +245,16 @@ public class ExecutablePetriNetTest {
     	checkT0ImmediateAndT2TimedEnabled(tuple); 
     	assertTrue("...but T0 still enabled in State",executablePetriNet.isEnabled(t0,state));
     }
+    @Test
+    public void transitionNotEnabledIfNoIncomingArcs() throws Exception {
+    	net = new PetriNet();
+    	net.addTransition(new DiscreteTransition("T0"));
+    	executablePetriNet = net.getExecutablePetriNet();
+    	State state = executablePetriNet.getState(); 
+    	Tuple<Set<Transition>, Set<Transition>> tuple = executablePetriNet.getEnabledImmediateAndTimedTransitions(state);
+    	assertEquals(0, tuple.tuple1.size());
+    	assertEquals(0, tuple.tuple2.size());
+    }
 
 	protected void checkT0ImmediateAndT2TimedEnabled(
 			Tuple<Set<Transition>, Set<Transition>> tuple) {

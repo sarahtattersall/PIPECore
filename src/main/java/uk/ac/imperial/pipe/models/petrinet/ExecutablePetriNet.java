@@ -388,7 +388,9 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
      * @return true if transition is enabled
      */
     public boolean isEnabled(Transition transition, State state) {
-    	for (Arc<Place, Transition> arc : inboundArcs(transition)) {
+    	Collection<InboundArc> inboundArcs = inboundArcs(transition); 
+    	if (inboundArcs.isEmpty()) return false; 
+    	for (Arc<Place, Transition> arc : inboundArcs) {
     		if (!arc.canFire(this, state)) {
     			return false;
     		}

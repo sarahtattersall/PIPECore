@@ -442,10 +442,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         assertThat(transitions).contains(t0, t1);
     }
 	protected Collection<Transition> getEnabledImmediateOrTimedTransitionsFromAnimationLogic() {
-		//        AnimationLogic animator = new PetriNetAnimationLogic(executablePetriNet);
 		        animationLogic = new PetriNetAnimationLogic(executablePetriNet);
 		        Collection<Transition> transitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getState());
-//		        Collection<Transition> transitions = animationLogic.getEnabledImmediateOrTimedTransitions(executablePetriNet.getTimingQueue());
 		return transitions;
 	}
 
@@ -623,16 +621,15 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     }
 
     @Test
-    public void onlyEnablesHigherPriorityTransition() throws PetriNetComponentNotFoundException {
-        PetriNet petriNet = new PetriNet();
-        Transition t1 = new DiscreteTransition("1", "1");
-        t1.setPriority(10);
-        Transition t2 = new DiscreteTransition("2", "2");
-        t2.setPriority(1);
-        petriNet.addTransition(t1);
-        petriNet.addTransition(t2);
+    public void onlyEnablesHigherPriorityTransition() throws Exception {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
+            APlace.withId("P0").containing(1, "Default").token()).and(
+            AnImmediateTransition.withId("T0").andPriority(1)).and(
+    		AnImmediateTransition.withId("T1").andPriority(10)).and(
+            ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").tokens()).andFinally(
+            ANormalArc.withSource("P0").andTarget("T1").with("1", "Default").tokens());
         executablePetriNet = petriNet.getExecutablePetriNet(); 
-        Transition transition = executablePetriNet.getComponent("1", Transition.class);
+        Transition transition = executablePetriNet.getComponent("T1", Transition.class);
         Collection<Transition> enabled = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
         assertEquals(1, enabled.size());
         assertThat(enabled).containsExactly(transition);
@@ -665,7 +662,17 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         Collection<Transition> enabled = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
         assertThat(enabled).containsExactly(transition);
     }
+    @Test
+    public void transitionWithNoInputsIsDisabled() throws PetriNetComponentException {
+    	PetriNet net = new PetriNet();
+    	net.addTransition(new DiscreteTransition("T0"));
+    	executablePetriNet = net.getExecutablePetriNet(); 
+    	Collection<Transition> enabled = getEnabledImmediateOrTimedTransitionsFromAnimationLogic();
+    	assertEquals(0, enabled.size());
+    }
 
+    
+    
     private PetriNet createSelfLoopPetriNet(String tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P0")).and(
                 AnImmediateTransition.withId("T1")).and(
@@ -706,7 +713,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     @Test
     public void infinityLogic() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                AnImmediateTransition.withId("T0")).andFinally(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token());
+                AnImmediateTransition.withId("T0")).and(APlace.withId("P0").and(Integer.MAX_VALUE, "Default").token()).andFinally(
+                ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").tokens());
 
         state = buildExecutablePetriNetAndAnimationAndState(petriNet);
 		buildSuccessorsAndCheckSize(1, state);
