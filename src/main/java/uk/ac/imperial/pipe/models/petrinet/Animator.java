@@ -10,7 +10,7 @@ public interface Animator {
     public static final String ERROR_NO_TRANSITIONS_TO_FIRE = "Error - no transitions to fire!";
 
     /**
-     * @return a random transition that can fire
+     * @return a random transition that can fire, or null if no transitions are enabled
      */
     public Transition getRandomEnabledTransition();
 
