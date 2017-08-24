@@ -19,17 +19,6 @@ public class TestingConnectable extends AbstractConnectable {
 		super(connectable, linkClone);
 	}
 
-	@Override
-	public boolean equals(Object o) {
-		if (!super.equals(o)) {
-			return false; 
-		}
-		Connectable that = (Connectable) o;
-		if (that.isOriginal() != isOriginal()) {
-			return false; 
-		}
-		return true;
-	}
 	
 	@Override
 	public Double getCentre() {

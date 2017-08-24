@@ -80,7 +80,8 @@ public class ExecutablePetriNetClonerTest {
     			4,executablePetriNet.getPlaces().size()); 
     	Place newPlace = ExecutablePetriNetCloner.cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().get("a.P0"); 
     	originPlace.setId("a.P0");  
-    	assertEquals("s/b same once origin id is forced",newPlace, originPlace); 
+    	assertTrue("s/b same once origin id is forced, except for isOriginal()",
+    			(newPlace.equalsPosition(originPlace) && (newPlace.equalsStructure(originPlace)))); 
     	assertEquals(1, ExecutablePetriNetCloner.cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().size());
     	assertEquals("a.P0", ExecutablePetriNetCloner.cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion().values().iterator().next().getId());
     }

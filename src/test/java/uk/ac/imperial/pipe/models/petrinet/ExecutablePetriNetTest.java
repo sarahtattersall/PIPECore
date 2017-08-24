@@ -629,8 +629,8 @@ public class ExecutablePetriNetTest {
     	InboundArc exArcOut = executablePetriNet.getComponent("top.a.P1 TO top.T1", InboundArc.class);
     	originP2.setId("top.a.P2"); 
     	originP1.setId("top.a.P1"); 
-    	assertEquals(originP2, exArcIn.getTarget());
-    	assertEquals(originP1, exArcOut.getSource());
+    	assertTrue(originP2.equalsPosition(exArcIn.getTarget()) && originP2.equalsStructure(exArcIn.getTarget()));
+    	assertTrue(originP1.equalsPosition(exArcOut.getSource()) && originP1.equalsStructure(exArcOut.getSource()));
     	expectInterfacePlaceArcNotFound("top.T1 TO a.P2", OutboundArc.class);  
     	expectInterfacePlaceArcNotFound("a.P1 TO top.T1", InboundArc.class);  
 	}

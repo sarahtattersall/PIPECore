@@ -94,38 +94,6 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         return result;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AbstractConnectable that = (AbstractConnectable) o;
-
-        if (Double.compare(that.nameXOffset, nameXOffset) != 0) {
-            return false;
-        }
-        if (Double.compare(that.nameYOffset, nameYOffset) != 0) {
-            return false;
-        }
-        if (Double.compare(that.x, x) != 0) {
-            return false;
-        }
-        if (Double.compare(that.y, y) != 0) {
-            return false;
-        }
-        if (!id.equals(that.id)) {
-            return false;
-        }
-        if (!name.equals(that.name)) {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      *
@@ -266,7 +234,6 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 		return linkedConnectable;
 	}
 
-	@Override
 	public boolean isOriginal() {
 		return original;
 	}
@@ -296,5 +263,52 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 		}
 		else return getId();
 	}
+    @Override
+    public boolean equals(Object o) {
+    	if (this == o) {
+    		return true;
+    	}
+    	if (o == null || getClass() != o.getClass()) {
+    		return false;
+    	}
+    	
+    	Connectable connectable = (Connectable) o;
+		if (connectable.isOriginal() != isOriginal()) {
+			return false; 
+		}
+
+        return equalsStructure(connectable) && equalsPosition(connectable); 
+    }
+
+	public boolean equalsStructure(Connectable connectable) {
+
+        if (!id.equals(connectable.getId())) {
+            return false;
+        }
+        if (!name.equals(connectable.getName())) {
+            return false;
+        }
+
+        return true;
+	}
+
+	@Override
+	public boolean equalsPosition(Connectable connectable) {
+
+	    if (Double.compare(connectable.getX(), getX()) != 0) {
+	    	return false;
+	    }
+	    if (Double.compare(connectable.getY(), getY()) != 0) {
+	    	return false;
+	    }
+	    if (Double.compare(connectable.getNameXOffset(), nameXOffset) != 0) {
+	    	return false;
+	    }
+	    if (Double.compare(connectable.getNameYOffset(), nameYOffset) != 0) {
+	    	return false;
+	    }
+	    return true;
+	}
+
 	
 }

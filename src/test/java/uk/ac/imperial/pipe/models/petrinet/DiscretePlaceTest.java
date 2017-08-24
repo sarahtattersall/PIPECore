@@ -61,6 +61,20 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     public void placeObjectIsSelectable() {
         assertTrue(place.isSelectable());
     }
+    @Test
+    public void placeEquals() {
+    	place.setCapacity(2);
+    	place.setX(1);
+    	place.setY(3);
+    	place.setTokenCount("red", 2);
+    	DiscretePlace place2 = new DiscretePlace("test", "test"); 
+    	place2.setCapacity(2);
+    	place2.setX(1);
+    	place2.setY(3);
+    	place2.setTokenCount("red", 2);
+    	assertTrue(place.equals(place2));
+    	assertTrue(place.hashCode() == (place2.hashCode()));
+    }
 
     @Test
     public void calculatesCorrectArcAttachmentPointsDirectlyAbove() {
