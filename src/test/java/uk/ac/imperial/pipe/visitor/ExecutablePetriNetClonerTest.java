@@ -100,21 +100,17 @@ public class ExecutablePetriNetClonerTest {
     	assertEquals(clonedP1, executablePetriNet.getPlaceCloneMap().get(P1)); 
     }
     @Test
-    public void updatesHomePlacesInMergeInterfaceStatus() throws Exception {
+    public void homePlacesInMergeInterfaceStatusAreNotCloned() throws Exception {
     	buildIncludeHierarchyAndRefreshExecutablePetriNet(); 
     	Place originPlace = net2.getComponent("P0", Place.class); 
     	includes.getInclude("a").addToInterface(originPlace, true, false, false, false); 
     	assertTrue(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable); 
     	assertTrue(includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);
-    	assertTrue(originPlace.isOrClonedFrom(includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus().getHomePlace()));
-    	assertTrue(originPlace.isOrClonedFrom(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus().getHomePlace()));
     	assertTrue(originPlace == includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus().getHomePlace());
     	assertTrue(originPlace == includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus().getHomePlace());
     	ExecutablePetriNetCloner.refreshFromIncludeHierarchy(executablePetriNet); 
-    	assertTrue(originPlace.isOrClonedFrom(includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus().getHomePlace()));
-    	assertTrue(originPlace.isOrClonedFrom(includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus().getHomePlace()));
-    	assertFalse(originPlace == includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus().getHomePlace());
-    	assertFalse(originPlace == includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus().getHomePlace());
+    	assertTrue(originPlace == includes.getInclude("a").getInterfacePlace("P0").getStatus().getMergeInterfaceStatus().getHomePlace());
+    	assertTrue(originPlace == includes.getInterfacePlace("a.P0").getStatus().getMergeInterfaceStatus().getHomePlace());
     }
 
 	private void buildIncludeHierarchyAndRefreshExecutablePetriNet()

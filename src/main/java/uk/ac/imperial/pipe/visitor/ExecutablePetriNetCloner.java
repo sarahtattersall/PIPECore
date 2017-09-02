@@ -102,7 +102,6 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
     		this.petriNet = currentIncludeHierarchy.getPetriNet(); 
     		visitAllComponents();
     	}
-    	newPetriNet.updateHomePlacesInMergeInterfaceStatus(includeHierarchy);  
     	replaceInterfacePlacesWithOriginalPlaces();
 	}
 	@Override
