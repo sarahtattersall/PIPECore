@@ -64,33 +64,11 @@ public class AbstractConnectableTest {
 
 	
 	@Test
-	public void connectableKnowsItIsOriginal() {
-		assertTrue(connectable.isOriginal()); 
-	}
-	@Test
-	public void copyConstructorWithLinkCloneFlagCreatesCloned() {
-		cloned = new TestingConnectable(connectable, true); 
-		assertFalse(cloned.isOriginal()); 
-	}
-	@Test
-	public void ordinaryCopyConstructorCreatesTrueCopy() {
+	public void copyConstructorCreatesCopy() {
 		cloned = new TestingConnectable(connectable); 
-		assertTrue(cloned.isOriginal()); 
-		assertEquals("A", cloned.getId()); 
+		assertTrue(cloned.equals(connectable)); 
 	}
-	@Test
-	public void ifNotLinkedJustReturnsSelfAndCloneIsExactCopy() {
-		cloned = new TestingConnectable(connectable, false); 
-		assertEquals(connectable, connectable.getLinkedConnectable()); 
-		assertEquals(cloned, cloned.getLinkedConnectable()); 
-		assertEquals(connectable, cloned); 
-	}
-	@Test
-	public void cloneKnowsItsOriginal() {
-		cloned = new TestingConnectable(connectable, true); 
-		assertEquals(connectable, cloned.getLinkedConnectable()); 
-	}
-	
+	//FIXME  add hashcode check to equals tests 
 	@Test
 	public void equalsChecksNameIdAndPosition() {
 		Connectable connectable2 = new TestingConnectable("A", "Aname"); 
@@ -133,61 +111,5 @@ public class AbstractConnectableTest {
 		connectable2 = new TestingConnectable("B", "Bname"); 
 		connectable2.setNameYOffset(1);
 		assertFalse(connectable.equalsPosition(connectable2)); 
-	}
-	@Test
-	public void equalsIncludesCheckingOriginalFlag() {
-		cloned = new TestingConnectable(connectable, true); 
-		assertNotEquals(connectable, cloned); 
-
-		cloned = new TestingConnectable(connectable); 
-		assertEquals("but ordinary copy constructor returns simple copy",
-				connectable, cloned); 
-	}
-	@Test
-	public void beforeCloningOriginalLinksToItself() {
-		assertEquals(connectable, connectable.getLinkedConnectable()); 
-	}
-	@Test
-	public void originalKnowsItsClonedConnectable() {
-		cloned = new TestingConnectable(connectable, true); 
-		assertEquals(cloned, connectable.getLinkedConnectable()); 
-	}
-	@Test
-	public void originalUpdatesItsClonedConnectableWithEachCopy() {
-		cloned = new TestingConnectable(connectable, true); 
-		assertEquals(cloned, connectable.getLinkedConnectable()); 
-		Connectable cloned2 = new TestingConnectable(connectable, true); 
-		assertEquals(cloned2, connectable.getLinkedConnectable()); 
-	}
-	@Test
-	public void isOrClonedFromTestsObjectEqualityOnOriginalOrItsClone() {
-		cloned = new TestingConnectable(connectable, true);
-		assertTrue(cloned.isOrClonedFrom(connectable)); 
-		assertTrue(connectable.isOrClonedFrom(connectable)); 
-		assertTrue(cloned.isOrClonedFrom(cloned)); 
-		assertTrue(connectable.isOrClonedFrom(cloned)); 
-	}
-	@Test
-	public void anotherConnectablePassesLogicalEqualsButNotisOrClonedFrom() {
-		cloned = new TestingConnectable(connectable, true);
-		TestingConnectable connectable2 = new TestingConnectable("A", "Aname"); 
-		assertTrue("passes logical equals",connectable2.equals(connectable)); 
-		assertFalse("...but not isOrClonedFrom",connectable2.isOrClonedFrom(connectable)); 
-	}
-	@Test
-	public void bothConnectablesReturnOriginalIdOrQualifiedId() {
-		cloned = new TestingConnectable(connectable, true);
-		cloned.setId("root.A");
-		assertEquals("original knows its id","A",connectable.getOriginalId()); 
-		assertEquals("as does the clone ","A",cloned.getOriginalId()); 
-		assertEquals("clone knows its unique id","root.A",cloned.getUniqueId()); 
-		assertEquals("as does the original","root.A",connectable.getUniqueId()); 
-	}
-	@Test
-	public void throwsAttemptingToCloneAClone() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Cannot create a cloned Connectable from another clone: A");
-		TestingConnectable cloned = new TestingConnectable(connectable, true);
-		TestingConnectable cloned2 = new TestingConnectable(cloned, true);
 	}
 }

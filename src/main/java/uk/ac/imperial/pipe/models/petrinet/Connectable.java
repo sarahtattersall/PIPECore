@@ -67,22 +67,7 @@ public interface Connectable extends PlaceablePetriNetComponent {
      */
      boolean isEndPoint();
 
-	boolean isOriginal();
 
-	Connectable getLinkedConnectable();
-
-	void setLinkedConnectable(Connectable linkedConnectable);
-	/**
-	 * 
-	 * @param connectable to be linked to this one
-	 * @return true if this is the same Connectable, 
-	 * or if it is this Connectable's linked Connectable ({@link #getLinkedConnectable()})
-	 */
-	public boolean isOrClonedFrom(Connectable connectable);
-
-	public String getOriginalId();
-
-	public String getUniqueId();
 	/**
 	 * tests whether this and connectable have the same position 
 	 * @return true if X, Y, XOffset and YOffset are equal for this and connectable

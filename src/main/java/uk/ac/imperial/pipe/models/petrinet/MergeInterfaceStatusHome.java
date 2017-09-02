@@ -82,8 +82,6 @@ public class MergeInterfaceStatusHome extends AbstractMergeInterfaceStatus imple
 
 	private void resetStatusToNormal() {
 		homePlace.setStatus(new PlaceStatusNormal(homePlace)); 
-		Place linkedPlace = (Place) homePlace.getLinkedConnectable(); 
-		linkedPlace.setStatus(new PlaceStatusNormal(linkedPlace));
 	}
 
 	@Override

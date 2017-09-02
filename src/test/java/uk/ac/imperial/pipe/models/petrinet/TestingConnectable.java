@@ -12,14 +12,9 @@ public class TestingConnectable extends AbstractConnectable {
 	}
 
 	public TestingConnectable(AbstractConnectable connectable) {
-		super(connectable, false);
+		super(connectable);
 	}
 
-	public TestingConnectable(AbstractConnectable connectable, boolean linkClone) {
-		super(connectable, linkClone);
-	}
-
-	
 	@Override
 	public Double getCentre() {
 		return null;

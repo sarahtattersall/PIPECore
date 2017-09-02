@@ -33,12 +33,10 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 
 	protected boolean original = true;
 
-	protected Connectable linkedConnectable;
 
     protected AbstractConnectable(String id, String name) {
         this.id = id;
         this.name = name;
-		setLinkedConnectable(this);
     }
 
     /**
@@ -47,35 +45,14 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      * @param connectable component to copy
      */
     protected AbstractConnectable(AbstractConnectable connectable) {
-    	this(connectable, false); 
+    	this.id = connectable.id;
+    	this.name = connectable.name;
+    	this.x = connectable.x;
+    	this.y = connectable.y;
+    	this.nameXOffset = connectable.nameXOffset;
+    	this.nameYOffset = connectable.nameYOffset;
     }
 
-	protected AbstractConnectable(AbstractConnectable connectable, boolean linkClone) {
-		this.id = connectable.id;
-		this.name = connectable.name;
-		this.x = connectable.x;
-		this.y = connectable.y;
-		this.nameXOffset = connectable.nameXOffset;
-		this.nameYOffset = connectable.nameYOffset;
-		buildLinkedConnectable(connectable, linkClone);
-	}
-
-	private void buildLinkedConnectable(Connectable connectable, boolean linkClone) {
-		if (!connectable.isOriginal()) {
-			throw new IllegalArgumentException("Cannot create a cloned Connectable from another clone: "+connectable.getId());
-		}
-		if (linkClone) {
-			original = false;
-			linkedConnectable = connectable; 
-			connectable.setLinkedConnectable(this);
-		} else {
-			original = true; 
-			linkedConnectable = this; 
-		}
-	}
-
-    
-    
     
     @Override
     public int hashCode() {
@@ -224,45 +201,7 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, oldValue, y);
     }
 
-	@Override
-	public void setLinkedConnectable(Connectable linkedConnectable) {
-		this.linkedConnectable = linkedConnectable;
-	}
 
-	@Override
-	public Connectable getLinkedConnectable() {
-		return linkedConnectable;
-	}
-
-	public boolean isOriginal() {
-		return original;
-	}
-	
-	@Override
-	public boolean isOrClonedFrom(Connectable connectable) {
-		if (this == connectable) {
-			return true; 
-		} 
-		return (getLinkedConnectable() == connectable); 
-	}
-
-	@Override
-	public String getOriginalId() {
-		return getOriginaOrLinkedId(true);
-	}
-	@Override
-	public String getUniqueId() {
-		return getOriginaOrLinkedId(false);
-	}
-
-	private String getOriginaOrLinkedId(boolean original) {
-		if (isOriginal() == original) {
-			return getId(); 
-		} else if (getLinkedConnectable().isOriginal() == original) {
-			return getLinkedConnectable().getId(); 
-		}
-		else return getId();
-	}
     @Override
     public boolean equals(Object o) {
     	if (this == o) {
@@ -273,9 +212,6 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
     	}
     	
     	Connectable connectable = (Connectable) o;
-		if (connectable.isOriginal() != isOriginal()) {
-			return false; 
-		}
 
         return equalsStructure(connectable) && equalsPosition(connectable); 
     }

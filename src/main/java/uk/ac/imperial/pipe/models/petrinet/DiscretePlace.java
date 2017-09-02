@@ -61,23 +61,13 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      * @param place to be copied
      */
     public DiscretePlace(DiscretePlace place) {
-    	this(place, false);
-    }
-    /**
-     * Copy constructor
-     * @param place to be copied
-     * @param linkClone whether the new place should be linked to the old place, e.g., when being cloned
-     */
-    public DiscretePlace(DiscretePlace place, boolean linkClone) {
-    	super(place, linkClone);
+    	super(place);
     	this.capacity = place.capacity;
     	this.markingXOffset = place.markingXOffset;
     	this.markingYOffset = place.markingYOffset;
     	status = place.getStatus().copyStatus(this); 
     	inInterface = place.isInInterface();
     }
-    
-    
 
     /**
      * @return true - Place objects are always selectable

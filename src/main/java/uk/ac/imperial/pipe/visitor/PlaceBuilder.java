@@ -67,13 +67,14 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
     	switch (build) {
 		case AVAILABLE_PLACE: buildAvailable(discretePlace); break;
 		case AWAY_PLACE: convertAvailableToAway(discretePlace); break;
-		case CLONE_FOR_PETRI_NET:  buildCloneForPetriNet(discretePlace, false); break;
+		case CLONE_FOR_PETRI_NET:  buildCloneForPetriNet(discretePlace); break;
 		case CLONE_FOR_EXECUTABLE_PETRI_NET:  buildCloneForExecutablePetriNet(discretePlace); break;
-		case SIMPLE: buildSimple(discretePlace, false);	break;
+		case SIMPLE: buildSimple(discretePlace);	break;
 		}
     }
 	private void buildAvailable(DiscretePlace discretePlace) {
-    	built = new DiscretePlace(discretePlace, false);
+//    	built = new DiscretePlace(discretePlace, false);
+    	built = new DiscretePlace(discretePlace);
     	built.getStatus().setIncludeHierarchy(includeHierarchy);
     	built.getStatus().setExternal(false); 
 		MergeInterfaceStatus mergeStatus = new MergeInterfaceStatusAvailable(
@@ -103,18 +104,18 @@ public final class PlaceBuilder implements DiscretePlaceVisitor {
 		}
 	}
     private void buildCloneForExecutablePetriNet(DiscretePlace discretePlace) {
-    	buildCloneForPetriNet(discretePlace, true);
+    	buildCloneForPetriNet(discretePlace);
     	addEachPlaceAsListenerForTokenChanges(discretePlace); 
 	    cloneInstance.prepareExecutablePetriNetPlaceProcessing(discretePlace, built); 
     }
 
     
-    private void buildCloneForPetriNet(DiscretePlace discretePlace, boolean linkClone) {
-    	buildSimple(discretePlace, linkClone);
+    private void buildCloneForPetriNet(DiscretePlace discretePlace) {
+    	buildSimple(discretePlace);
     	cloneInstance.updatePlace(discretePlace, built);
     }
-    private void buildSimple(DiscretePlace discretePlace, boolean linkClone) {
-    	built = new DiscretePlace(discretePlace, linkClone);
+    private void buildSimple(DiscretePlace discretePlace) {
+    	built = new DiscretePlace(discretePlace);
     }
     private void addEachPlaceAsListenerForTokenChanges(DiscretePlace discretePlace) {
     	discretePlace.addPropertyChangeListener(built); 

@@ -67,13 +67,6 @@ public class PetriNetClonerTest {
         clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
         assertEquals(oldPetriNet, clonedPetriNet);
     }
-    @Test
-    public void clonedPlacesAreNotLinkedConnectables() throws Exception {
-    	clonedPetriNet = PetriNetCloner.clone(oldPetriNet);
-    	Place P0 = clonedPetriNet.getComponent("P0", Place.class); 
-    	assertTrue(P0.isOriginal());
-    	assertTrue(P0 == P0.getLinkedConnectable());
-    }
 
     @Test
     public void cloneEqualityWithFileName() {
