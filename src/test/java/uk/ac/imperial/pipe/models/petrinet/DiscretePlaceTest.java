@@ -61,21 +61,40 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     public void placeObjectIsSelectable() {
         assertTrue(place.isSelectable());
     }
+    //TODO refactor equals, adding equalsState and adding Capacity to Structure 
     @Test
     public void placeEquals() {
     	place.setCapacity(2);
-    	place.setX(1);
-    	place.setY(3);
     	place.setTokenCount("red", 2);
     	DiscretePlace place2 = new DiscretePlace("test", "test"); 
     	place2.setCapacity(2);
-    	place2.setX(1);
-    	place2.setY(3);
     	place2.setTokenCount("red", 2);
     	assertTrue(place.equals(place2));
     	assertTrue(place.hashCode() == (place2.hashCode()));
     }
-
+	@Test
+	public void equalsStateVerifiesMinimalConditions() {
+		assertFalse(place.equalsState(null)); 
+		assertFalse(place.equalsState(new TestingPlace("P0"))); 
+	}
+	@Test
+	public void equalsStateVerifiesTokenCountsAreSame() {
+		place.setTokenCount("red", 2);
+		DiscretePlace place2 = new DiscretePlace("test", "test"); 
+		place2.setTokenCount("red", 2);
+		assertTrue(place.equalsState(place2));
+		place2.setTokenCount("red", 1);
+		assertFalse(place.equalsState(place2));
+	}
+	@Test
+	public void equalsStateIgnoresPositionAndStructure() {
+		place.setTokenCount("red", 2);
+		DiscretePlace place2 = new DiscretePlace("test", "test"); 
+		place2.setTokenCount("red", 2);
+		place2.setX(100);
+		place2.setId("fred");
+		assertTrue(place.equalsState(place2));
+	}
     @Test
     public void calculatesCorrectArcAttachmentPointsDirectlyAbove() {
         int x1 = 0;
@@ -419,6 +438,11 @@ public class DiscretePlaceTest implements PropertyChangeListener {
     	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
 //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
 	}
+    private class TestingPlace extends DiscretePlace {
+    	public TestingPlace(String name) {
+    		super(name);
+		}
+    }
 
 }
 

@@ -301,36 +301,53 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+    	if (!super.equals(o)) {
+    		return false;
+    	}
 
         DiscretePlace place = (DiscretePlace) o;
 
-        if (!super.equals(place)) {
+        return (equalsStructure(place)  && equalsPosition(place) && equalsState(place));
+    }
+    @Override
+	public boolean equalsState(Place place) {
+    	if (!super.equalsMinimal(place)) {
+    		return false; 
+    	}
+		if (!tokenCounts.equals(place.getTokenCounts())) {
             return false;
         }
+		return true; 
+	}
 
-        if (Double.compare(place.capacity, capacity) != 0) {
-            return false;
-        }
-        if (Double.compare(place.markingXOffset, markingXOffset) != 0) {
+    @Override
+    public <C extends Connectable> boolean equalsStructure(C connectable) {
+    	if (!super.equalsStructure(connectable)) {
+    		return false;
+    	}
+    	DiscretePlace place = (DiscretePlace) connectable;
+
+    	if (Double.compare(place.getCapacity(), capacity) != 0) {
+    		return false;
+    	}
+    	return true; 
+    }
+    @Override
+    public <C extends Connectable> boolean equalsPosition(C connectable) {
+    	if (!super.equalsPosition(connectable)) {
+    		return false; 
+    	}
+    	DiscretePlace place = (DiscretePlace) connectable;
+
+    	if (Double.compare(place.markingXOffset, markingXOffset) != 0) {
             return false;
         }
         if (Double.compare(place.markingYOffset, markingYOffset) != 0) {
             return false;
         }
-
-        if (!tokenCounts.equals(place.tokenCounts)) {
-            return false;
-        }
-
-        return true;
+    	return true; 
     }
-
+    
     /**
      *
      * @return centre point of the place

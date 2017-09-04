@@ -68,11 +68,11 @@ public class AbstractConnectableTest {
 		cloned = new TestingConnectable(connectable); 
 		assertTrue(cloned.equals(connectable)); 
 	}
-	//FIXME  add hashcode check to equals tests 
 	@Test
 	public void equalsChecksNameIdAndPosition() {
 		Connectable connectable2 = new TestingConnectable("A", "Aname"); 
 		assertEquals(connectable, connectable2); 
+		assertTrue(connectable.hashCode() == connectable2.hashCode());
 		connectable2 = new TestingConnectable("B", "Aname"); 
 		assertNotEquals(connectable, connectable2); 
 		connectable2 = new TestingConnectable("A", "Bname"); 
@@ -81,6 +81,7 @@ public class AbstractConnectableTest {
 		connectable2 = new TestingConnectable("A", "Aname"); 
 		connectable2.setX(3);
 		assertNotEquals(connectable, connectable2); 
+		assertFalse(connectable.hashCode() == connectable2.hashCode());
 	}
 	@Test
 	public void equalsStructureChecksNameAndIdButIgnoresPosition() {
@@ -111,5 +112,12 @@ public class AbstractConnectableTest {
 		connectable2 = new TestingConnectable("B", "Bname"); 
 		connectable2.setNameYOffset(1);
 		assertFalse(connectable.equalsPosition(connectable2)); 
+	}
+	@Test
+	public void equalsStructureAndPositionVerifyMinimalConditions() {
+		assertFalse(connectable.equalsStructure(null)); 
+		assertFalse(connectable.equalsStructure(new DiscretePlace("P0"))); 
+		assertFalse(connectable.equalsPosition(null)); 
+		assertFalse(connectable.equalsPosition(new DiscretePlace("P0"))); 
 	}
 }

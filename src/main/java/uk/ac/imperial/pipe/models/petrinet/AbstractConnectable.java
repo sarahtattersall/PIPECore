@@ -204,11 +204,8 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 
     @Override
     public boolean equals(Object o) {
-    	if (this == o) {
-    		return true;
-    	}
-    	if (o == null || getClass() != o.getClass()) {
-    		return false;
+    	if (!equalsMinimal(o)) {
+    		return false; 
     	}
     	
     	Connectable connectable = (Connectable) o;
@@ -216,7 +213,21 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         return equalsStructure(connectable) && equalsPosition(connectable); 
     }
 
-	public boolean equalsStructure(Connectable connectable) {
+	public boolean equalsMinimal(Object o) {
+		if (this == o) {
+    		return true;
+    	}
+    	if (o == null || getClass() != o.getClass()) {
+    		return false;
+    	}
+    	return true; 
+	}
+
+    @Override
+	public <C extends Connectable> boolean  equalsStructure(C connectable) {
+    	if (!equalsMinimal(connectable)) {
+    		return false; 
+    	}
 
         if (!id.equals(connectable.getId())) {
             return false;
@@ -229,7 +240,10 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
 	}
 
 	@Override
-	public boolean equalsPosition(Connectable connectable) {
+	public <C extends Connectable> boolean equalsPosition(C connectable) {
+		if (!equalsMinimal(connectable)) {
+			return false; 
+		}
 
 	    if (Double.compare(connectable.getX(), getX()) != 0) {
 	    	return false;

@@ -94,7 +94,9 @@ public interface Place extends Connectable, PropertyChangeListener {
 
 	public void setStatus(PlaceStatus status);
 
-	public void removeSelfFromListeners(); 
+	public void removeSelfFromListeners();
+
+	boolean equalsState(Place place); 
 
 
 }
