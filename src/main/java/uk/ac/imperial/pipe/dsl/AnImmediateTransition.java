@@ -18,6 +18,7 @@ public final class AnImmediateTransition extends AnAbstractTransition<AnImmediat
     private AnImmediateTransition(String id) {
         super(id, false);
     }
+
     /**
      * Factory method for setting the transition id
      * @param id of the transition
@@ -26,7 +27,6 @@ public final class AnImmediateTransition extends AnAbstractTransition<AnImmediat
     public static AnImmediateTransition withId(String id) {
         return new AnImmediateTransition(id);
     }
-
 
     /**
      *

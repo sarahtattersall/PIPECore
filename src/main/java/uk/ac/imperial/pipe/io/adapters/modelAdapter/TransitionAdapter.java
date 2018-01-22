@@ -51,27 +51,25 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
     public Transition unmarshal(AdaptedTransition adaptedTransition) {
         NameDetails nameDetails = adaptedTransition.getName();
         AdaptedTransition.ToolSpecific toolSpecific = adaptedTransition.getToolSpecific();
-        Transition transition; 
+        Transition transition;
         Rate rate;
-        if (toolSpecific == null) { 
-    		transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
-    		rate = new NormalRate(adaptedTransition.getRate());
+        if (toolSpecific == null) {
+            transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
+            rate = new NormalRate(adaptedTransition.getRate());
+        } else {
+            if (toolSpecific.getExternalClass() == null) {
+                transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
+                rate = rateParameters.get(toolSpecific.getRateDefinition()); // implies only two parameters: externalClass & rateDefinition
+            } else {
+                transition = new DiscreteExternalTransition(adaptedTransition.getId(), nameDetails.getName(),
+                        toolSpecific.getExternalClass());
+                if (toolSpecific.getRateDefinition() == null) {
+                    rate = new NormalRate(adaptedTransition.getRate());
+                } else {
+                    rate = rateParameters.get(toolSpecific.getRateDefinition());
+                }
+            }
         }
-	    else {
-	    	if (toolSpecific.getExternalClass() == null) {  
-	    		transition = new DiscreteTransition(adaptedTransition.getId(), nameDetails.getName());
-	    		rate = rateParameters.get(toolSpecific.getRateDefinition()); // implies only two parameters: externalClass & rateDefinition
-	    	}
-	    	else {
-	    		transition = new DiscreteExternalTransition(adaptedTransition.getId(), nameDetails.getName(),toolSpecific.getExternalClass());
-	    		if (toolSpecific.getRateDefinition() == null) {
-	    			rate = new NormalRate(adaptedTransition.getRate());
-	    		}
-	    		else {
-	    			rate = rateParameters.get(toolSpecific.getRateDefinition());
-	    		}
-	    	}
-	    }
         transition.setRate(rate);
         ConnectableUtils.setConntactableNameOffset(transition, adaptedTransition);
         ConnectableUtils.setConnectablePosition(transition, adaptedTransition);
@@ -104,18 +102,18 @@ public final class TransitionAdapter extends XmlAdapter<AdaptedTransition, Trans
 
         Rate rate = transition.getRate();
         AdaptedTransition.ToolSpecific toolSpecific = new AdaptedTransition.ToolSpecific();
-        boolean toolSpecificNeeded = false; 
+        boolean toolSpecificNeeded = false;
         if (rate instanceof FunctionalRateParameter) {
             FunctionalRateParameter rateParameter = (FunctionalRateParameter) rate;
             toolSpecific.setRateDefinition(rateParameter.getId());
-            toolSpecificNeeded = true; 
+            toolSpecificNeeded = true;
         }
         if (transition instanceof DiscreteExternalTransition) {
-        	toolSpecific.setExternalClass(((DiscreteExternalTransition) transition).getClassName());
-        	toolSpecificNeeded = true; 
+            toolSpecific.setExternalClass(((DiscreteExternalTransition) transition).getClassName());
+            toolSpecificNeeded = true;
         }
         if (toolSpecificNeeded) {
-        	adaptedTransition.setToolSpecific(toolSpecific);
+            adaptedTransition.setToolSpecific(toolSpecific);
         }
         return adaptedTransition;
     }

@@ -32,7 +32,7 @@ public final class PetriNetNamer extends AbstractUniqueNamer {
      * @param include hierarchy from which minimally unique name will be taken
      */
     public void registerIncludeName(IncludeHierarchy include) {
-    	names.add(include.getUniqueName());
+        names.add(include.getUniqueName());
     }
 
     /**
@@ -52,7 +52,7 @@ public final class PetriNetNamer extends AbstractUniqueNamer {
      * @param include hierarchy from which minimally unique name can be reused
      */
     public void deRegisterIncludeName(IncludeHierarchy include) {
-    	names.remove(include.getUniqueName());
+        names.remove(include.getUniqueName());
     }
 
 }

@@ -35,7 +35,6 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
      */
     private List<ArcPoint> intermediatePoints = new LinkedList<>();
 
-
     /**
      * Private constructor
      */
@@ -95,10 +94,10 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
      */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
-                                                                    Map<String, Place> places,
-                                                                    Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+            Map<String, Place> places,
+            Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         Arc<? extends Connectable, ? extends Connectable> arc;
-        if(places.containsKey(source)){
+        if (places.containsKey(source)) {
             arc = new InboundNormalArc(places.get(source), transitions.get(target), weights);
         } else {
             arc = new OutboundNormalArc(transitions.get(source), places.get(target), weights);
@@ -150,5 +149,3 @@ public final class ANormalArc implements DSLCreator<Arc<? extends Connectable, ?
         return this;
     }
 }
-
-

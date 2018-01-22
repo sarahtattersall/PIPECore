@@ -3,12 +3,9 @@ package uk.ac.imperial.pipe.models.petrinet;
 import java.beans.PropertyChangeListener;
 import java.util.Map;
 
-
 public interface Place extends Connectable, PropertyChangeListener {
-    
-	
 
-	/**
+    /**
      * Place diameter
      */
     int DIAMETER = 30;
@@ -16,13 +13,13 @@ public interface Place extends Connectable, PropertyChangeListener {
     /**
      * Message fired when place is being deleted so listeners stop listening
      */
-	public static final String REMOVE_PLACE_MESSAGE = "remove place";
+    public static final String REMOVE_PLACE_MESSAGE = "remove place";
 
     /**
      * Message fired when the places tokens change in any way
      */
     public static final String TOKEN_CHANGE_MESSAGE = "tokens";
-    
+
     /**
      * Message fired when mirroring token changes in another place 
      */
@@ -84,19 +81,18 @@ public interface Place extends Connectable, PropertyChangeListener {
      * 
      * @return whether this place is in the interface for the Petri net.  
      */
-	public  boolean isInInterface();
+    public boolean isInInterface();
 
-	public abstract void setInInterface(boolean inInterface);
+    public abstract void setInInterface(boolean inInterface);
 
-	public void addToInterface(IncludeHierarchy includeHierarchy);
-	
-	public PlaceStatus getStatus();
+    public void addToInterface(IncludeHierarchy includeHierarchy);
 
-	public void setStatus(PlaceStatus status);
+    public PlaceStatus getStatus();
 
-	public void removeSelfFromListeners();
+    public void setStatus(PlaceStatus status);
 
-	boolean equalsState(Place place); 
+    public void removeSelfFromListeners();
 
+    boolean equalsState(Place place);
 
 }

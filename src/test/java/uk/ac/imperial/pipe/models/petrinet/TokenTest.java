@@ -48,7 +48,6 @@ public class TokenTest {
         assertThat(token1, is(not(equalTo((token2)))));
     }
 
-
     @Test
     public void tokenColorInequality() {
         String tokenName = "Default";
@@ -59,6 +58,5 @@ public class TokenTest {
 
         assertThat(token1, is(not(equalTo((token2)))));
     }
-
 
 }

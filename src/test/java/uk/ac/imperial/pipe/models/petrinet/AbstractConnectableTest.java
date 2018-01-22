@@ -15,18 +15,17 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-
 @RunWith(MockitoJUnitRunner.class)
 
 public class AbstractConnectableTest {
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
-	private AbstractConnectable connectable;
-	private Connectable cloned;
+    private AbstractConnectable connectable;
+    private Connectable cloned;
     private static final double DOUBLE_DELTA = 0.001;
-    
+
     @Before
     public void setUp() {
         connectable = new TestingConnectable("A", "Aname");
@@ -62,62 +61,65 @@ public class AbstractConnectableTest {
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
-	
-	@Test
-	public void copyConstructorCreatesCopy() {
-		cloned = new TestingConnectable(connectable); 
-		assertTrue(cloned.equals(connectable)); 
-	}
-	@Test
-	public void equalsChecksNameIdAndPosition() {
-		Connectable connectable2 = new TestingConnectable("A", "Aname"); 
-		assertEquals(connectable, connectable2); 
-		assertTrue(connectable.hashCode() == connectable2.hashCode());
-		connectable2 = new TestingConnectable("B", "Aname"); 
-		assertNotEquals(connectable, connectable2); 
-		connectable2 = new TestingConnectable("A", "Bname"); 
-		assertNotEquals(connectable, connectable2); 
+    @Test
+    public void copyConstructorCreatesCopy() {
+        cloned = new TestingConnectable(connectable);
+        assertTrue(cloned.equals(connectable));
+    }
 
-		connectable2 = new TestingConnectable("A", "Aname"); 
-		connectable2.setX(3);
-		assertNotEquals(connectable, connectable2); 
-		assertFalse(connectable.hashCode() == connectable2.hashCode());
-	}
-	@Test
-	public void equalsStructureChecksNameAndIdButIgnoresPosition() {
-		Connectable connectable2 = new TestingConnectable("A", "Aname"); 
-		assertTrue(connectable.equalsStructure(connectable2)); 
-		connectable2 = new TestingConnectable("B", "Aname"); 
-		assertFalse(connectable.equalsStructure(connectable2)); 
-		connectable2 = new TestingConnectable("A", "Bname"); 
-		assertFalse(connectable.equalsStructure(connectable2)); 
-		
-		connectable2 = new TestingConnectable("A", "Aname"); 
-		connectable2.setX(3);
-		assertTrue(connectable.equalsStructure(connectable2)); 
-	}
-	@Test
-	public void equalsPositionChecksXandYandNameOffsets() {
-		Connectable connectable2 = new TestingConnectable("B", "Bname"); 
-		assertTrue(connectable.equalsPosition(connectable2)); 
-		connectable2 = new TestingConnectable("B", "Bname"); 
-		connectable2.setX(2);
-		assertFalse(connectable.equalsPosition(connectable2)); 
-		connectable2 = new TestingConnectable("B", "Bname"); 
-		connectable2.setY(3);
-		assertFalse(connectable.equalsPosition(connectable2)); 
-		connectable2 = new TestingConnectable("B", "Bname"); 
-		connectable2.setNameXOffset(1);
-		assertFalse(connectable.equalsPosition(connectable2)); 
-		connectable2 = new TestingConnectable("B", "Bname"); 
-		connectable2.setNameYOffset(1);
-		assertFalse(connectable.equalsPosition(connectable2)); 
-	}
-	@Test
-	public void equalsStructureAndPositionVerifyMinimalConditions() {
-		assertFalse(connectable.equalsStructure(null)); 
-		assertFalse(connectable.equalsStructure(new DiscretePlace("P0"))); 
-		assertFalse(connectable.equalsPosition(null)); 
-		assertFalse(connectable.equalsPosition(new DiscretePlace("P0"))); 
-	}
+    @Test
+    public void equalsChecksNameIdAndPosition() {
+        Connectable connectable2 = new TestingConnectable("A", "Aname");
+        assertEquals(connectable, connectable2);
+        assertTrue(connectable.hashCode() == connectable2.hashCode());
+        connectable2 = new TestingConnectable("B", "Aname");
+        assertNotEquals(connectable, connectable2);
+        connectable2 = new TestingConnectable("A", "Bname");
+        assertNotEquals(connectable, connectable2);
+
+        connectable2 = new TestingConnectable("A", "Aname");
+        connectable2.setX(3);
+        assertNotEquals(connectable, connectable2);
+        assertFalse(connectable.hashCode() == connectable2.hashCode());
+    }
+
+    @Test
+    public void equalsStructureChecksNameAndIdButIgnoresPosition() {
+        Connectable connectable2 = new TestingConnectable("A", "Aname");
+        assertTrue(connectable.equalsStructure(connectable2));
+        connectable2 = new TestingConnectable("B", "Aname");
+        assertFalse(connectable.equalsStructure(connectable2));
+        connectable2 = new TestingConnectable("A", "Bname");
+        assertFalse(connectable.equalsStructure(connectable2));
+
+        connectable2 = new TestingConnectable("A", "Aname");
+        connectable2.setX(3);
+        assertTrue(connectable.equalsStructure(connectable2));
+    }
+
+    @Test
+    public void equalsPositionChecksXandYandNameOffsets() {
+        Connectable connectable2 = new TestingConnectable("B", "Bname");
+        assertTrue(connectable.equalsPosition(connectable2));
+        connectable2 = new TestingConnectable("B", "Bname");
+        connectable2.setX(2);
+        assertFalse(connectable.equalsPosition(connectable2));
+        connectable2 = new TestingConnectable("B", "Bname");
+        connectable2.setY(3);
+        assertFalse(connectable.equalsPosition(connectable2));
+        connectable2 = new TestingConnectable("B", "Bname");
+        connectable2.setNameXOffset(1);
+        assertFalse(connectable.equalsPosition(connectable2));
+        connectable2 = new TestingConnectable("B", "Bname");
+        connectable2.setNameYOffset(1);
+        assertFalse(connectable.equalsPosition(connectable2));
+    }
+
+    @Test
+    public void equalsStructureAndPositionVerifyMinimalConditions() {
+        assertFalse(connectable.equalsStructure(null));
+        assertFalse(connectable.equalsStructure(new DiscretePlace("P0")));
+        assertFalse(connectable.equalsPosition(null));
+        assertFalse(connectable.equalsPosition(new DiscretePlace("P0")));
+    }
 }

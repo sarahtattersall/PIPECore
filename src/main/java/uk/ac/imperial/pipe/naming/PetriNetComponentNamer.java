@@ -26,7 +26,6 @@ public final class PetriNetComponentNamer implements MultipleNamer {
         transitionNamer = new TransitionNamer(net);
     }
 
-
     /**
      *
      * @return unique place name

@@ -34,67 +34,70 @@ import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 @RunWith(MockitoJUnitRunner.class)
 public class DiscretePlaceTest implements PropertyChangeListener {
 
-	
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
     private DiscretePlace place;
     private DiscretePlace rootP0;
 
-	private PetriNet net;
+    private PetriNet net;
 
-	private IncludeHierarchy includes;
+    private IncludeHierarchy includes;
 
-	@Mock
-	private PropertyChangeListener mockListener;
-
+    @Mock
+    private PropertyChangeListener mockListener;
 
     @Before
     public void setUp() {
         place = new DiscretePlace("test", "test");
-    	net = new PetriNet(); 
-    	net.addPlace(place);
-    	includes = new IncludeHierarchy(net, "top"); 
+        net = new PetriNet();
+        net.addPlace(place);
+        includes = new IncludeHierarchy(net, "top");
     }
 
     @Test
     public void placeObjectIsSelectable() {
         assertTrue(place.isSelectable());
     }
+
     //TODO refactor equals, adding equalsState and adding Capacity to Structure 
     @Test
     public void placeEquals() {
-    	place.setCapacity(2);
-    	place.setTokenCount("red", 2);
-    	DiscretePlace place2 = new DiscretePlace("test", "test"); 
-    	place2.setCapacity(2);
-    	place2.setTokenCount("red", 2);
-    	assertTrue(place.equals(place2));
-    	assertTrue(place.hashCode() == (place2.hashCode()));
+        place.setCapacity(2);
+        place.setTokenCount("red", 2);
+        DiscretePlace place2 = new DiscretePlace("test", "test");
+        place2.setCapacity(2);
+        place2.setTokenCount("red", 2);
+        assertTrue(place.equals(place2));
+        assertTrue(place.hashCode() == (place2.hashCode()));
     }
-	@Test
-	public void equalsStateVerifiesMinimalConditions() {
-		assertFalse(place.equalsState(null)); 
-		assertFalse(place.equalsState(new TestingPlace("P0"))); 
-	}
-	@Test
-	public void equalsStateVerifiesTokenCountsAreSame() {
-		place.setTokenCount("red", 2);
-		DiscretePlace place2 = new DiscretePlace("test", "test"); 
-		place2.setTokenCount("red", 2);
-		assertTrue(place.equalsState(place2));
-		place2.setTokenCount("red", 1);
-		assertFalse(place.equalsState(place2));
-	}
-	@Test
-	public void equalsStateIgnoresPositionAndStructure() {
-		place.setTokenCount("red", 2);
-		DiscretePlace place2 = new DiscretePlace("test", "test"); 
-		place2.setTokenCount("red", 2);
-		place2.setX(100);
-		place2.setId("fred");
-		assertTrue(place.equalsState(place2));
-	}
+
+    @Test
+    public void equalsStateVerifiesMinimalConditions() {
+        assertFalse(place.equalsState(null));
+        assertFalse(place.equalsState(new TestingPlace("P0")));
+    }
+
+    @Test
+    public void equalsStateVerifiesTokenCountsAreSame() {
+        place.setTokenCount("red", 2);
+        DiscretePlace place2 = new DiscretePlace("test", "test");
+        place2.setTokenCount("red", 2);
+        assertTrue(place.equalsState(place2));
+        place2.setTokenCount("red", 1);
+        assertFalse(place.equalsState(place2));
+    }
+
+    @Test
+    public void equalsStateIgnoresPositionAndStructure() {
+        place.setTokenCount("red", 2);
+        DiscretePlace place2 = new DiscretePlace("test", "test");
+        place2.setTokenCount("red", 2);
+        place2.setX(100);
+        place2.setId("fred");
+        assertTrue(place.equalsState(place2));
+    }
+
     @Test
     public void calculatesCorrectArcAttachmentPointsDirectlyAbove() {
         int x1 = 0;
@@ -116,7 +119,6 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         verify(visitor).visit(place);
     }
 
-
     @Test
     public void visitsPlaceVisitor() throws PetriNetComponentException {
         PlaceVisitor visitor = mock(PlaceVisitor.class);
@@ -124,7 +126,6 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         verify(visitor).visit(place);
     }
 
-    
     @Test
     public void calculatesCorrectArcAttachmentPointsDirectlyBelow() {
         int x1 = 0;
@@ -282,10 +283,11 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         place.setCapacity(capacity);
         place.incrementTokenCount("red");
         place.incrementTokenCount("red");
-        assertEquals(2, place.getTokenCount("red")); 
-        place.setTokenCount("red", 1); 
-        assertEquals("override existing count",1, place.getTokenCount("red")); 
+        assertEquals(2, place.getTokenCount("red"));
+        place.setTokenCount("red", 1);
+        assertEquals("override existing count", 1, place.getTokenCount("red"));
     }
+
     @Test
     public void correctlyCountsNumberOfTokensStored() {
         int capacity = 20;
@@ -306,17 +308,19 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         place.setTokenCount("Default", 7);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
+
     @Test
     public void notifiesObserverOnIdChange() {
-    	place.addPropertyChangeListener(mockListener);
-    	place.setId("P2");
-    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+        place.addPropertyChangeListener(mockListener);
+        place.setId("P2");
+        verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
+
     @Test
     public void notifiesObserverOnCapacityChange() {
-    	place.addPropertyChangeListener(mockListener);
-    	place.setCapacity(2);
-    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+        place.addPropertyChangeListener(mockListener);
+        place.setCapacity(2);
+        verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
     @Test
@@ -327,122 +331,133 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         place.setTokenCounts(tokenCounts);
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
-    @Test
-	public void canMirrorTokenCountOfAnotherPlace() throws Exception {
-    	Place mirror = new DiscretePlace("P99", "P99"); 
-    	place.addPropertyChangeListener(mirror); 
-    	place.setTokenCount("Default", 3); 
-    	assertEquals(3, mirror.getTokenCount("Default")); 
-	}
-    @Test
-	public void whenNotifiedOfTokenChangeSendsDifferentNotificationMessage() throws Exception {
-    	place.addPropertyChangeListener(this);
-    	Map<String, Integer> tokenCounts = new HashMap<>();
-    	tokenCounts.put("Default", 7);
-    	place.propertyChange(new PropertyChangeEvent(this, Place.TOKEN_CHANGE_MESSAGE, null, tokenCounts));
-	}
-    //verify whenNotifiedOfTokenChangeSendsDifferentNotificationMessage
-	@Override
-	public void propertyChange(PropertyChangeEvent evt) {
-		assertEquals(Place.TOKEN_CHANGE_MIRROR_MESSAGE, evt.getPropertyName());
-	}
-	//TODO find a better place for this test and/or refactor
-    @Test
-	public void refreshOfExecutablePetriNetRemovesOldPlacesAsListeners() throws Exception {
-    	PetriNet petriNet = buildSimpleNet(); 
-    	petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
-    	ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet(); 
-    	rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
-    	place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
-    	checkPlaceAsListener(true, rootP0);
-    	executablePetriNet.refreshRequired(); 
-    	executablePetriNet.refresh(); 
-    	DiscretePlace rootP0new = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
-    	checkPlaceAsListener(true, rootP0new);
-    	checkPlaceAsListener(false, rootP0);
-	}
 
-	protected void checkPlaceAsListener(boolean expected, Place otherPlace) {
-		boolean found = false; 
-		PropertyChangeListener[] placeListeners = place.changeSupport.getPropertyChangeListeners(); 
-    	for (PropertyChangeListener propertyChangeListener : placeListeners) {
-			if (propertyChangeListener == otherPlace) {
-				// equals() won't work because overridden in DiscretePlace
-				found = true;
-			} 
-		}
-    	assertEquals(expected, found); 	
-	}
-	private PetriNet buildSimpleNet() throws PetriNetComponentException {
-		PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1")).and(
-                ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
+    @Test
+    public void canMirrorTokenCountOfAnotherPlace() throws Exception {
+        Place mirror = new DiscretePlace("P99", "P99");
+        place.addPropertyChangeListener(mirror);
+        place.setTokenCount("Default", 3);
+        assertEquals(3, mirror.getTokenCount("Default"));
+    }
+
+    @Test
+    public void whenNotifiedOfTokenChangeSendsDifferentNotificationMessage() throws Exception {
+        place.addPropertyChangeListener(this);
+        Map<String, Integer> tokenCounts = new HashMap<>();
+        tokenCounts.put("Default", 7);
+        place.propertyChange(new PropertyChangeEvent(this, Place.TOKEN_CHANGE_MESSAGE, null, tokenCounts));
+    }
+
+    //verify whenNotifiedOfTokenChangeSendsDifferentNotificationMessage
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        assertEquals(Place.TOKEN_CHANGE_MIRROR_MESSAGE, evt.getPropertyName());
+    }
+
+    //TODO find a better place for this test and/or refactor
+    @Test
+    public void refreshOfExecutablePetriNetRemovesOldPlacesAsListeners() throws Exception {
+        PetriNet petriNet = buildSimpleNet();
+        petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
+        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+        rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+        place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
+        checkPlaceAsListener(true, rootP0);
+        executablePetriNet.refreshRequired();
+        executablePetriNet.refresh();
+        DiscretePlace rootP0new = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+        checkPlaceAsListener(true, rootP0new);
+        checkPlaceAsListener(false, rootP0);
+    }
+
+    protected void checkPlaceAsListener(boolean expected, Place otherPlace) {
+        boolean found = false;
+        PropertyChangeListener[] placeListeners = place.changeSupport.getPropertyChangeListeners();
+        for (PropertyChangeListener propertyChangeListener : placeListeners) {
+            if (propertyChangeListener == otherPlace) {
+                // equals() won't work because overridden in DiscretePlace
+                found = true;
+            }
+        }
+        assertEquals(expected, found);
+    }
+
+    private PetriNet buildSimpleNet() throws PetriNetComponentException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(APlace.withId("P0").and(1, "Default").token()).and(APlace.withId("P1"))
+                .and(ATimedTransition.withId("T0")).and(ATimedTransition.withId("T1"))
                 .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
                 .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
                 .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
                 .andFinally(ANormalArc.withSource("T1").andTarget("P0").with("1", "Default").token());
-		return petriNet; 
-	}
+        return petriNet;
+    }
 
     // Hier.addToInterface(place)
     //   place.setIsInInterface
     @Test
-	public void placeStatusChangesOnceInInterface() throws Exception {
-    	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
-    	place.setInInterface(true); 
-    	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
-    	place.setInInterface(false); 
-    	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
-    	
-    	
-	}
+    public void placeStatusChangesOnceInInterface() throws Exception {
+        assertTrue(place.getStatus() instanceof PlaceStatusNormal);
+        place.setInInterface(true);
+        assertTrue(place.getStatus() instanceof PlaceStatusInterface);
+        place.setInInterface(false);
+        assertTrue(place.getStatus() instanceof PlaceStatusNormal);
+
+    }
+
     @Test
-	public void copyConstructorIncludesStatus() throws Exception {
-    	//FIXME set in interface implies an include hierarchy, but we're not giving one. 
-    	place.addToInterface(includes); 
-    	place.getStatus().setMergeStatus(true); 
-    	place.getStatus().setExternal(true); 
-    	place.getStatus().setOutputOnlyArcConstraint(true); 
-    	place.getStatus().setInputOnlyArcConstraint(false); 
-    	DiscretePlace newPlace = new DiscretePlace(place); 
-    	assertTrue(newPlace.getStatus().isMergeStatus());
-    	assertTrue(newPlace.getStatus().isExternal());
-    	assertTrue(newPlace.getStatus().isOutputOnlyArcConstraint());
-    	assertFalse(newPlace.getStatus().isInputOnlyArcConstraint());
-	}
+    public void copyConstructorIncludesStatus() throws Exception {
+        //FIXME set in interface implies an include hierarchy, but we're not giving one. 
+        place.addToInterface(includes);
+        place.getStatus().setMergeStatus(true);
+        place.getStatus().setExternal(true);
+        place.getStatus().setOutputOnlyArcConstraint(true);
+        place.getStatus().setInputOnlyArcConstraint(false);
+        DiscretePlace newPlace = new DiscretePlace(place);
+        assertTrue(newPlace.getStatus().isMergeStatus());
+        assertTrue(newPlace.getStatus().isExternal());
+        assertTrue(newPlace.getStatus().isOutputOnlyArcConstraint());
+        assertFalse(newPlace.getStatus().isInputOnlyArcConstraint());
+    }
+
     @Test
-	public void interfaceRequestsThrowUnsupportedOperationExceptionIfNotInInterface() throws Exception {
-    	try {
-    		place.getStatus().setMergeStatus(true); 
-    		fail("should throw because PlaceStatusNormal means not in the interface"); 
-    	} catch (UnsupportedOperationException e) {
-    		assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.addToInterface(IncludeHierarchy) has been requested", e.getMessage());
-    	}
-    	try {
-    		place.getStatus().setExternal(true); 
-    		fail("should throw because PlaceStatusNormal means not in the interface"); 
-    	} catch (UnsupportedOperationException e) {}
-    	try {
-    		place.getStatus().setInputOnlyArcConstraint(true); 
-    		fail("should throw because PlaceStatusNormal means not in the interface"); 
-    	} catch (UnsupportedOperationException e) {}
-    	try {
-    		place.getStatus().setOutputOnlyArcConstraint(true); 
-    		fail("should throw because PlaceStatusNormal means not in the interface"); 
-    	} catch (UnsupportedOperationException e) {}
-	}
+    public void interfaceRequestsThrowUnsupportedOperationExceptionIfNotInInterface() throws Exception {
+        try {
+            place.getStatus().setMergeStatus(true);
+            fail("should throw because PlaceStatusNormal means not in the interface");
+        } catch (UnsupportedOperationException e) {
+            assertEquals("PlaceStatusNormal:  setMergeStatus not a valid request for place test until Place.addToInterface(IncludeHierarchy) has been requested", e
+                    .getMessage());
+        }
+        try {
+            place.getStatus().setExternal(true);
+            fail("should throw because PlaceStatusNormal means not in the interface");
+        } catch (UnsupportedOperationException e) {
+        }
+        try {
+            place.getStatus().setInputOnlyArcConstraint(true);
+            fail("should throw because PlaceStatusNormal means not in the interface");
+        } catch (UnsupportedOperationException e) {
+        }
+        try {
+            place.getStatus().setOutputOnlyArcConstraint(true);
+            fail("should throw because PlaceStatusNormal means not in the interface");
+        } catch (UnsupportedOperationException e) {
+        }
+    }
+
     @Test
-	public void addToInterfaceCreatesPlaceStatusInterface() throws Exception {
-    	assertTrue(place.getStatus() instanceof PlaceStatusNormal); 
-    	place.addToInterface(includes); 
-    	assertTrue(place.getStatus() instanceof PlaceStatusInterface);
-//    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
-	}
+    public void addToInterfaceCreatesPlaceStatusInterface() throws Exception {
+        assertTrue(place.getStatus() instanceof PlaceStatusNormal);
+        place.addToInterface(includes);
+        assertTrue(place.getStatus() instanceof PlaceStatusInterface);
+        //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
+    }
+
     private class TestingPlace extends DiscretePlace {
-    	public TestingPlace(String name) {
-    		super(name);
-		}
+        public TestingPlace(String name) {
+            super(name);
+        }
     }
 
 }
-

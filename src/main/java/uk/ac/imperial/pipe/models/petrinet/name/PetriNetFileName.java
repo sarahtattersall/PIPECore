@@ -7,7 +7,7 @@ import java.io.File;
 /**
  * Represents a saved file that a Petri net belongs to
  */
-public final  class PetriNetFileName implements PetriNetName {
+public final class PetriNetFileName implements PetriNetName {
     /**
      * File that this name should represent
      */

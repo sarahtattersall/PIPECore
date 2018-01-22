@@ -21,7 +21,7 @@ public class AnnotationImplTest {
 
     @Before
     public void setUp() {
-        annotation = new AnnotationImpl(0,0,"foo", 10, 10, false);
+        annotation = new AnnotationImpl(0, 0, "foo", 10, 10, false);
     }
 
     @Test
@@ -29,8 +29,6 @@ public class AnnotationImplTest {
         annotation.accept(visitor);
         verify(visitor).visit(annotation);
     }
-
-
 
     @Test
     public void acceptsAnnotationImplVisitor() {

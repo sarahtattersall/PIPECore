@@ -8,7 +8,7 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 
-public interface IncludeHierarchyReader  {
+public interface IncludeHierarchyReader {
 
     /**
      * Read an include hierarchy from the given path
@@ -19,10 +19,10 @@ public interface IncludeHierarchyReader  {
      * @throws IncludeException if the include hierarchy is incorrectly structured 
      */
 
-	public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException;
+    public IncludeHierarchy read(String fileLocation) throws JAXBException, FileNotFoundException, IncludeException;
 
-	public IncludeHierarchyHolder getIncludeHierarchyHolder();
+    public IncludeHierarchyHolder getIncludeHierarchyHolder();
 
-	public IncludeHierarchyBuilder getBuilder();
+    public IncludeHierarchyBuilder getBuilder();
 
 }

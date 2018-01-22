@@ -4,11 +4,10 @@ import uk.ac.imperial.pipe.runner.PlaceMarker;
 
 public interface ExternalTransitionProvider {
 
-	public PlaceMarker getPlaceMarker();
+    public PlaceMarker getPlaceMarker();
 
-	public ExecutablePetriNet getExecutablePetriNet(); 
-	
-	public Object getContext(); 
+    public ExecutablePetriNet getExecutablePetriNet();
 
-	
+    public Object getContext();
+
 }

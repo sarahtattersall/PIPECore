@@ -29,7 +29,6 @@ public final class PetriNetComponentRemovalVisitor
 
     }
 
-
     /**
      * Remove the transition from the Petri net
      * @param transition to be removed
@@ -58,7 +57,6 @@ public final class PetriNetComponentRemovalVisitor
     public void visit(Annotation annotation) {
         net.removeAnnotation(annotation);
     }
-
 
     /**
      * Remove the functional rate paramter from the Petri net

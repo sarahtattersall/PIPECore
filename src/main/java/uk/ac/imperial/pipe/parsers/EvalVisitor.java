@@ -22,7 +22,7 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
         this.abstractPetriNet = abstractPetriNet;
     }
 
-	@Override
+    @Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
         Double left = visit(ctx.expression(0));
         Double right = visit(ctx.expression(1));
@@ -94,14 +94,15 @@ public final class EvalVisitor extends RateGrammarBaseVisitor<Double> {
         Double value = visit(ctx.expression());
         return Math.ceil(value);
     }
+
     /**
      *
      * @param id of the place
      * @return place for id
      * @throws PetriNetComponentNotFoundException if place is not found in the Petri net
      */
-	public Place getPlace(String id) throws PetriNetComponentNotFoundException {
-		return abstractPetriNet.getComponent(id, Place.class);
-	}
+    public Place getPlace(String id) throws PetriNetComponentNotFoundException {
+        return abstractPetriNet.getComponent(id, Place.class);
+    }
 
 }

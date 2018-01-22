@@ -1,6 +1,6 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implements Connectable {
+public abstract class AbstractConnectable extends AbstractPetriNetPubSub implements Connectable {
     /**
      * Connectable position x
      */
@@ -31,8 +31,7 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      */
     protected double nameYOffset = 35;
 
-	protected boolean original = true;
-
+    protected boolean original = true;
 
     protected AbstractConnectable(String id, String name) {
         this.id = id;
@@ -45,15 +44,14 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      * @param connectable component to copy
      */
     protected AbstractConnectable(AbstractConnectable connectable) {
-    	this.id = connectable.id;
-    	this.name = connectable.name;
-    	this.x = connectable.x;
-    	this.y = connectable.y;
-    	this.nameXOffset = connectable.nameXOffset;
-    	this.nameYOffset = connectable.nameYOffset;
+        this.id = connectable.id;
+        this.name = connectable.name;
+        this.x = connectable.x;
+        this.y = connectable.y;
+        this.nameXOffset = connectable.nameXOffset;
+        this.nameYOffset = connectable.nameYOffset;
     }
 
-    
     @Override
     public int hashCode() {
         int result;
@@ -70,7 +68,6 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
-
 
     /**
      *
@@ -166,7 +163,7 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      */
     @Override
     public final int getX() {
-        return (int)x;
+        return (int) x;
     }
 
     /**
@@ -187,7 +184,7 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
      */
     @Override
     public final int getY() {
-        return (int)y;
+        return (int) y;
     }
 
     /**
@@ -201,33 +198,32 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         changeSupport.firePropertyChange(Y_CHANGE_MESSAGE, oldValue, y);
     }
 
-
     @Override
     public boolean equals(Object o) {
-    	if (!equalsMinimal(o)) {
-    		return false; 
-    	}
-    	
-    	Connectable connectable = (Connectable) o;
+        if (!equalsMinimal(o)) {
+            return false;
+        }
 
-        return equalsStructure(connectable) && equalsPosition(connectable); 
+        Connectable connectable = (Connectable) o;
+
+        return equalsStructure(connectable) && equalsPosition(connectable);
     }
 
-	public boolean equalsMinimal(Object o) {
-		if (this == o) {
-    		return true;
-    	}
-    	if (o == null || getClass() != o.getClass()) {
-    		return false;
-    	}
-    	return true; 
-	}
+    public boolean equalsMinimal(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        return true;
+    }
 
     @Override
-	public <C extends Connectable> boolean  equalsStructure(C connectable) {
-    	if (!equalsMinimal(connectable)) {
-    		return false; 
-    	}
+    public <C extends Connectable> boolean equalsStructure(C connectable) {
+        if (!equalsMinimal(connectable)) {
+            return false;
+        }
 
         if (!id.equals(connectable.getId())) {
             return false;
@@ -237,28 +233,27 @@ public abstract class AbstractConnectable  extends AbstractPetriNetPubSub implem
         }
 
         return true;
-	}
+    }
 
-	@Override
-	public <C extends Connectable> boolean equalsPosition(C connectable) {
-		if (!equalsMinimal(connectable)) {
-			return false; 
-		}
+    @Override
+    public <C extends Connectable> boolean equalsPosition(C connectable) {
+        if (!equalsMinimal(connectable)) {
+            return false;
+        }
 
-	    if (Double.compare(connectable.getX(), getX()) != 0) {
-	    	return false;
-	    }
-	    if (Double.compare(connectable.getY(), getY()) != 0) {
-	    	return false;
-	    }
-	    if (Double.compare(connectable.getNameXOffset(), nameXOffset) != 0) {
-	    	return false;
-	    }
-	    if (Double.compare(connectable.getNameYOffset(), nameYOffset) != 0) {
-	    	return false;
-	    }
-	    return true;
-	}
+        if (Double.compare(connectable.getX(), getX()) != 0) {
+            return false;
+        }
+        if (Double.compare(connectable.getY(), getY()) != 0) {
+            return false;
+        }
+        if (Double.compare(connectable.getNameXOffset(), nameXOffset) != 0) {
+            return false;
+        }
+        if (Double.compare(connectable.getNameYOffset(), nameYOffset) != 0) {
+            return false;
+        }
+        return true;
+    }
 
-	
 }

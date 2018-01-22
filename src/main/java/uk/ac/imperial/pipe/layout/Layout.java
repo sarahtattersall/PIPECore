@@ -29,7 +29,7 @@ public class Layout {
      * @param orientation SwingConstants.NORTH, SwingConstants.EAST, SwingConstants.SOUTH or SwingConstants.WEST
      */
     public static void layoutHierarchical(PetriNet petriNet, int interRankCell, int interHierarchy, int parallelEdge,
-                                          int intraCell, int orientation) {
+            int intraCell, int orientation) {
         mxGraph graph = initialiseGraph(petriNet);
         mxHierarchicalLayout layout = new mxHierarchicalLayout(graph, orientation);
         layout.setInterRankCellSpacing(interRankCell);
@@ -53,16 +53,14 @@ public class Layout {
         try {
 
             for (Place place : petriNet.getPlaces()) {
-                objectMap.put(place.getId(),
-                        graph.insertVertex(parent, place.getId(), place.getId(), 0, 0, Place.DIAMETER, Place.DIAMETER));
+                objectMap.put(place.getId(), graph
+                        .insertVertex(parent, place.getId(), place.getId(), 0, 0, Place.DIAMETER, Place.DIAMETER));
 
             }
 
             for (Transition transition : petriNet.getTransitions()) {
-                objectMap.put(transition.getId(),
-                        graph.insertVertex(parent, transition.getId(), transition.getId(), 0, 0,
-                                Transition.TRANSITION_WIDTH, Transition.TRANSITION_HEIGHT)
-                );
+                objectMap.put(transition.getId(), graph.insertVertex(parent, transition.getId(), transition
+                        .getId(), 0, 0, Transition.TRANSITION_WIDTH, Transition.TRANSITION_HEIGHT));
             }
 
             for (Arc<? extends Connectable, ? extends Connectable> arc : petriNet.getArcs()) {

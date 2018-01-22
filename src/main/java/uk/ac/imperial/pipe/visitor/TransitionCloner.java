@@ -24,8 +24,8 @@ public final class TransitionCloner implements DiscreteTransitionVisitor, Discre
         cloned = new DiscreteTransition(transition);
     }
 
-	@Override
-	public void visit(DiscreteExternalTransition transition) {
-		cloned = new DiscreteExternalTransition(transition);
-	}
+    @Override
+    public void visit(DiscreteExternalTransition transition) {
+        cloned = new DiscreteExternalTransition(transition);
+    }
 }

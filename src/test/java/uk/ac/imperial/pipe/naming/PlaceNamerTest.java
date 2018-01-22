@@ -49,7 +49,6 @@ public class PlaceNamerTest {
         assertEquals("P2", actual);
     }
 
-
     @Test
     public void returnNextValueIfFourPlacesExist() {
         addNConsecutivePlaces(4);
@@ -68,7 +67,6 @@ public class PlaceNamerTest {
         assertEquals("P1", actual);
     }
 
-
     @Test
     public void reUseDeletedValue() throws PetriNetComponentException {
         Place place = new DiscretePlace("P0", "P0");
@@ -81,7 +79,6 @@ public class PlaceNamerTest {
         String actual2 = placeNamer.getName();
         assertEquals("P0", actual2);
     }
-
 
     /**
      * Since the PlaceNamer works via listening for change events
@@ -100,7 +97,6 @@ public class PlaceNamerTest {
         assertEquals("P1", actual);
     }
 
-
     private void addNConsecutivePlaces(int n) {
         for (int i = 0; i < n; i++) {
             String id = "P" + i;
@@ -118,7 +114,6 @@ public class PlaceNamerTest {
 
         assertFalse(newNamer.isUniqueName(name));
     }
-
 
     @Test
     public void identifiesUniqueName() {
@@ -141,6 +136,5 @@ public class PlaceNamerTest {
         assertFalse(newNamer.isUniqueName(newId));
         assertTrue(newNamer.isUniqueName(originalId));
     }
-
 
 }

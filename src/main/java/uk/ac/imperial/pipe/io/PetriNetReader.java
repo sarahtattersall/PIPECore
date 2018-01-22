@@ -19,7 +19,7 @@ public interface PetriNetReader {
      * @throws FileNotFoundException if no file found at path
      */
     PetriNet read(String path) throws JAXBException, FileNotFoundException;
-    
+
     /**
      * Searches XML retrieved from the file location for presence of tags identifying the type of 
      * the file:  <code>pnml</code> for a Petri net, or <code>include</code> for an include hierarchy 
@@ -28,6 +28,6 @@ public interface PetriNetReader {
      * @throws PetriNetFileException if the file does not exist at path, or is not valid XML, 
      * or whose highest level tags are not <code>pnml</code> or <code>include</code>   
      */
-	XmlFileEnum determineFileType(String path) throws PetriNetFileException;
+    XmlFileEnum determineFileType(String path) throws PetriNetFileException;
 
 }

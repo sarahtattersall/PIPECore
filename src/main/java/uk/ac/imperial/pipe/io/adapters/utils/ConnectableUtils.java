@@ -14,7 +14,8 @@ public final class ConnectableUtils {
      * Hidden constructor for utility class since this class
      * is not designed to be instantiated
      */
-    private ConnectableUtils() {}
+    private ConnectableUtils() {
+    }
 
     /**
      * Sets adaptedConnectable name based on the connectable name
@@ -71,7 +72,7 @@ public final class ConnectableUtils {
      * @param adaptedConnectable to unmarshal
      */
     public static void setConnectablePosition(Connectable connectable, AdaptedConnectable adaptedConnectable) {
-        connectable.setX((int)adaptedConnectable.getGraphics().point.getX());
-        connectable.setY((int)adaptedConnectable.getGraphics().point.getY());
+        connectable.setX((int) adaptedConnectable.getGraphics().point.getX());
+        connectable.setY((int) adaptedConnectable.getGraphics().point.getY());
     }
 }

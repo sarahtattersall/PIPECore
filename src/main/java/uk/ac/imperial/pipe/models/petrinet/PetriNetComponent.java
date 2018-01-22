@@ -5,9 +5,7 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 import java.beans.PropertyChangeListener;
 
-
 public interface PetriNetComponent {
-
 
     /**
      * Message fired with the id field is set
@@ -38,10 +36,10 @@ public interface PetriNetComponent {
      */
     public String getId();
 
-	/**
-	 * 
-	 * @param id of the component
-	 */
+    /**
+     * 
+     * @param id of the component
+     */
     public void setId(String id);
 
     /**
@@ -49,12 +47,14 @@ public interface PetriNetComponent {
      * @param listener listener which will process all events of the implementing class
      */
     public void addPropertyChangeListener(PropertyChangeListener listener);
+
     /**
     *
     * @param propertyName name of the events to be listened for
     * @param listener listener which will process propertyName events of the implementing class
     */
-   public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
+    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener);
+
     /**
      *
      * @param listener listener to no longer listen to events in the implementing class

@@ -1,14 +1,14 @@
 package uk.ac.imperial.pipe.io.adapters.model;
 
-import uk.ac.imperial.pipe.io.adapters.valueAdapter.BooleanValueAdapter;
-import uk.ac.imperial.pipe.io.adapters.valueAdapter.IntValueAdapter;
-import uk.ac.imperial.pipe.io.adapters.valueAdapter.StringValueAdapter;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import uk.ac.imperial.pipe.io.adapters.valueAdapter.BooleanValueAdapter;
+import uk.ac.imperial.pipe.io.adapters.valueAdapter.IntValueAdapter;
+import uk.ac.imperial.pipe.io.adapters.valueAdapter.StringValueAdapter;
 
 /**
  * Adapted transition for PNML format
@@ -178,7 +178,7 @@ public class AdaptedTransition extends AdaptedConnectable {
          */
         @XmlAttribute
         private String externalClass;
-        
+
         /**
          *
          * @return tool type
@@ -227,20 +227,20 @@ public class AdaptedTransition extends AdaptedConnectable {
             this.rateDefinition = rateDefinition;
         }
 
-		/**
-		 *
-		 * @return external class name 
-		 */
-		public String getExternalClass() {
-			return externalClass;
-		}
+        /**
+         *
+         * @return external class name
+         */
+        public String getExternalClass() {
+            return externalClass;
+        }
 
-		/**
-		 *
-		 * @param externalClass Name of the class to be invoked
-		 */
-		public void setExternalClass(String externalClass) {
-			this.externalClass = externalClass;
-		}
+        /**
+         *
+         * @param externalClass Name of the class to be invoked
+         */
+        public void setExternalClass(String externalClass) {
+            this.externalClass = externalClass;
+        }
     }
 }

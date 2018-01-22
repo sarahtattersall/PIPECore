@@ -58,7 +58,6 @@ public final class AnInhibitorArc implements DSLCreator<Arc<? extends Connectabl
         return this;
     }
 
-
     /**
      * @param tokens map of created tokens with id of Token
      * @param places map of created places with id of Connectable
@@ -68,8 +67,8 @@ public final class AnInhibitorArc implements DSLCreator<Arc<? extends Connectabl
      */
     @Override
     public Arc<? extends Connectable, ? extends Connectable> create(Map<String, Token> tokens,
-                                                                    Map<String, Place> places,
-                                                                    Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+            Map<String, Place> places,
+            Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         return new InboundInhibitorArc(places.get(source), transitions.get(target));
     }
 }

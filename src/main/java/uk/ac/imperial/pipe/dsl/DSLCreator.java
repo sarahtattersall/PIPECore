@@ -46,5 +46,6 @@ public interface DSLCreator<T extends PetriNetComponent> {
      * @param rateParameters map of created rateParameters with id of rateParameter
      * @return new {@link PetriNetComponent}
      */
-    T create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters);
+    T create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions,
+            Map<String, FunctionalRateParameter> rateParameters);
 }

@@ -11,7 +11,8 @@ public final class GrammarUtils {
     /**
      * Private utility constructor
      */
-    private GrammarUtils() {}
+    private GrammarUtils() {
+    }
 
     /**
      *

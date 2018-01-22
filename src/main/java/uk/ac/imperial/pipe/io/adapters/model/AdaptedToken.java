@@ -70,6 +70,7 @@ public class AdaptedToken {
     public final int getGreen() {
         return green;
     }
+
     /**
      *
      * @param green component of token color in range (0,255)
@@ -77,6 +78,7 @@ public class AdaptedToken {
     public final void setGreen(int green) {
         this.green = green;
     }
+
     /**
      *
      * @return Blue component of token color in range (0,255)
@@ -84,6 +86,7 @@ public class AdaptedToken {
     public final int getBlue() {
         return blue;
     }
+
     /**
      *
      * @param blue component of token color in range (0,255)
@@ -92,4 +95,3 @@ public class AdaptedToken {
         this.blue = blue;
     }
 }
-

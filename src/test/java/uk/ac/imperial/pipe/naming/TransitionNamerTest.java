@@ -113,7 +113,6 @@ public class TransitionNamerTest {
         assertFalse(newNamer.isUniqueName(name));
     }
 
-
     @Test
     public void identifiesUniqueName() {
         String name = "Transition 0";

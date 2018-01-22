@@ -19,21 +19,21 @@ public class IncludeHierarchyCommandTest {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-	
-	@Test
-	public void commandExecutesPossiblyReturningMessages() throws IncludeException {
-		IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
-		assertEquals(0, command.getResult().getEntries().size());
-		Result<Object> result = command.execute(new IncludeHierarchy(
-				new PetriNet(new NormalPetriNetName("net1")), "fred")); 
-		assertEquals(1, result.getEntries().size());
-		assertEquals(1, command.getResult().getEntries().size());
-	}
-	@Test
-	public void throwsIfExecuteIncludeHierarchyIsNull() throws Exception {
-		expectedException.expect(IllegalArgumentException.class); 
-		expectedException.expectMessage(AbstractIncludeHierarchyCommand.EXECUTE_REQUIRES_NON_NULL_INCLUDE_HIERARCHY); 
-		IncludeHierarchyCommand<Object> command = new DummyCommand<>(); 
-		command.execute(null); 
-	}
+    @Test
+    public void commandExecutesPossiblyReturningMessages() throws IncludeException {
+        IncludeHierarchyCommand<Object> command = new DummyCommand<>();
+        assertEquals(0, command.getResult().getEntries().size());
+        Result<Object> result = command.execute(new IncludeHierarchy(
+                new PetriNet(new NormalPetriNetName("net1")), "fred"));
+        assertEquals(1, result.getEntries().size());
+        assertEquals(1, command.getResult().getEntries().size());
+    }
+
+    @Test
+    public void throwsIfExecuteIncludeHierarchyIsNull() throws Exception {
+        expectedException.expect(IllegalArgumentException.class);
+        expectedException.expectMessage(AbstractIncludeHierarchyCommand.EXECUTE_REQUIRES_NON_NULL_INCLUDE_HIERARCHY);
+        IncludeHierarchyCommand<Object> command = new DummyCommand<>();
+        command.execute(null);
+    }
 }

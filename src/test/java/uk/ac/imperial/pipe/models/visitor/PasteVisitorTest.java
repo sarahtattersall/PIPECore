@@ -112,7 +112,7 @@ public class PasteVisitorTest {
     }
 
     private Matcher<Transition> matchesThisTransitionWithCopiedNameAndIdAndOffset(Transition transition,
-                                                                                  Point2D offset) {
+            Point2D offset) {
         return new CopiedTransition(transition, offset, TRANSITION_NAME);
     }
 
@@ -256,8 +256,8 @@ public class PasteVisitorTest {
         @Override
         public boolean matches(Object argument) {
             Place otherPlace = (Place) argument;
-            return (otherPlace.getId().equals(id) && otherPlace.getName().equals(id) && otherPlace.getX() == (
-                    place.getX() + offset.getX()) &&
+            return (otherPlace.getId().equals(id) && otherPlace.getName().equals(id) &&
+                    otherPlace.getX() == (place.getX() + offset.getX()) &&
                     otherPlace.getY() == (place.getY() + offset.getY()) &&
                     otherPlace.getNameXOffset() == place.getNameXOffset() &&
                     otherPlace.getNameYOffset() == place.getNameYOffset() &&
@@ -284,19 +284,17 @@ public class PasteVisitorTest {
             this(transition, new Point2D.Double(0, 0), id);
         }
 
-
         public CopiedTransition(Transition transition, Point2D offset, String id) {
             this.transition = transition;
             this.offset = offset;
             this.id = id;
         }
 
-
         @Override
         public boolean matches(Object argument) {
             Transition otherTransition = (Transition) argument;
-            return (otherTransition.getId().equals(id) && otherTransition.getName().equals(id)
-                    && otherTransition.getX() == (transition.getX() + offset.getX()) &&
+            return (otherTransition.getId().equals(id) && otherTransition.getName().equals(id) &&
+                    otherTransition.getX() == (transition.getX() + offset.getX()) &&
                     otherTransition.getY() == (transition.getY() + offset.getY()) &&
                     otherTransition.getNameXOffset() == transition.getNameXOffset() &&
                     otherTransition.getNameYOffset() == transition.getNameYOffset() &&
@@ -325,12 +323,10 @@ public class PasteVisitorTest {
 
         @Override
         public boolean matches(Object argument) {
-            Arc<? extends Connectable, ? extends Connectable> otherArc =
-                    (Arc<? extends Connectable, ? extends Connectable>) argument;
+            Arc<? extends Connectable, ? extends Connectable> otherArc = (Arc<? extends Connectable, ? extends Connectable>) argument;
 
-
-            return (otherArc.getSource().getName().equals(sourceName) && otherArc.getTarget().getName().equals(
-                    targetName));
+            return (otherArc.getSource().getName().equals(sourceName) &&
+                    otherArc.getTarget().getName().equals(targetName));
         }
     }
 

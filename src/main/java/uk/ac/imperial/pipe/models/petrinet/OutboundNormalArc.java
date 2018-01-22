@@ -30,16 +30,16 @@ public class OutboundNormalArc extends OutboundArc {
      */
     @Override
     public boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
-    	Place place = getTarget();
-    	if (!place.hasCapacityRestriction()) {
-    		return true;
-    	}
-    	
-    	int totalTokensIn = getTokenCounts(executablePetriNet, state, this);
-    	int totalTokensOut = getNumberOfTokensLeavingPlace(state, executablePetriNet);
-    	int tokensInPlace = getTokensInPlace(state);
-    	
-    	return (tokensInPlace + totalTokensIn - totalTokensOut <= place.getCapacity());
+        Place place = getTarget();
+        if (!place.hasCapacityRestriction()) {
+            return true;
+        }
+
+        int totalTokensIn = getTokenCounts(executablePetriNet, state, this);
+        int totalTokensOut = getNumberOfTokensLeavingPlace(state, executablePetriNet);
+        int tokensInPlace = getTokensInPlace(state);
+
+        return (tokensInPlace + totalTokensIn - totalTokensOut <= place.getCapacity());
     }
 
     /**
@@ -53,14 +53,14 @@ public class OutboundNormalArc extends OutboundArc {
      *
      */
     private int getNumberOfTokensLeavingPlace(State state, ExecutablePetriNet executablePetriNet) {
-    	Place place = getTarget();
-    	int count = 0;
-    	for (InboundArc arc : executablePetriNet.outboundArcs(place)) {
-    		if (arc.getSource().equals(getTarget())  && arc.getTarget().equals(getSource())) {
-    			count += getTokenCounts(executablePetriNet, state, arc);
-    		}
-    	}
-    	return count;
+        Place place = getTarget();
+        int count = 0;
+        for (InboundArc arc : executablePetriNet.outboundArcs(place)) {
+            if (arc.getSource().equals(getTarget()) && arc.getTarget().equals(getSource())) {
+                count += getTokenCounts(executablePetriNet, state, arc);
+            }
+        }
+        return count;
     }
 
     /**
@@ -70,17 +70,18 @@ public class OutboundNormalArc extends OutboundArc {
      * @param arc for which counts are to be retrieved 
      * @return the sum of total number of tokens that the specified arc needs for its weight
      */
-    private int getTokenCounts(ExecutablePetriNet executablePetriNet, State state, AbstractArc<? extends Connectable, ? extends Connectable> arc) {
-    	int count = 0;
-    	double weight = 0; 
-    	for (Map.Entry<String, String> entry : arc.tokenWeights.entrySet()) {
-    		weight = executablePetriNet.evaluateExpression(state, entry.getValue()); 
-    		if (weight == -1.0) {
-    			throw new RuntimeException("Cannot parse outbound arc weight");
-    		}
-    		count += weight;
-    	}
-    	return count;
+    private int getTokenCounts(ExecutablePetriNet executablePetriNet, State state,
+            AbstractArc<? extends Connectable, ? extends Connectable> arc) {
+        int count = 0;
+        double weight = 0;
+        for (Map.Entry<String, String> entry : arc.tokenWeights.entrySet()) {
+            weight = executablePetriNet.evaluateExpression(state, entry.getValue());
+            if (weight == -1.0) {
+                throw new RuntimeException("Cannot parse outbound arc weight");
+            }
+            count += weight;
+        }
+        return count;
     }
 
     /**

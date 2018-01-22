@@ -33,7 +33,6 @@ public final class TranslationVisitor
         this.selected = selected;
     }
 
-
     /**
      * Moves the place by the translation vector amount
      *
@@ -101,7 +100,6 @@ public final class TranslationVisitor
         visitArc(outboundArc);
     }
 
-
     /**
      * Visits an arc moving its arc points by the translate vector amount
      * @param arc to be moved
@@ -113,8 +111,8 @@ public final class TranslationVisitor
             List<ArcPoint> points = arc.getArcPoints();
             for (ArcPoint arcPoint : points) {
                 Point2D point = arcPoint.getPoint();
-                Point2D newPoint =
-                        new Point2D.Double(point.getX() + translation.getX(), point.getY() + translation.getY());
+                Point2D newPoint = new Point2D.Double(point.getX() + translation.getX(),
+                        point.getY() + translation.getY());
                 arcPoint.setPoint(newPoint);
             }
         }

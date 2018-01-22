@@ -2,12 +2,11 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeListener;
 
-
 /**
  * A transition is a Petri net component that is responsible for firing and thus moving
  * tokens from inbound places to outbound places
  */
-public interface Transition extends Connectable, PropertyChangeListener  {
+public interface Transition extends Connectable, PropertyChangeListener {
     /**
      * Message fired when the Transitions priority changes
      */
@@ -82,6 +81,7 @@ public interface Transition extends Connectable, PropertyChangeListener  {
      * @return actual evaluated rate of the Petri net
      */
     Double getActualRate(ExecutablePetriNet executablePetriNet);
+
     /**
      *
      * @return string representation of the rate
@@ -93,7 +93,6 @@ public interface Transition extends Connectable, PropertyChangeListener  {
      * @return true if infinite server, false if single
      */
     boolean isInfiniteServer();
-
 
     /**
      *
@@ -147,21 +146,21 @@ public interface Transition extends Connectable, PropertyChangeListener  {
     * Execute actions specific to this transition.  
     */
 
-	public void fire();
-	
-	/**
-	 * For {@link DiscreteTransition}, specify the amount of time, in milliseconds, 
-	 * that this transition will wait, once it's enabled, before firing.
-	 * Note that this is not deterministic; all that is guaranteed is that a minimum of delay milliseconds
-	 * will elapse; there is no fixed upper limit on the amount of elapsed time before firing.
-	 * @param delay before firing transition
-	 */
+    public void fire();
+
+    /**
+     * For {@link DiscreteTransition}, specify the amount of time, in milliseconds, 
+     * that this transition will wait, once it's enabled, before firing.
+     * Note that this is not deterministic; all that is guaranteed is that a minimum of delay milliseconds
+     * will elapse; there is no fixed upper limit on the amount of elapsed time before firing.
+     * @param delay before firing transition
+     */
     public void setDelay(int delay);
-    
+
     /**
      * 
      * @return delay, in milliseconds, that this transition will wait, once enabled, before firing
      */
-	public int getDelay();
-	
+    public int getDelay();
+
 }

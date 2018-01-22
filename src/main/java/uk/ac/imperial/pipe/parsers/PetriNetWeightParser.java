@@ -18,7 +18,6 @@ import com.google.common.primitives.Doubles;
  */
 public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
-
     private AbstractPetriNet abstractPetriNet;
 
     /**
@@ -37,8 +36,7 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
         this.abstractPetriNet = abstractPetriNet;
     }
 
-
-	/**
+    /**
      *
      * @param parseTree to evaluate
      * @return components referenced by the functional expression that is being parsed
@@ -51,22 +49,19 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
         return listener.getComponentIds();
     }
 
-
-
     /**
      * @param components to be evaluated
      * @return true if all referenced components in expression
      * are valid in the Petri net
      */
-	private boolean allComponentsInPetriNet(Set<String> components) {
-		for (String id : components) {
-        	if (!abstractPetriNet.containsComponent(id)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
+    private boolean allComponentsInPetriNet(Set<String> components) {
+        for (String id : components) {
+            if (!abstractPetriNet.containsComponent(id)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * Evaluate the expression against the given Petri net
@@ -79,7 +74,6 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
         if (maybeDouble != null) {
             return new FunctionalResults<>(maybeDouble, new HashSet<String>());
         }
-
 
         RateGrammarErrorListener errorListener = new RateGrammarErrorListener();
         ParseTree parseTree = GrammarUtils.parse(expression, errorListener);
@@ -115,11 +109,9 @@ public class PetriNetWeightParser implements FunctionalWeightParser<Double> {
 
         private Set<String> componentIds = new HashSet<>();
 
-
         @Override
         public void exitToken_number(
-                @NotNull
-                RateGrammarParser.Token_numberContext ctx) {
+                @NotNull RateGrammarParser.Token_numberContext ctx) {
             componentIds.add(ctx.ID().getText());
         }
 

@@ -51,14 +51,12 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
     /**
      * Delay in milliseconds
      */
-	protected int delay;
+    protected int delay;
 
     public AnAbstractTransition(String id, boolean timed) {
         this.id = id;
         this.timed = timed;
     }
-
-
 
     /**
      *
@@ -70,7 +68,7 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
      */
     @Override
     public Transition create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions,
-                             Map<String, FunctionalRateParameter> rateParameters) {
+            Map<String, FunctionalRateParameter> rateParameters) {
         Transition transition = buildTransition();
         transition.setPriority(priority);
         transition.setTimed(timed);
@@ -84,19 +82,17 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
             transition.setRate(rateParameters.get(rateParameter));
         }
         if (timed) {
-        		transition.setDelay(delay); 
+            transition.setDelay(delay);
         }
-        
+
         transitions.put(id, transition);
         return transition;
     }
 
-
-
-	protected Transition buildTransition() {
-		Transition transition = new DiscreteTransition(id, id);
-		return transition;
-	}
+    protected Transition buildTransition() {
+        Transition transition = new DiscreteTransition(id, id);
+        return transition;
+    }
 
     /**
      * Set the transition priority
@@ -122,7 +118,7 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
      * @return builder for chaining
      */
     public T andIsASingle() {
-       infinite = false;
+        infinite = false;
         return getInstance();
     }
 
@@ -134,8 +130,6 @@ public abstract class AnAbstractTransition<T extends AnAbstractTransition> imple
     public T server() {
         return getInstance();
     }
-
-
 
     /**
      * Sets the location of the x, y locations

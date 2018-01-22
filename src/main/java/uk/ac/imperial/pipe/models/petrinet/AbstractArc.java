@@ -10,12 +10,11 @@ import java.util.Map;
 
 /**
  * AbstractArc class
- *
  * @param <S> Source type
  * @param <T> Target type
  */
-public abstract class AbstractArc<S extends Connectable, T extends Connectable> extends AbstractPetriNetPubSub implements
-        Arc<S,T> {
+public abstract class AbstractArc<S extends Connectable, T extends Connectable> extends AbstractPetriNetPubSub
+        implements Arc<S, T> {
 
     /**
      * Arc source
@@ -44,7 +43,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     protected Map<String, String> tokenWeights = new HashMap<>();
 
     /**
-     * Arc type e.g. Normal, Inhibitor etc.
+     * Arc type e.g. Normal, Inhibitor, etc.
      */
     private final ArcType type;
 
@@ -65,7 +64,6 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     private final PropertyChangeListener intermediateListener = new ArcPointChangeListener();
 
-
     /**
      * Abstract arc constructor sets arc to {@code <source id> TO <target id>}
      * @param source connectable
@@ -82,46 +80,46 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         buildId(false);
         tagged = false;
 
-
         sourcePoint = new ArcPoint(getStartPoint(), false, false);
         targetPoint = new ArcPoint(getEndPoint(), false, false);
         arcPoints.add(sourcePoint);
         arcPoints.add(targetPoint);
 
-        source.addPropertyChangeListener(new PropertyChangeListener(){
+        source.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
+                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) ||
+                        name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
 
                     sourcePoint.setPoint(getStartPoint());
                     targetPoint.setPoint(getEndPoint());
                 }
             }
         });
-        target.addPropertyChangeListener(new PropertyChangeListener(){
+        target.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 String name = evt.getPropertyName();
-                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) || name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
+                if (name.equals(Connectable.X_CHANGE_MESSAGE) || name.equals(Connectable.Y_CHANGE_MESSAGE) ||
+                        name.equals(Transition.ANGLE_CHANGE_MESSAGE)) {
                     sourcePoint.setPoint(getStartPoint());
                     targetPoint.setPoint(getEndPoint());
                 }
             }
         });
-
 
     }
 
-	protected void buildId(boolean rebuild) {
-		String old = id; 
-		id = source.getId() + " TO " + target.getId();
-		if (rebuild) {
-			changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
-		}
-	}
+    protected void buildId(boolean rebuild) {
+        String old = id;
+        id = source.getId() + " TO " + target.getId();
+        if (rebuild) {
+            changeSupport.firePropertyChange(ID_CHANGE_MESSAGE, old, id);
+        }
+    }
 
     /**
      *
@@ -150,7 +148,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void setSource(S source) {
         S old = this.source;
         this.source = source;
-        buildId(true); 
+        buildId(true);
         changeSupport.firePropertyChange(SOURCE_CHANGE_MESSAGE, old, source);
     }
 
@@ -171,10 +169,9 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
     public void setTarget(T target) {
         T old = this.target;
         this.target = target;
-        buildId(true); 
+        buildId(true);
         changeSupport.firePropertyChange(TARGET_CHANGE_MESSAGE, old, target);
     }
-
 
     /**
      * @return true - Arcs are always selectable
@@ -243,7 +240,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      *
-     * @param token to evaluate 
+     * @param token to evaluate
      * @return the functional expression for a single token which is equivalent to that tokens weight on the arc
      */
     @Override
@@ -298,7 +295,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     /**
      * Add intermediate points to the arc
-     * @param points to be added 
+     * @param points to be added
      */
     @Override
     public void addIntermediatePoints(Iterable<ArcPoint> points) {
@@ -329,7 +326,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
     private void recalculateEndPoint() {
         Point2D lastPoint = arcPoints.get(arcPoints.size() - 2).getPoint();
-        double angle =  getAngleBetweenTwoPoints(lastPoint, target.getCentre());
+        double angle = getAngleBetweenTwoPoints(lastPoint, target.getCentre());
         Point2D newPoint = target.getArcEdgePoint(angle);
         targetPoint.setPoint(newPoint);
     }
@@ -370,7 +367,6 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
         return arcPoints.get(index + 1);
     }
-
 
     /**
      * @return The start coordinate of the arc
@@ -474,7 +470,7 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-              String name = evt.getPropertyName();
+            String name = evt.getPropertyName();
             if (name.equals(ArcPoint.UPDATE_LOCATION_CHANGE_MESSAGE)) {
                 recalculateEndPoint();
                 recalculateStartPoint();

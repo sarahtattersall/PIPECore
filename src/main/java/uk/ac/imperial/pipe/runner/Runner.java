@@ -4,16 +4,16 @@ import java.beans.PropertyChangeListener;
 
 public interface Runner extends PlaceMarker {
 
-	public void run();
+    public void run();
 
-	public void setFiringLimit(int firingLimit);
+    public void setFiringLimit(int firingLimit);
 
-	public void setSeed(long seed);
-	
-	public void addPropertyChangeListener(PropertyChangeListener listener);
+    public void setSeed(long seed);
 
-	public void listenForTokenChanges(PropertyChangeListener listener, String placeId) throws InterfaceException;
+    public void addPropertyChangeListener(PropertyChangeListener listener);
 
-	public void setTransitionContext(String transitionId, Object object);
+    public void listenForTokenChanges(PropertyChangeListener listener, String placeId) throws InterfaceException;
+
+    public void setTransitionContext(String transitionId, Object object);
 
 }

@@ -14,7 +14,6 @@ import java.util.Map;
  */
 public final class ARateParameter implements DSLCreator<FunctionalRateParameter> {
 
-
     /**
      * Rate paramter id
      */
@@ -29,7 +28,9 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
      * Private constructor
      * @param id of the rate parameter
      */
-    private ARateParameter(String id) {this.id = id;}
+    private ARateParameter(String id) {
+        this.id = id;
+    }
 
     /**
      * Create an ARateParameter instance with id
@@ -50,7 +51,6 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
         return this;
     }
 
-
     /**
      *
      * @param tokens map of created tokens with id of Token
@@ -61,7 +61,7 @@ public final class ARateParameter implements DSLCreator<FunctionalRateParameter>
      */
     @Override
     public FunctionalRateParameter create(Map<String, Token> tokens, Map<String, Place> places,
-                                Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+            Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
         FunctionalRateParameter rateParameter = new FunctionalRateParameter(expression, id, id);
         rateParameters.put(id, rateParameter);
         return rateParameter;

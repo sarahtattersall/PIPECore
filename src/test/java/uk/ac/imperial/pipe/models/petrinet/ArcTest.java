@@ -35,7 +35,7 @@ public class ArcTest {
     Transition mockTarget;
 
     @Mock
-	private PropertyChangeListener mockListener;
+    private PropertyChangeListener mockListener;
 
     Arc<Place, Transition> arc;
 
@@ -43,15 +43,15 @@ public class ArcTest {
     public void setUp() {
         when(mockSource.getId()).thenReturn("source");
         when(mockTarget.getId()).thenReturn("target");
-        when(mockSource.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0,0));
-        when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0,0));
-        when(mockSource.getStatus()).thenReturn(new PlaceStatusNormal(mockSource)); 
+        when(mockSource.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0, 0));
+        when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0, 0));
+        when(mockSource.getStatus()).thenReturn(new PlaceStatusNormal(mockSource));
     }
 
     @Test
     public void gettingStartReturnsEndPoint() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.getStartPoint();
@@ -60,19 +60,18 @@ public class ArcTest {
 
     @Test
     public void calculatesCorrectAngleTargetRightOfSource() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(65,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(65, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.getEndPoint();
         verify(mockTarget).getArcEdgePoint(Math.toRadians(0));
     }
 
-
     @Test
     public void calculatesCorrectAngleTargetLeftOfSource() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.getEndPoint();
@@ -81,8 +80,8 @@ public class ArcTest {
 
     @Test
     public void calculatesCorrectAngleTargetBelowSource() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,65));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 65));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.getEndPoint();
@@ -91,8 +90,8 @@ public class ArcTest {
 
     @Test
     public void calculatesCorrectAngleTargetAboveSource() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.getEndPoint();
@@ -102,8 +101,8 @@ public class ArcTest {
     @Test
     public void returnsTokenWeightForToken() {
         String weight = "cap(P0)";
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.setWeight("Default", weight);
@@ -113,8 +112,8 @@ public class ArcTest {
 
     @Test
     public void returnsZeroWeightForNonExistentToken() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
         String actualWeight = arc.getWeightForToken("Default");
         assertEquals("0", actualWeight);
@@ -122,8 +121,8 @@ public class ArcTest {
 
     @Test
     public void returnTrueIfHasFunctionalWeight() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.setWeight("Default", "2");
@@ -134,8 +133,8 @@ public class ArcTest {
 
     @Test
     public void returnFalseIfNoFunctionalWeight() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         arc.setWeight("Default", "2");
@@ -146,8 +145,8 @@ public class ArcTest {
 
     @Test
     public void createsId() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
         assertEquals("source TO target", arc.getId());
     }
@@ -156,8 +155,8 @@ public class ArcTest {
     public void sourceReturnsTargetAsNextIfNoIntermediatePoints() {
         Point2D.Double center = mock(Point2D.Double.class);
         when(mockSource.getCentre()).thenReturn(center);
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(0,0));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(0,0));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(0, 0));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(0, 0));
 
         Point2D.Double targetEnd = mock(Point2D.Double.class);
         when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(targetEnd);
@@ -173,7 +172,7 @@ public class ArcTest {
     public void sourceReturnsFirstIntermediatePoint() {
         Point2D.Double center = mock(Point2D.Double.class);
         when(mockSource.getCentre()).thenReturn(center);
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         ArcPoint point = new ArcPoint(center, false);
@@ -187,9 +186,8 @@ public class ArcTest {
     public void intermediateReturnsNextIntermediatePoint() {
         Point2D.Double center = mock(Point2D.Double.class);
         when(mockSource.getCentre()).thenReturn(center);
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
-
 
         ArcPoint intermediate = new ArcPoint(new Point2D.Double(1, 5), false);
         ArcPoint intermediate2 = new ArcPoint(new Point2D.Double(5, 6), true);
@@ -201,8 +199,8 @@ public class ArcTest {
 
     @Test
     public void lastIntermediateReturnsTarget() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         Point2D.Double targetEnd = mock(Point2D.Double.class);
         when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(targetEnd);
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
@@ -216,8 +214,8 @@ public class ArcTest {
 
     @Test
     public void deletesCorrectArcPoint() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
 
         ArcPoint intermediate = new ArcPoint(new Point2D.Double(1, 1), false);
@@ -230,11 +228,10 @@ public class ArcTest {
         assertThat(arc.getArcPoints()).contains(intermediate2);
     }
 
-
     @Test
     public void throwsExceptionIfNoNextPoint() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15,65));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(15, 65));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
         arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
         expectedException.expect(RuntimeException.class);
         expectedException.expectMessage("No next point");
@@ -244,31 +241,32 @@ public class ArcTest {
 
     @Test
     public void notifiesObserverOnWeightChange() {
-        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
-    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
-    	arc.addPropertyChangeListener(mockListener);
-    	arc.setWeight("default", "2");
-    	verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+        arc.addPropertyChangeListener(mockListener);
+        arc.setWeight("default", "2");
+        verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
+
     @Test
     public void notifiesObserverOnSourceChange() {
-    	when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-    	when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
-    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
-    	arc.addPropertyChangeListener(mockListener);
-    	arc.setSource(new DiscretePlace("P0"));  // also forces ID to be rebuilt
-    	verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+        arc.addPropertyChangeListener(mockListener);
+        arc.setSource(new DiscretePlace("P0")); // also forces ID to be rebuilt
+        verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
     }
+
     @Test
     public void notifiesObserverOnTargetChange() {
-    	when(mockSource.getCentre()).thenReturn(new Point2D.Double(65,15));
-    	when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15,15));
-    	arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
-    	arc.addPropertyChangeListener(mockListener);
-    	arc.setTarget(new DiscreteTransition("T0"));  // also forces ID to be rebuilt
-    	verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
+        when(mockSource.getCentre()).thenReturn(new Point2D.Double(65, 15));
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+        arc.addPropertyChangeListener(mockListener);
+        arc.setTarget(new DiscreteTransition("T0")); // also forces ID to be rebuilt
+        verify(mockListener, times(2)).propertyChange(any(PropertyChangeEvent.class));
     }
-    
-    
+
 }

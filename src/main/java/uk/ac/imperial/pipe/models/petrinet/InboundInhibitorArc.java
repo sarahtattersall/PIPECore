@@ -27,14 +27,14 @@ public class InboundInhibitorArc extends InboundArc {
      * @return true if the arc can fire
      */
     //TODO:  should this behave differently if there are multiple colors, and some colors have counts while others don't?  
-	@Override
-	public boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
-		Map<String, Integer> tokens = state.getTokens(getSource().getId());
-		for (Integer tokenCount : tokens.values()) {
-			if (tokenCount != 0) {
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
+        Map<String, Integer> tokens = state.getTokens(getSource().getId());
+        for (Integer tokenCount : tokens.values()) {
+            if (tokenCount != 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

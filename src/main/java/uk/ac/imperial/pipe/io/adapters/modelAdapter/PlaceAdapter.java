@@ -52,8 +52,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         ConnectableUtils.setConntactableNameOffset(place, adaptedPlace);
         place.setTokenCounts(stringToWeights(adaptedPlace.getInitialMarking().getTokenCounts()));
         if (adaptedPlace.getToolSpecificPlace() != null) {
-        	place.setStatus(adaptedPlace.getToolSpecificPlace().getStatus());
-        	place.getStatus().setPlace(place); 
+            place.setStatus(adaptedPlace.getToolSpecificPlace().getStatus());
+            place.getStatus().setPlace(place);
         }
         places.put(place.getId(), place);
         return place;
@@ -74,7 +74,6 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         adapted.setCapacity(place.getCapacity());
         adapted.getInitialMarking().setTokenCounts(weightToString(place.getTokenCounts()));
 
-
         OffsetGraphics offsetGraphics = new OffsetGraphics();
         offsetGraphics.point = new Point();
         offsetGraphics.point.setX(place.getMarkingXOffset());
@@ -82,8 +81,8 @@ public final class PlaceAdapter extends XmlAdapter<AdaptedPlace, Place> {
         adapted.getInitialMarking().setGraphics(offsetGraphics);
         if (place.getStatus() instanceof PlaceStatusInterface) {
             AdaptedPlace.ToolSpecificPlace toolSpecific = new AdaptedPlace.ToolSpecificPlace();
-            toolSpecific.setStatus(place.getStatus()); 
-        	adapted.setToolSpecificPlace(toolSpecific); 
+            toolSpecific.setStatus(place.getStatus());
+            adapted.setToolSpecificPlace(toolSpecific);
         }
 
         return adapted;

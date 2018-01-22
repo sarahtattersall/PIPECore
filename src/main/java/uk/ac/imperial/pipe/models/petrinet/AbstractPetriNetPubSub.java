@@ -16,13 +16,14 @@ public abstract class AbstractPetriNetPubSub {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
+
     /**
      *
      * @param propertyName name of the events to be listened for
      * @param listener listener which will process propertyName events of the implementing class
      */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-    	changeSupport.addPropertyChangeListener(propertyName, listener);
+        changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
     /**

@@ -46,10 +46,9 @@ public class TranslationVisitorTest {
         selected.add(place);
         selected.add(transition);
 
-
         translationVisitor.visit(arc);
-        Point2D.Double expected =
-                new Point2D.Double(point.getX() + translateAmount.getX(), point.getY() + translateAmount.getY());
+        Point2D.Double expected = new Point2D.Double(point.getX() + translateAmount.getX(),
+                point.getY() + translateAmount.getY());
         verify(arcPoint).setPoint(expected);
     }
 
@@ -71,11 +70,10 @@ public class TranslationVisitorTest {
         selected.add(place);
 
         translationVisitor.visit(arc);
-        Point2D.Double expected =
-                new Point2D.Double(point.getX() + translateAmount.getX(), point.getY() + translateAmount.getY());
+        Point2D.Double expected = new Point2D.Double(point.getX() + translateAmount.getX(),
+                point.getY() + translateAmount.getY());
         verify(arcPoint, never()).setPoint(expected);
     }
-
 
     @Test
     public void doesNotTranslateIfTargetsOnlySelected() {
@@ -95,8 +93,8 @@ public class TranslationVisitorTest {
         selected.add(transition);
 
         translationVisitor.visit(arc);
-        Point2D.Double expected =
-                new Point2D.Double(point.getX() + translateAmount.getX(), point.getY() + translateAmount.getY());
+        Point2D.Double expected = new Point2D.Double(point.getX() + translateAmount.getX(),
+                point.getY() + translateAmount.getY());
         verify(arcPoint, never()).setPoint(expected);
     }
 
@@ -106,7 +104,6 @@ public class TranslationVisitorTest {
         int x_y_value = 40;
         when(place.getX()).thenReturn(x_y_value);
         when(place.getY()).thenReturn(x_y_value);
-
 
         translationVisitor.visit(place);
 
@@ -120,11 +117,9 @@ public class TranslationVisitorTest {
     public void translatesTransitionCorrectly() {
         Transition transition = mock(Transition.class);
 
-
         int x_y_value = 40;
         when(transition.getX()).thenReturn(x_y_value);
         when(transition.getY()).thenReturn(x_y_value);
-
 
         translationVisitor.visit(transition);
 
@@ -138,16 +133,14 @@ public class TranslationVisitorTest {
     public void translatesAnnotationCorrectly() {
         Annotation annotation = mock(Annotation.class);
 
-
         int x_y_value = 40;
         when(annotation.getX()).thenReturn(x_y_value);
         when(annotation.getY()).thenReturn(x_y_value);
 
-
         translationVisitor.visit(annotation);
 
-        int expectedXValue = x_y_value + (int)translateAmount.getX();
-        int expectedYValue = x_y_value + (int)translateAmount.getY();
+        int expectedXValue = x_y_value + (int) translateAmount.getX();
+        int expectedYValue = x_y_value + (int) translateAmount.getY();
         verify(annotation).setX(expectedXValue);
         verify(annotation).setY(expectedYValue);
     }

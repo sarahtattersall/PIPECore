@@ -37,64 +37,64 @@ public class InboundNormalArc extends InboundArc {
         Place place = getSource();
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
         if (allTokenCountsAreZero(tokenCounts)) {
-        	return false;
+            return false;
         }
         Map<String, String> tokenWeights = getTokenWeights();
-        boolean allCanFire = true; 
-        Collection<Map.Entry<String, String>> entries = 
-        		nonZeroWeightEntries(tokenWeights.entrySet(), executablePetriNet, state);
+        boolean allCanFire = true;
+        Collection<Map.Entry<String, String>> entries = nonZeroWeightEntries(tokenWeights
+                .entrySet(), executablePetriNet, state);
         if (entries.size() == 0) {
-        	allCanFire = false; 
+            allCanFire = false;
         } else {
-	        allCanFire = verifyAllNonZeroEntriesCanFire(executablePetriNet, state,
-					tokenCounts, allCanFire, entries);
+            allCanFire = verifyAllNonZeroEntriesCanFire(executablePetriNet, state, tokenCounts, allCanFire, entries);
         }
         return allCanFire;
     }
 
-	protected boolean verifyAllNonZeroEntriesCanFire(
-			ExecutablePetriNet executablePetriNet, State state,
-			Map<String, Integer> tokenCounts, boolean allCanFire,
-			Collection<Map.Entry<String, String>> entries) {
-		double tokenWeight;
-		for (Entry<String, String> entry : entries) {
-        	tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue());
+    protected boolean verifyAllNonZeroEntriesCanFire(
+            ExecutablePetriNet executablePetriNet, State state,
+            Map<String, Integer> tokenCounts, boolean allCanFire,
+            Collection<Map.Entry<String, String>> entries) {
+        double tokenWeight;
+        for (Entry<String, String> entry : entries) {
+            tokenWeight = executablePetriNet.evaluateExpression(state, entry.getValue());
             if (!canFireForToken(tokenCounts, tokenWeight, entry)) {
-            	allCanFire = false; 
+                allCanFire = false;
             }
-		}
-		return allCanFire;
-	}
+        }
+        return allCanFire;
+    }
+
     private Collection<Entry<String, String>> nonZeroWeightEntries(
-			Set<Entry<String, String>> entrySet, ExecutablePetriNet epn, State state) {
-    	ArrayList<Entry<String, String>> entries = new ArrayList<Entry<String, String>>(); 
-    	double tokenWeight = 0; 
-    	for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
-    		tokenWeight = epn.evaluateExpression(state, entry.getValue());
-    		if (tokenWeight == -1.0) {
-    		    //TODO:
-    		    throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
-    		} else if (tokenWeight > 0) {
-    			entries.add(entry); 
-    		}    		
-    	}
-		return entries;
-	}
+            Set<Entry<String, String>> entrySet, ExecutablePetriNet epn, State state) {
+        ArrayList<Entry<String, String>> entries = new ArrayList<Entry<String, String>>();
+        double tokenWeight = 0;
+        for (Map.Entry<String, String> entry : tokenWeights.entrySet()) {
+            tokenWeight = epn.evaluateExpression(state, entry.getValue());
+            if (tokenWeight == -1.0) {
+                //TODO:
+                throw new RuntimeException("Errors evaluating arc weight against Petri net. Needs handling in code");
+            } else if (tokenWeight > 0) {
+                entries.add(entry);
+            }
+        }
+        return entries;
+    }
 
-	protected boolean canFireForToken(Map<String, Integer> tokenCounts, double tokenWeight,
-			Map.Entry<String, String> entry) {
-		String tokenId = entry.getKey();
-		int currentCount = tokenCounts.get(tokenId);
-		return !((currentCount < tokenWeight) || (currentCount == 0));
-	}
+    protected boolean canFireForToken(Map<String, Integer> tokenCounts, double tokenWeight,
+            Map.Entry<String, String> entry) {
+        String tokenId = entry.getKey();
+        int currentCount = tokenCounts.get(tokenId);
+        return !((currentCount < tokenWeight) || (currentCount == 0));
+    }
 
-	private boolean allTokenCountsAreZero(Map<String, Integer> tokenCounts) {
-		boolean allCountsAreZero = true;
-		for (Integer count : tokenCounts.values()) {
-			if (count > 0) {
-				allCountsAreZero = false; 
-			}
-		}
-		return allCountsAreZero;
-	}
+    private boolean allTokenCountsAreZero(Map<String, Integer> tokenCounts) {
+        boolean allCountsAreZero = true;
+        for (Integer count : tokenCounts.values()) {
+            if (count > 0) {
+                allCountsAreZero = false;
+            }
+        }
+        return allCountsAreZero;
+    }
 }

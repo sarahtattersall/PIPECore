@@ -17,7 +17,6 @@ public class FunctionalRateParameterTest {
         rateParameter = new FunctionalRateParameter("5*2", "R1", "R1");
     }
 
-
     @Test
     public void visitsRateParameterVisitor() throws InvalidRateException, PetriNetComponentException {
         RateParameterVisitor visitor = mock(RateParameterVisitor.class);

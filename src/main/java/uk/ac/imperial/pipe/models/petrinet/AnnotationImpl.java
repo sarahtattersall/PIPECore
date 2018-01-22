@@ -1,9 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
-
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+
+import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 
 /**
  * This class is for labels that can be added to the Petri net
@@ -157,6 +157,7 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
      *
      * @param x new x location of annotation
      */
+    @Override
     public void setX(int x) {
         int old = this.x;
         this.x = x;
@@ -176,6 +177,7 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
      *
      * @param y new y location of Petri net component
      */
+    @Override
     public final void setY(int y) {
         int old = this.y;
         this.y = y;
@@ -254,7 +256,6 @@ public class AnnotationImpl extends AbstractPetriNetPubSub implements Annotation
     public boolean isDraggable() {
         return true;
     }
-
 
     /**
      * Accept visitor if its an annotation visitor
