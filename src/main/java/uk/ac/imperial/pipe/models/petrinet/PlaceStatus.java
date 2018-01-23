@@ -40,7 +40,7 @@ public interface PlaceStatus {
 
     /**
      * Used in XML marshalling
-     * @param place to be marshalled 
+     * @param place to be marshalled
      */
     public void setPlace(Place place);
 
@@ -52,6 +52,6 @@ public interface PlaceStatus {
 
     public void updateHomePlace(Map<String, Place> pendingNewHomePlaces);
 
-    //TODO implement paintComponent from PlaceView, or equivalent 
+    //TODO implement paintComponent from PlaceView, or equivalent
 
 }

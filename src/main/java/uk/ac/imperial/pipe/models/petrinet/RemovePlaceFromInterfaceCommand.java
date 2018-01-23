@@ -29,7 +29,7 @@ public class RemovePlaceFromInterfaceCommand extends AbstractIncludeHierarchyCom
             includeHierarchy.removeFromInterface(awayId);
             deletePlaceFromPetriNetIfExists(includeHierarchy, awayId);
         } else {
-            //TODO test logic error for awayId 
+            //TODO test logic error for awayId
             result.addMessage("RemovePlaceFromInterfaceCommand.execute: Interface place not found for AwayId " +
                     awayId + " in include hierarchy " + includeHierarchy.getName() + ".  Probable logic error.");
         }
@@ -41,7 +41,7 @@ public class RemovePlaceFromInterfaceCommand extends AbstractIncludeHierarchyCom
             Place place = includeHierarchy.getPetriNet().getComponent(awayId, Place.class);
             includeHierarchy.getPetriNet().removePlaceBare(place);
         } catch (Exception e) {
-            // PetriNetComponentNotFoundException if place doesn't exist, 
+            // PetriNetComponentNotFoundException if place doesn't exist,
             // i.e., if MergeInterfaceStatusAvailable
         }
     }

@@ -1,9 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.beans.PropertyChangeListener;
+
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
-
-import java.beans.PropertyChangeListener;
 
 public interface PetriNetComponent {
 
@@ -37,7 +37,7 @@ public interface PetriNetComponent {
     public String getId();
 
     /**
-     * 
+     *
      * @param id of the component
      */
     public void setId(String id);

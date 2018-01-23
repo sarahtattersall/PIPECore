@@ -65,13 +65,13 @@ public interface Connectable extends PlaceablePetriNetComponent {
     boolean isEndPoint();
 
     /**
-     * tests whether this and connectable have the same position 
+     * tests whether this and connectable have the same position
      * @return true if X, Y, XOffset and YOffset are equal for this and connectable
      */
     public <C extends Connectable> boolean equalsPosition(C connectable);
 
     /**
-     * tests whether this and connectable have the same structure 
+     * tests whether this and connectable have the same structure
      * @return true if id and name are equal for this and connectable
      */
     public <C extends Connectable> boolean equalsStructure(C connectable);

@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
-import java.util.Map;
 import java.util.Random;
 
 import uk.ac.imperial.state.State;
@@ -11,7 +10,7 @@ import uk.ac.imperial.state.State;
  */
 public final class PetriNetAnimator implements Animator {
 
-    //	private static Logger logger = LogManager.getLogger(PetriNetAnimator.class);  
+    //	private static Logger logger = LogManager.getLogger(PetriNetAnimator.class);
     /**
      * Executable Petri net to animate
      */
@@ -66,6 +65,7 @@ public final class PetriNetAnimator implements Animator {
     *
     * @param transition transition to fire
     */
+    @Override
     public void fireTransition(Transition transition) {
         animationLogic.getFiredState(transition);
     }
@@ -95,15 +95,15 @@ public final class PetriNetAnimator implements Animator {
     /**
      * Fire all currently enabled immediate transitions
      * and afterwards the enabled timed transitions which are due to fire.
-     * 
-     * @param state against which transitions are to be fired 
+     *
+     * @param state against which transitions are to be fired
      */
     //FIXME:  halting problem :/
     public void fireAllCurrentEnabledTransitions(State state) {
         Transition nextTransition = animationLogic.getRandomEnabledTransition(state);
         if (nextTransition != null) {
             State nextState = executablePetriNet.fireTransition(nextTransition, state);
-            // updateState = false? 
+            // updateState = false?
             executablePetriNet.getTimingQueue().dequeueAndRebuild(nextTransition, nextState);
             fireAllCurrentEnabledTransitions(state);
         }

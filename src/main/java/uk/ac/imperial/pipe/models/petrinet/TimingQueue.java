@@ -27,11 +27,11 @@ public class TimingQueue {
 
     public TimingQueue(ExecutablePetriNet epn, ConcurrentSkipListMap<Long, Set<Transition>> timedTrans, long time) {
         this(epn, time);
-        this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>();
+        this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
         Iterator<Entry<Long, Set<Transition>>> entryIterator = timedTrans.entrySet().iterator();
         while (entryIterator.hasNext()) {
             Entry<Long, Set<Transition>> nextEntry = entryIterator.next();
-            this.enabledTimedTransitions.put(nextEntry.getKey(), new HashSet<Transition>(nextEntry.getValue()));
+            this.enabledTimedTransitions.put(nextEntry.getKey(), new HashSet<>(nextEntry.getValue()));
         }
     }
 
@@ -47,6 +47,7 @@ public class TimingQueue {
         rebuild(state);
     }
 
+    @Override
     public String toString() {
         return "(" + this.state + ", " + this.enabledTimedTransitions + ", " + this.currentTime + ")";
     }
@@ -73,14 +74,14 @@ public class TimingQueue {
      * @param newInitTime new time to use the base for building the timing queue
      */
     public void resetTimeAndRebuildTimedTransitions(long newInitTime) {
-        this.enabledTimedTransitions = new ConcurrentSkipListMap<Long, Set<Transition>>();
+        this.enabledTimedTransitions = new ConcurrentSkipListMap<>();
         setCurrentTime(newInitTime);
     }
 
     /**
-     * If the current time has at least one transition, the current time will be returned. 
-     * If the timing queue is empty, returns -1.   
-     * @return the next time at which at least one transition will fire.  
+     * If the current time has at least one transition, the current time will be returned.
+     * If the timing queue is empty, returns -1.
+     * @return the next time at which at least one transition will fire.
      */
     public long getNextFiringTime() {
         if (enabledTimedTransitions.size() > 0) {
@@ -91,15 +92,15 @@ public class TimingQueue {
     }
 
     /**
-     * that have already past.   
-     * @return set of all times at which transitions are scheduled to fire, including times 
+     * that have already past.
+     * @return set of all times at which transitions are scheduled to fire, including times
      */
     protected Set<Long> getAllFiringTimes() {
         return this.enabledTimedTransitions.keySet();
     }
 
     /**
-     * if the time does not exist in the timing queue.  
+     * if the time does not exist in the timing queue.
      * @param nextTime the next time to evaluate
      * @return set of all transitions scheduled to fire at the given time, or an empty set,
      */
@@ -119,7 +120,7 @@ public class TimingQueue {
     }
 
     /**
-     * verifies whether a given transition does not exist anywhere in the timing queue 
+     * verifies whether a given transition does not exist anywhere in the timing queue
      * @param transition to be verified
      * @return true if the transition does not exist in the timing queue
      */
@@ -138,12 +139,12 @@ public class TimingQueue {
     }
 
     /**
-     * If a transition exists in the timing queue, remove it.  
+     * If a transition exists in the timing queue, remove it.
      * @param transition to be removed
      * @param atTime time at which transition was to be fired
-     * @return true if transition was removed at the specified time; false if atTime did not 
-     *   exist in the timing queue or if the transition was not at that time 
-     *   (in which case transition might exist at another time -- logic error) 
+     * @return true if transition was removed at the specified time; false if atTime did not
+     *   exist in the timing queue or if the transition was not at that time
+     *   (in which case transition might exist at another time -- logic error)
      */
     public boolean unregisterTimedTransition(Transition transition, long atTime) {
         boolean unregistered = false;
@@ -157,11 +158,11 @@ public class TimingQueue {
     }
 
     /**
-     * If a transition exists in the timing queue, remove it.  Then, rebuild 
-     * the timing queue based on the state that was produced by the firing of the transition.  
+     * If a transition exists in the timing queue, remove it.  Then, rebuild
+     * the timing queue based on the state that was produced by the firing of the transition.
      * @param transition to be removed
      * @param state of the executable Petri net produced when the transition fired
-     * @return true if transition was removed; false if transition did not exist  
+     * @return true if transition was removed; false if transition did not exist
      */
     public boolean dequeueAndRebuild(Transition transition, State state) {
         boolean dequeued = dequeue(transition, state);
@@ -181,8 +182,8 @@ public class TimingQueue {
     }
 
     /**
-     * Rebuild the timing queue based on the given state and the current time  
-     * @param state of the executable Petri net 
+     * Rebuild the timing queue based on the given state and the current time
+     * @param state of the executable Petri net
      */
     public void rebuild(State state) {
         rebuild(state, true);
@@ -226,10 +227,10 @@ public class TimingQueue {
     }
 
     /**
-     * For the current time all enabled timed transitions are 
-     * put in the timing queue = when time is advanced they can get activated when 
+     * For the current time all enabled timed transitions are
+     * put in the timing queue = when time is advanced they can get activated when
      * the delay is gone.
-     * 
+     *
      * @param enabledTransitions  set of enabled timed transitions to be queued for timed firing
      */
     public void queueEnabledTimedTransitions(Set<Transition> enabledTransitions) {

@@ -108,7 +108,7 @@ public class PetriNet extends AbstractPetriNet {
     }
 
     /**
-     * Default constructor sets name to blank 
+     * Default constructor sets name to blank
      */
     public PetriNet() {
         this(new NormalPetriNetName(""));
@@ -118,6 +118,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param listener listens for changes on the Petri net
      */
+    @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
@@ -126,6 +127,7 @@ public class PetriNet extends AbstractPetriNet {
      *
      * @param listener current listener listining to the Petri net
      */
+    @Override
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
@@ -257,7 +259,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Adds the token to the Petri net
      *
-     * @param token to be added 
+     * @param token to be added
      */
     @Override
     public void addToken(Token token) {
@@ -347,7 +349,7 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Adds the annotation to the Petri net
      *
-     * @param annotation to be added 
+     * @param annotation to be added
      */
     @Override
     public void addAnnotation(Annotation annotation) {
@@ -427,8 +429,8 @@ public class PetriNet extends AbstractPetriNet {
     /**
      * Add any Petri net component to this Petri net
      *
-     * @param component to be added 
-     * @throws PetriNetComponentException if component already exists or other logic error 
+     * @param component to be added
+     * @throws PetriNetComponentException if component already exists or other logic error
      */
     public void add(PetriNetComponent component) throws PetriNetComponentException {
         component.accept(addVisitor);
@@ -438,7 +440,7 @@ public class PetriNet extends AbstractPetriNet {
      * Remove any Petri net component from the Petri net
      *
      * @param component component to remove
-     * @throws PetriNetComponentException if component does not exist in the Petri net 
+     * @throws PetriNetComponentException if component does not exist in the Petri net
      */
     public void remove(PetriNetComponent component) throws PetriNetComponentException {
         if (contains(component.getId())) {

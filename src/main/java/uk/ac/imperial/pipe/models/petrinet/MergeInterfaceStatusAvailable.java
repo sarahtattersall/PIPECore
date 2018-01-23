@@ -19,7 +19,7 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
 
     @Override
     public Result<InterfacePlaceAction> add(IncludeHierarchy includeHierarchy) {
-        return new Result<InterfacePlaceAction>();
+        return new Result<>();
     }
 
     @Override
@@ -35,7 +35,7 @@ public class MergeInterfaceStatusAvailable extends AbstractMergeInterfaceStatus 
         try {
             homePlace.accept(builder);
         } catch (PetriNetComponentException e) {
-            //TODO test exception 
+            //TODO test exception
             result.addEntry("Unable to add available place " + awayId + " to Petri net: " + petriNet.getName() +
                     "; probable logic error.  Details: " + e.getMessage(), null);
         }

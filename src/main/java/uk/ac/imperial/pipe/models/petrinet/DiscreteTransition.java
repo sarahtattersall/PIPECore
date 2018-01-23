@@ -55,7 +55,7 @@ public class DiscreteTransition extends AbstractTransition implements Transition
     /**
      * visits the visitor of it is a {@link uk.ac.imperial.pipe.models.petrinet.DiscreteTransitionVisitor} or a
      * {@link uk.ac.imperial.pipe.models.petrinet.TransitionVisitor}.
-     * @param visitor to be accepted 
+     * @param visitor to be accepted
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) {
@@ -69,7 +69,7 @@ public class DiscreteTransition extends AbstractTransition implements Transition
 
     @Override
     public void fire() {
-        // timing delays should be implemented here. 
+        // timing delays should be implemented here.
     }
 
     @Override

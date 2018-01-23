@@ -45,16 +45,16 @@ public class UpdateMapEntryCommand<T> extends
         String aliasForExistingInclude = getKeyForValue(map, value);
         T includeForNewAlias = map.get(newname);
         if ((includeForNewAlias == null) && (aliasForExistingInclude == null)) {
-            map.put(newname, (T) value);
+            map.put(newname, value);
         } else if (includeForNewAlias != null) {
             if (includeForNewAlias.equals(value)) {
-                // no action; entry already exists 
+                // no action; entry already exists
             } else if (!(includeForNewAlias.equals(value)) && (oldname == null)) { // (nameForExistingInclude == null)
                 if (!force) {
                     result.addEntry(buildNotAddedMessage(includeHierarchy), UpdateResultEnum.NAME_ALREADY_EXISTS);
                 } else {
                     map.remove(newname);
-                    map.put(newname, (T) value);
+                    map.put(newname, value);
                 }
             } else if (!(includeForNewAlias.equals(value)) && (oldname != null)) {
                 if (!force) {
@@ -70,7 +70,7 @@ public class UpdateMapEntryCommand<T> extends
                     result.addEntry(buildNotRenamedDifferentOldNameMessage(includeHierarchy, aliasForExistingInclude), UpdateResultEnum.INCLUDE_EXISTS_UNDER_DIFFERENT_OLDNAME);
                 } else {
                     map.remove(aliasForExistingInclude);
-                    map.put(newname, (T) value);
+                    map.put(newname, value);
                 }
             } else {
                 rename(map);
@@ -82,7 +82,7 @@ public class UpdateMapEntryCommand<T> extends
 
     protected void rename(Map<String, T> map) {
         map.remove(oldname);
-        map.put(newname, (T) value);
+        map.put(newname, value);
     }
 
     private String buildNotRenamedDifferentOldNameMessage(

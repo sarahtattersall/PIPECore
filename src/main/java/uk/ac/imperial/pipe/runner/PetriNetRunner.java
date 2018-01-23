@@ -76,7 +76,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         executablePetriNet = petriNet.getExecutablePetriNet();
         executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this);
         round = 0;
-        //transitionsToFire = true; 
+        //transitionsToFire = true;
         previousState = executablePetriNet.getState();
         previousFiring = new Firing(round, "", previousState);
         ;
@@ -286,7 +286,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     public static void main(String[] args) {
         if (args.length != 4) {
             printUsage();
-            //    		System.exit(1); 
+            //    		System.exit(1);
         } else {
             String petrinetName = args[0];
             String resultsFile = args[1];

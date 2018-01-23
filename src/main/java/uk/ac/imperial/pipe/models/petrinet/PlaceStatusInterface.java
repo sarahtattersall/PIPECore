@@ -23,10 +23,10 @@ public class PlaceStatusInterface implements PlaceStatus {
     private boolean externalChanged;
 
     public PlaceStatusInterface(Place place) {
-        this(place, null); //TODO delete 
+        this(place, null); //TODO delete
     }
 
-    //TODO determine whether constructor should create new arc constraint  
+    //TODO determine whether constructor should create new arc constraint
     public PlaceStatusInterface(PlaceStatus placeStatus, Place place) {
         this.place = place;
         this.includeHierarchy = placeStatus.getIncludeHierarchy();
@@ -149,12 +149,12 @@ public class PlaceStatusInterface implements PlaceStatus {
                         ARC_CONSTRAINT_MAY_NOT_BE_BOTH_INPUT_ONLY_AND_OUTPUT_ONLY);
                 this.inputOnly = false;
             } else {
-                //				arcConstraint = new InputOnlyArcConstraint(); 
+                //				arcConstraint = new InputOnlyArcConstraint();
                 mergeStatus.setArcConstraint(new InputOnlyArcConstraint());
             }
         } else {
             mergeStatus.setArcConstraint(new NoArcConstraint());
-            //			arcConstraint = new NoOpInterfaceStatus(); 
+            //			arcConstraint = new NoOpInterfaceStatus();
         }
         return result;
     }
@@ -167,11 +167,11 @@ public class PlaceStatusInterface implements PlaceStatus {
                 this.outputOnly = false;
             } else {
                 mergeStatus.setArcConstraint(new OutputOnlyArcConstraint());
-                //				arcConstraint = new OutputOnlyArcConstraint(); 
+                //				arcConstraint = new OutputOnlyArcConstraint();
             }
         } else {
             mergeStatus.setArcConstraint(new NoArcConstraint());
-            //			arcConstraint = new NoArcConstraint(); 
+            //			arcConstraint = new NoArcConstraint();
         }
         return result;
     }

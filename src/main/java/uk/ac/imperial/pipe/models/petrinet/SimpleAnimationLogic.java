@@ -13,10 +13,10 @@ import uk.ac.imperial.state.State;
  * This is a limited implementation of {@link AnimationLogic}, suitable only for some types of analysis.
  * The only method supported is {@link #getEnabledTransitions(State)}.  All other methods
  * return {@link UnsupportedOperationException}.
- * 
- * Normal Petri net firing logic is supported by {@link PetriNetAnimationLogic}. 
- * @see AnimationLogic  
- * @see PetriNetAnimationLogic  
+ *
+ * Normal Petri net firing logic is supported by {@link PetriNetAnimationLogic}.
+ * @see AnimationLogic
+ * @see PetriNetAnimationLogic
  */
 public final class SimpleAnimationLogic implements AnimationLogic {
 
@@ -34,19 +34,19 @@ public final class SimpleAnimationLogic implements AnimationLogic {
     }
 
     /**
-     * This is a limited implementation of {@link AnimationLogic#getEnabledTransitions(State)}, 
+     * This is a limited implementation of {@link AnimationLogic#getEnabledTransitions(State)},
      * suitable only for some types of analysis.
      * Returns the entire set of enabled transitions for the given State, including both immediate transitions
-     * (all priorities) and timed transitions (all possible firing times).    
-     * This method is not suitable for animation; i.e., firing a transition returned by this method may put the 
-     * Petri net in a state that would not normally be reachable.  
-     * <p>For the set of transitions enabled under normal Petri net firing rules, see 
-     * {@link PetriNetAnimationLogic#getEnabledTransitions(State)}. 
+     * (all priorities) and timed transitions (all possible firing times).
+     * This method is not suitable for animation; i.e., firing a transition returned by this method may put the
+     * Petri net in a state that would not normally be reachable.
+     * <p>For the set of transitions enabled under normal Petri net firing rules, see
+     * {@link PetriNetAnimationLogic#getEnabledTransitions(State)}.
      * To retrieve a random transition that is eligible for firing under the normal Petri net firing rules, use
-     * {@link PetriNetAnimationLogic#getRandomEnabledTransition()} or 
-     * {@link PetriNetAnimationLogic#getRandomEnabledTransition(State)} 
-     * </p> 
-     *    
+     * {@link PetriNetAnimationLogic#getRandomEnabledTransition()} or
+     * {@link PetriNetAnimationLogic#getRandomEnabledTransition(State)}
+     * </p>
+     *
      * @see AnimationLogic
      * @see PetriNetAnimationLogic
      * @param state Must be a valid state for the executable Petri net
@@ -63,7 +63,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @param state to be evaluated 
+     * @param state to be evaluated
      * @return set of transitions
      * @throws UnsupportedOperationException when called
      */
@@ -84,7 +84,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
     * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-    * @param state to be evaluated 
+    * @param state to be evaluated
     * @return random transition
     * @throws UnsupportedOperationException when called
     */
@@ -107,7 +107,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
     * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-    * @param state to be evaluated 
+    * @param state to be evaluated
     * @return map of state and transitions
     * @throws UnsupportedOperationException when called
     */
@@ -119,11 +119,12 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @param state to be evaluated 
+     * @param state to be evaluated
      * @param updateState if state should be updated
      * @return map of state and transitions
      * @throws UnsupportedOperationException when called
      */
+    @Override
     public Map<State, Collection<Transition>> getSuccessors(State state, boolean updateState) {
         throw new UnsupportedOperationException(
                 "SimpleAnimationLogic does not support this method.  Use PetriNetAnimationLogic instead.");
@@ -132,7 +133,7 @@ public final class SimpleAnimationLogic implements AnimationLogic {
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
      * @param state to be evaluated
-     * @return state after firing 
+     * @return state after firing
      * @throws UnsupportedOperationException when called
      */
     @Override
@@ -143,8 +144,8 @@ public final class SimpleAnimationLogic implements AnimationLogic {
 
     /**
      * Not implemented for this class.  Use {@link PetriNetAnimationLogic} instead
-     * @param transition to be evaluated 
-     * @return state after firing 
+     * @param transition to be evaluated
+     * @return state after firing
      * @throws UnsupportedOperationException when called
      */
     @Override
