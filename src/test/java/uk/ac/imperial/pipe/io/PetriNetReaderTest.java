@@ -71,7 +71,7 @@ public class PetriNetReaderTest {
         assertNotNull(petriNet);
     }
 
-    //TODO test PN name / id 
+    //TODO test PN name / id
     @Test
     public void createGSPN() throws JAXBException, FileNotFoundException {
         //XML has unparsed tags, and will exceed static error counter unless logging is forced
@@ -178,7 +178,7 @@ public class PetriNetReaderTest {
         Place place = petriNet.getPlaces().iterator().next();
         assertThat(place.getTokenCounts()).containsEntry(DEFAULT_TOKEN, 0);
         //SJD place will have a 0 count for each token instead of null token count
-        //        assertThat(place.getTokenCounts()).isEmpty();  
+        //        assertThat(place.getTokenCounts()).isEmpty();
     }
 
     @Test
@@ -251,7 +251,7 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsInhibitoryArc() throws JAXBException, FileNotFoundException {
-        //XML has unparsed tags 
+        //XML has unparsed tags
         reader = new PetriNetIOImpl(true, true); // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getInhibitorArcFile()));
         //=======
@@ -338,6 +338,25 @@ public class PetriNetReaderTest {
     public void identifiesIncludeXmlFile() throws Exception {
         assertEquals(XmlFileEnum.INCLUDE_HIERARCHY, reader
                 .determineFileType(FileUtils.resourceLocation(XMLUtils.getSingleIncludeHierarchyFile())));
+    }
+
+    @Test
+    public void identifiesXmlTagAsNonEmptyString() throws Exception {
+        String anode = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils.resourceLocation(XMLUtils.getSimplePetriNet()), PetriNetIOImpl.PNML);
+        assertFalse(anode.isEmpty());
+        anode = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils
+                        .resourceLocation(XMLUtils.getSingleIncludeHierarchyFile()), PetriNetIOImpl.INCLUDE);
+        assertFalse(anode.isEmpty());
+    }
+
+    @Test
+    public void emptyStringReturnedIfTagNotFoundInFile() throws Exception {
+        String node = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils
+                        .resourceLocation(XMLUtils.getSingleIncludeHierarchyFile()), PetriNetIOImpl.PNML);
+        assertTrue(node.isEmpty());
     }
 
     @Test

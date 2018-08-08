@@ -20,7 +20,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
-import org.w3c.dom.NodeList;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -49,8 +48,8 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
     public static final String PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE = "PetriNetIOImpl.determineFileType: ";
     public static final String XML_NOT_PNML_NOR_INCLUDE_FORMAT = "XML file highest level tags must be either 'pnml' or 'include': ";
     public static final String FILE_NOT_FOUND = "File not found: ";
-    private static final String PNML = "/pnml";
-    private static final String INCLUDE = "/include";
+    protected static final String PNML = "/pnml";
+    protected static final String INCLUDE = "/include";
 
     /**
      * JAXB context initialised in constructor
@@ -236,12 +235,12 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
     @Override
     public XmlFileEnum determineFileType(String path) throws PetriNetFileException {
         XmlFileEnum xmlFileEnum = null;
-        NodeList nodes = testForXmlTag(path, PNML);
-        if (nodes.getLength() > 0) {
+        String node = testForXmlTag(path, PNML);
+        if (!node.isEmpty()) {
             xmlFileEnum = XmlFileEnum.PETRI_NET;
         } else {
-            nodes = testForXmlTag(path, INCLUDE);
-            if (nodes.getLength() > 0) {
+            node = testForXmlTag(path, INCLUDE);
+            if (!node.isEmpty()) {
                 xmlFileEnum = XmlFileEnum.INCLUDE_HIERARCHY;
             } else {
                 throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE +
@@ -251,19 +250,20 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
         return xmlFileEnum;
     }
 
-    protected NodeList testForXmlTag(String path, String xpathExpression) throws PetriNetFileException {
+    protected String testForXmlTag(String path, String xpathExpression) throws PetriNetFileException {
         XPath xpath = XPathFactory.newInstance().newXPath();
-        NodeList nodes = null;
+        String node = null;
         try {
             InputSource inputSource = new InputSource(getReaderFromPath(path));
-            nodes = (NodeList) xpath.evaluate(xpathExpression, inputSource, XPathConstants.NODESET);
+            node = (String) xpath.evaluate(xpathExpression, inputSource, XPathConstants.STRING);
+
         } catch (FileNotFoundException ef) {
             throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE + FILE_NOT_FOUND + path);
         } catch (Exception e) {
-            //TODO logger.debug...likely error is SAXParseException, with: [Fatal Error] :1:1: Content is not allowed in prolog.
-            throw new PetriNetFileException(PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE + FILE_IS_NOT_IN_XML_FORMAT + path);
+            throw new PetriNetFileException(
+                    PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE + FILE_IS_NOT_IN_XML_FORMAT + path + "\n" + e.getMessage());
         }
-        return nodes;
+        return node;
     }
 
     @Override
