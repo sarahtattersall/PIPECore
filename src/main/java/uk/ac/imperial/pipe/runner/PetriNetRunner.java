@@ -43,6 +43,7 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
+    protected static final String PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION = "Petrinet cannot be run after it has completed execution.  Create another runner and start from the beginning.";
     protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);
     protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
     protected static final String PETRI_NET_RUNNER = "PetriNetRunner:  ";
@@ -69,6 +70,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private Map<String, List<PropertyChangeListener>> listenerMap;
     private List<TokenCount> pendingPlaceMarkings;
     private Map<String, Object> transitionContextMap;
+    private boolean waitForExternalInput;
+    private boolean started;
+    private boolean ended;
 
     public PetriNetRunner(PetriNet petriNet) {
         if (petriNet == null)
@@ -84,6 +88,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         listenerMap = new HashMap<>();
         pendingPlaceMarkings = new ArrayList<>();
         transitionContextMap = new HashMap<>();
+        ended = false;
+        started = false;
         logger.info("creating PetriNetRunner for PetriNet " + petriNet.getName().getName());
     }
 
@@ -107,14 +113,23 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     @Override
     public void run() {
+        if (ended)
+            throw new IllegalStateException(PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION);
         logger.info("run ExecutablePetriNet " + executablePetriNet.getName().getName());
         start();
+        if (!runContinue()) {
+            end();
+        }
+    }
+
+    private boolean runContinue() {
         boolean transitionsToFire = true;
         while ((round < firingLimit) && transitionsToFire) {
             round++;
             transitionsToFire = fireOneTransition();
         }
-        end();
+        return waitForExternalInput;
+
     }
 
     @Override
@@ -245,6 +260,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         Transition transition = null;
         transition = animator.getRandomEnabledTransition();
         if (transition == null) {
+            logger.debug("no enabled transitions to fire");
             return false;
         } else {
             logger.debug("about to fire transition " + transition.getId());
@@ -257,14 +273,18 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     protected void end() {
+        ended = true;
         changeSupport.firePropertyChange(EXECUTION_COMPLETED, null, null);
         logger.debug(EXECUTION_COMPLETED);
     }
 
     protected void start() {
         // previousFiring is Round 0
-        changeSupport.firePropertyChange(EXECUTION_STARTED, previousFiring, executablePetriNetPlaces());
-        logger.debug(EXECUTION_STARTED);
+        if (!started) {
+            changeSupport.firePropertyChange(EXECUTION_STARTED, previousFiring, executablePetriNetPlaces());
+            logger.debug(EXECUTION_STARTED);
+            started = true;
+        }
     }
 
     private Collection<String> executablePetriNetPlaces() {
@@ -426,5 +446,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         } else {
             throw new RuntimeException("PetriNetRunner received unexpected event: " + evt.getPropertyName());
         }
+    }
+
+    @Override
+    public void setWaitForExternalInput(boolean wait) {
+        this.waitForExternalInput = wait;
     }
 }

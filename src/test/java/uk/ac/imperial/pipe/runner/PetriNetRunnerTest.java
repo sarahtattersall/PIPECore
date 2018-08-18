@@ -1,8 +1,8 @@
 package uk.ac.imperial.pipe.runner;
 
 import static org.junit.Assert.assertEquals;
-
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.beans.PropertyChangeEvent;
@@ -37,7 +37,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
 import uk.ac.imperial.pipe.dsl.APlace;
-import uk.ac.imperial.pipe.dsl.ATimedTransition;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnExternalTransition;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
@@ -53,8 +52,6 @@ import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
-import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimationLogic;
-import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.TestingContext;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
@@ -165,7 +162,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         runner.addPropertyChangeListener(this);
         //			runner.markPlace("P2","Default",1); //  done in listener.
         runner.setFiringLimit(5);
-        //check P1 gets set to 0 on second firing. 
+        //check P1 gets set to 0 on second firing.
         runner.run();
         assertEquals(5, events);
     }
@@ -239,9 +236,8 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     @Test
     public void stopsAtRunLimit() throws Exception {
         checkCase = 2;
-
         net = PetriNetRunner.readFileAsSinglePetriNet("src/test/resources/xml/loopingNet.xml");
-        //    	net = buildLoopingTestNet(); 
+        //    	net = buildLoopingTestNet();
         runner = new PetriNetRunner(net);
         runner.setSeed(456327998101l);
         runner.addPropertyChangeListener(this);
@@ -250,6 +246,77 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals(7, events);
     }
 
+    @Test
+    public void doesntWaitIfExternalInputFalse() throws Exception {
+        checkCase = 7;
+
+        net = buildNonFiringNetWithExternalInput();
+        runner = new PetriNetRunner(net);
+        runner.setSeed(456327998101l);
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(5);
+        runner.setWaitForExternalInput(false);
+        runner.run();
+        assertEquals(2, events);
+    }
+
+    @Test
+    public void canRunMultipleTimesIfWaitingForExternalInput() throws Exception {
+        net = buildNonFiringNetWithExternalInput();
+        runner = new PetriNetRunner(net);
+        runner.setSeed(456327998101l);
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(5);
+        runner.setWaitForExternalInput(true);
+        runner.run();
+        assertEquals("only started", 1, events);
+        runner.run();
+        assertEquals("second start is ignored", 1, events);
+        runner.setWaitForExternalInput(false);
+        runner.run();
+        assertEquals("since no longer waiting, now ends", 2, events);
+    }
+
+    @Test
+    public void waitsIfExternalInputTrue() throws Exception {
+        checkCase = 8;
+        net = buildNonFiringNetWithExternalInput();
+        runner = new PetriNetRunner(net);
+        runner.setSeed(456327998101l);
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(5);
+        runner.setWaitForExternalInput(true);
+        runner.run();
+        assertEquals("started", 1, events);
+        runner.markPlace("P0", "Default", 1);
+        runner.run();
+        assertEquals("transition fired", 2, events);
+        runner.setWaitForExternalInput(false);
+        runner.run();
+        assertEquals("execution complete", 3, events);
+    }
+
+    @Test
+    public void throwsIfRunAfterCompletion() throws Exception {
+        net = buildNonFiringNetWithExternalInput();
+        runner = new PetriNetRunner(net);
+        runner.setSeed(456327998101l);
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(5);
+        runner.setWaitForExternalInput(false);
+        runner.run();
+        assertEquals("started and ended", 2, events);
+        try {
+            runner.run();
+            fail("should throw");
+        } catch (IllegalStateException e) {
+            assertEquals(PetriNetRunner.PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION, e
+                    .getMessage());
+        }
+    }
+
+    //TODO petriNetExecutionSleepsForMillisecondsOnEachRound
+    // Clock & TestingPNRunner to simulate sleep
     @Test
     public void throwsIfNullPetriNet() throws Exception {
         expectedException.expect(IllegalArgumentException.class);
@@ -313,7 +380,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals("PetriNetRunner:  complete.", reader.readLine());
         PetriNetRunner.setPrintStreamForTesting(null);
         BufferedReader fileReader = new BufferedReader(new FileReader(file));
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         String line = fileReader.readLine();
         while (line != null) {
             //			System.out.println(line);
@@ -339,7 +406,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals("PetriNetRunner:  complete.", reader.readLine());
         PetriNetRunner.setPrintStreamForTesting(null);
         BufferedReader fileReader = new BufferedReader(new FileReader(file));
-        List<String> lines = new ArrayList<String>();
+        List<String> lines = new ArrayList<>();
         String line = fileReader.readLine();
         while (line != null) {
             lines.add(line);
@@ -441,7 +508,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         deleteFile("include.xml");
         deleteFile("twoNetsOneInterfaceStatus.xml");
         deleteFile("firingReport.csv");
-        //    	
+        //
 
         //		System.out.println(file.getAbsolutePath()); // uncomment to find file
         //		if (file.exists()) file.delete(); // comment to view file
@@ -485,6 +552,16 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         return net;
     }
 
+    private PetriNet buildNonFiringNetWithExternalInput() throws PetriNetComponentException {
+        PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(APlace.withId("P0").externallyAccessible())
+                .and(APlace.withId("P1"))
+                .and(AnImmediateTransition.withId("T0"))
+                .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+                .andFinally((ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token()));
+        return net;
+    }
+
     private PetriNet buildExternalTransitionTestNet() throws PetriNetComponentException {
         PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(APlace.withId("P0").containing(1, "Default").token())
@@ -523,9 +600,36 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         case 6:
             checkNormalEventsWithExternalTransitionMarkingAnotherPlace(evt);
             break;
+        case 7:
+            checkNonMarkedNetDoesntFireIfNotWaitingForExternalInput(evt);
+            break;
+        case 8:
+            checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(evt);
+            break;
         default:
             assertTrue(true);
             break;
+        }
+    }
+
+    private void checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+            assertEquals(1, events);
+        } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+            Firing firing = (Firing) evt.getNewValue();
+            if (events == 2) {
+                // now in round 3 because we have run() twice
+                checkFiring(firing, 2, "T0", 0, 1);
+            }
+        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+            assertEquals(3, events);
+        }
+    }
+
+    private void checkNonMarkedNetDoesntFireIfNotWaitingForExternalInput(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+            assertEquals(2, events);
         }
     }
 
@@ -534,7 +638,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
             Firing round0firing = (Firing) evt.getOldValue();
             checkFiring(round0firing, 0, "", 1, 0, 0, 0);
-            //			checkHasListOfPlaceIds(evt); 
+            //			checkHasListOfPlaceIds(evt);
         } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
             Firing firing = (Firing) evt.getNewValue();
             Firing prevfiring = (Firing) evt.getOldValue();
@@ -701,17 +805,17 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     }
 
     private void checkFiring(Firing firing, int round, String transition, int... placeCols) {
-        //		StringBuffer sb = new StringBuffer(); 
+        //		StringBuffer sb = new StringBuffer();
         //		for (int i = 0; i < placeCols.length; i++) {
         //			sb.append(placeCols[i]);
-        //			sb.append(" "); 
+        //			sb.append(" ");
         //		}
         //		System.out.println("round: "+firing.round+" transition: "+transition+" "+sb.toString());
         assertEquals(round, firing.round);
         assertEquals(transition, firing.transition);
         report = new StateReport(firing.state);
-        //		StringBuffer sb = new StringBuffer(); 
-        //		sb = new StringBuffer(); 
+        //		StringBuffer sb = new StringBuffer();
+        //		sb = new StringBuffer();
         //		for (String place : report.getPlaces()) {
         //			sb.append(place);
         //			sb.append(" ");
@@ -764,7 +868,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         includes.addAvailablePlaceToPetriNet(includes.getInterfacePlace("b.P0"));
         Place aIP0 = includes.getInterfacePlace("b.P0");
         Transition aT0 = net3.getComponent("T0", Transition.class);
-        Map<String, String> tokenweights = new HashMap<String, String>();
+        Map<String, String> tokenweights = new HashMap<>();
         tokenweights.put("Default", "1");
         OutboundArc arcOut = new OutboundNormalArc(aT0, aIP0, tokenweights);
         net3.add(arcOut);

@@ -16,4 +16,6 @@ public interface Runner extends PlaceMarker {
 
     public void setTransitionContext(String transitionId, Object object);
 
+    public void setWaitForExternalInput(boolean wait);
+
 }
