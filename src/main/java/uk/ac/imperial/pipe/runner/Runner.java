@@ -18,4 +18,15 @@ public interface Runner extends PlaceMarker {
 
     public void setWaitForExternalInput(boolean wait);
 
+    /**
+     * Impose a delay before firing each transition.  Useful when interacting asynchronously
+     * with an external system, to avoid spending CPU resources on tight loops.  May be changed
+     * multiple times during execution of a Petri net.  Defaults to no delay.
+     * <p>
+     * This is not an implementation of timed transitions.  Semantics of the Petri net are unchanged,
+     * except that overall execution time is slowed by milliseconds x number of fired transitions
+     * @param milliseconds
+     */
+    public void setFiringDelay(int milliseconds);
+
 }

@@ -15,6 +15,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -315,8 +319,19 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         }
     }
 
-    //TODO petriNetExecutionSleepsForMillisecondsOnEachRound
-    // Clock & TestingPNRunner to simulate sleep
+    @Test
+    public void mayDelayForMillisecondsOnEachRound() throws Exception {
+        checkCase = 2;
+        net = PetriNetRunner.readFileAsSinglePetriNet("src/test/resources/xml/loopingNet.xml");
+        runner = new TestingPetriNetRunner(net);
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(5);
+        runner.setFiringDelay(10);
+        runner.run();
+        assertEquals(50, ((TestingPetriNetRunner) runner).getElapsedTime());
+        assertEquals(7, events);
+    }
+
     @Test
     public void throwsIfNullPetriNet() throws Exception {
         expectedException.expect(IllegalArgumentException.class);
@@ -932,4 +947,24 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
             file.delete();
     }
 
+    private class TestingPetriNetRunner extends PetriNetRunner {
+
+        private Clock clock;
+        private Clock current;
+
+        public TestingPetriNetRunner(PetriNet net) {
+            super(net);
+            clock = Clock.fixed(Instant.now(), ZoneOffset.UTC);
+            current = Clock.offset(clock, Duration.ofMillis(0));
+        }
+
+        @Override
+        protected void delay() {
+            current = Clock.offset(current, Duration.ofMillis(delay));
+        }
+
+        protected long getElapsedTime() {
+            return current.millis() - clock.millis();
+        }
+    }
 }

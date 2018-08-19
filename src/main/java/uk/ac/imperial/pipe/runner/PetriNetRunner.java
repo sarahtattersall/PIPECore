@@ -73,6 +73,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private boolean waitForExternalInput;
     private boolean started;
     private boolean ended;
+    protected int delay;
 
     public PetriNetRunner(PetriNet petriNet) {
         if (petriNet == null)
@@ -126,10 +127,22 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         boolean transitionsToFire = true;
         while ((round < firingLimit) && transitionsToFire) {
             round++;
+            delay();
             transitionsToFire = fireOneTransition();
         }
         return waitForExternalInput;
 
+    }
+
+    protected void delay() {
+        if (delay > 0) {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                logger.error("Interrupted exception attempting to sleep for " + delay + " milliseconds.");
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -451,5 +464,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     @Override
     public void setWaitForExternalInput(boolean wait) {
         this.waitForExternalInput = wait;
+    }
+
+    @Override
+    public void setFiringDelay(int delay) {
+        this.delay = delay;
     }
 }
