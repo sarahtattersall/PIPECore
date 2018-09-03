@@ -4,12 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -47,8 +47,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     @Before
     public void setUp() throws Exception {
         setUpLog4J2(PetriNetAnimationLogic.class, Level.ERROR, true);
-        //    	setUpLog4J2(PetriNetAnimationLogic.class, Level.DEBUG, true); 
-        //    	setUpLog4J2ForRoot(Level.DEBUG);  
+        //    	setUpLog4J2(PetriNetAnimationLogic.class, Level.DEBUG, true);
+        //    	setUpLog4J2ForRoot(Level.DEBUG);
     }
 
     @Test
@@ -406,13 +406,13 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         successors = animationLogic.getSuccessors(successor01);
         assertTrue(successors.get(successor0).contains(getT("T3")));
         assertTrue(successors.get(successor1).contains(getT("T2")));
-        //  Transition / State combinations    
-        //      t0 0 
+        //  Transition / State combinations
+        //      t0 0
         //      T0 01
         //      t1 1
         //      T1 01
         //      T2 OS
-        //      T2 1 
+        //      T2 1
         //      T3 0
         //      T3 OS
     }
@@ -472,6 +472,23 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     }
 
     @Test
+    public void throwsIfArcExpressionCantBeEvaluatedEvenIfPlaceIsPopulated() throws PetriNetComponentException {
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(APlace.withId("P0").and(1, "Default").tokens()).and(AnImmediateTransition.withId("T0"))
+                .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("#(nonexistentPlace)", "Default").token());
+        try {
+            executablePetriNet = petriNet.getExecutablePetriNet();
+            //            State state = executablePetriNet.getState();
+            //            InboundArc arc = petriNet.getComponent("P0 TO T0", InboundArc.class);
+            //            arc.canFire(executablePetriNet, state);
+            fail("should throw; all logic evaluated when building executable PN");
+        } catch (RuntimeException e) {
+            assertEquals("Error evaluating arc weight expression #(nonexistentPlace) for arc: P0 TO T0", e
+                    .getMessage());
+        }
+    }
+
+    @Test
     public void arcweightThatEvaluatesToZeroDoesNotEnableTransition() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(APlace.withId("P0").and(0, "Default").tokens()).and(AnImmediateTransition.withId("T0"))
@@ -485,7 +502,8 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     }
 
     @Test
-    public void arcweightThatHasEvaluatesToZeroDoesNotEnableTransition() throws PetriNetComponentException {
+    public void arcweightThatHasOneZeroAndOneNonZeroWithNonZeroTokensEnablesTransition()
+            throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(AToken.called("Red").withColor(Color.RED))
                 .and(APlace.withId("P0").containing(0, "Default").token().and(1, "Red").token())
@@ -515,7 +533,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
      *
      * @param tokenWeight
      * @return
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException
      */
     public PetriNet createSimplePetriNet(int tokenWeight) throws PetriNetComponentException {
         String arcWeight = Integer.toString(tokenWeight);
@@ -580,7 +598,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
      *
      * @param tokenWeight
      * @return
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException
      */
     public PetriNet createSimplePetriNetTwoPlacesToTransition(int tokenWeight) throws PetriNetComponentException {
         String weight = Integer.toString(tokenWeight);
@@ -699,7 +717,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
      *
      * @param tokenWeight
      * @return simple Petri net with P1 -o T1 -> P2
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException
      */
     public PetriNet createSimpleInhibitorPetriNet(int tokenWeight) throws PetriNetComponentException {
         return APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(APlace.withId("P1"))
@@ -711,7 +729,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
     /**
      * If a state contains Integer.MAX_VALUE then this is considered to be infinite
      * so infinity addition and subtraction rules should apply
-     * @throws PetriNetComponentException 
+     * @throws PetriNetComponentException
      */
     @Test
     public void infinityLogic() throws PetriNetComponentException {
@@ -757,7 +775,7 @@ public class PetriNetAnimationLogicTest extends AbstractTestLog4J2 {
         }
 
         public SB add(String place, String token1, int count1, String token2, int count2) {
-            HashMap<String, Integer> tokens = new HashMap<String, Integer>();
+            HashMap<String, Integer> tokens = new HashMap<>();
             tokens.put(token1, count1);
             tokens.put(token2, count2);
             builder.placeWithTokens(place, tokens);

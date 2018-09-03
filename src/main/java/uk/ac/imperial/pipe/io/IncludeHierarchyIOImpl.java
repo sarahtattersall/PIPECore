@@ -16,11 +16,12 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.ValidationEvent;
 
 import uk.ac.imperial.pipe.exceptions.IncludeException;
-import uk.ac.imperial.pipe.io.adapters.model.UpdateMergeInterfaceStatusCommand;
 import uk.ac.imperial.pipe.models.IncludeHierarchyHolder;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
+import uk.ac.imperial.pipe.models.petrinet.RemoveOrphanedAwayPlacesFromInterfaceCommand;
 import uk.ac.imperial.pipe.models.petrinet.Result;
+import uk.ac.imperial.pipe.models.petrinet.UpdateMergeInterfaceStatusCommand;
 
 public class IncludeHierarchyIOImpl implements IncludeHierarchyIO {
 
@@ -63,7 +64,7 @@ public class IncludeHierarchyIOImpl implements IncludeHierarchyIO {
      * @throws FileNotFoundException  if file not found
      * @throws JAXBException if errors occur during unmarshaling
      * @throws IncludeException if the include hierarchy is incorrectly structured
-
+    
      */
 
     @Override
@@ -83,8 +84,15 @@ public class IncludeHierarchyIOImpl implements IncludeHierarchyIO {
 
         IncludeHierarchy include = builder.buildIncludes(null); // root include has no parent
         Result<InterfacePlaceAction> result = include.all(new UpdateMergeInterfaceStatusCommand());
-        if (result.hasResult())
+        if (result.hasResult()) {
             throw new IncludeException(result.getAllMessages());
+        }
+        //TODO determine whether this is ever needed
+        result = include.all(new RemoveOrphanedAwayPlacesFromInterfaceCommand());
+        if (result.hasResult()) {
+            //TODO make visible in the GUI but don't fail.  (Console warnings sent)
+            //            throw new IncludeException(result.getAllMessages());
+        }
         return include;
     }
 

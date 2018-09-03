@@ -60,7 +60,7 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         assertTrue(place.isSelectable());
     }
 
-    //TODO refactor equals, adding equalsState and adding Capacity to Structure 
+    //TODO refactor equals, adding equalsState and adding Capacity to Structure
     @Test
     public void placeEquals() {
         place.setCapacity(2);
@@ -407,7 +407,7 @@ public class DiscretePlaceTest implements PropertyChangeListener {
 
     @Test
     public void copyConstructorIncludesStatus() throws Exception {
-        //FIXME set in interface implies an include hierarchy, but we're not giving one. 
+        //FIXME set in interface implies an include hierarchy, but we're not giving one.
         place.addToInterface(includes);
         place.getStatus().setMergeStatus(true);
         place.getStatus().setExternal(true);
@@ -451,7 +451,7 @@ public class DiscretePlaceTest implements PropertyChangeListener {
         assertTrue(place.getStatus() instanceof PlaceStatusNormal);
         place.addToInterface(includes);
         assertTrue(place.getStatus() instanceof PlaceStatusInterface);
-        //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus); 
+        //    	assertTrue(place.getStatus().getMergeInterfaceStatus() instanceof MergeInterfaceStatus);
     }
 
     private class TestingPlace extends DiscretePlace {

@@ -1,10 +1,4 @@
-package uk.ac.imperial.pipe.io.adapters.model;
-
-import uk.ac.imperial.pipe.models.petrinet.AbstractIncludeHierarchyCommand;
-import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
-import uk.ac.imperial.pipe.models.petrinet.InterfacePlaceAction;
-import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Result;
+package uk.ac.imperial.pipe.models.petrinet;
 
 public class UpdateMergeInterfaceStatusCommand extends AbstractIncludeHierarchyCommand<InterfacePlaceAction> {
 

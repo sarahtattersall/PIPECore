@@ -15,7 +15,6 @@ import uk.ac.imperial.pipe.dsl.APlace;
 import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
-import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
 public class ConvertPlaceToMergeStatusHomeCommandTest {
@@ -58,7 +57,7 @@ public class ConvertPlaceToMergeStatusHomeCommandTest {
         command = new ConvertPlaceToMergeStatusHomeCommand(place, includes);
         Result<InterfacePlaceAction> result = command.execute(include2);
         assertFalse(result.hasResult());
-        assertEquals("not added to home include hieararchy", 0, includes.getInterfacePlaceMap().size());
+        assertEquals("not added to home include hierarchy", 0, includes.getInterfacePlaceMap().size());
         assertEquals("...added to away IH", 1, include2.getInterfacePlaceMap().size());
         Place addedPlace = include2.getInterfacePlace("a.P10");
         assertEquals("prefixed with away Id", "a.P10", addedPlace.getId());

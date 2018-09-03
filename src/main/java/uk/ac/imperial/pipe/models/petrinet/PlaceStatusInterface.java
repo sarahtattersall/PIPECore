@@ -105,6 +105,7 @@ public class PlaceStatusInterface implements PlaceStatus {
         }
     }
 
+    //TODO neither arc costraint can be true unless external is also true
     @Override
     public void setInputOnlyArcConstraint(boolean inputOnly) {
         if (inputOnly != this.inputOnly) {
