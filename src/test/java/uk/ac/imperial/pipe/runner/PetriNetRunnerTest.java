@@ -148,6 +148,45 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals(2, tokenFired);
     }
 
+    @Test
+    public void notifiedListenerAcknowledgesBeforeRunContinues() throws Exception {
+        checkCase = 9;
+        net = buildHaltingNet();
+        runner = new PetriNetRunner(net);
+        TestingThreadedListener listener = new TestingThreadedListener(runner, true);
+        Thread thread = new Thread(listener, "listener thread");
+        thread.start();
+        runner.setSeed(456327998101l);
+        runner.listenForTokenChanges(listener, "P1", true);
+        targetPlaceId = "P1";
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(10);
+        runner.markPlace("P2", "Default", 1);
+        runner.run();
+        listener.continued = false;
+    }
+
+    // P0 -> T0 -> P1 -> T1 -> P0
+    //                  /
+    //                P2
+    @Test
+    public void runDoesNotContinueIfNotifiedListenerDoesNotAcknowledge() throws Exception {
+        checkCase = 10;
+        net = buildHaltingNet();
+        runner = new PetriNetRunner(net);
+        TestingThreadedListener listener = new TestingThreadedListener(runner, false);
+        Thread thread = new Thread(listener, "listener thread");
+        thread.start();
+        runner.setSeed(456327998101l);
+        runner.listenForTokenChanges(this, "P1", true);
+        targetPlaceId = "P1";
+        runner.addPropertyChangeListener(this);
+        runner.setFiringLimit(10);
+        runner.markPlace("P2", "Default", 1);
+        runner.run();
+        listener.continued = false;
+    }
+
     //TODO test marking for invalid place:  non-existent, not in interface, etc.
     @Test
     public void clientRequestsPlaceBeMarked() throws Exception {
@@ -549,6 +588,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         return buildNet("P2");
     }
 
+    // P0 -> T0 -> P1 -> T1 -> P2
     private PetriNet buildNet(String place) throws PetriNetComponentException {
         PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(APlace.withId("P0").containing(1, "Default").token())
@@ -561,6 +601,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         return net;
     }
 
+    // P0 -> T0 -> P1 -> T1 -> P0
+    //                  /
+    //                P2
     private PetriNet buildHaltingNet() throws PetriNetComponentException {
         PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(APlace.withId("P0").containing(1, "Default").token())
@@ -628,11 +671,101 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         case 8:
             checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(evt);
             break;
+        case 9:
+            checkListenerExplicitlyAcknowledgesPlaceMarkingChange(evt);
+            break;
+        case 10:
+            checkListenerDoesNotExplicitlyAcknowledgePlaceMarkingChange(evt);
+            break;
+
         default:
             assertTrue(true);
             break;
         }
     }
+
+    // P0 -> T0 -> P1 -> T1 -> P0
+    //                  /
+    //                P2
+    private void checkListenerDoesNotExplicitlyAcknowledgePlaceMarkingChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+            assertEquals(1, events);
+        } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+            Firing firing = (Firing) evt.getNewValue();
+            if (events == 2) {
+                // now in round 3 because we have run() twice
+                checkFiring(firing, 1, "T0", 0, 1, 1);
+                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
+                runner.acknowledge();
+            } else if (events == 3) {
+                // now in round 4
+                checkFiring(firing, 2, "T1", 1, 0, 0);
+                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
+                runner.acknowledge();
+            } else if (events == 4) {
+                // now in round 5
+                checkFiring(firing, 3, "T0", 0, 1, 0);
+                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
+                runner.acknowledge();
+            }
+        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+            assertEquals(5, events);
+        }
+    }
+
+    private void checkListenerExplicitlyAcknowledgesPlaceMarkingChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
+            assertEquals(1, events);
+        } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+            Firing firing = (Firing) evt.getNewValue();
+            if (events == 2) {
+                // now in round 3 because we have run() twice
+                checkFiring(firing, 1, "T0", 0, 1, 1);
+                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
+            } else if (events == 3) {
+                // now in round 4
+                checkFiring(firing, 2, "T1", 1, 0, 0);
+                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
+            } else if (events == 4) {
+                // now in round 5
+                checkFiring(firing, 3, "T0", 0, 1, 0);
+                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
+            }
+        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+            assertEquals(5, events);
+        }
+    }
+
+    //    if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
+    //        Firing firing = (Firing) evt.getNewValue();
+    //        if (events == 2)
+    //            checkFiring(firing, 1, "T0", 0, 1, 0);
+    //        if (events == 3)
+    //            checkFiring(firing, 2, "T1", 1, 0, 0);
+    //        if (events == 4)
+    //            checkFiring(firing, 3, "T0", 0, 1, 0);
+    //    } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
+    //        assertEquals(5, events);
+    //    } else if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
+    //        tokenEvent = true;
+    //        Place place = (Place) evt.getSource();
+    //        assertEquals(targetPlaceId, place.getId());
+    //        Map<String, Integer> token = (Map<String, Integer>) evt.getNewValue();
+    //        assertEquals(1, token.size());
+    //        Entry<String, Integer> entry = token.entrySet().iterator().next();
+    //        if (tokenFired == 0) {
+    //            checkToken("Default", entry.getKey(), 1, entry.getValue());
+    //            try {
+    //                runner.markPlace("P2", "Default", 1);
+    //            } catch (InterfaceException e) {
+    //                e.printStackTrace();
+    //            }
+    //        }
+    //        if (tokenFired == 1) {
+    //            checkToken("Default", entry.getKey(), 0, entry.getValue());
+    //        }
+    //        tokenFired++;
+    //    }
 
     private void checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
@@ -972,6 +1105,41 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
         protected long getElapsedTime() {
             return current.millis() - clock.millis();
+        }
+    }
+
+    private class TestingThreadedListener implements PropertyChangeListener, Runnable {
+
+        private Runner runner;
+        private boolean willAcknowledge;
+        public boolean continued = true;
+
+        public TestingThreadedListener(Runner runner, boolean willAcknowledge) {
+            this.runner = runner;
+            this.willAcknowledge = willAcknowledge;
+        }
+
+        @Override
+        public void run() {
+            while (continued) {
+                try {
+                    Thread.sleep(5000);
+                    System.out.println(Thread.currentThread().getName() + " sleeping");
+                    // if we're sleeping, we didn't acknowledge
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            //            System.out.println(evt.getPropertyName());
+            if (willAcknowledge) {
+                runner.acknowledge();
+                //                System.out.println("acknowledging...");
+            }
+
         }
     }
 }

@@ -18,9 +18,17 @@ public class PlaceListener extends AbstractPetriNetPubSub implements PropertyCha
     protected PropertyChangeEvent event;
     protected Map<String, Integer> counts;
     protected Map<String, Integer> oldCounts;
+    protected Runner runner;
+    protected boolean acknowledgement = false;
 
     public PlaceListener(String placeId) {
         this.placeId = placeId;
+    }
+
+    public PlaceListener(String placeId, Runner runner, boolean acknowledgement) {
+        this(placeId);
+        this.runner = runner;
+        this.acknowledgement = acknowledgement;
     }
 
     @SuppressWarnings("unchecked")
@@ -37,6 +45,8 @@ public class PlaceListener extends AbstractPetriNetPubSub implements PropertyCha
             this.counts = (Map<String, Integer>) evt.getNewValue();
             this.oldCounts = (Map<String, Integer>) evt.getOldValue();
             logger.debug("received tokens event for place " + placeId + ": " + evt.toString());
+        } else if (acknowledgement) {
+            runner.acknowledge();
         }
         return tokenEvent;
     }

@@ -10,12 +10,17 @@ public class BooleanPlaceListener extends PlaceListener {
         super(placeId);
     }
 
+    public BooleanPlaceListener(String placeId, Runner runner, boolean acknowledgement) {
+        super(placeId, runner, acknowledgement);
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (checkTokensEventReceivedAndProcess(evt)) {
             if (zeroToNonZeroCounts()) {
                 changeSupport.firePropertyChange(PLACE_TRUE, new Boolean(false), new Boolean(true));
-            }
+            } else if (acknowledgement)
+                runner.acknowledge();
         }
 
     }

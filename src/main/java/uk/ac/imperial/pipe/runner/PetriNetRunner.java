@@ -58,6 +58,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private static final String MARK_PLACE = "markPlace";
     private static final String LISTEN_FOR_TOKEN_CHANGES = "listenForTokenChanges";
     private static PrintStream PRINTSTREAM;
+    private static int ACKNOWLEDGEMENT_DELAY = 20; // milliseconds
     private Random random;
     private int firingLimit;
     //TODO: executablePN should be protected
@@ -67,13 +68,19 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     protected Animator animator;
     protected Firing previousFiring;
     protected Firing firing;
-    private Map<String, List<PropertyChangeListener>> listenerMap;
+    //    private Map<String, List<PropertyChangeListener>> listenerMap;
+    private Map<String, List<AcknowledgementAwarePropertyChangeListener>> listenerMap;
     private List<TokenCount> pendingPlaceMarkings;
     private Map<String, Object> transitionContextMap;
     private boolean waitForExternalInput;
     private boolean started;
     private boolean ended;
     protected int delay;
+    private boolean awaitingAcknowledgement;
+
+    protected boolean isAwaitingAcknowledgement() {
+        return awaitingAcknowledgement;
+    }
 
     public PetriNetRunner(PetriNet petriNet) {
         if (petriNet == null)
@@ -86,6 +93,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         previousFiring = new Firing(round, "", previousState);
         ;
         animator = new PetriNetAnimator(executablePetriNet);
+        //        listenerMap = new HashMap<>();
         listenerMap = new HashMap<>();
         pendingPlaceMarkings = new ArrayList<>();
         transitionContextMap = new HashMap<>();
@@ -129,9 +137,26 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
             round++;
             delay();
             transitionsToFire = fireOneTransition();
+            waitForAcknowledgement();
         }
         return waitForExternalInput;
 
+    }
+
+    private void waitForAcknowledgement() {
+        while (awaitingAcknowledgement) {
+            try {
+                Thread.sleep(ACKNOWLEDGEMENT_DELAY);
+                Thread.yield();
+                logger.debug("waiting " + ACKNOWLEDGEMENT_DELAY + " milliseconds for acknowledgement by listener.\n" +
+                        "If this persists, listener has likely not called runner.acknowledge()");
+            } catch (InterruptedException e) {
+                logger.error("Interrupted exception attempting to sleep for " + ACKNOWLEDGEMENT_DELAY +
+                        " milliseconds, waiting for acknowledgement.");
+                e.printStackTrace();
+            }
+
+        }
     }
 
     protected void delay() {
@@ -168,13 +193,34 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     @Override
     public void listenForTokenChanges(PropertyChangeListener listener, String placeId) throws InterfaceException {
+        listenForTokenChanges(listener, placeId, false);
+    }
+
+    @Override
+    public void listenForTokenChanges(PropertyChangeListener listener, String placeId, boolean acknowledgement)
+            throws InterfaceException {
         validatePlace(placeId, LISTEN_FOR_TOKEN_CHANGES);
+        //        if (!(listenerMap.containsKey(placeId))) {
+        //            listenerMap.put(placeId, new ArrayList<PropertyChangeListener>());
+        //        }
+        //        listenerMap.get(placeId).add(listener);
         if (!(listenerMap.containsKey(placeId))) {
-            listenerMap.put(placeId, new ArrayList<PropertyChangeListener>());
+            listenerMap.put(placeId, new ArrayList<AcknowledgementAwarePropertyChangeListener>());
         }
-        listenerMap.get(placeId).add(listener);
+        listenerMap.get(placeId)
+                .add(new AcknowledgementAwarePropertyChangeListener(this, listener, acknowledgement));
+        //        rebuildListeners();
         rebuildListeners();
         logger.debug("received request from listener " + listener + " for token changes to place " + placeId);
+    }
+
+    @Override
+    public void acknowledge() {
+        awaitingAcknowledgement = false;
+    }
+
+    protected void setAcknowledgementRequired(boolean acknowledgementRequired) {
+        this.awaitingAcknowledgement = acknowledgementRequired;
     }
 
     private void validatePlace(String placeId, String location) throws InterfaceException {
@@ -227,13 +273,30 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         }
     }
 
+    //    private void rebuildListeners() {
+    //        Set<Entry<String, List<PropertyChangeListener>>> entries = listenerMap.entrySet();
+    //        for (Entry<String, List<PropertyChangeListener>> entry : entries) {
+    //            Place place = null;
+    //            try {
+    //                place = executablePetriNet.getComponent(entry.getKey(), Place.class);
+    //                List<PropertyChangeListener> listeners = entry.getValue();
+    //                for (PropertyChangeListener propertyChangeListener : listeners) {
+    //                    place.addPropertyChangeListener(propertyChangeListener);
+    //                }
+    //            } catch (PetriNetComponentNotFoundException e) {
+    //                e.printStackTrace(); // logic error, since we should guard against this at listen request
+    //            }
+    //
+    //        }
+    //    }
+
     private void rebuildListeners() {
-        Set<Entry<String, List<PropertyChangeListener>>> entries = listenerMap.entrySet();
-        for (Entry<String, List<PropertyChangeListener>> entry : entries) {
+        Set<Entry<String, List<AcknowledgementAwarePropertyChangeListener>>> entries = listenerMap.entrySet();
+        for (Entry<String, List<AcknowledgementAwarePropertyChangeListener>> entry : entries) {
             Place place = null;
             try {
                 place = executablePetriNet.getComponent(entry.getKey(), Place.class);
-                List<PropertyChangeListener> listeners = entry.getValue();
+                List<AcknowledgementAwarePropertyChangeListener> listeners = entry.getValue();
                 for (PropertyChangeListener propertyChangeListener : listeners) {
                     place.addPropertyChangeListener(propertyChangeListener);
                 }
@@ -308,7 +371,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         return sortedPlaces;
     }
 
-    protected Map<String, List<PropertyChangeListener>> getListenerMap() {
+    //    protected Map<String, List<PropertyChangeListener>> getListenerMap() {
+    //        return listenerMap;
+    //    }
+    protected Map<String, List<AcknowledgementAwarePropertyChangeListener>> getListenerMap() {
         return listenerMap;
     }
 
@@ -452,6 +518,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE)) {
+            //            rebuildListeners();
             rebuildListeners();
             updateExternalTransitions();
             logger.debug("received " + ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE +
@@ -470,4 +537,29 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     public void setFiringDelay(int delay) {
         this.delay = delay;
     }
+
+    private class AcknowledgementAwarePropertyChangeListener implements PropertyChangeListener {
+
+        private PetriNetRunner runner;
+        private PropertyChangeListener listener;
+        private boolean acknowledgement;
+
+        public AcknowledgementAwarePropertyChangeListener(PetriNetRunner runner, PropertyChangeListener listener,
+                boolean acknowledgement) {
+            this.runner = runner;
+            this.listener = listener;
+            this.acknowledgement = acknowledgement;
+
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (acknowledgement) {
+                runner.setAcknowledgementRequired(true);
+            }
+            listener.propertyChange(evt);
+        }
+
+    }
+
 }

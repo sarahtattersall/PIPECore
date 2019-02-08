@@ -3,6 +3,8 @@ package uk.ac.imperial.pipe.runner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -10,15 +12,23 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.models.petrinet.DiscretePlace;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 
+@RunWith(MockitoJUnitRunner.class)
 public class BooleanPlaceListenerTest implements PropertyChangeListener {
 
     private BooleanPlaceListener booleanListener;
     private boolean eventFired;
     private Place place;
+
+    @Mock
+    private PetriNetRunner mockRunner;
+    private boolean acknowledgement;
 
     @Before
     public void setUp() {
@@ -79,6 +89,28 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
         eventFired = false;
         place.setTokenCount("Default", 0);
         assertFalse("going from 1 to 0 tokens doesn't fire event", eventFired);
+    }
+
+    @Test
+    public void acknowledgementForZeroTokenEventsBecauseNotPresentedToClient() {
+        setUpAcknowledgingListener();
+        place.setTokenCount("Default", 0);
+        verify(mockRunner).acknowledge();
+    }
+
+    @Test
+    public void noAcknowledgementForNonZeroTokenEventsBecausePresentedToClient() {
+        setUpAcknowledgingListener();
+        place.setTokenCount("Default", 1);
+        verify(mockRunner, never()).acknowledge();
+    }
+
+    public void setUpAcknowledgingListener() {
+        acknowledgement = true;
+        booleanListener = new BooleanPlaceListener("P1", mockRunner, acknowledgement);
+        place = new DiscretePlace("P1");
+        place.addPropertyChangeListener(booleanListener);
+        booleanListener.changeSupport.addPropertyChangeListener(this);
     }
 
     @Override
