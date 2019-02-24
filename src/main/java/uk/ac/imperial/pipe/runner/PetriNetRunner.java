@@ -58,7 +58,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private static final String MARK_PLACE = "markPlace";
     private static final String LISTEN_FOR_TOKEN_CHANGES = "listenForTokenChanges";
     private static PrintStream PRINTSTREAM;
-    private static int ACKNOWLEDGEMENT_DELAY = 20; // milliseconds
+    protected static int ACKNOWLEDGEMENT_DELAY = 20; // milliseconds
     private Random random;
     private int firingLimit;
     //TODO: executablePN should be protected
@@ -77,6 +77,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private boolean ended;
     protected int delay;
     private boolean awaitingAcknowledgement;
+    protected int acknowledgementWaitCount;
 
     protected boolean isAwaitingAcknowledgement() {
         return awaitingAcknowledgement;
@@ -144,8 +145,11 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     private void waitForAcknowledgement() {
+        logger.debug("entering waitForAcknowledgement");
+        acknowledgementWaitCount = 0;
         while (awaitingAcknowledgement) {
             try {
+                acknowledgementWaitCount++;
                 Thread.sleep(ACKNOWLEDGEMENT_DELAY);
                 Thread.yield();
                 logger.debug("waiting " + ACKNOWLEDGEMENT_DELAY + " milliseconds for acknowledgement by listener.\n" +
@@ -162,6 +166,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     protected void delay() {
         if (delay > 0) {
             try {
+                logger.debug("delaying for " + delay + " milliseconds");
                 Thread.sleep(delay);
             } catch (InterruptedException e) {
                 logger.error("Interrupted exception attempting to sleep for " + delay + " milliseconds.");
@@ -216,6 +221,12 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     @Override
     public void acknowledge() {
+        acknowledge("");
+    }
+
+    @Override
+    public void acknowledge(String comment) {
+        logger.debug("acknowledge received from place listener: " + comment);
         awaitingAcknowledgement = false;
     }
 
@@ -549,15 +560,22 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
             this.runner = runner;
             this.listener = listener;
             this.acknowledgement = acknowledgement;
+            logger.debug("AcknowledgementAwarePropertyChangeListener created for: " +
+                    ((listener instanceof BooleanPlaceListener) ? ((BooleanPlaceListener) listener).placeId
+                            : "unknown place"));
 
         }
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {
-            if (acknowledgement) {
-                runner.setAcknowledgementRequired(true);
+            if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
+                if (acknowledgement) {
+                    runner.setAcknowledgementRequired(true);
+                    logger.debug(((listener instanceof BooleanPlaceListener) ? ((BooleanPlaceListener) listener).placeId
+                            : "unknown place") + ": setAcknowledgementRequired");
+                }
+                listener.propertyChange(evt);
             }
-            listener.propertyChange(evt);
         }
 
     }

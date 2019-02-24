@@ -148,45 +148,6 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals(2, tokenFired);
     }
 
-    @Test
-    public void notifiedListenerAcknowledgesBeforeRunContinues() throws Exception {
-        checkCase = 9;
-        net = buildHaltingNet();
-        runner = new PetriNetRunner(net);
-        TestingThreadedListener listener = new TestingThreadedListener(runner, true);
-        Thread thread = new Thread(listener, "listener thread");
-        thread.start();
-        runner.setSeed(456327998101l);
-        runner.listenForTokenChanges(listener, "P1", true);
-        targetPlaceId = "P1";
-        runner.addPropertyChangeListener(this);
-        runner.setFiringLimit(10);
-        runner.markPlace("P2", "Default", 1);
-        runner.run();
-        listener.continued = false;
-    }
-
-    // P0 -> T0 -> P1 -> T1 -> P0
-    //                  /
-    //                P2
-    @Test
-    public void runDoesNotContinueIfNotifiedListenerDoesNotAcknowledge() throws Exception {
-        checkCase = 10;
-        net = buildHaltingNet();
-        runner = new PetriNetRunner(net);
-        TestingThreadedListener listener = new TestingThreadedListener(runner, false);
-        Thread thread = new Thread(listener, "listener thread");
-        thread.start();
-        runner.setSeed(456327998101l);
-        runner.listenForTokenChanges(this, "P1", true);
-        targetPlaceId = "P1";
-        runner.addPropertyChangeListener(this);
-        runner.setFiringLimit(10);
-        runner.markPlace("P2", "Default", 1);
-        runner.run();
-        listener.continued = false;
-    }
-
     //TODO test marking for invalid place:  non-existent, not in interface, etc.
     @Test
     public void clientRequestsPlaceBeMarked() throws Exception {
@@ -617,6 +578,93 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         return net;
     }
 
+    // P0 -> T0 -> P1 (no ack) -> T1 -> P2 -> T2 -> P3 (ack) -> T3 -> P4
+    private PetriNet buildAcknowledgementTestNet() throws PetriNetComponentException {
+        PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(APlace.withId("P0").containing(1, "Default").token())
+                .and(APlace.withId("P1").externallyAccessible())
+                .and(APlace.withId("P2"))
+                .and(APlace.withId("P3").externallyAccessible())
+                .and(APlace.withId("P4"))
+                .and(AnImmediateTransition.withId("T0"))
+                .and(AnImmediateTransition.withId("T1"))
+                .and(AnImmediateTransition.withId("T2"))
+                .and(AnImmediateTransition.withId("T3"))
+                .and(ANormalArc.withSource("P0").andTarget("T0").with("1", "Default").token())
+                .and(ANormalArc.withSource("T0").andTarget("P1").with("1", "Default").token())
+                .and(ANormalArc.withSource("P1").andTarget("T1").with("1", "Default").token())
+                .and(ANormalArc.withSource("T1").andTarget("P2").with("1", "Default").token())
+                .and(ANormalArc.withSource("P2").andTarget("T2").with("1", "Default").token())
+                .and(ANormalArc.withSource("T2").andTarget("P3").with("1", "Default").token())
+                .and(ANormalArc.withSource("P3").andTarget("T3").with("1", "Default").token())
+                .andFinally(ANormalArc.withSource("T3").andTarget("P4").with("1", "Default").token());
+        return net;
+    }
+
+    //    public TestingBooleanListener(String placeId, Runner runner, boolean acknowledgement,
+    //            boolean expectingAwaitingAcknowlegement) {
+
+    // P0 -> T0 -> P1 (no ack) -> T1 -> P2 -> T2 -> P3 (ack) -> T3 -> P4
+    // verify ack is for the correct place
+    @Test
+    public void notifiedListenerAcknowledgesBeforeRunContinues() throws Exception {
+        //        checkCase = 9;
+        net = buildAcknowledgementTestNet();
+        PetriNetRunner testingRunner = new PetriNetRunner(net);
+        TestingBooleanListener listenerP1 = new TestingBooleanListener("P1", testingRunner, false, false);
+        TestingBooleanListener listenerP3 = new TestingBooleanListener("P3", testingRunner, true, true);
+        testingRunner.setSeed(456327998101l);
+        testingRunner.listenForTokenChanges(listenerP1, "P1", false);
+        testingRunner.listenForTokenChanges(listenerP3, "P3", true);
+        testingRunner.setFiringLimit(100);
+        TestingThreadedRunner testingThreadedRunner = new TestingThreadedRunner(testingRunner);
+        Thread thread = new Thread(testingThreadedRunner, "runner thread");
+        thread.start();
+        //        System.out.println("test thread started");
+        for (int i = 0; i < 8; i++) {
+            Thread.sleep(50);
+            //            System.out.println("test sleeping");
+        }
+        assertTrue(listenerP1.called);
+        assertTrue(listenerP3.called);
+        //        System.out.println("test ending");
+
+    }
+
+    // P0 -> T0 -> P1 (no ack) -> T1 -> P2 -> T2 -> P3 (ack) -> T3 -> P4
+    @Test
+    public void runDoesNotContinueIfNotifiedListenerDoesNotAcknowledge() throws Exception {
+        net = buildAcknowledgementTestNet();
+        PetriNetRunner testingRunner = new PetriNetRunner(net);
+        TestingBooleanListener listenerP1 = new TestingBooleanListener("P1", testingRunner, false, false);
+        TestingBooleanListener listenerP3 = new TestingBooleanListener("P3", testingRunner, false, true);
+        testingRunner.setSeed(456327998101l);
+        testingRunner.listenForTokenChanges(listenerP1, "P1", false);
+        testingRunner.listenForTokenChanges(listenerP3, "P3", true);
+        testingRunner.setFiringLimit(100);
+        TestingThreadedRunner testingThreadedRunner = new TestingThreadedRunner(testingRunner);
+        Thread thread = new Thread(testingThreadedRunner, "runner thread");
+        thread.start();
+        //        System.out.println("test thread started");
+        int waitCountBefore = 0;
+        int waitCountAfter = 0;
+        for (int i = 0; i < 2; i++) {
+            waitCountBefore = testingRunner.acknowledgementWaitCount;
+            //            System.out.println("waitCountBefore: " + waitCountBefore);
+            Thread.sleep(50);
+            //            System.out.println("test sleeping");
+            waitCountAfter = testingRunner.acknowledgementWaitCount;
+            //            System.out.println("waitCountBefore: " + waitCountBefore + " waitCountAfter: " + waitCountAfter);
+            assertTrue(waitCountAfter > waitCountBefore);
+            testingRunner.acknowledge();
+            testingRunner.acknowledgementWaitCount = 0;
+        }
+
+        assertTrue(listenerP1.called);
+        assertTrue(listenerP3.called);
+        //        System.out.println("test ending");
+    }
+
     private PetriNet buildNonFiringNetWithExternalInput() throws PetriNetComponentException {
         PetriNet net = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
                 .and(APlace.withId("P0").externallyAccessible())
@@ -671,101 +719,12 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         case 8:
             checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(evt);
             break;
-        case 9:
-            checkListenerExplicitlyAcknowledgesPlaceMarkingChange(evt);
-            break;
-        case 10:
-            checkListenerDoesNotExplicitlyAcknowledgePlaceMarkingChange(evt);
-            break;
 
         default:
             assertTrue(true);
             break;
         }
     }
-
-    // P0 -> T0 -> P1 -> T1 -> P0
-    //                  /
-    //                P2
-    private void checkListenerDoesNotExplicitlyAcknowledgePlaceMarkingChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
-            assertEquals(1, events);
-        } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
-            Firing firing = (Firing) evt.getNewValue();
-            if (events == 2) {
-                // now in round 3 because we have run() twice
-                checkFiring(firing, 1, "T0", 0, 1, 1);
-                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
-                runner.acknowledge();
-            } else if (events == 3) {
-                // now in round 4
-                checkFiring(firing, 2, "T1", 1, 0, 0);
-                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
-                runner.acknowledge();
-            } else if (events == 4) {
-                // now in round 5
-                checkFiring(firing, 3, "T0", 0, 1, 0);
-                assertTrue(((PetriNetRunner) runner).isAwaitingAcknowledgement());
-                runner.acknowledge();
-            }
-        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
-            assertEquals(5, events);
-        }
-    }
-
-    private void checkListenerExplicitlyAcknowledgesPlaceMarkingChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
-            assertEquals(1, events);
-        } else if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
-            Firing firing = (Firing) evt.getNewValue();
-            if (events == 2) {
-                // now in round 3 because we have run() twice
-                checkFiring(firing, 1, "T0", 0, 1, 1);
-                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
-            } else if (events == 3) {
-                // now in round 4
-                checkFiring(firing, 2, "T1", 1, 0, 0);
-                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
-            } else if (events == 4) {
-                // now in round 5
-                checkFiring(firing, 3, "T0", 0, 1, 0);
-                assertTrue(!((PetriNetRunner) runner).isAwaitingAcknowledgement());
-            }
-        } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
-            assertEquals(5, events);
-        }
-    }
-
-    //    if (evt.getPropertyName().equals(PetriNetRunner.UPDATED_STATE)) {
-    //        Firing firing = (Firing) evt.getNewValue();
-    //        if (events == 2)
-    //            checkFiring(firing, 1, "T0", 0, 1, 0);
-    //        if (events == 3)
-    //            checkFiring(firing, 2, "T1", 1, 0, 0);
-    //        if (events == 4)
-    //            checkFiring(firing, 3, "T0", 0, 1, 0);
-    //    } else if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_COMPLETED)) {
-    //        assertEquals(5, events);
-    //    } else if (evt.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
-    //        tokenEvent = true;
-    //        Place place = (Place) evt.getSource();
-    //        assertEquals(targetPlaceId, place.getId());
-    //        Map<String, Integer> token = (Map<String, Integer>) evt.getNewValue();
-    //        assertEquals(1, token.size());
-    //        Entry<String, Integer> entry = token.entrySet().iterator().next();
-    //        if (tokenFired == 0) {
-    //            checkToken("Default", entry.getKey(), 1, entry.getValue());
-    //            try {
-    //                runner.markPlace("P2", "Default", 1);
-    //            } catch (InterfaceException e) {
-    //                e.printStackTrace();
-    //            }
-    //        }
-    //        if (tokenFired == 1) {
-    //            checkToken("Default", entry.getKey(), 0, entry.getValue());
-    //        }
-    //        tokenFired++;
-    //    }
 
     private void checkNonMarkedNetFiresIfWaitingForExternalInputAndIsThenMarked(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(PetriNetRunner.EXECUTION_STARTED)) {
@@ -1141,5 +1100,51 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
             }
 
         }
+    }
+
+    private class TestingBooleanListener extends BooleanPlaceListener {
+
+        public boolean called = false;
+        private boolean expectingAwaitingAcknowlegement;
+
+        public TestingBooleanListener(String placeId, Runner runner, boolean acknowledgement,
+                boolean expectingAwaitingAcknowlegement) {
+            super(placeId, runner, acknowledgement);
+            this.expectingAwaitingAcknowlegement = expectingAwaitingAcknowlegement;
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            //            System.out.println(evt.getPropertyName() + " for: " + placeId);
+            //            assertEquals(expectingAwaitingAcknowlegement, ((PetriNetRunner) runner).isAwaitingAcknowledgement());
+            super.propertyChange(evt);
+            if (acknowledgement) {
+                int delay = PetriNetRunner.ACKNOWLEDGEMENT_DELAY * 3;
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                runner.acknowledge();
+                //                System.out.println("acknowledging..." + evt.getPropertyName() + " for: " + placeId +
+                //                        " after delay of: " + delay);
+            }
+            called = true;
+        }
+    }
+
+    private class TestingThreadedRunner implements Runnable {
+
+        public Runner runner;
+
+        public TestingThreadedRunner(Runner runner) {
+            this.runner = runner;
+        }
+
+        @Override
+        public void run() {
+            runner.run();
+        }
+
     }
 }

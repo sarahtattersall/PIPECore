@@ -3,6 +3,7 @@ package uk.ac.imperial.pipe.runner;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -95,14 +96,14 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
     public void acknowledgementForZeroTokenEventsBecauseNotPresentedToClient() {
         setUpAcknowledgingListener();
         place.setTokenCount("Default", 0);
-        verify(mockRunner).acknowledge();
+        verify(mockRunner).acknowledge("P1");
     }
 
     @Test
     public void noAcknowledgementForNonZeroTokenEventsBecausePresentedToClient() {
         setUpAcknowledgingListener();
         place.setTokenCount("Default", 1);
-        verify(mockRunner, never()).acknowledge();
+        verify(mockRunner, never()).acknowledge(any(String.class));
     }
 
     public void setUpAcknowledgingListener() {
@@ -119,7 +120,7 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
         assertEquals(BooleanPlaceListener.PLACE_TRUE, evt.getPropertyName());
         assertEquals(true, evt.getNewValue());
         assertEquals(false, evt.getOldValue());
-        assertEquals("P1", ((PlaceListener) evt.getSource()).getPlaceId());
+        assertEquals("P1", ((PlaceTokensListener) evt.getSource()).getPlaceId());
     }
 
 }
