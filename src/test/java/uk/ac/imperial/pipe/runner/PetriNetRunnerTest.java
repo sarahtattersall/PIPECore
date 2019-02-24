@@ -458,6 +458,17 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertEquals("net7", test.getUpdatedContext());
     }
 
+    // P0 -> T0 -> P1 -> T1 -> P2
+    @Test
+    public void markedPlacesReportShowsBeforeAndAfter() throws Exception {
+        net = buildNet("P2");
+        runner = new PetriNetRunner(net);
+        runner.setFiringLimit(10);
+        assertEquals("P0: Default=1  \n", runner.getPlacesReport(true));
+        runner.run();
+        assertEquals("P2: Default=1  \n", runner.getPlacesReport(true));
+    }
+
     @Test
     public void externalTransitionMarksAnotherPlace() throws Exception {
         checkCase = 6;

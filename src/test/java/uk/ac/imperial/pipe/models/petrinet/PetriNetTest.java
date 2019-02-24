@@ -563,6 +563,7 @@ public class PetriNetTest {
     public PetriNet createSimplePetriNet(int tokenWeight, String name) throws PetriNetComponentException {
         String arcWeight = Integer.toString(tokenWeight);
         return APetriNet.named(name).and(AToken.called("Default").withColor(Color.BLACK))
+                .and(AToken.called("red").withColor(Color.RED))
                 .and(APlace.withId("P1").containing(1, "Default").token()).and(APlace.withId("P2"))
                 .and(AnImmediateTransition.withId("T1"))
                 .and(ANormalArc.withSource("P1").andTarget("T1").with(arcWeight, "Default").tokens())
@@ -1037,6 +1038,19 @@ public class PetriNetTest {
         assertEquals(1, net.getPlaces().size());
         assertEquals(p2, net.getInboundArcs().iterator().next().getSource());
         assertEquals("wasnt previously in the net, but now added", p2, net.getPlaces().iterator().next());
+    }
+
+    @Test
+    public void printsReportOfAllPlaceMarkings() throws Exception {
+        net = createSimplePetriNet(1, "aNet");
+        assertEquals("P1: red=0  Default=1  \n" +
+                "P2: red=0  Default=0  \n", net.getPlacesReport(false));
+    }
+
+    @Test
+    public void printsReportOfOnlyMarkedPlaces() throws Exception {
+        net = createSimplePetriNet(1, "aNet");
+        assertEquals("P1: red=0  Default=1  \n", net.getPlacesReport(true));
     }
 
     protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentException {

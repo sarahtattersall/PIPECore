@@ -75,4 +75,11 @@ public interface Runner extends PlaceMarker {
      */
     public void acknowledge(String placeId);
 
+    /**
+     * returns a list of places in the executable Petri net with their current token counts
+     * @param markedPlaces if true, list of places only includes those with at least one non-zero token count
+     * @return sorted list of places with the counts for each token
+     */
+    public String getPlacesReport(boolean markedPlaces);
+
 }

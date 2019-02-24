@@ -580,4 +580,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     }
 
+    @Override
+    public String getPlacesReport(boolean markedPlaces) {
+        return executablePetriNet.getPlacesReport(markedPlaces);
+    }
+
 }

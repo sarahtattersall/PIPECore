@@ -2,11 +2,15 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.xml.bind.annotation.XmlTransient;
@@ -596,6 +600,45 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
      */
     public FunctionalResults<Double> parseExpression(String expression) {
         return functionalWeightParser.evaluateExpression(expression);
+    }
+
+    public String getPlacesReport(boolean markedPlaces) {
+        StringBuffer sb = null;
+        List<String> placeList = new ArrayList<>();
+        Map<String, Integer> tokenMap = null;
+        for (Place place : places.values()) {
+            buildReportStringForPlace(markedPlaces, placeList, place);
+        }
+        Collections.sort(placeList);
+        sb = new StringBuffer();
+        for (String string : placeList) {
+            sb.append(string);
+        }
+        return sb.toString();
+    }
+
+    private void buildReportStringForPlace(boolean markedPlace, List<String> placeList, Place place) {
+        boolean nonzeroCount = false;
+        StringBuffer sb;
+        Map<String, Integer> tokenMap;
+        sb = new StringBuffer();
+        sb.append(place.getId() + ": ");
+        tokenMap = place.getTokenCounts();
+        for (Entry<String, Integer> entry : tokenMap.entrySet()) {
+            sb.append(entry.getKey() + "=");
+            sb.append(entry.getValue() + "  ");
+            if (entry.getValue() > 0) {
+                nonzeroCount = true;
+            }
+        }
+        sb.append("\n");
+        if (markedPlace) {
+            if (nonzeroCount) {
+                placeList.add(sb.toString());
+            }
+        } else {
+            placeList.add(sb.toString());
+        }
     }
 
     /**
