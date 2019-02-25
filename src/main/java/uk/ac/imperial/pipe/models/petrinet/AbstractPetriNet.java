@@ -606,8 +606,12 @@ public abstract class AbstractPetriNet extends AbstractPetriNetPubSub {
         StringBuffer sb = null;
         List<String> placeList = new ArrayList<>();
         Map<String, Integer> tokenMap = null;
-        for (Place place : places.values()) {
-            buildReportStringForPlace(markedPlaces, placeList, place);
+        Place[] placesArray = new Place[places.size()];
+        places.values().toArray(placesArray);
+        // Can't just iterate over places.values() because concurrentModificationException when called from 
+        // external listener on another thread (Runner.getPlacesReport())
+        for (int i = 0; i < placesArray.length; i++) {
+            buildReportStringForPlace(markedPlaces, placeList, placesArray[i]);
         }
         Collections.sort(placeList);
         sb = new StringBuffer();
