@@ -1044,13 +1044,13 @@ public class PetriNetTest {
     public void printsReportOfAllPlaceMarkings() throws Exception {
         net = createSimplePetriNet(1, "aNet");
         assertEquals("P1: red=0  Default=1  \n" +
-                "P2: red=0  Default=0  \n", net.getPlacesReport(false));
+                "P2: red=0  Default=0  \n", net.getPlaceReport(false));
     }
 
     @Test
     public void printsReportOfOnlyMarkedPlaces() throws Exception {
         net = createSimplePetriNet(1, "aNet");
-        assertEquals("P1: red=0  Default=1  \n", net.getPlacesReport(true));
+        assertEquals("P1: red=0  Default=1  \n", net.getPlaceReport(true));
     }
 
     protected void buildNetWithOldAndNewPlaces(String source, String target) throws PetriNetComponentException {

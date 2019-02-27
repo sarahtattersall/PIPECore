@@ -76,10 +76,43 @@ public interface Runner extends PlaceMarker {
     public void acknowledge(String placeId);
 
     /**
-     * returns a list of places in the executable Petri net with their current token counts
-     * @param markedPlaces if true, list of places only includes those with at least one non-zero token count
+     * Returns the most recently created list of places in the executable Petri net with their current token counts,
+     * for ease of testing and debugging.
+     * <p>
+     * The place report is generated after any pending requests to mark places {@link #markPlace(String, String, int)}
+     * have been processed, and before firing the next transition, if any.  Therefore, if the runner client requests
+     * the place report in response to notification of token changes {@link #listenForTokenChanges(PropertyChangeListener, String)},
+     * the report reflects the marking prior to the transition firing that generated the token changes event.
      * @return sorted list of places with the counts for each token
      */
-    public String getPlacesReport(boolean markedPlaces);
+    public String getPlaceReport();
 
+    /**
+     * Returns the most recently created list of places in the executable Petri net with their current token counts
+     * for ease of testing and debugging.
+     * <p>
+     * If requested, place reports are generated just prior to each transition being fired, up to an optional limit,
+     * and stored sequentially in a list, whose current length is available from {@link #placeReportsSize()}
+     * @param index of the place report to be retrieved
+     * @return sorted list of places with the counts for each token
+     * @see #getPlaceReport(int)
+     */
+    public String getPlaceReport(int index);
+
+    /**
+     * Controls the creation and details of place reports {@link #getPlaceReport()}
+     * @param generatePlaceReports if true, place reports will be generated.  Default is false, no place reports are generated
+     * @param markedPlaces if true, place reports will only include places where at least one token is non-zero.  This is the default.
+     *       If false, place reports will include all places.
+     * @param limit on the number of place reports to be created.  After the limit is reached, no additional place reports
+     *       will be generated.  Default is zero, which means no limit.  As a practical matter, if no limit is specified, the limit
+     *       will be at most the firing limit {@link #setFiringLimit(int)}, as one report will be generated for each transition that fires.
+     */
+    public void setPlaceReporterParameters(boolean generatePlaceReports, boolean markedPlaces, int limit);
+
+    /**
+     * The list of place reports will grow with each fired transition, up to an optional limit.
+     * @return the current size of the list of place reports.
+     */
+    public int placeReportsSize();
 }

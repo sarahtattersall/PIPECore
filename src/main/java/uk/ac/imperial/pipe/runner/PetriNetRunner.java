@@ -78,6 +78,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     protected int delay;
     private boolean awaitingAcknowledgement;
     protected int acknowledgementWaitCount;
+    private PlaceReporter placeReporter;
 
     protected boolean isAwaitingAcknowledgement() {
         return awaitingAcknowledgement;
@@ -100,6 +101,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         transitionContextMap = new HashMap<>();
         ended = false;
         started = false;
+        placeReporter = new PlaceReporter(this);
         logger.info("creating PetriNetRunner for PetriNet " + petriNet.getName().getName());
     }
 
@@ -344,6 +346,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     protected boolean fireOneTransition() {
         markPendingPlaces();
+        placeReporter.buildPlaceReport();
         Transition transition = null;
         transition = animator.getRandomEnabledTransition();
         if (transition == null) {
@@ -581,8 +584,29 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     @Override
-    public String getPlacesReport(boolean markedPlaces) {
-        return executablePetriNet.getPlacesReport(markedPlaces);
+    public String getPlaceReport(int index) {
+        return getPlaceReporter().getPlaceReport(index);
+    }
+
+    @Override
+    public String getPlaceReport() {
+        return getPlaceReporter().getPlaceReport();
+    }
+
+    protected PlaceReporter getPlaceReporter() {
+        return placeReporter;
+    }
+
+    @Override
+    public void setPlaceReporterParameters(boolean generatePlaceReports, boolean markedPlaces, int limit) {
+        placeReporter.setGeneratePlaceReports(generatePlaceReports);
+        placeReporter.setMarkedPlaces(markedPlaces);
+        placeReporter.setReportLimit(limit);
+    }
+
+    @Override
+    public int placeReportsSize() {
+        return placeReporter.size();
     }
 
 }

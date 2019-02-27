@@ -460,13 +460,30 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
 
     // P0 -> T0 -> P1 -> T1 -> P2
     @Test
-    public void markedPlacesReportShowsBeforeAndAfter() throws Exception {
+    public void markedPlacesReportShowsBeforeEachFiring() throws Exception {
         net = buildNet("P2");
         runner = new PetriNetRunner(net);
+        runner.setPlaceReporterParameters(true, true, 0);
         runner.setFiringLimit(10);
-        assertEquals("P0: Default=1  \n", runner.getPlacesReport(true));
         runner.run();
-        assertEquals("P2: Default=1  \n", runner.getPlacesReport(true));
+        assertEquals("P0: Default=1  \n", runner.getPlaceReport(0));
+        assertEquals("P1: Default=1  \n", runner.getPlaceReport(1));
+        assertEquals("P2: Default=1  \n", runner.getPlaceReport(2));
+    }
+
+    // P0 -> T0 -> P1 -> T1 -> P2
+    @Test
+    public void parameterPassedToPlaceReporter() throws Exception {
+        net = buildNet("P2");
+        runner = new PetriNetRunner(net);
+        runner.setPlaceReporterParameters(true, true, 0);
+        PlaceReporter placeReporter = ((PetriNetRunner) runner).getPlaceReporter();
+        assertEquals(true, placeReporter.getMarkedPlaces());
+        assertEquals(true, placeReporter.getGeneratePlaceReports());
+        assertEquals(false, placeReporter.isLimited());
+        //        runner.run();
+        //        assertEquals("P0: Default=1  \n", runner.getPlaceReport(0));
+        //        assertEquals("P2: Default=1  \n", runner.getPlaceReport(1));
     }
 
     @Test
