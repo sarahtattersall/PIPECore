@@ -105,6 +105,25 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
                 "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn.xml");
     }
 
+    //    @Test
+    public void runManyTimesForMemoryAnalysis() throws Exception {
+        for (int i = 0; i < 10000; i++) {
+            checkCase = 99;
+            net = buildTestNet();
+            runner = new PetriNetRunner(net);
+            runner.setSeed(456327998101l);
+            runner.listenForTokenChanges(this, "P1");
+            targetPlaceId = "P1";
+            runner.addPropertyChangeListener(this);
+            runner.setFiringLimit(10);
+            runner.run();
+        }
+        //        System.out.println("about to dump heap");
+        //        assertTrue(tokenEvent);
+        //        assertEquals(4, events);
+        //        assertEquals(2, tokenFired);
+    }
+
     @Test
     public void simpleNetNotifiesOfStartAndFinishAndEachStateChange()
             throws InterruptedException, PetriNetComponentException {

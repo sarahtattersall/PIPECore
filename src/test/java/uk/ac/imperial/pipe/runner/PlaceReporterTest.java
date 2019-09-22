@@ -47,7 +47,7 @@ public class PlaceReporterTest {
     }
 
     @Test
-    public void lastReportRetrivedImplicitlyOrExplicitly() throws Exception {
+    public void lastReportRetrievedImplicitlyOrExplicitly() throws Exception {
         pr.setMarkedPlaces(false);
         pr.buildPlaceReport();
         assertEquals("P0: Default=1  \nP1: Default=0  \nP2: Default=0  \n", pr.getPlaceReport());

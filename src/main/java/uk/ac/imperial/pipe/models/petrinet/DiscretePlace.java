@@ -12,6 +12,7 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 /**
  * This class maps to the Place in PNML and has a discrete number of tokens
  */
+//TODO when a place is renamed, the arcs that connect to it should also be renamed
 public class DiscretePlace extends AbstractConnectable implements Place {
 
     /**

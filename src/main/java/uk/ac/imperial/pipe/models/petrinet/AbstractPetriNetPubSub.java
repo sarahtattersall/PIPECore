@@ -33,4 +33,11 @@ public abstract class AbstractPetriNetPubSub {
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
     }
+
+    public void removeAllListeners() {
+        PropertyChangeListener[] listeners = changeSupport.getPropertyChangeListeners();
+        for (int i = 0; i < listeners.length; i++) {
+            removePropertyChangeListener(listeners[i]);
+        }
+    }
 }

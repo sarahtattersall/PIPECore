@@ -119,12 +119,37 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     public void refresh() {
         if (isRefreshRequired()) {
             notifyListenersToRemovePlaces();
+            removeListenersToCurrentComponents();
             initializeMaps();
             refreshIncludeHierarchyComponents();
             addSelfAsListenerForPlaceTokenCountChanges();
             buildState();
             refreshRequired = false;
             changeSupport.firePropertyChange(PETRI_NET_REFRESHED_MESSAGE, null, null);
+        }
+    }
+
+    private void removeListenersToCurrentComponents() {
+        for (Place place : places.values()) {
+            ((AbstractPetriNetPubSub) place).removeAllListeners();
+        }
+        for (Transition transition : transitions.values()) {
+            ((AbstractPetriNetPubSub) transition).removeAllListeners();
+        }
+        for (InboundArc inboundArc : inboundArcs.values()) {
+            ((AbstractPetriNetPubSub) inboundArc).removeAllListeners();
+        }
+        for (OutboundArc outboundArc : outboundArcs.values()) {
+            ((AbstractPetriNetPubSub) outboundArc).removeAllListeners();
+        }
+        for (Token token : tokens.values()) {
+            ((AbstractPetriNetPubSub) token).removeAllListeners();
+        }
+        for (RateParameter rateParameter : rateParameters.values()) {
+            ((AbstractPetriNetPubSub) rateParameter).removeAllListeners();
+        }
+        for (Annotation annotation : annotations.values()) {
+            ((AbstractPetriNetPubSub) annotation).removeAllListeners();
         }
     }
 
@@ -410,8 +435,11 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     }
 
     @Override
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(PropertyChangeEvent event) {
+        //TODO token changes aren't structural, so probably shouldn't force a refresh...
+        //        if (!event.getPropertyName().equals(Place.TOKEN_CHANGE_MESSAGE)) {
         refreshRequired = true;
+        //        }
     }
 
     /**

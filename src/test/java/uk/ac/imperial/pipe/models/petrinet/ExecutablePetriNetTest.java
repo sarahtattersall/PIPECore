@@ -200,7 +200,7 @@ public class ExecutablePetriNetTest {
         verify(mockListener).propertyChange(any(PropertyChangeEvent.class));
     }
 
-    //This behavior is implicitly tested in ClonePetriNetTest so is not strictly necessary but left as a contrast to 
+    //This behavior is implicitly tested in ClonePetriNetTest so is not strictly necessary but left as a contrast to
     // refreshOfExecutablePetriNetRemovesOldExecutablePlacesAsListenersForGuiPlaceChanges,
     // where listening is bi-directional
     @Test
@@ -216,6 +216,9 @@ public class ExecutablePetriNetTest {
         DiscreteTransition rootT0new = (DiscreteTransition) executablePetriNet
                 .getComponent("root.T0", Transition.class);
         checkConnectableHasListener("enabling of refreshed executable transition will notify GUI", true, rootT0new, transition);
+        checkConnectableHasListener("old executable transition not being listened to", false, rootT0, transition);
+        PropertyChangeListener[] listeners = rootT0.changeSupport.getPropertyChangeListeners();
+        assertEquals("...no one now listening to old executable", 0, listeners.length);
     }
 
     @Test
@@ -223,8 +226,8 @@ public class ExecutablePetriNetTest {
         PetriNet petriNet = buildSimpleNet();
         petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
         ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
-        Place rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
-        Place place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
+        DiscretePlace rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+        DiscretePlace place = (DiscretePlace) petriNet.getComponent("P0", Place.class);
         checkConnectableHasListener("GUI token changes will notify executable", true, place, rootP0);
         executablePetriNet.refreshRequired();
         executablePetriNet.refresh();
@@ -233,7 +236,55 @@ public class ExecutablePetriNetTest {
         checkConnectableHasListener("...but will no longer notify old executable", false, place, rootP0);
         checkConnectableHasListener("token changes to executable will notify GUI", true, rootP0new, place);
         // rootP0 still has a reference to place, but not vice versa, so rootP0 should be garbage-collectable
-        checkConnectableHasListener("...so would token changes to old executable, but those won't happen", true, rootP0, place);
+        checkConnectableHasListener("old executable not being listened to", false, rootP0, place);
+        PropertyChangeListener[] listeners = rootP0.changeSupport.getPropertyChangeListeners();
+        assertEquals("...no one now listening to old executable", 0, listeners.length);
+    }
+
+    @Test
+    public void refreshOfExecutablePetriNetRemovesOldListenersForAllComponents() throws Exception {
+        PetriNet petriNet = buildSimpleNet();
+        petriNet.setIncludeHierarchy(new IncludeHierarchy(petriNet, "root"));
+        ExecutablePetriNet executablePetriNet = petriNet.getExecutablePetriNet();
+        DiscretePlace rootP0 = (DiscretePlace) executablePetriNet.getComponent("root.P0", Place.class);
+        DiscreteTransition rootT0 = (DiscreteTransition) executablePetriNet.getComponent("root.T0", Transition.class);
+        OutboundNormalArc rootOutArc = (OutboundNormalArc) executablePetriNet
+                .getComponent("root.T0 TO root.P1", OutboundArc.class);
+        InboundNormalArc rootInArc = (InboundNormalArc) executablePetriNet
+                .getComponent("root.P0 TO root.T0", InboundArc.class);
+        ColoredToken token = (ColoredToken) executablePetriNet
+                .getComponent("Default", Token.class);
+        checkPubSubHasListeners(rootP0, true);
+        checkPubSubHasListeners(rootT0, true);
+        checkPubSubHasListeners(rootOutArc, true);
+        checkPubSubHasListeners(rootInArc, true);
+
+        token.addPropertyChangeListener(mockListener);
+        checkPubSubHasListeners(token, true);
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter("5*2", "R1", "R1");
+        executablePetriNet.rateParameters.put("rate", rateParameter);
+        rateParameter.addPropertyChangeListener(mockListener);
+        checkPubSubHasListeners(rateParameter, true);
+
+        AnnotationImpl annotation = new AnnotationImpl(0, 0, "foo", 10, 10, false);
+        executablePetriNet.annotations.put("foo", annotation);
+        annotation.addPropertyChangeListener(mockListener);
+        checkPubSubHasListeners(annotation, true);
+        executablePetriNet.refreshRequired();
+        executablePetriNet.refresh();
+
+        checkPubSubHasListeners(rootP0, false);
+        checkPubSubHasListeners(rootT0, false);
+        checkPubSubHasListeners(rootOutArc, false);
+        checkPubSubHasListeners(rootInArc, false);
+        checkPubSubHasListeners(token, false);
+        checkPubSubHasListeners(rateParameter, false);
+        checkPubSubHasListeners(annotation, false);
+    }
+
+    private void checkPubSubHasListeners(AbstractPetriNetPubSub component, boolean hasListeners) {
+        PropertyChangeListener[] listeners = component.changeSupport.getPropertyChangeListeners();
+        assertEquals(hasListeners, (listeners.length != 0));
     }
 
     @Test
@@ -694,7 +745,7 @@ public class ExecutablePetriNetTest {
     }
 
     //TODO functionalExpressionsOnAwayInterfacePlacesAreConvertedToReferenceHomePlace
-    //TODO break this into multiple tests 
+    //TODO break this into multiple tests
     private void checkPlaces(String... places) {
         for (int i = 0; i < places.length; i++) {
             try {
