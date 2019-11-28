@@ -286,23 +286,6 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         }
     }
 
-    //    private void rebuildListeners() {
-    //        Set<Entry<String, List<PropertyChangeListener>>> entries = listenerMap.entrySet();
-    //        for (Entry<String, List<PropertyChangeListener>> entry : entries) {
-    //            Place place = null;
-    //            try {
-    //                place = executablePetriNet.getComponent(entry.getKey(), Place.class);
-    //                List<PropertyChangeListener> listeners = entry.getValue();
-    //                for (PropertyChangeListener propertyChangeListener : listeners) {
-    //                    place.addPropertyChangeListener(propertyChangeListener);
-    //                }
-    //            } catch (PetriNetComponentNotFoundException e) {
-    //                e.printStackTrace(); // logic error, since we should guard against this at listen request
-    //            }
-    //
-    //        }
-    //    }
-
     private void rebuildListeners() {
         Set<Entry<String, List<AcknowledgementAwarePropertyChangeListener>>> entries = listenerMap.entrySet();
         for (Entry<String, List<AcknowledgementAwarePropertyChangeListener>> entry : entries) {

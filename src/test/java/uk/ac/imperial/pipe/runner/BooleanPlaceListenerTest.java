@@ -30,6 +30,7 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
     @Mock
     private PetriNetRunner mockRunner;
     private boolean acknowledgement;
+    private boolean checkFalseNow;
 
     @Before
     public void setUp() {
@@ -100,10 +101,50 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
     }
 
     @Test
+    public void eventGeneratedWhenGoingFromNonZeroToZeroIfRequested() {
+        setUpBothEventsPossiblyAcknowledgingListener(false);
+        checkFalseNow = false;
+        place.setTokenCount("Default", 1);
+        assertTrue(eventFired);
+        eventFired = false;
+        checkFalseNow = true;
+        place.setTokenCount("Default", 0);
+        assertTrue("going from 1 to 0 tokens fires event when bothEvents requested", eventFired);
+    }
+
+    @Test
+    public void acknowledgementForInitialZeroTokenEventsEvenWhenBothEventsBecauseNotPresentedToClient() {
+        setUpBothEventsPossiblyAcknowledgingListener(true);
+        checkFalseNow = true;
+        place.setTokenCount("Default", 0); // didn't go from nonzero to zero (instead, null to zero)
+        verify(mockRunner).acknowledge("P1");
+    }
+
+    @Test
     public void noAcknowledgementForNonZeroTokenEventsBecausePresentedToClient() {
         setUpAcknowledgingListener();
         place.setTokenCount("Default", 1);
         verify(mockRunner, never()).acknowledge(any(String.class));
+    }
+
+    @Test
+    public void noAcknowledgementForNonZeroOrZeroTokenEventsBecauseBothEventsPresentedToClient() {
+        setUpBothEventsPossiblyAcknowledgingListener(true);
+        checkFalseNow = false;
+        place.setTokenCount("Default", 1);
+        checkFalseNow = true;
+        place.setTokenCount("Default", 0);
+        verify(mockRunner, never()).acknowledge(any(String.class));
+    }
+
+    @Test
+    public void acknowledgementForNonZeroToNonZeroTokenEventsEvenWhenBothEvents() {
+        setUpBothEventsPossiblyAcknowledgingListener(true);
+        checkFalseNow = false;
+        place.setTokenCount("Default", 1);
+        checkFalseNow = false;
+        place.setTokenCount("Default", 2);
+        verify(mockRunner).acknowledge("P1");
     }
 
     public void setUpAcknowledgingListener() {
@@ -114,9 +155,33 @@ public class BooleanPlaceListenerTest implements PropertyChangeListener {
         booleanListener.changeSupport.addPropertyChangeListener(this);
     }
 
+    public void setUpBothEventsPossiblyAcknowledgingListener(boolean acknowledgement) {
+        boolean bothEvents = true;
+        booleanListener = new BooleanPlaceListener("P1", mockRunner, acknowledgement, bothEvents);
+        place = new DiscretePlace("P1");
+        place.addPropertyChangeListener(booleanListener);
+        booleanListener.changeSupport.addPropertyChangeListener(this);
+    }
+
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         eventFired = true;
+        BooleanPlaceListener listener = (BooleanPlaceListener) evt.getSource();
+        if (listener.isBothEvents() && checkFalseNow) {
+            checkFalseEvent(evt);
+        } else {
+            checkTrueEvent(evt);
+        }
+    }
+
+    private void checkFalseEvent(PropertyChangeEvent evt) {
+        assertEquals(BooleanPlaceListener.PLACE_FALSE, evt.getPropertyName());
+        assertEquals(false, evt.getNewValue());
+        assertEquals(true, evt.getOldValue());
+        assertEquals("P1", ((PlaceTokensListener) evt.getSource()).getPlaceId());
+    }
+
+    private void checkTrueEvent(PropertyChangeEvent evt) {
         assertEquals(BooleanPlaceListener.PLACE_TRUE, evt.getPropertyName());
         assertEquals(true, evt.getNewValue());
         assertEquals(false, evt.getOldValue());

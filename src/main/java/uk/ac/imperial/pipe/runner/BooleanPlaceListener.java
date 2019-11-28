@@ -12,13 +12,21 @@ public class BooleanPlaceListener extends PlaceTokensListener {
 
     protected static Logger logger = LogManager.getLogger(BooleanPlaceListener.class);
     public static final String PLACE_TRUE = "place true";
+    public static final String PLACE_FALSE = "place false";
+    private boolean bothEvents;
 
     public BooleanPlaceListener(String placeId) {
-        super(placeId);
+        //        super(placeId);
+        this(placeId, null, false);
     }
 
     public BooleanPlaceListener(String placeId, Runner runner, boolean acknowledgement) {
         super(placeId, runner, acknowledgement);
+    }
+
+    public BooleanPlaceListener(String placeId, Runner runner, boolean acknowledgement, boolean bothEvents) {
+        super(placeId, runner, acknowledgement);
+        this.bothEvents = bothEvents;
     }
 
     @Override
@@ -29,6 +37,10 @@ public class BooleanPlaceListener extends PlaceTokensListener {
             if (zeroToNonZeroCounts()) {
                 logger.debug("received non-zero tokens; about to fire \"place true\" property change");
                 changeSupport.firePropertyChange(PLACE_TRUE, new Boolean(false), new Boolean(true));
+            } else if (bothEvents && nonZeroToZeroCounts()) {
+                logger.debug("received zero tokens and notification requested for both events; " +
+                        "about to fire \"place false\" property change");
+                changeSupport.firePropertyChange(PLACE_FALSE, new Boolean(true), new Boolean(false));
             } else {
                 if (acknowledgement) {
                     runner.acknowledge(placeId);
@@ -57,6 +69,20 @@ public class BooleanPlaceListener extends PlaceTokensListener {
             }
         }
         return zeroToNonZero;
+    }
+
+    private boolean nonZeroToZeroCounts() {
+        boolean nonZeroToZero = false;
+        for (String token : counts.keySet()) {
+            if ((counts.get(token) == 0) && ((oldCounts.get(token) != null) && (oldCounts.get(token) > 0))) {
+                nonZeroToZero = true;
+            }
+        }
+        return nonZeroToZero;
+    }
+
+    protected boolean isBothEvents() {
+        return bothEvents;
     }
 
 }
