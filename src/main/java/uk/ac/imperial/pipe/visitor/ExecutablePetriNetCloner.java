@@ -6,19 +6,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.IncludeIterator;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
-import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NoOpInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 
 /**
- * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy} 
+ * Class for cloning exactly a Petri net, or for refreshing an existing {@link ExecutablePetriNet} from the Petri nets of its {@link IncludeHierarchy}
  */
 public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
 
@@ -53,8 +53,8 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
 
     /**
      * Rebuilds an {@link ExecutablePetriNet} from the set of {@link PetriNet} defined in its {@link IncludeHierarchy}.
-     * The following collections are refreshed, by cloning each element in the PetriNet collection, and adding the cloned element to 
-     * the corresponding collection in the ExecutablePetriNet:  
+     * The following collections are refreshed, by cloning each element in the PetriNet collection, and adding the cloned element to
+     * the corresponding collection in the ExecutablePetriNet:
      * <ul>
      * <li>tokens
      * <li>annotations
@@ -69,15 +69,17 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
      * </p><p>
      * Each {@link Place} in the source {@link PetriNet} will listen for changes to the token counts in the corresponding Place in the refreshed ExecutablePetriNet.
      * </p>
-     * @param targetExecutablePetriNet to be refreshed 
+     * @param targetExecutablePetriNet to be refreshed
+     * @throws IncludeException
      */
-    public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet) {
+    public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet)
+            throws IncludeException {
         cloneInstance = new ExecutablePetriNetCloner(targetExecutablePetriNet);
         cloneInstance.clonePetriNetToExecutablePetriNet();
     }
 
     /**
-     * private constructor 
+     * private constructor
      * @param targetExecutablePetriNet to be refreshed from the PetriNets of its IncludeHierarchy
      * @return  cloned Petri net
      */
@@ -88,12 +90,13 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
     }
 
     /**
-     * Refreshes the target ExecutablePetriNet by re-initializing its collections, 
-     * then visiting the components of each PetriNet in its IncludeHierarchy, 
-     * modifying each new component as controlled by {@link #refreshingExecutablePetriNet}, 
-     * and adding each component to the new collection in the ExecutablePetriNet.   
+     * Refreshes the target ExecutablePetriNet by re-initializing its collections,
+     * then visiting the components of each PetriNet in its IncludeHierarchy,
+     * modifying each new component as controlled by {@link #refreshingExecutablePetriNet},
+     * and adding each component to the new collection in the ExecutablePetriNet.
+     * @throws IncludeException
      */
-    private void clonePetriNetToExecutablePetriNet() {
+    private void clonePetriNetToExecutablePetriNet() throws IncludeException {
         buildPendingAwayPlacesForInterfacePlaceConversion();
         IncludeIterator iterator = includeHierarchy.iterator();
         currentIncludeHierarchy = null;
@@ -149,16 +152,16 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
     }
 
     /**
-     * Create a unique name for the {@link PetriNetComponent} by prefixing it with the 
-     * fully qualified name from the {@link IncludeHierarchy} being currently processed.  
-     * @param component to be prefixed 
+     * Create a unique name for the {@link PetriNetComponent} by prefixing it with the
+     * fully qualified name from the {@link IncludeHierarchy} being currently processed.
+     * @param component to be prefixed
      */
     @Override
     protected void prefixIdWithQualifiedName(PetriNetComponent component) {
         currentIncludeHierarchy.prefixComponentIdWithQualifiedName(component);
     }
 
-    private void replaceInterfacePlacesWithOriginalPlaces() {
+    private void replaceInterfacePlacesWithOriginalPlaces() throws IncludeException {
         convertAwayPlaceArcsToUseOriginalPlaces();
         Map<String, Place> newPlaceMap = newPetriNet.getMapForClass(Place.class);
         for (Place place : pendingPlacesToDelete) {
@@ -166,11 +169,17 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
         }
     }
 
-    private void convertAwayPlaceArcsToUseOriginalPlaces() {
+    //TODO test suggests entry key may sometimes be null; figure out why.
+    protected void convertAwayPlaceArcsToUseOriginalPlaces() throws IncludeException {
         Place newPlace = null;
         for (Entry<String, Place> entry : pendingAwayPlaces.entrySet()) {
             if (!(entry.getValue().getStatus().getMergeInterfaceStatus() instanceof NoOpInterfaceStatus)) {
                 newPlace = pendingNewHomePlaces.get(entry.getKey());
+                if (newPlace == null) {
+                    throw new IncludeException(
+                            "Away place " + entry.getValue().getId() + " does not have a corresponding Home place.  " +
+                                    "Possible cause:  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net.");
+                }
                 newPetriNet.convertArcsToUseNewPlace(entry.getValue(), newPlace);
             }
         }

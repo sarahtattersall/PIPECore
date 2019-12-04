@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.google.common.collect.HashMultimap;
 
+import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.parsers.FunctionalWeightParser;
 import uk.ac.imperial.pipe.parsers.PetriNetWeightParser;
@@ -161,7 +162,12 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
     private void refreshIncludeHierarchyComponents() {
         getIncludeHierarchyFromPetriNet(petriNet);
-        ExecutablePetriNetCloner.refreshFromIncludeHierarchy(this);
+        try {
+            ExecutablePetriNetCloner.refreshFromIncludeHierarchy(this);
+        } catch (IncludeException e) {
+            throw new RuntimeException("Failure attempting to refresh executable petri net.  Details:\n" +
+                    e.getMessage());
+        }
     }
 
     private void initializeMaps() {

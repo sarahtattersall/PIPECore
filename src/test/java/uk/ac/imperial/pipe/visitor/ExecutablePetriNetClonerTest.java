@@ -1,10 +1,11 @@
 package uk.ac.imperial.pipe.visitor;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.awt.Color;
+import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,12 +20,15 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
+import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAvailable;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
+import uk.ac.imperial.pipe.models.petrinet.NoOpInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Place;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
@@ -64,7 +68,7 @@ public class ExecutablePetriNetClonerTest {
     }
 
     //TODO test for transitionOut/InboundArcs
-    //TODO test for arcweights 
+    //TODO test for arcweights
     @Test
     public void convertsArcsFromInterfacePlaceToNewOriginPlace() throws Exception {
         buildIncludeHierarchyAndRefreshExecutablePetriNet();
@@ -92,6 +96,40 @@ public class ExecutablePetriNetClonerTest {
                 .size());
         assertEquals("a.P0", ExecutablePetriNetCloner.cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion()
                 .values().iterator().next().getId());
+    }
+
+    @Test
+    public void throwsIfAwayPlaceHasNoCorrespondingHomePlaceWhenConvertingArcs() throws Exception {
+        buildIncludeHierarchyAndRefreshExecutablePetriNet();
+        // refresh builds pending home places
+        Place originPlace = net2.getComponent("P0", Place.class);
+        includes.getInclude("a").addToInterface(originPlace, true, false, false, false);
+
+        Place topPlace = includes.getInterfacePlace("a.P0");
+        assertTrue(includes.getInterfacePlace("a.P0").getStatus()
+                .getMergeInterfaceStatus() instanceof MergeInterfaceStatusAvailable);
+        assertTrue(includes.getInclude("a").getInterfacePlace("P0").getStatus()
+                .getMergeInterfaceStatus() instanceof MergeInterfaceStatusHome);
+        includes.addAvailablePlaceToPetriNet(topPlace);
+        assertTrue(includes.getInterfacePlace("a.P0").getStatus()
+                .getMergeInterfaceStatus() instanceof MergeInterfaceStatusAway);
+        HashMap<String, String> weights = new HashMap<>();
+        // need an arc that uses the away place
+        weights.put("default", "1");
+        executablePetriNet.addArc(new InboundNormalArc(topPlace, net2.getComponent("T0", Transition.class), weights));
+        PlaceStatus placeStatus = includes.getInclude("a").getInterfacePlace("P0").getStatus();
+        // remove home status from original place
+        placeStatus.setMergeInterfaceStatus(new NoOpInterfaceStatus(placeStatus));
+        ExecutablePetriNetCloner.cloneInstance.pendingNewHomePlaces = new HashMap<>();
+        // NPE when creating arc if not caught.
+        try {
+            ExecutablePetriNetCloner.refreshFromIncludeHierarchy(executablePetriNet);
+            fail("should throw");
+        } catch (IncludeException e) {
+            assertEquals("Away place a.P0 does not have a corresponding Home place.  " +
+                    "Possible cause:  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net.", e
+                            .getMessage());
+        }
     }
 
     @Test
@@ -130,14 +168,18 @@ public class ExecutablePetriNetClonerTest {
 
     private void buildIncludeHierarchyAndRefreshExecutablePetriNet()
             throws PetriNetComponentException, IncludeException {
+        buildIncludeHierarchy();
+        executablePetriNet = new ExecutablePetriNet(oldPetriNet);
+        ExecutablePetriNetCloner.refreshFromIncludeHierarchy(executablePetriNet);
+    }
+
+    private void buildIncludeHierarchy() throws PetriNetComponentException, IncludeException {
         buildSimpleNet();
         oldPetriNet.setName(new NormalPetriNetName("net"));
         net2 = buildTestNet();
         includes = new IncludeHierarchy(oldPetriNet, "top");
         includes.include(net2, "a");
         oldPetriNet.setIncludeHierarchy(includes);
-        executablePetriNet = new ExecutablePetriNet(oldPetriNet);
-        ExecutablePetriNetCloner.refreshFromIncludeHierarchy(executablePetriNet);
     }
 
     protected void checkExecutableHasSumOfOldPNAndNet2Components(PetriNet net2,

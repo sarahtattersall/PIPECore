@@ -17,11 +17,11 @@ public class BooleanPlaceListener extends PlaceTokensListener {
 
     public BooleanPlaceListener(String placeId) {
         //        super(placeId);
-        this(placeId, null, false);
+        this(placeId, null, false, false);
     }
 
     public BooleanPlaceListener(String placeId, Runner runner, boolean acknowledgement) {
-        super(placeId, runner, acknowledgement);
+        this(placeId, runner, acknowledgement, false);
     }
 
     public BooleanPlaceListener(String placeId, Runner runner, boolean acknowledgement, boolean bothEvents) {

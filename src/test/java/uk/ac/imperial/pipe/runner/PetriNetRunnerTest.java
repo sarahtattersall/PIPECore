@@ -102,7 +102,8 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     public void runAgainstTestFile()
             throws InterruptedException, PetriNetComponentException {
         runner = new PetriNetRunner(
-                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn.xml");
+                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-navigate-move-turn-run.xml");
+        //    "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn.xml");
     }
 
     //    @Test
