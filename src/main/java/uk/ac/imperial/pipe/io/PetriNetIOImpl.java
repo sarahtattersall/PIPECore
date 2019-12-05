@@ -92,7 +92,7 @@ public class PetriNetIOImpl implements PetriNetIO, ErrorHandler {
         // after 10 errors in static field, generating unpredictable test side effects, under Java 1.8
         // https://java.net/projects/jaxb/lists/commits/archive/2013-08/message/4
         // https://java.net/projects/jaxb/lists/users/archive/2015-11/message/6
-        Logger.getLogger("com.sun.xml.internal.bind").setLevel(Level.FINEST);
+        Logger.getLogger("com.sun.xml.bind").setLevel(Level.FINEST);
     }
 
     /**

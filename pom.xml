@@ -132,7 +132,30 @@
         	<artifactId>log4j-core</artifactId>
         	<version>2.3</version>
         </dependency>
-    </dependencies>
+
+	<!-- later than Java 8, jaxb no longer part of the JDK, so add it -->
+		<dependency>
+		    <groupId>javax.xml.bind</groupId>
+		    <artifactId>jaxb-api</artifactId>
+		    <version>2.3.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.sun.xml.bind</groupId>
+		  <artifactId>jaxb-core</artifactId>
+		  <version>2.3.0</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.sun.xml.bind</groupId>
+		  <artifactId>jaxb-impl</artifactId>
+		  <version>2.3.0</version>
+		</dependency>		        
+<!-- 		<dependency>
+		    <groupId>org.glassfish.jaxb</groupId>
+		    <artifactId>jaxb-runtime</artifactId>
+		    <version>2.3.1</version>
+		    <scope>runtime</scope>
+		</dependency>        
+ -->    </dependencies>
 
 
     <build>
