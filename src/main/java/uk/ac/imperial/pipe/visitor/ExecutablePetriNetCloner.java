@@ -178,7 +178,9 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
                 if (newPlace == null) {
                     throw new IncludeException(
                             "Away place " + entry.getValue().getId() + " does not have a corresponding Home place.  " +
-                                    "Possible cause:  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net.");
+                                    "Possible causes:\n" +
+                                    "  petri net opened standalone, outside of its include hierarchy\n" +
+                                    "  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net");
                 }
                 newPetriNet.convertArcsToUseNewPlace(entry.getValue(), newPlace);
             }

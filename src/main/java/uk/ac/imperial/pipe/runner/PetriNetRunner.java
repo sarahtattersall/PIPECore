@@ -136,7 +136,11 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     private boolean runContinue() {
         boolean transitionsToFire = true;
-        while ((round < firingLimit) && transitionsToFire) {
+        while (transitionsToFire) {
+            if (round >= firingLimit) {
+                logger.debug("Firing limit reached: " + firingLimit + ".  Execution will stop.");
+                return false;
+            }
             round++;
             delay();
             transitionsToFire = fireOneTransition();

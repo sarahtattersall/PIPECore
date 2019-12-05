@@ -1,6 +1,7 @@
 package uk.ac.imperial.pipe.runner;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -711,6 +712,43 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         assertTrue(listenerP1.called);
         assertTrue(listenerP3.called);
         //        System.out.println("test ending");
+    }
+
+    // P0 -> T0 -> P1 (no ack) -> T1 -> P2 -> T2 -> P3 (ack) -> T3 -> P4
+    @Test
+    public void runWithAcknowledgmentStopsAtLimit() throws Exception {
+        net = buildAcknowledgementTestNet();
+        PetriNetRunner testingRunner = new PetriNetRunner(net);
+        TestingBooleanListener listenerP1 = new TestingBooleanListener("P1", testingRunner, false, false);
+        TestingBooleanListener listenerP3 = new TestingBooleanListener("P3", testingRunner, false, true);
+        testingRunner.setSeed(456327998101l);
+        testingRunner.setPlaceReporterParameters(true, true, 0);
+        testingRunner.listenForTokenChanges(listenerP1, "P1", false);
+        testingRunner.listenForTokenChanges(listenerP3, "P3", true);
+        testingRunner.setFiringLimit(2);
+        TestingThreadedRunner testingThreadedRunner = new TestingThreadedRunner(testingRunner);
+        Thread thread = new Thread(testingThreadedRunner, "runner thread");
+        thread.start();
+        System.out.println("test thread started");
+        int waitCountBefore = 0;
+        int waitCountAfter = 0;
+        for (int i = 0; i < 2; i++) {
+            waitCountBefore = testingRunner.acknowledgementWaitCount;
+            //            System.out.println("waitCountBefore: " + waitCountBefore);
+            Thread.sleep(50);
+            //            System.out.println("test sleeping");
+            waitCountAfter = testingRunner.acknowledgementWaitCount;
+            //            System.out.println("waitCountBefore: " + waitCountBefore + " waitCountAfter: " + waitCountAfter);
+            //            assertTrue(waitCountAfter > waitCountBefore);
+            testingRunner.acknowledge();
+            testingRunner.acknowledgementWaitCount = 0;
+        }
+
+        assertTrue(listenerP1.called);
+        assertFalse(listenerP3.called);
+        //        assertTrue(listenerP3.called);
+        System.out.println(testingThreadedRunner.runner.getPlaceReport());
+        assertEquals("P1: Default=1  \n", testingThreadedRunner.runner.getPlaceReport());
     }
 
     private PetriNet buildNonFiringNetWithExternalInput() throws PetriNetComponentException {

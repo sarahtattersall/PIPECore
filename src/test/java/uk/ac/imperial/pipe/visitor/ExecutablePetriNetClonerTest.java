@@ -127,7 +127,9 @@ public class ExecutablePetriNetClonerTest {
             fail("should throw");
         } catch (IncludeException e) {
             assertEquals("Away place a.P0 does not have a corresponding Home place.  " +
-                    "Possible cause:  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net.", e
+                    "Possible causes:\n" +
+                    "  petri net opened standalone, outside of its include hierarchy\n" +
+                    "  missing 'merge type=\"home\"' entry in the PNML for the place in its home petri net", e
                             .getMessage());
         }
     }
