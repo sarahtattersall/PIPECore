@@ -41,6 +41,11 @@ public class InboundNormalArc extends InboundArc {
     public final boolean canFire(ExecutablePetriNet executablePetriNet, State state) {
         Place place = getSource();
         Map<String, Integer> tokenCounts = state.getTokens(place.getId());
+        if (tokenCounts == null) { // TODO test for null token counts for away places
+            throw new RuntimeException("Null token counts found for place " + place.getId() +
+                    " for arc " + this.getId() + ".  Possible causes:\n" +
+                    "  petri net opened standalone, outside of its include hierarchy");
+        }
         if (allTokenCountsAreZero(tokenCounts)) {
             return false;
         }
