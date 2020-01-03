@@ -103,8 +103,9 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     public void runAgainstTestFile()
             throws InterruptedException, PetriNetComponentException {
         runner = new PetriNetRunner(
-                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-navigate-move-turn-run.xml");
-        //    "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn.xml");
+                //                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/move-SA.xml");
+                //    "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-navigate-move-turn-run.xml");
+                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn-run.xml");
     }
 
     //    @Test
@@ -203,11 +204,11 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     public void appliesPendingMarkingsBeforeEachTransitionFiring() throws Exception {
         net = buildTestNet();
         PetriNetRunner runner = new PetriNetRunner(net);
-        assertEquals(0, runner.getPendingPlaceMarkings().size());
+        assertEquals(0, runner.getPendingPlaceMarkingsSize());
         runner.markPlace("P2", "Default", 2);
-        assertEquals(1, runner.getPendingPlaceMarkings().size());
+        assertEquals(1, runner.getPendingPlaceMarkingsSize());
         runner.fireOneTransition();
-        assertEquals(0, runner.getPendingPlaceMarkings().size());
+        assertEquals(0, runner.getPendingPlaceMarkingsSize());
     }
 
     @Test

@@ -7,7 +7,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,6 +14,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.xml.bind.JAXBException;
 
@@ -70,7 +71,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     protected Firing firing;
     //    private Map<String, List<PropertyChangeListener>> listenerMap;
     private Map<String, List<AcknowledgementAwarePropertyChangeListener>> listenerMap;
-    private List<TokenCount> pendingPlaceMarkings;
+    private BlockingQueue<TokenCount> pendingPlaceMarkingsQueue;
     private Map<String, Object> transitionContextMap;
     private boolean waitForExternalInput;
     private boolean started;
@@ -93,11 +94,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         //transitionsToFire = true;
         previousState = executablePetriNet.getState();
         previousFiring = new Firing(round, "", previousState);
-        ;
         animator = new PetriNetAnimator(executablePetriNet);
         //        listenerMap = new HashMap<>();
         listenerMap = new HashMap<>();
-        pendingPlaceMarkings = new ArrayList<>();
+        pendingPlaceMarkingsQueue = new LinkedBlockingQueue<>();
         transitionContextMap = new HashMap<>();
         ended = false;
         started = false;
@@ -185,8 +185,14 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     public void markPlace(String placeId, String token, int count) throws InterfaceException {
         validateToken(token);
         validatePlace(placeId, MARK_PLACE);
-        pendingPlaceMarkings.add(new TokenCount(placeId, token, count));
-        logger.debug("received request to mark place " + placeId + " with " + count + " " + token + " tokens.");
+        String message = "received request to mark place " + placeId + " with " + count + " " + token + " tokens.";
+        try {
+            pendingPlaceMarkingsQueue.put(new TokenCount(placeId, token, count));
+        } catch (InterruptedException e) {
+            throw new InterfaceException(
+                    "Received InterruptedException while adding a request:\n" + message + "\n" + e.getStackTrace());
+        }
+        logger.debug(message);
     }
 
     private void validateToken(String requestedToken) throws InterfaceException {
@@ -308,10 +314,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     private void markPendingPlaces() {
-        Iterator<TokenCount> iterator = pendingPlaceMarkings.iterator();
-        TokenCount tokenCount = null;
-        while (iterator.hasNext()) {
-            tokenCount = iterator.next();
+        TokenCount tokenCount = pendingPlaceMarkingsQueue.poll();
+        boolean tokenCountsFound = false;
+        while (tokenCount != null) {
+            tokenCountsFound = true;
             try {
                 Place place = executablePetriNet.getComponent(tokenCount.placeId, Place.class);
                 place.setTokenCount(tokenCount.token, tokenCount.count);
@@ -320,15 +326,15 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
             } catch (PetriNetComponentNotFoundException e) {
                 e.printStackTrace(); // logic error, since we should guard against this at marking request
             }
-            iterator.remove();
+            tokenCount = pendingPlaceMarkingsQueue.poll();
         }
-        if (tokenCount != null) {
+        if (tokenCountsFound) {
             // TODO: Can token counts can be decreased?
             // This should be checked too.
             this.executablePetriNet.getTimingQueue()
                     .queueEnabledTimedTransitions(this.executablePetriNet.getEnabledTimedTransitions());
-            //					this.executablePetriNet.getTimedState().getEnabledTimedTransitions() );
         }
+
     }
 
     protected boolean fireOneTransition() {
@@ -379,8 +385,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         return listenerMap;
     }
 
-    protected List<TokenCount> getPendingPlaceMarkings() {
-        return pendingPlaceMarkings;
+    protected int getPendingPlaceMarkingsSize() {
+        return pendingPlaceMarkingsQueue.size();
     }
 
     public static void main(String[] args) {
