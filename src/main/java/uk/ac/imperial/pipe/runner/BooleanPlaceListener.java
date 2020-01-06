@@ -45,9 +45,10 @@ public class BooleanPlaceListener extends PlaceTokensListener {
                 if (acknowledgement) {
                     runner.acknowledge(placeId);
                     Entry<String, Integer> entry = counts.entrySet().iterator().next();
-                    logger.debug("acknowledging " + Place.TOKEN_CHANGE_MESSAGE + " event for update of place " +
+                    logger.debug("Automatic acknowledgment of " + Place.TOKEN_CHANGE_MESSAGE +
+                            " event for update of place " +
                             placeId +
-                            " with zero tokens" + entry.getKey() + " = " + entry.getValue());
+                            " with token count " + entry.getKey() + " = " + entry.getValue());
                 }
             }
         }

@@ -80,6 +80,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private boolean awaitingAcknowledgement;
     protected int acknowledgementWaitCount;
     private PlaceReporter placeReporter;
+    private long seed;
 
     protected boolean isAwaitingAcknowledgement() {
         return awaitingAcknowledgement;
@@ -114,6 +115,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     @Override
     public void setSeed(long seed) {
+        this.seed = seed;
         this.random = new Random(seed);
         animator.setRandom(random);
     }
@@ -127,7 +129,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     public void run() {
         if (ended)
             throw new IllegalStateException(PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION);
-        logger.info("run ExecutablePetriNet " + executablePetriNet.getName().getName());
+        logger.info("run ExecutablePetriNet " + executablePetriNet.getName().getName() + " with seed " + seed);
         start();
         if (!runContinue()) {
             end();
@@ -344,6 +346,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         transition = animator.getRandomEnabledTransition();
         if (transition == null) {
             logger.debug("no enabled transitions to fire");
+            logger.debug(placeReporter.getPlaceReport());
             return false;
         } else {
             logger.debug("about to fire transition " + transition.getId());

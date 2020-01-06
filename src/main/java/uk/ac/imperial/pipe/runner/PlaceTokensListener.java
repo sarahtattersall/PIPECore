@@ -53,7 +53,7 @@ public class PlaceTokensListener extends AbstractPetriNetPubSub implements Prope
     }
 
     /**
-     * sub-class may override this to suppress acknowldgement in some cases; see {@link BooleanPlaceListener}
+     * sub-class may override this to suppress acknowledgement in some cases; see {@link BooleanPlaceListener}
      */
     protected void perhapsAcknowledge() {
         if (acknowledgement) {

@@ -701,7 +701,7 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
         for (int i = 0; i < 2; i++) {
             waitCountBefore = testingRunner.acknowledgementWaitCount;
             //            System.out.println("waitCountBefore: " + waitCountBefore);
-            Thread.sleep(50);
+            Thread.sleep(150); // seems to fail intermittently at 50, with Debug on
             //            System.out.println("test sleeping");
             waitCountAfter = testingRunner.acknowledgementWaitCount;
             //            System.out.println("waitCountBefore: " + waitCountBefore + " waitCountAfter: " + waitCountAfter);
