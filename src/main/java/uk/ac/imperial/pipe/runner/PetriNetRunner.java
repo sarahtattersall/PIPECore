@@ -346,7 +346,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         transition = animator.getRandomEnabledTransition();
         if (transition == null) {
             logger.debug("no enabled transitions to fire");
-            logger.debug(placeReporter.getPlaceReport());
+            if (placeReporter.size() > 0) {
+                logger.debug(placeReporter.getPlaceReport());
+            }
             return false;
         } else {
             logger.debug("about to fire transition " + transition.getId());
