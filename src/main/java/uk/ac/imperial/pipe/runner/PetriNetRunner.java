@@ -347,7 +347,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         if (transition == null) {
             logger.debug("no enabled transitions to fire");
             if (placeReporter.size() > 0) {
-                logger.debug(placeReporter.getPlaceReport());
+                logger.debug("\n" + placeReporter.getPlaceReport());
             }
             return false;
         } else {

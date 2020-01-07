@@ -53,6 +53,9 @@ import uk.ac.imperial.pipe.io.IncludeHierarchyIOImpl;
 import uk.ac.imperial.pipe.io.PetriNetIO;
 import uk.ac.imperial.pipe.io.PetriNetIOImpl;
 import uk.ac.imperial.pipe.io.XMLUtils;
+import uk.ac.imperial.pipe.models.petrinet.Arc;
+import uk.ac.imperial.pipe.models.petrinet.Connectable;
+import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.OutboundArc;
 import uk.ac.imperial.pipe.models.petrinet.OutboundNormalArc;
@@ -102,10 +105,16 @@ public class PetriNetRunnerTest implements PropertyChangeListener {
     //    @Test
     public void runAgainstTestFile()
             throws InterruptedException, PetriNetComponentException {
-        runner = new PetriNetRunner(
+        PetriNetRunner pnrunner = new PetriNetRunner(
+                //        runner = new PetriNetRunner(
                 //                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/move-SA.xml");
-                //    "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-navigate-move-turn-run.xml");
-                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn-run.xml");
+                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-navigate-move-turn-run.xml");
+        //                "/Users/steve/oldmac/stevedoubleday/git/simulated-motion/src/petrinet/include-move-turn-run.xml");
+        ExecutablePetriNet exnet = pnrunner.executablePetriNet;
+        for (Arc<? extends Connectable, ? extends Connectable> arc : exnet.getArcs()) {
+            System.out.println(arc.getId() + " source: " + arc.getSource().getId() + " target: " +
+                    arc.getTarget().getId() + " type: " + arc.getType().name());
+        }
     }
 
     //    @Test
