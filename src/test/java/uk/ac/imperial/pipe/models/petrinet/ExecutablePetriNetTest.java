@@ -15,6 +15,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -66,6 +68,29 @@ public class ExecutablePetriNetTest {
         ExecutablePetriNet epn2 = net2.getExecutablePetriNet();
         assertTrue(executablePetriNet.equals(epn2));
         assertEquals(executablePetriNet.hashCode(), epn2.hashCode());
+    }
+
+    @Test
+    public void buildsListOfTokensForValidation() throws PetriNetComponentException {
+        net = buildTestNet();
+        executablePetriNet = net.getExecutablePetriNet();
+        List<String> tokenNames = executablePetriNet.getTokenNamesForValidation();
+        assertEquals(1, tokenNames.size());
+        assertEquals("Default", tokenNames.get(0));
+    }
+
+    @Test
+    public void buildsListOfPlacesAndExternalAccessibility() throws PetriNetComponentException {
+        net = buildTestNet();
+        Place p1 = net.getComponent("P1", Place.class);
+        p1.setStatus(new PlaceStatusInterface());
+        p1.getStatus().setExternal(true);
+        executablePetriNet = net.getExecutablePetriNet();
+        Map<String, Boolean> placeMap = executablePetriNet.getPlaceMapForValidation();
+        assertEquals(2, placeMap.size());
+        assertEquals("P0", placeMap.keySet().iterator().next());
+        assertFalse("not externally accessible", placeMap.get("P0"));
+        assertTrue("externally accessible", placeMap.get("P1"));
     }
 
     @Test

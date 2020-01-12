@@ -5,6 +5,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
@@ -14,6 +18,7 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
  */
 //TODO when a place is renamed, the arcs that connect to it should also be renamed
 public class DiscretePlace extends AbstractConnectable implements Place {
+    protected static Logger logger = LogManager.getLogger(DiscretePlace.class);
 
     /**
      * Marking x offset relative to the place x coordinate
@@ -202,7 +207,17 @@ public class DiscretePlace extends AbstractConnectable implements Place {
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         this.tokenCounts = new HashMap<>(tokenCounts);
+        //        printNonZeroCounts(tokenCounts);
         return old;
+    }
+
+    private void printNonZeroCounts(Map<String, Integer> tokenCounts) {
+        for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
+            if (entry.getValue() > 0) {
+                logger.debug("setting token counts for place " + getId() + ": token: " +
+                        entry.getKey() + " count: " + entry.getValue());
+            }
+        }
     }
 
     /**
@@ -458,6 +473,12 @@ public class DiscretePlace extends AbstractConnectable implements Place {
         if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
             Map<String, Integer> tokenCounts = (Map<String, Integer>) event.getNewValue();
             Map<String, Integer> old = setTokenCountsBare(tokenCounts);
+            //            for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
+            //                if (entry.getValue() > 0) {
+            //                    logger.debug("just notified " + getId() + " of token change " + entry.getKey() + ": " +
+            //                            entry.getValue());
+            //                }
+            //            }
             notifyTokenListeners(TOKEN_CHANGE_MIRROR_MESSAGE, old, tokenCounts);
         } else if (event.getPropertyName().equals(REMOVE_PLACE_MESSAGE)) {
             changeSupport.removePropertyChangeListener((PropertyChangeListener) event.getSource());

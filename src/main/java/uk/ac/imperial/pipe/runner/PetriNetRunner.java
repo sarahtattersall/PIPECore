@@ -38,7 +38,6 @@ import uk.ac.imperial.pipe.models.petrinet.IncludeHierarchy;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 import uk.ac.imperial.pipe.models.petrinet.PetriNetAnimator;
 import uk.ac.imperial.pipe.models.petrinet.Place;
-import uk.ac.imperial.pipe.models.petrinet.Token;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.state.State;
 
@@ -81,6 +80,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     protected int acknowledgementWaitCount;
     private PlaceReporter placeReporter;
     private long seed;
+    protected ExecutablePetriNet validationPetriNet;
 
     protected boolean isAwaitingAcknowledgement() {
         return awaitingAcknowledgement;
@@ -92,11 +92,9 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         executablePetriNet = petriNet.getExecutablePetriNet();
         executablePetriNet.addPropertyChangeListener(ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE, this);
         round = 0;
-        //transitionsToFire = true;
         previousState = executablePetriNet.getState();
         previousFiring = new Firing(round, "", previousState);
         animator = new PetriNetAnimator(executablePetriNet);
-        //        listenerMap = new HashMap<>();
         listenerMap = new HashMap<>();
         pendingPlaceMarkingsQueue = new LinkedBlockingQueue<>();
         transitionContextMap = new HashMap<>();
@@ -199,11 +197,16 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     private void validateToken(String requestedToken) throws InterfaceException {
         boolean found = false;
-        for (Token token : executablePetriNet.getTokens()) {
-            if (token.getId().equalsIgnoreCase(requestedToken)) {
+        for (String token : executablePetriNet.getTokenNamesForValidation()) {
+            if (token.equalsIgnoreCase(requestedToken)) {
                 found = true;
             }
         }
+        //        for (Token token : executablePetriNet.getTokensBare()) {
+        //            if (token.getId().equalsIgnoreCase(requestedToken)) {
+        //                found = true;
+        //            }
+        //        }
         if (!found) {
             throw new InterfaceException(PETRI_NET_RUNNER_DOT + MARK_PLACE +
                     ": requested token does not exist in executable Petri net: " + requestedToken);
@@ -219,16 +222,11 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     public void listenForTokenChanges(PropertyChangeListener listener, String placeId, boolean acknowledgement)
             throws InterfaceException {
         validatePlace(placeId, LISTEN_FOR_TOKEN_CHANGES);
-        //        if (!(listenerMap.containsKey(placeId))) {
-        //            listenerMap.put(placeId, new ArrayList<PropertyChangeListener>());
-        //        }
-        //        listenerMap.get(placeId).add(listener);
         if (!(listenerMap.containsKey(placeId))) {
             listenerMap.put(placeId, new ArrayList<AcknowledgementAwarePropertyChangeListener>());
         }
         listenerMap.get(placeId)
                 .add(new AcknowledgementAwarePropertyChangeListener(this, listener, acknowledgement));
-        //        rebuildListeners();
         rebuildListeners();
         logger.debug("received request from listener " + listener + " for token changes to place " + placeId);
     }
@@ -249,16 +247,25 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     private void validatePlace(String placeId, String location) throws InterfaceException {
-        try {
-            Place place = executablePetriNet.getComponent(placeId, Place.class);
-            if (!place.getStatus().isExternal()) {
-                throw new InterfaceException(
-                        PETRI_NET_RUNNER_DOT + location + ": requested place is not externally accessible: " + placeId);
-            }
-        } catch (PetriNetComponentNotFoundException e) {
+        Boolean accessible = executablePetriNet.getPlaceMapForValidation().get(placeId);
+        if (accessible == null) {
             throw new InterfaceException(PETRI_NET_RUNNER_DOT + location +
                     ": requested place does not exist in executable Petri net: " + placeId);
         }
+        if (!accessible) {
+            throw new InterfaceException(
+                    PETRI_NET_RUNNER_DOT + location + ": requested place is not externally accessible: " + placeId);
+        }
+        //        try {
+        //            Place place = executablePetriNet.getComponent(placeId, Place.class);
+        //            if (!place.getStatus().isExternal()) {
+        //                throw new InterfaceException(
+        //                        PETRI_NET_RUNNER_DOT + location + ": requested place is not externally accessible: " + placeId);
+        //            }
+        //        } catch (PetriNetComponentNotFoundException e) {
+        //            throw new InterfaceException(PETRI_NET_RUNNER_DOT + location +
+        //                    ": requested place does not exist in executable Petri net: " + placeId);
+        //        }
     }
 
     @Override
@@ -347,8 +354,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         if (transition == null) {
             logger.debug("no enabled transitions to fire");
             if (placeReporter.size() > 0) {
+                placeReporter.buildPlaceReport();
                 logger.debug("\n" + placeReporter.getPlaceReport());
             }
+            transition = animator.getRandomEnabledTransition(); // debugging purposes only
             return false;
         } else {
             logger.debug("about to fire transition " + transition.getId());

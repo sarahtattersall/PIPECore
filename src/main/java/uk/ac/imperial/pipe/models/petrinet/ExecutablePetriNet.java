@@ -2,9 +2,11 @@ package uk.ac.imperial.pipe.models.petrinet;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +70,18 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
     private boolean refreshRequired;
     private State state;
     private TimingQueue timingQueue;
+    /**
+     * List of names of tokens to be used for validation by {@link Runner}
+     * built once and only refreshed explicitly, so implies stability of tokens
+     * Used during Runner processing; will not be useful during UI processing.
+     */
+    private List<String> validationTokenNames;
+    /**
+     * Map of names of places and their external accessibility to be used for validation by {@link Runner}
+     * built once and only refreshed explicitly, so implies stability of tokens
+     * Used during Runner processing; will not be useful during UI processing.
+     */
+    private Map<String, Boolean> validationPlaceMap;
 
     /**
      * Functional weight parser
@@ -845,6 +859,26 @@ public class ExecutablePetriNet extends AbstractPetriNet implements PropertyChan
 
     private void getIncludeHierarchyFromPetriNet(PetriNet petriNet) {
         includeHierarchy = petriNet.getIncludeHierarchy();
+    }
+
+    public List<String> getTokenNamesForValidation() {
+        if (validationTokenNames == null) {
+            validationTokenNames = new ArrayList<>();
+            for (String tokenName : tokens.keySet()) {
+                validationTokenNames.add(tokenName);
+            }
+        }
+        return validationTokenNames;
+    }
+
+    public Map<String, Boolean> getPlaceMapForValidation() {
+        if (validationPlaceMap == null) {
+            validationPlaceMap = new HashMap<>();
+            for (Place place : places.values()) {
+                validationPlaceMap.put(place.getId(), place.getStatus().isExternal());
+            }
+        }
+        return validationPlaceMap;
     }
 
 }
