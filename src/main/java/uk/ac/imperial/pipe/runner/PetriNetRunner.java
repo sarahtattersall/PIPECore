@@ -355,43 +355,49 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     protected boolean fireOneTransition() {
-        boolean enabledTransition = false;
+        boolean fired = false;
+        Transition enabledTransition = findEnabledTransition();
+        if (enabledTransition != null) {
+            logger.debug("about to fire transition " + enabledTransition.getId());
+            animator.fireTransition(enabledTransition);
+            firing = new Firing(round, enabledTransition.getId(), executablePetriNet.getState());
+            changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
+            previousFiring = firing;
+            fired = true;
+        }
+        return fired;
+    }
+
+    //TODO test
+    protected Transition findEnabledTransition() {
+        Transition enabledTransition = null;
         markPendingPlaces();
         placeReporter.buildPlaceReport();
-        Transition transition = null;
-        transition = animator.getRandomEnabledTransition();
-        if (transition != null) {
-            enabledTransition = true;
-        } else {
+        enabledTransition = animator.getRandomEnabledTransition();
+        if (enabledTransition == null) {
             logger.debug("no enabled transitions to fire");
-            if (placeReporter.size() > 0) {
-                placeReporter.buildPlaceReport();
-                logger.debug("\n" + placeReporter.getPlaceReport());
-            }
-            if (tryAfterNoEnabledTransitions) {
+            logPlaceReport();
+            if (tryAfterNoEnabledTransitions) { // TODO test
                 delay(DELAY_AFTER_NO_ENABLED_TRANSITIONS);
                 logger.debug("delaying " + DELAY_AFTER_NO_ENABLED_TRANSITIONS +
                         " milliseconds, marking pending places, and looking for enabled transitions to fire");
                 markPendingPlaces();
-                transition = animator.getRandomEnabledTransition();
-                if (placeReporter.size() > 0) {
-                    placeReporter.buildPlaceReport();
-                    logger.debug("\n" + placeReporter.getPlaceReport());
-                }
-                if (transition == null) { // still no enabled transitions
-                    enabledTransition = false;
+                enabledTransition = animator.getRandomEnabledTransition();
+                logPlaceReport();
+                if (enabledTransition == null) {
+                    logger.debug("still no enabled transitions to fire after waiting " +
+                            DELAY_AFTER_NO_ENABLED_TRANSITIONS + " milliseconds");
                 }
             }
         }
-        if (enabledTransition) {
-            logger.debug("about to fire transition " + transition.getId());
-            animator.fireTransition(transition);
-            firing = new Firing(round, transition.getId(), executablePetriNet.getState());
-            changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
-            previousFiring = firing;
-            //            return true;
-        }
         return enabledTransition;
+    }
+
+    private void logPlaceReport() {
+        if (placeReporter.size() > 0) {
+            placeReporter.buildPlaceReport();
+            logger.debug("\n" + placeReporter.getPlaceReport());
+        }
     }
 
     protected void end() {
