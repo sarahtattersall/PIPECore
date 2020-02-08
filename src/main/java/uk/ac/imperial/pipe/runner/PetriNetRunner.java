@@ -43,7 +43,7 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
-    public static final int DELAY_AFTER_NO_ENABLED_TRANSITIONS = 100;
+    public static final int DELAY_AFTER_NO_ENABLED_TRANSITIONS = 1000;
     protected static final String PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION = "Petrinet cannot be run after it has completed execution.  Create another runner and start from the beginning.";
     protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);
     protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
@@ -370,7 +370,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
             }
             if (tryAfterNoEnabledTransitions) {
                 delay(DELAY_AFTER_NO_ENABLED_TRANSITIONS);
-                logger.debug("delaying 1 seconds, marking pending places, and looking for enabled transitions to fire");
+                logger.debug("delaying " + DELAY_AFTER_NO_ENABLED_TRANSITIONS +
+                        " milliseconds, marking pending places, and looking for enabled transitions to fire");
                 markPendingPlaces();
                 transition = animator.getRandomEnabledTransition();
                 if (placeReporter.size() > 0) {
