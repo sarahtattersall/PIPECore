@@ -43,6 +43,7 @@ import uk.ac.imperial.state.State;
 
 public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, PropertyChangeListener {
 
+    public static final int DELAY_AFTER_NO_ENABLED_TRANSITIONS = 100;
     protected static final String PETRINET_CANNOT_BE_RUN_AFTER_IT_HAS_COMPLETED_EXECUTION = "Petrinet cannot be run after it has completed execution.  Create another runner and start from the beginning.";
     protected static Logger logger = LogManager.getLogger(PetriNetRunner.class);
     protected static final String PETRI_NET_RUNNER_DOT = "PetriNetRunner.";
@@ -81,6 +82,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private PlaceReporter placeReporter;
     private long seed;
     protected ExecutablePetriNet validationPetriNet;
+    protected boolean tryAfterNoEnabledTransitions;
 
     protected boolean isAwaitingAcknowledgement() {
         return awaitingAcknowledgement;
@@ -102,6 +104,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
         started = false;
         placeReporter = new PlaceReporter(this);
         logger.info("creating PetriNetRunner for PetriNet " + petriNet.getName().getName());
+        tryAfterNoEnabledTransitions = true;
     }
 
     public PetriNetRunner() {
@@ -151,7 +154,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     private void waitForAcknowledgement() {
-        logger.debug("entering waitForAcknowledgement");
+        //        logger.debug("entering waitForAcknowledgement");
         acknowledgementWaitCount = 0;
         while (awaitingAcknowledgement) {
             try {
@@ -171,13 +174,17 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
     protected void delay() {
         if (delay > 0) {
-            try {
-                logger.debug("delaying for " + delay + " milliseconds");
-                Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                logger.error("Interrupted exception attempting to sleep for " + delay + " milliseconds.");
-                e.printStackTrace();
-            }
+            delay(delay);
+        }
+    }
+
+    private void delay(int delay) {
+        try {
+            logger.debug("delaying for " + delay + " milliseconds");
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            logger.error("Interrupted exception attempting to sleep for " + delay + " milliseconds.");
+            e.printStackTrace();
         }
     }
 
@@ -325,6 +332,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     private void markPendingPlaces() {
         TokenCount tokenCount = pendingPlaceMarkingsQueue.poll();
         boolean tokenCountsFound = false;
+        //        logger.debug("pending queue marking " + tokenCount);
         while (tokenCount != null) {
             tokenCountsFound = true;
             try {
@@ -347,26 +355,42 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     protected boolean fireOneTransition() {
+        boolean enabledTransition = false;
         markPendingPlaces();
         placeReporter.buildPlaceReport();
         Transition transition = null;
         transition = animator.getRandomEnabledTransition();
-        if (transition == null) {
+        if (transition != null) {
+            enabledTransition = true;
+        } else {
             logger.debug("no enabled transitions to fire");
             if (placeReporter.size() > 0) {
                 placeReporter.buildPlaceReport();
                 logger.debug("\n" + placeReporter.getPlaceReport());
             }
-            transition = animator.getRandomEnabledTransition(); // debugging purposes only
-            return false;
-        } else {
+            if (tryAfterNoEnabledTransitions) {
+                delay(DELAY_AFTER_NO_ENABLED_TRANSITIONS);
+                logger.debug("delaying 1 seconds, marking pending places, and looking for enabled transitions to fire");
+                markPendingPlaces();
+                transition = animator.getRandomEnabledTransition();
+                if (placeReporter.size() > 0) {
+                    placeReporter.buildPlaceReport();
+                    logger.debug("\n" + placeReporter.getPlaceReport());
+                }
+                if (transition == null) { // still no enabled transitions
+                    enabledTransition = false;
+                }
+            }
+        }
+        if (enabledTransition) {
             logger.debug("about to fire transition " + transition.getId());
             animator.fireTransition(transition);
             firing = new Firing(round, transition.getId(), executablePetriNet.getState());
             changeSupport.firePropertyChange(UPDATED_STATE, previousFiring, firing);
             previousFiring = firing;
-            return true;
+            //            return true;
         }
+        return enabledTransition;
     }
 
     protected void end() {
@@ -404,7 +428,7 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
     }
 
     public static void main(String[] args) {
-        if (args.length != 4) {
+        if (args.length < 4) {
             printUsage();
             //    		System.exit(1);
         } else {
@@ -415,6 +439,10 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
 
             PetriNet petriNet = getPetriNet(petrinetName);
             PetriNetRunner runner = new PetriNetRunner(petriNet);
+            if (args.length == 5) {
+                // undocumented; ignore contents, just interpret 5th argument as meaning:
+                runner.tryAfterNoEnabledTransitions = false; // for testing
+            }
             runner.addPropertyChangeListener(getFiringWriter(resultsFile));
             runner.setFiringLimit(getFiringLimit(firingLimit));
             runner.setSeed(getSeed(seed));
@@ -542,8 +570,8 @@ public class PetriNetRunner extends AbstractPetriNetPubSub implements Runner, Pr
             //            rebuildListeners();
             rebuildListeners();
             updateExternalTransitions();
-            logger.debug("received " + ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE +
-                    "; rebuilt listeners and updated external transitions.");
+            //            logger.debug("received " + ExecutablePetriNet.PETRI_NET_REFRESHED_MESSAGE +
+            //                    "; rebuilt listeners and updated external transitions.");
         } else {
             throw new RuntimeException("PetriNetRunner received unexpected event: " + evt.getPropertyName());
         }

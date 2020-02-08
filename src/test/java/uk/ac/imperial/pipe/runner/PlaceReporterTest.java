@@ -25,6 +25,7 @@ public class PlaceReporterTest {
     @Before
     public void setUp() throws Exception {
         runner = new PetriNetRunner(buildHaltingNet());
+        runner.tryAfterNoEnabledTransitions = false;
         runner.setPlaceReporterParameters(true, true, 0);
         pr = runner.getPlaceReporter();
     }

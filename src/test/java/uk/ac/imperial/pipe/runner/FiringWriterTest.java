@@ -37,6 +37,7 @@ public class FiringWriterTest {
     public void setUp() throws PetriNetComponentException {
         net = buildNet();
         runner = new PetriNetRunner(net);
+        runner.tryAfterNoEnabledTransitions = false;
         runner.setSeed(456327998101l);
         runner.setFiringLimit(10);
         filename = "firing.csv";
