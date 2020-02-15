@@ -3,12 +3,20 @@ package uk.ac.imperial.pipe.visitor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyDouble;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.awt.Color;
+import java.awt.geom.Point2D;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import uk.ac.imperial.pipe.dsl.ANormalArc;
 import uk.ac.imperial.pipe.dsl.APetriNet;
@@ -18,6 +26,8 @@ import uk.ac.imperial.pipe.dsl.AToken;
 import uk.ac.imperial.pipe.dsl.AnImmediateTransition;
 import uk.ac.imperial.pipe.exceptions.IncludeException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
+import uk.ac.imperial.pipe.models.petrinet.ArcPoint;
 import uk.ac.imperial.pipe.models.petrinet.ExecutablePetriNet;
 import uk.ac.imperial.pipe.models.petrinet.InboundArc;
 import uk.ac.imperial.pipe.models.petrinet.InboundNormalArc;
@@ -27,17 +37,31 @@ import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusAway;
 import uk.ac.imperial.pipe.models.petrinet.MergeInterfaceStatusHome;
 import uk.ac.imperial.pipe.models.petrinet.NoOpInterfaceStatus;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
+import uk.ac.imperial.pipe.models.petrinet.PetriNetComponent;
 import uk.ac.imperial.pipe.models.petrinet.Place;
 import uk.ac.imperial.pipe.models.petrinet.PlaceStatus;
+import uk.ac.imperial.pipe.models.petrinet.PlaceStatusNormal;
 import uk.ac.imperial.pipe.models.petrinet.Transition;
 import uk.ac.imperial.pipe.models.petrinet.name.NormalPetriNetName;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ExecutablePetriNetClonerTest {
     PetriNet oldPetriNet;
     PetriNet clonedPetriNet;
     private PetriNet net2;
     private IncludeHierarchy includes;
     private ExecutablePetriNet executablePetriNet;
+
+    @Mock
+    Place mockSource;
+
+    @Mock
+    Transition mockTarget;
+
+    @Mock
+    private PropertyChangeListener mockListener;
+
+    InboundNormalArc arc;
 
     @Before
     public void setUp() throws PetriNetComponentException {
@@ -96,6 +120,74 @@ public class ExecutablePetriNetClonerTest {
                 .size());
         assertEquals("a.P0", ExecutablePetriNetCloner.cloneInstance.getPendingAwayPlacesForInterfacePlaceConversion()
                 .values().iterator().next().getId());
+    }
+
+    @Test
+    public void cloningArcsRemovesNewIntermediatePointChangeListenerBeforeAddingPointToNewArc() throws Exception {
+        when(mockSource.getId()).thenReturn("source");
+        when(mockTarget.getId()).thenReturn("target");
+        when(mockSource.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0, 0));
+        when(mockTarget.getArcEdgePoint(anyDouble())).thenReturn(new Point2D.Double(0, 0));
+        when(mockSource.getStatus()).thenReturn(new PlaceStatusNormal(mockSource));
+        Point2D.Double center = mock(Point2D.Double.class);
+        when(mockSource.getCentre()).thenReturn(center);
+        when(mockTarget.getCentre()).thenReturn(new Point2D.Double(15, 15));
+        arc = new InboundNormalArc(mockSource, mockTarget, new HashMap<String, String>());
+
+        ArcPoint point = new ArcPoint(center, false);
+        ArcPoint intermediate = new ArcPoint(new Point2D.Double(1, 5), false);
+        ArcPoint intermediate2 = new ArcPoint(new Point2D.Double(1, 6), false);
+        arc.addIntermediatePoint(intermediate);
+        arc.addIntermediatePoint(intermediate2);
+        assertEquals(1, intermediate.changeSupport.getPropertyChangeListeners().length);
+        assertEquals(1, intermediate2.changeSupport.getPropertyChangeListeners().length);
+        assertEquals(4, arc.getArcPoints().size());
+        assertEquals(0, arc.getArcPoints().get(0).changeSupport.getPropertyChangeListeners().length);
+        assertEquals("intermediate point automatically has listener", 1, arc.getArcPoints().get(1).changeSupport
+                .getPropertyChangeListeners().length);
+        assertEquals(1, arc.getArcPoints().get(2).changeSupport.getPropertyChangeListeners().length);
+        assertEquals(0, arc.getArcPoints().get(3).changeSupport.getPropertyChangeListeners().length);
+
+        TestingCloner cloner = new TestingCloner();
+        InboundArc newArc = cloner.buildInboundArc(arc, mockSource, mockTarget);
+        assertEquals(4, newArc.getArcPoints().size());
+        assertEquals(0, newArc.getArcPoints().get(0).changeSupport.getPropertyChangeListeners().length);
+        assertEquals("when intermediate point is copied to the new arc, it should remove the listener " +
+                "just created (not the original arc's listener)", 1, newArc
+                        .getArcPoints().get(1).changeSupport.getPropertyChangeListeners().length);
+        assertEquals(1, newArc.getArcPoints().get(2).changeSupport.getPropertyChangeListeners().length);
+        assertEquals(0, newArc.getArcPoints().get(3).changeSupport.getPropertyChangeListeners().length);
+        InboundArc newArc2 = cloner.buildInboundArc(arc, mockSource, mockTarget);
+        assertEquals(4, newArc2.getArcPoints().size());
+        assertEquals(0, newArc2.getArcPoints().get(0).changeSupport.getPropertyChangeListeners().length);
+        assertEquals("when we clone the same source arc over and over, we preserve its listener, " +
+                "not the new listener", 1, newArc2.getArcPoints().get(1).changeSupport
+                        .getPropertyChangeListeners().length);
+        assertEquals(1, newArc2.getArcPoints().get(2).changeSupport.getPropertyChangeListeners().length);
+        assertEquals(0, newArc2.getArcPoints().get(3).changeSupport.getPropertyChangeListeners().length);
+
+    }
+
+    private class TestingCloner extends AbstractPetriNetCloner {
+
+        @Override
+        protected AbstractPetriNet getNewPetriNet() {
+            return null;
+        }
+
+        @Override
+        protected AbstractPetriNetCloner getInstance() {
+            return null;
+        }
+
+        @Override
+        protected void prefixIdWithQualifiedName(PetriNetComponent component) {
+        }
+
+        @Override
+        protected void prepareExecutablePetriNetPlaceProcessing(Place place, Place newPlace) {
+        }
+
     }
 
     @Test

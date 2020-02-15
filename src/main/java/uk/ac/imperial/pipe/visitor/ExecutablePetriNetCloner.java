@@ -165,6 +165,7 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
         convertAwayPlaceArcsToUseOriginalPlaces();
         Map<String, Place> newPlaceMap = newPetriNet.getMapForClass(Place.class);
         for (Place place : pendingPlacesToDelete) {
+            place.removeSelfFromListeners();
             newPlaceMap.remove(place.getId());
         }
     }

@@ -466,6 +466,10 @@ public abstract class AbstractArc<S extends Connectable, T extends Connectable> 
         tokenWeights.remove(tokenId);
     }
 
+    public PropertyChangeListener getIntermediateListener() {
+        return intermediateListener;
+    }
+
     private class ArcPointChangeListener implements PropertyChangeListener {
 
         @Override

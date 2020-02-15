@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import uk.ac.imperial.pipe.exceptions.InvalidRateException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
+import uk.ac.imperial.pipe.models.petrinet.AbstractArc;
 import uk.ac.imperial.pipe.models.petrinet.AbstractPetriNet;
 import uk.ac.imperial.pipe.models.petrinet.Annotation;
 import uk.ac.imperial.pipe.models.petrinet.Arc;
@@ -59,7 +60,7 @@ public abstract class AbstractPetriNetCloner {
 
     /**
      * @return the cloned Petri net
-     *  
+     *
      */
     protected abstract AbstractPetriNet getNewPetriNet();
 
@@ -68,8 +69,8 @@ public abstract class AbstractPetriNetCloner {
     protected boolean simpleClone = false;
 
     /**
-     * Visit the components of the source PetriNet, and add a cloned version of the component, (possibly with modifications), 
-     * to the new or refreshed AbstractPetriNet. 
+     * Visit the components of the source PetriNet, and add a cloned version of the component, (possibly with modifications),
+     * to the new or refreshed AbstractPetriNet.
      */
     protected void visitAllComponents() {
         visit(petriNet.getName());
@@ -104,7 +105,7 @@ public abstract class AbstractPetriNetCloner {
 
     /**
      * Clone a Petri net name
-     * @param name of the Petri net 
+     * @param name of the Petri net
      */
     private void visit(PetriNetName name) {
         if (name != null) {
@@ -161,7 +162,7 @@ public abstract class AbstractPetriNetCloner {
 
     /**
      * Clones and adds the new place to the new Petri net
-     * 
+     *
      * @param place original place
      */
     public void visit(Place place) {
@@ -242,20 +243,24 @@ public abstract class AbstractPetriNetCloner {
         default:
             newArc = new InboundNormalArc(source, target, arc.getTokenWeights());
         }
-        List<ArcPoint> arcPoints = arc.getArcPoints();
-        for (int i = 1; i < arcPoints.size() - 1; i++) {
-            newArc.addIntermediatePoint(arcPoints.get(i));
-        }
+        addIntermediatePoints(arc, newArc);
         newArc.setId(arc.getId());
         return newArc;
     }
 
-    protected OutboundArc buildOutboundArc(OutboundArc arc, Transition source, Place target) {
-        OutboundArc newArc = new OutboundNormalArc(source, target, arc.getTokenWeights());
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void addIntermediatePoints(AbstractArc arc, AbstractArc newArc) {
         List<ArcPoint> arcPoints = arc.getArcPoints();
         for (int i = 1; i < arcPoints.size() - 1; i++) {
-            newArc.addIntermediatePoint(arcPoints.get(i));
+            ArcPoint point = arcPoints.get(i);
+            newArc.addIntermediatePoint(point);
+            point.changeSupport.removePropertyChangeListener(newArc.getIntermediateListener());
         }
+    }
+
+    protected OutboundArc buildOutboundArc(OutboundArc arc, Transition source, Place target) {
+        OutboundArc newArc = new OutboundNormalArc(source, target, arc.getTokenWeights());
+        addIntermediatePoints(arc, newArc);
         newArc.setId(arc.getId());
         return newArc;
     }
@@ -272,7 +277,7 @@ public abstract class AbstractPetriNetCloner {
 
         /**
          * Clones a PetriNetFileName
-         * @param name of the Petri net 
+         * @param name of the Petri net
          */
         @Override
         public void visit(PetriNetFileName name) {
