@@ -70,7 +70,7 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
      * Each {@link Place} in the source {@link PetriNet} will listen for changes to the token counts in the corresponding Place in the refreshed ExecutablePetriNet.
      * </p>
      * @param targetExecutablePetriNet to be refreshed
-     * @throws IncludeException
+     * @throws IncludeException for problems processing the IncludeHierarchy
      */
     public static void refreshFromIncludeHierarchy(ExecutablePetriNet targetExecutablePetriNet)
             throws IncludeException {
@@ -94,7 +94,7 @@ public final class ExecutablePetriNetCloner extends AbstractPetriNetCloner {
      * then visiting the components of each PetriNet in its IncludeHierarchy,
      * modifying each new component as controlled by {@link #refreshingExecutablePetriNet},
      * and adding each component to the new collection in the ExecutablePetriNet.
-     * @throws IncludeException
+     * @throws IncludeException for problems processing the IncludeHierarchy
      */
     private void clonePetriNetToExecutablePetriNet() throws IncludeException {
         buildPendingAwayPlacesForInterfacePlaceConversion();
