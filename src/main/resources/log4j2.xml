@@ -10,8 +10,8 @@
 <!--     <Logger name="uk.ac.imperial.pipe.runner.PetriNetRunner" level="debug" additivity="false"> -->
 <!--       <AppenderRef ref="Console"/> -->
 <!--     </Logger> -->
-    <Root level="error">
-    <!-- <Root level="debug"> -->
+<!--     <Root level="error"> -->
+    <Root level="debug">
       <AppenderRef ref="Console"/>
     </Root>
   </Loggers>
