@@ -69,19 +69,17 @@ public class AdaptedPlace extends AdaptedConnectable {
     *
     * @return tool specifid settings
     */
-   public final ToolSpecificPlace getToolSpecificPlace() {
-       return toolSpecificPlace;
-   }
+    public final ToolSpecificPlace getToolSpecificPlace() {
+        return toolSpecificPlace;
+    }
 
-   /**
+    /**
     *
     * @param toolSpecific PIPE specific settings
     */
-   public final void setToolSpecificPlace(ToolSpecificPlace toolSpecific) {
-       this.toolSpecificPlace = toolSpecific;
-   }
-
-    
+    public final void setToolSpecificPlace(ToolSpecificPlace toolSpecific) {
+        this.toolSpecificPlace = toolSpecific;
+    }
 
     /**
      * Verbose way of storing the token counts in PNML
@@ -131,6 +129,7 @@ public class AdaptedPlace extends AdaptedConnectable {
             this.graphics = graphics;
         }
     }
+
     /**
      * PIPE specific settings
      */
@@ -189,18 +188,18 @@ public class AdaptedPlace extends AdaptedConnectable {
 
         /**
          *
-         * @return place status interface  
+         * @return place status interface
          */
-		public final PlaceStatus getStatus() {
-			return status;
-		}
+        public final PlaceStatus getStatus() {
+            return status;
+        }
 
-		/**
-		 *
-		 * @param status   place status interface 
-		 */
-		public final void setStatus(PlaceStatus status) {
-			this.status = status;
-		}
+        /**
+         *
+         * @param status   place status interface
+         */
+        public final void setStatus(PlaceStatus status) {
+            this.status = status;
+        }
     }
 }

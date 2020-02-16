@@ -42,15 +42,19 @@ public class AnExternalTransitionTest {
 
     @Test
     public void createsTransitionWithIdAndClass() {
-        Transition transition = AnExternalTransition.withId("T0").andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition").create(tokens, places, transitions, rateParameters);
-        Transition expected = new DiscreteExternalTransition("T0", "T0", "uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition");
+        Transition transition = AnExternalTransition.withId("T0")
+                .andExternalClass("uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition")
+                .create(tokens, places, transitions, rateParameters);
+        Transition expected = new DiscreteExternalTransition("T0", "T0",
+                "uk.ac.imperial.pipe.models.petrinet.TestingExternalTransition");
         assertEquals(expected, transition);
     }
+
     @Test
-	public void throwsIfExternalClassNotSpecified() throws Exception {
-    	exception.expect(IllegalArgumentException.class); 
-    	@SuppressWarnings("unused")
-		Transition transition = AnExternalTransition.withId("T0").create(tokens, places, transitions, rateParameters);
-	}
+    public void throwsIfExternalClassNotSpecified() throws Exception {
+        exception.expect(IllegalArgumentException.class);
+        @SuppressWarnings("unused")
+        Transition transition = AnExternalTransition.withId("T0").create(tokens, places, transitions, rateParameters);
+    }
 
 }

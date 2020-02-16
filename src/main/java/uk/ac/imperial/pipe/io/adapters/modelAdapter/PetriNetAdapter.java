@@ -23,7 +23,7 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     public PetriNet unmarshal(AdaptedPetriNet v) throws PetriNetComponentException {
         PetriNet petriNet = new PetriNet();
         if (v.id != null) {
-        	petriNet.setName(new NormalPetriNetName(v.id)); 
+            petriNet.setName(new NormalPetriNetName(v.id));
         }
         addToPetriNet(v.tokens, petriNet);
         addToPetriNet(v.annotations, petriNet);
@@ -43,15 +43,15 @@ public class PetriNetAdapter extends XmlAdapter<AdaptedPetriNet, PetriNet> {
     public AdaptedPetriNet marshal(PetriNet v) {
         AdaptedPetriNet petriNet = new AdaptedPetriNet();
         if (!(v.getNameValue().trim().equals(""))) {
-        	petriNet.id = v.getNameValue(); 
+            petriNet.id = v.getNameValue();
         }
         petriNet.tokens = v.getTokens();
         petriNet.annotations = v.getAnnotations();
         petriNet.rateParameters = v.getRateParameters();
         for (Place place : v.getPlaces()) {
-			petriNet.places.add(place); 
-		}
-//        petriNet.places = v.getPlaces();
+            petriNet.places.add(place);
+        }
+        //        petriNet.places = v.getPlaces();
         petriNet.transitions = v.getTransitions();
         petriNet.arcs = v.getArcs();
         return petriNet;

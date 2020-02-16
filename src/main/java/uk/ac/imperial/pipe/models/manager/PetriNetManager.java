@@ -59,7 +59,8 @@ public interface PetriNetManager {
      * @throws IncludeException if errors are encountered building an include hierarchy 
      * @throws FileNotFoundException if one of the referenced files does not exist 
      */
-    void createFromFile(File file) throws JAXBException, UnparsableException, PetriNetFileException, IncludeException, FileNotFoundException;
+    void createFromFile(File file)
+            throws JAXBException, UnparsableException, PetriNetFileException, IncludeException, FileNotFoundException;
 
     /**
      *

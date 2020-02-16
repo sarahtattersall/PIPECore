@@ -7,11 +7,10 @@ package uk.ac.imperial.pipe.models.petrinet;
  */
 public interface InterfacePlaceAction {
 
-	public abstract IncludeHierarchy getIncludeHierarchy();
+    public abstract IncludeHierarchy getIncludeHierarchy();
 
-	public abstract Place getInterfacePlace();
+    public abstract Place getInterfacePlace();
 
-	public abstract String getComponentId();
-	
+    public abstract String getComponentId();
 
 }

@@ -9,7 +9,6 @@ public final class PetriNetComponentAddVisitor
         implements PlaceVisitor, ArcVisitor, TransitionVisitor, TokenVisitor, AnnotationVisitor, RateParameterVisitor {
     private final PetriNet petriNet;
 
-
     /**
      *
      * @param petriNet petri net to add components to

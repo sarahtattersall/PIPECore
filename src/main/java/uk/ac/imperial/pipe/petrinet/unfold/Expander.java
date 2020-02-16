@@ -3,7 +3,7 @@ package uk.ac.imperial.pipe.petrinet.unfold;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException;
 import uk.ac.imperial.pipe.models.petrinet.*;
-import uk.ac.imperial.pipe.visitor.PlaceCloner;
+import uk.ac.imperial.pipe.visitor.PlaceBuilder;
 import uk.ac.imperial.pipe.visitor.TransitionCloner;
 
 import java.awt.Color;
@@ -183,8 +183,8 @@ public final class Expander {
         for (Arc<Transition, Place> arc : arcs) {
             Place place = arc.getTarget();
             Data data = getPlaceData(arc, place);
-            Place newPlace =
-                    getNewPlace(place, newTransition.getX(), newTransition.getY(), data.placeTokenCount, data.name);
+            Place newPlace = getNewPlace(place, newTransition.getX(), newTransition
+                    .getY(), data.placeTokenCount, data.name);
             createArc(newTransition, newPlace, data.arcWeight, arc.getType());
         }
 
@@ -201,8 +201,8 @@ public final class Expander {
         for (Arc<Place, Transition> arc : arcs) {
             Place place = arc.getSource();
             Data data = getPlaceData(arc, place);
-            Place newPlace =
-                    getNewPlace(place, newTransition.getX(), newTransition.getY(), data.placeTokenCount, data.name);
+            Place newPlace = getNewPlace(place, newTransition.getX(), newTransition
+                    .getY(), data.placeTokenCount, data.name);
             createArc(newPlace, newTransition, data.arcWeight, arc.getType());
         }
     }
@@ -217,7 +217,7 @@ public final class Expander {
         StringBuilder newNameBuilder = new StringBuilder(place.getName());
         int placeTokenCount = 0;
         int arcWeight = 0;
-        for (Map.Entry<String, String> entry : (new TreeMap<String,String>(arc.getTokenWeights()).entrySet())) {
+        for (Map.Entry<String, String> entry : (new TreeMap<String, String>(arc.getTokenWeights()).entrySet())) {
             String token = entry.getKey();
             String weight = entry.getValue();
             //TODO: THIS IS ASSUMING IT ISN'T FUNCTIONAL :/
@@ -244,15 +244,14 @@ public final class Expander {
         if (newPlaces.containsKey(id)) {
             return newPlaces.get(id);
         }
-        PlaceCloner cloner = new PlaceCloner();
+        PlaceBuilder cloner = new PlaceBuilder();
         try {
             original.accept(cloner);
         } catch (PetriNetComponentException e) {
             LOGGER.log(Level.SEVERE, e.getMessage());
         }
 
-
-        Place place = cloner.cloned;
+        Place place = cloner.built;
 
         Map<String, Integer> newTokenCounts = new HashMap<>();
         if (tokenCount > 0) {
@@ -292,14 +291,14 @@ public final class Expander {
     private void createArc(Place source, Transition target, int arcWeight, ArcType type) {
         Arc<Place, Transition> newArc;
         switch (type) {
-            case INHIBITOR:
-                newArc = new InboundInhibitorArc(source, target);
-                break;
-            case TEST:
-                newArc = new InboundTestArc(source, target);
-                break;
-            default:
-                newArc = new InboundNormalArc(source, target, getNewArcWeight(arcWeight));
+        case INHIBITOR:
+            newArc = new InboundInhibitorArc(source, target);
+            break;
+        case TEST:
+            newArc = new InboundTestArc(source, target);
+            break;
+        default:
+            newArc = new InboundNormalArc(source, target, getNewArcWeight(arcWeight));
         }
         newArcs.put(newArc.getId(), newArc);
     }

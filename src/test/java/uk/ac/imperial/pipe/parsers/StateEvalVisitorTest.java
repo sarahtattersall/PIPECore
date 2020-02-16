@@ -29,7 +29,7 @@ public class StateEvalVisitorTest {
     private static final PetriNet EMPTY_PETRI_NET = new PetriNet();
     private static final ExecutablePetriNet EMPTY_EXECUTABLE_PETRI_NET = EMPTY_PETRI_NET.getExecutablePetriNet();
     private static final State EMPTY_STATE = new HashedState(new HashMap<String, Map<String, Integer>>());
-	private ExecutablePetriNet executablePetriNet;
+    private ExecutablePetriNet executablePetriNet;
 
     public ParseTree parseTreeForExpr(String expr) {
         CharStream input = new ANTLRInputStream(expr);
@@ -80,7 +80,6 @@ public class StateEvalVisitorTest {
         assertEquals(new Double(2.3), result);
     }
 
-
     @Test
     public void parsesBasicIntegerMultiplication() {
         ParseTree tree = parseTreeForExpr("5 * 2");
@@ -96,7 +95,6 @@ public class StateEvalVisitorTest {
         Double result = evalVisitor.visit(tree);
         assertEquals(new Double(10.0), result);
     }
-
 
     @Test
     public void parsesBasicIntegerDivision() {
@@ -114,7 +112,6 @@ public class StateEvalVisitorTest {
         assertEquals(new Double(2), result);
     }
 
-
     @Test
     public void parsesBasicParentheses() {
         ParseTree tree = parseTreeForExpr("(2)");
@@ -130,7 +127,6 @@ public class StateEvalVisitorTest {
         Double result = evalVisitor.visit(tree);
         assertEquals(new Double(25), result);
     }
-
 
     @Test
     public void parsesFloor() {
@@ -150,9 +146,9 @@ public class StateEvalVisitorTest {
 
     @Test
     public void parsesPlaceTokenNumber() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
-                APlace.withId("P0"));
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .andFinally(APlace.withId("P0"));
+        executablePetriNet = petriNet.getExecutablePetriNet();
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
@@ -164,10 +160,9 @@ public class StateEvalVisitorTest {
 
     @Test
     public void parsesPlaceColorTokenNumber() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-                AToken.called("Red").withColor(Color.RED)).andFinally(
-                APlace.withId("P0"));
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(AToken.called("Red").withColor(Color.RED)).andFinally(APlace.withId("P0"));
+        executablePetriNet = petriNet.getExecutablePetriNet();
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         builder.placeWithToken("P0", "Red", 6);
@@ -180,9 +175,9 @@ public class StateEvalVisitorTest {
 
     @Test
     public void parsesPlaceTokenNumberAsZeroIfDoesNotExist() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
-                APlace.withId("P0"));
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .andFinally(APlace.withId("P0"));
+        executablePetriNet = petriNet.getExecutablePetriNet();
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
@@ -192,12 +187,11 @@ public class StateEvalVisitorTest {
         assertEquals(new Double(0.0), result);
     }
 
-
     @Test
     public void parsesPlaceCapacity() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
-                APlace.withId("P0").andCapacity(10));
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .andFinally(APlace.withId("P0").andCapacity(10));
+        executablePetriNet = petriNet.getExecutablePetriNet();
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();
@@ -209,9 +203,9 @@ public class StateEvalVisitorTest {
 
     @Test
     public void parsesPlaceCapacityAsZeroIfDoesNotExist() throws PetriNetComponentException {
-        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).andFinally(
-                APlace.withId("P0").andCapacity(10));
-        executablePetriNet = petriNet.getExecutablePetriNet(); 
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .andFinally(APlace.withId("P0").andCapacity(10));
+        executablePetriNet = petriNet.getExecutablePetriNet();
         HashedStateBuilder builder = new HashedStateBuilder();
         builder.placeWithToken("P0", "Default", 4);
         State state = builder.build();

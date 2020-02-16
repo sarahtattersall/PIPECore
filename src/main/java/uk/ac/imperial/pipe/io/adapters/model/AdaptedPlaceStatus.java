@@ -14,12 +14,11 @@ import uk.ac.imperial.pipe.io.adapters.valueAdapter.BooleanValueAdapter;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AdaptedPlaceStatus {
 
-	
     /**
      * merge interface status
      */
-	@XmlElement(name = "merge")
-    private MergeStatus mergeStatus; 
+    @XmlElement(name = "merge")
+    private MergeStatus mergeStatus;
 
     /**
      * external interface status
@@ -32,86 +31,84 @@ public class AdaptedPlaceStatus {
      */
     @XmlJavaTypeAdapter(BooleanValueAdapter.class)
     private Boolean inputOnly = false;
-    
+
     /**
      * external interface status
      */
     @XmlJavaTypeAdapter(BooleanValueAdapter.class)
     private Boolean outputOnly = false;
-    
 
-	/**
-	 *
-	 * @return true if place has external interface status 
-	 */
-	public final Boolean getExternal() {
-		return external;
-	}
+    /**
+     *
+     * @return true if place has external interface status
+     */
+    public final Boolean getExternal() {
+        return external;
+    }
 
-	/**
-	 *
-	 * @param external true if place has external interface status
-	 */
-	public final void setExternal(Boolean external) {
-		this.external = external;
-	}
+    /**
+     *
+     * @param external true if place has external interface status
+     */
+    public final void setExternal(Boolean external) {
+        this.external = external;
+    }
 
-	/**
-	 *
-	 * @return true if place interface accepts input only  
-	 */
-	public final Boolean getInputOnly() {
-		return inputOnly;
-	}
+    /**
+     *
+     * @return true if place interface accepts input only
+     */
+    public final Boolean getInputOnly() {
+        return inputOnly;
+    }
 
-	/**
-	 *
-	 * @param inputOnly true if place interface accepts input only
-	 */
-	public final void setInputOnly(Boolean inputOnly) {
-		this.inputOnly = inputOnly;
-	}
+    /**
+     *
+     * @param inputOnly true if place interface accepts input only
+     */
+    public final void setInputOnly(Boolean inputOnly) {
+        this.inputOnly = inputOnly;
+    }
 
-	/**
-	 *
-	 * @return true if place interface accepts output only  
-	 */
-	public final Boolean getOutputOnly() {
-		return outputOnly;
-	}
+    /**
+     *
+     * @return true if place interface accepts output only
+     */
+    public final Boolean getOutputOnly() {
+        return outputOnly;
+    }
 
-	/**
-	 *
-	 * @param outputOnly true if place interface accepts output only
-	 */
-	public final void setOutputOnly(Boolean outputOnly) {
-		this.outputOnly = outputOnly;
-	}
-	
-	public final MergeStatus getMergeStatus() {
-		return mergeStatus;
-	}
-	
-	public final void setMergeStatus(MergeStatus mergeStatus) {
-		this.mergeStatus = mergeStatus;
-	}
-	
+    /**
+     *
+     * @param outputOnly true if place interface accepts output only
+     */
+    public final void setOutputOnly(Boolean outputOnly) {
+        this.outputOnly = outputOnly;
+    }
+
+    public final MergeStatus getMergeStatus() {
+        return mergeStatus;
+    }
+
+    public final void setMergeStatus(MergeStatus mergeStatus) {
+        this.mergeStatus = mergeStatus;
+    }
+
     @XmlAccessorType(XmlAccessType.FIELD)
-	public static class MergeStatus {
+    public static class MergeStatus {
         /**
          * merge type attribute
          */
         @XmlAttribute
         private String type;
 
-		public final String getType() {
-			return type;
-		}
+        public final String getType() {
+            return type;
+        }
 
-		public final void setType(String type) {
-			this.type = type;
-		}
+        public final void setType(String type) {
+            this.type = type;
+        }
 
-	}
+    }
 }
-

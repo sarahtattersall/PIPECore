@@ -25,7 +25,7 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
     /**
      * Listens for name changes and will alter those that are in names
      */
-    protected final PropertyChangeListener nameListener =  new NameChangeListener(names);
+    protected final PropertyChangeListener nameListener = new NameChangeListener(names);
 
     /**
      * @param namePrefix Value to prefix component names with, e.g. "P" for place
@@ -34,7 +34,6 @@ public abstract class AbstractUniqueNamer implements UniqueNamer {
 
         this.namePrefix = namePrefix;
     }
-
 
     /**
      *

@@ -51,36 +51,38 @@ public class PetriNetReaderTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-	private PrintStream err;
+    private PrintStream err;
 
-    
     @Before
     public void setUp() throws JAXBException {
-        reader = new PetriNetIOImpl();  
+        reader = new PetriNetIOImpl();
         err = System.err; // see throwsIfFileNotValidXml
     }
+
     @After
     public void tearDown() {
-    	System.setErr(err); 
+        System.setErr(err);
     }
-//    @Test
-    public void readNetForConvenientDebugging() throws  JAXBException, FileNotFoundException {
-    	PetriNet petriNet = null; 
+
+    //    @Test
+    public void readNetForConvenientDebugging() throws JAXBException, FileNotFoundException {
+        PetriNet petriNet = null;
         petriNet = reader.read("/some/path/somepnml.xml");
-        assertNotNull(petriNet); 
+        assertNotNull(petriNet);
     }
-    //TODO test PN name / id 
+
+    //TODO test PN name / id
     @Test
-    public void createGSPN() throws  JAXBException, FileNotFoundException {
-    	//XML has unparsed tags, and will exceed static error counter unless logging is forced
-    	// see PetriNetIOImpl constructor
-        reader = new PetriNetIOImpl(true, true);  // change to true, false to see error
+    public void createGSPN() throws JAXBException, FileNotFoundException {
+        //XML has unparsed tags, and will exceed static error counter unless logging is forced
+        // see PetriNetIOImpl constructor
+        reader = new PetriNetIOImpl(true, true); // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.resourceLocation("/xml/gspn1.xml"));
         assertEquals(5, petriNet.getPlaces().size());
         assertEquals(5, petriNet.getTransitions().size());
         assertEquals(12, petriNet.getArcs().size());
         assertEquals(1, petriNet.getTokens().size());
-        assertEquals("Net-One", petriNet.getNameValue()); 
+        assertEquals("Net-One", petriNet.getNameValue());
     }
 
     @Test
@@ -93,7 +95,7 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsDefaultTokenIfDoesNotExistAndPlaceMatchesThisToken()
-            throws  JAXBException, FileNotFoundException {
+            throws JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.resourceLocation("/xml/noTokenPlace.xml"));
         assertThat(petriNet.getTokens()).isNotEmpty();
         assertThat(petriNet.getPlaces()).isNotEmpty();
@@ -124,34 +126,37 @@ public class PetriNetReaderTest {
         assertThat(petriNet.getPlaces()).hasSize(1);
         assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
         assertThat(petriNet.getPlaces()).extracting("x", "y").containsExactly(tuple(255, 240));
-        assertThat(petriNet.getPlaces()).extracting("markingXOffset", "markingYOffset").containsExactly(
-                tuple(0.0, 0.0));
+        assertThat(petriNet.getPlaces()).extracting("markingXOffset", "markingYOffset")
+                .containsExactly(tuple(0.0, 0.0));
         assertThat(petriNet.getPlaces()).extracting("nameXOffset", "nameYOffset").containsExactly(tuple(5.0, 26.0));
         assertThat(extractProperty("capacity").from(petriNet.getPlaces())).containsExactly(0);
         assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
         assertThat(extractProperty("tokenCounts").from(petriNet.getPlaces())).hasSize(1);
     }
+
     @Test
-    public void createsPlaceWithInterfaceStatus() throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
-    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath()));
-    	
-    	assertThat(petriNet.getPlaces()).hasSize(1);
-    	assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
-    	assertThat(petriNet.getPlaces()).extracting("x", "y").containsExactly(tuple(255, 240));
-    	assertThat(petriNet.getPlaces()).extracting("markingXOffset", "markingYOffset").containsExactly(
-    			tuple(0.0, 0.0));
-    	assertThat(petriNet.getPlaces()).extracting("nameXOffset", "nameYOffset").containsExactly(tuple(5.0, 26.0));
-    	assertThat(extractProperty("capacity").from(petriNet.getPlaces())).containsExactly(0);
-    	assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
-    	assertThat(extractProperty("tokenCounts").from(petriNet.getPlaces())).hasSize(1);
-    	Place place = petriNet.getComponent("P0", Place.class); 
-    	PlaceStatus status = place.getStatus(); 
-    	assertTrue(status instanceof PlaceStatusInterface); 
-    	assertTrue(status.isMergeStatus());
-    	assertTrue(status.isExternal());
-    	assertTrue(status.isInputOnlyArcConstraint());
-    	assertFalse(status.isOutputOnlyArcConstraint());
-    	assertEquals(place, status.getPlace()); 
+    public void createsPlaceWithInterfaceStatus()
+            throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
+        PetriNet petriNet = reader
+                .read(FileUtils.resourceLocation(XMLUtils.getSinglePlaceWithHomeInterfaceStatusPath()));
+
+        assertThat(petriNet.getPlaces()).hasSize(1);
+        assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
+        assertThat(petriNet.getPlaces()).extracting("x", "y").containsExactly(tuple(255, 240));
+        assertThat(petriNet.getPlaces()).extracting("markingXOffset", "markingYOffset")
+                .containsExactly(tuple(0.0, 0.0));
+        assertThat(petriNet.getPlaces()).extracting("nameXOffset", "nameYOffset").containsExactly(tuple(5.0, 26.0));
+        assertThat(extractProperty("capacity").from(petriNet.getPlaces())).containsExactly(0);
+        assertThat(extractProperty("name").from(petriNet.getPlaces())).containsExactly("P0");
+        assertThat(extractProperty("tokenCounts").from(petriNet.getPlaces())).hasSize(1);
+        Place place = petriNet.getComponent("P0", Place.class);
+        PlaceStatus status = place.getStatus();
+        assertTrue(status instanceof PlaceStatusInterface);
+        assertTrue(status.isMergeStatus());
+        assertTrue(status.isExternal());
+        assertTrue(status.isInputOnlyArcConstraint());
+        assertFalse(status.isOutputOnlyArcConstraint());
+        assertEquals(place, status.getPlace());
     }
 
     @Test
@@ -168,12 +173,12 @@ public class PetriNetReaderTest {
     @Test
     public void createsMarkingIfNoTokensSet() throws JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getNoPlaceTokenPath()));
-//        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getNoPlaceTokenPath()));
+        //        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getNoPlaceTokenPath()));
         assertThat(petriNet.getPlaces()).isNotEmpty();
         Place place = petriNet.getPlaces().iterator().next();
         assertThat(place.getTokenCounts()).containsEntry(DEFAULT_TOKEN, 0);
         //SJD place will have a 0 count for each token instead of null token count
-//        assertThat(place.getTokenCounts()).isEmpty();  
+        //        assertThat(place.getTokenCounts()).isEmpty();
     }
 
     @Test
@@ -186,29 +191,30 @@ public class PetriNetReaderTest {
         assertThat(petriNet.getTransitions()).extracting("rate.expression").containsExactly("1.0");
         assertThat(petriNet.getTransitions()).extractingResultOf("isTimed").containsExactly(false);
         assertThat(petriNet.getTransitions()).extractingResultOf("isInfiniteServer").containsExactly(false);
-        assertThat(petriNet.getTransitions()).extracting("nameXOffset", "nameYOffset").containsExactly(
-                tuple(-5.0, 35.0));
+        assertThat(petriNet.getTransitions()).extracting("nameXOffset", "nameYOffset")
+                .containsExactly(tuple(-5.0, 35.0));
         assertThat(petriNet.getTransitions()).extracting("priority").containsExactly(1);
     }
+
     @Test
-    public void createsExternalTransition() throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
-    	
-    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getExternalTransitionFile()));
-    	
-    	assertThat(petriNet.getTransitions()).extracting("x", "y").containsExactly(tuple(375, 225));
-    	assertThat(petriNet.getTransitions()).extracting("id", "name").containsExactly(tuple("T0", "T0"));
-    	assertThat(petriNet.getTransitions()).extracting("rate.expression").containsExactly("1.0");
-    	assertThat(petriNet.getTransitions()).extractingResultOf("isTimed").containsExactly(false);
-    	assertThat(petriNet.getTransitions()).extractingResultOf("isInfiniteServer").containsExactly(false);
-    	assertThat(petriNet.getTransitions()).extracting("nameXOffset", "nameYOffset").containsExactly(
-    			tuple(-5.0, 35.0));
-    	assertThat(petriNet.getTransitions()).extracting("priority").containsExactly(1);
-    	Transition transition = petriNet.getComponent("T0", Transition.class);
-    	assertTrue(transition instanceof DiscreteExternalTransition); 
-    	assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition); 
+    public void createsExternalTransition()
+            throws JAXBException, FileNotFoundException, PetriNetComponentNotFoundException {
+
+        PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getExternalTransitionFile()));
+
+        assertThat(petriNet.getTransitions()).extracting("x", "y").containsExactly(tuple(375, 225));
+        assertThat(petriNet.getTransitions()).extracting("id", "name").containsExactly(tuple("T0", "T0"));
+        assertThat(petriNet.getTransitions()).extracting("rate.expression").containsExactly("1.0");
+        assertThat(petriNet.getTransitions()).extractingResultOf("isTimed").containsExactly(false);
+        assertThat(petriNet.getTransitions()).extractingResultOf("isInfiniteServer").containsExactly(false);
+        assertThat(petriNet.getTransitions()).extracting("nameXOffset", "nameYOffset")
+                .containsExactly(tuple(-5.0, 35.0));
+        assertThat(petriNet.getTransitions()).extracting("priority").containsExactly(1);
+        Transition transition = petriNet.getComponent("T0", Transition.class);
+        assertTrue(transition instanceof DiscreteExternalTransition);
+        assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition);
     }
 
-    
     @Test
     public void createsArc() throws JAXBException, FileNotFoundException {
 
@@ -216,8 +222,8 @@ public class PetriNetReaderTest {
         Place expectedSource = new DiscretePlace("P0", "P0");
         expectedSource.setTokenCount(DEFAULT_TOKEN, 0);
         Transition expectedTarget = new DiscreteTransition("T0", "T0");
-        assertThat(petriNet.getArcs()).extracting("type", "source", "target", "id").contains(
-                tuple(ArcType.NORMAL, expectedSource, expectedTarget, "P0 TO T0"));
+        assertThat(petriNet.getArcs()).extracting("type", "source", "target", "id")
+                .contains(tuple(ArcType.NORMAL, expectedSource, expectedTarget, "P0 TO T0"));
     }
 
     @Test
@@ -245,12 +251,12 @@ public class PetriNetReaderTest {
 
     @Test
     public void createsInhibitoryArc() throws JAXBException, FileNotFoundException {
-    	//XML has unparsed tags 
-        reader = new PetriNetIOImpl(true, true);  // change to true, false to see error
+        //XML has unparsed tags
+        reader = new PetriNetIOImpl(true, true); // change to true, false to see error
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getInhibitorArcFile()));
-//=======
-//        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInhibitorArcFile()));
-//>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
+        //=======
+        //        PetriNet petriNet = reader.read(FileUtils.fileLocation(XMLUtils.getInhibitorArcFile()));
+        //>>>>>>> fixes for issues #22,24.  Update POM to 1.1.0-SNAPSHOT
         assertThat(petriNet.getArcs()).extracting("type").containsExactly(ArcType.INHIBITOR);
     }
 
@@ -264,15 +270,14 @@ public class PetriNetReaderTest {
     @Test
     public void createsAnnotation() throws JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getAnnotationFile()));
-        assertThat(petriNet.getAnnotations()).extracting("text", "x", "y", "height", "width").containsExactly(
-                tuple("#P12s", 93, 145, 20, 48));
+        assertThat(petriNet.getAnnotations()).extracting("text", "x", "y", "height", "width")
+                .containsExactly(tuple("#P12s", 93, 145, 20, 48));
     }
 
     @Test
     public void createsRateParameter() throws JAXBException, FileNotFoundException {
         PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getRateParameterFile()));
-        assertThat(petriNet.getRateParameters()).extracting("id","expression").containsExactly(
-                tuple("rate0",  "5.0"));
+        assertThat(petriNet.getRateParameters()).extracting("id", "expression").containsExactly(tuple("rate0", "5.0"));
     }
 
     @Test
@@ -283,74 +288,104 @@ public class PetriNetReaderTest {
         Transition transition = petriNet.getComponent("T0", Transition.class);
         assertEquals(rateParameter, transition.getRate());
     }
-    
+
     @Test
     public void externalTransitionReferencesRateParameter()
-    		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getExternalTransitionRateParameterFile()));
-    	RateParameter rateParameter = petriNet.getComponent("foo", RateParameter.class);
-    	Transition transition = petriNet.getComponent("T0", Transition.class);
-    	assertEquals(rateParameter, transition.getRate());
-    	assertTrue(transition instanceof DiscreteExternalTransition); 
-    	assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition); 
+            throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+        PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getExternalTransitionRateParameterFile()));
+        RateParameter rateParameter = petriNet.getComponent("foo", RateParameter.class);
+        Transition transition = petriNet.getComponent("T0", Transition.class);
+        assertEquals(rateParameter, transition.getRate());
+        assertTrue(transition instanceof DiscreteExternalTransition);
+        assertTrue(((DiscreteExternalTransition) transition).getClient() instanceof TestingExternalTransition);
     }
 
     @Test
     public void rateParameterReferencesPlace()
-    		throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-//<<<<<<< b3c5fc1ed238e32bdc5d64e94dcbc86ac8fd9c84
-    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getRateParameterReferencesPlaceFile()));
-        assertThat(petriNet.getRateParameters()).extracting("id","expression").containsExactly(
-                tuple("rate1",  "#(P0)"));
+            throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+        //<<<<<<< b3c5fc1ed238e32bdc5d64e94dcbc86ac8fd9c84
+        PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getRateParameterReferencesPlaceFile()));
+        assertThat(petriNet.getRateParameters()).extracting("id", "expression")
+                .containsExactly(tuple("rate1", "#(P0)"));
     }
+
     @Test
     public void readsTokens() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getTwoTokenFile()));
-    	Collection<Token> tokens = petriNet.getTokens();
-    	assertEquals(2,tokens.size());
+        PetriNet petriNet = reader.read(FileUtils.resourceLocation(XMLUtils.getTwoTokenFile()));
+        Collection<Token> tokens = petriNet.getTokens();
+        assertEquals(2, tokens.size());
     }
+
     @Test
-    public void throwsWhenArcReferencesNonexistentPlace() throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
-    	String path = FileUtils.resourceLocation(XMLUtils.getArcWithoutPlaceFile());  
-    	expectedException.expect(JAXBException.class);
-    	expectedException.expectMessage("PetriNetValidationEventHandler error attempting to build Petri net from file "+path+
-    			": uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException:  in uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter: " +
-    			"Arc 'P1 TO T0' references place P1 but P1 does not exist in file.");  
-    	reader.read(path);
+    public void throwsWhenArcReferencesNonexistentPlace()
+            throws PetriNetComponentNotFoundException, JAXBException, FileNotFoundException {
+        String path = FileUtils.resourceLocation(XMLUtils.getArcWithoutPlaceFile());
+        expectedException.expect(JAXBException.class);
+        expectedException
+                .expectMessage("PetriNetValidationEventHandler error attempting to build Petri net from file " + path +
+                        ": uk.ac.imperial.pipe.exceptions.PetriNetComponentNotFoundException:  in uk.ac.imperial.pipe.io.adapters.modelAdapter.ArcAdapter: " +
+                        "Arc 'P1 TO T0' references place P1 but P1 does not exist in file.");
+        reader.read(path);
     }
+
     @Test
-	public void identifiesPetriNetXmlFile() throws Exception {
-    	assertEquals(XmlFileEnum.PETRI_NET, 
-    			reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getSimplePetriNet())));  
-	}
+    public void identifiesPetriNetXmlFile() throws Exception {
+        assertEquals(XmlFileEnum.PETRI_NET, reader
+                .determineFileType(FileUtils.resourceLocation(XMLUtils.getSimplePetriNet())));
+    }
+
     @Test
     public void identifiesIncludeXmlFile() throws Exception {
-    	assertEquals(XmlFileEnum.INCLUDE_HIERARCHY, 
-    			reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getSingleIncludeHierarchyFile())));  
+        assertEquals(XmlFileEnum.INCLUDE_HIERARCHY, reader
+                .determineFileType(FileUtils.resourceLocation(XMLUtils.getSingleIncludeHierarchyFile())));
     }
+
+    @Test
+    public void identifiesXmlTagAsNonEmptyString() throws Exception {
+        String anode = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils.resourceLocation(XMLUtils.getSimplePetriNet()), PetriNetIOImpl.PNML);
+        assertFalse(anode.isEmpty());
+        anode = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils
+                        .resourceLocation(XMLUtils.getSingleIncludeHierarchyFile()), PetriNetIOImpl.INCLUDE);
+        assertFalse(anode.isEmpty());
+    }
+
+    @Test
+    public void emptyStringReturnedIfTagNotFoundInFile() throws Exception {
+        String node = ((PetriNetIOImpl) reader)
+                .testForXmlTag(FileUtils
+                        .resourceLocation(XMLUtils.getSingleIncludeHierarchyFile()), PetriNetIOImpl.PNML);
+        assertTrue(node.isEmpty());
+    }
+
     @Test
     public void throwsIfFileHasUnknownXmlTagsAtHighestLevel() throws Exception {
-    	expectedException.expect(PetriNetFileException.class);    	
-    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
-    			PetriNetIOImpl.XML_NOT_PNML_NOR_INCLUDE_FORMAT); 
-    	reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getUnknownXml()));  
+        expectedException.expect(PetriNetFileException.class);
+        expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE +
+                PetriNetIOImpl.XML_NOT_PNML_NOR_INCLUDE_FORMAT);
+        reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getUnknownXml()));
     }
+
     @Test
     public void throwsIfFileNotValidXml() throws Exception {
-    	//TODO find a different way to suppress:  [Fatal Error] :1:1: Content is not allowed in prolog.
-    	System.setErr(new PrintStream(new OutputStream() {
-    	    @Override public void write(int b) throws IOException {}
-    	}));
-    	expectedException.expect(PetriNetFileException.class);
-    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
-    			PetriNetIOImpl.FILE_IS_NOT_IN_XML_FORMAT); 
-    	reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getInvalidXml())); 
+        //TODO find a different way to suppress:  [Fatal Error] :1:1: Content is not allowed in prolog.
+        System.setErr(new PrintStream(new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+            }
+        }));
+        expectedException.expect(PetriNetFileException.class);
+        expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE +
+                PetriNetIOImpl.FILE_IS_NOT_IN_XML_FORMAT);
+        reader.determineFileType(FileUtils.resourceLocation(XMLUtils.getInvalidXml()));
     }
+
     @Test
     public void throwsIfFileNotFound() throws Exception {
-    	expectedException.expect(PetriNetFileException.class);
-    	expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE+
-    			PetriNetIOImpl.FILE_NOT_FOUND); 
-    	reader.determineFileType(XMLUtils.getNonExistentFile());  
+        expectedException.expect(PetriNetFileException.class);
+        expectedException.expectMessage(PetriNetIOImpl.PETRI_NET_IO_IMPL_DETERMINE_FILE_TYPE +
+                PetriNetIOImpl.FILE_NOT_FOUND);
+        reader.determineFileType(XMLUtils.getNonExistentFile());
     }
 }

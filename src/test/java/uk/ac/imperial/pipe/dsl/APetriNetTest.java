@@ -17,10 +17,10 @@ import java.util.Map;
 import static org.junit.Assert.assertEquals;
 
 public class APetriNetTest {
-	
+
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
-		
+
     @Test
     public void createsPetriNetWithOnePlace() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.withOnly(APlace.withId("P0"));
@@ -31,24 +31,25 @@ public class APetriNetTest {
 
         assertEquals(expected, petriNet);
     }
-    @Test
-	public void createsNamedPetriNet() throws Exception {
-    	PetriNet petriNet = APetriNet.named("net1").andFinally(APlace.withId("P0"));
-    	
-    	PetriNet expected = new PetriNet(new NormalPetriNetName("net1"));
-    	Place place = new DiscretePlace("P0", "P0");
-    	expected.addPlace(place);
-    	
-    	assertEquals(expected, petriNet);
 
-	}
-    
+    @Test
+    public void createsNamedPetriNet() throws Exception {
+        PetriNet petriNet = APetriNet.named("net1").andFinally(APlace.withId("P0"));
+
+        PetriNet expected = new PetriNet(new NormalPetriNetName("net1"));
+        Place place = new DiscretePlace("P0", "P0");
+        expected.addPlace(place);
+
+        assertEquals(expected, petriNet);
+
+    }
+
     @Test
     public void createsPetriNetWithMultipleItems() throws PetriNetComponentException {
         PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.RED))
-                                     .and(APlace.withId("P0"))
-                                     .and(AnImmediateTransition.withId("T0"))
-                                     .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("5", "Default").tokens());
+                .and(APlace.withId("P0"))
+                .and(AnImmediateTransition.withId("T0"))
+                .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("5", "Default").tokens());
 
         PetriNet expected = new PetriNet();
         Token token = new ColoredToken("Default", Color.RED);
@@ -79,11 +80,11 @@ public class APetriNetTest {
                 .and(APlace.withId("P1"))
                 .and(ATimedTransition.withId("T0").withRateParameter("Foo"))
                 .and(AnInhibitorArc.withSource("P1").andTarget("T0"))
-                .andFinally(
-                        ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("1", "Blue").token());
+                .andFinally(ANormalArc.withSource("P0").andTarget("T0").with("5", "Red").tokens().and("1", "Blue")
+                        .token());
 
         PetriNet expected = new PetriNet();
-        Token red = new ColoredToken("Red",Color.RED);
+        Token red = new ColoredToken("Red", Color.RED);
         expected.addToken(red);
 
         Token blue = new ColoredToken("Blue", Color.BLUE);
@@ -119,25 +120,28 @@ public class APetriNetTest {
 
         assertEquals(expected, petriNet);
     }
+
     @Test
     public void createsPetriNetWithRateParameterReferencingPlace() throws PetriNetComponentException {
-    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-    			APlace.withId("P0").and(1, "Default").token()).andFinally(
-    			ARateParameter.withId("rate1").andExpression("#(P0)")); 
-    	RateParameter rate = petriNet.getComponent("rate1", RateParameter.class);
-    	assertEquals("#(P0)", rate.getExpression());
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(APlace.withId("P0").and(1, "Default").token())
+                .andFinally(ARateParameter.withId("rate1").andExpression("#(P0)"));
+        RateParameter rate = petriNet.getComponent("rate1", RateParameter.class);
+        assertEquals("#(P0)", rate.getExpression());
     }
+
     /**
      * Show that order of building the petrinet matters.  For details, see {@link DSLCreator}
      * @throws PetriNetComponentException
      */
     @Test
     public void throwsIfComponentCreatedBeforeComponentItDependsOn() throws PetriNetComponentException {
-    	expectedException.expect(PetriNetComponentException.class); 
-    	expectedException.expectMessage("uk.ac.imperial.pipe.exceptions.InvalidRateException: Rate of #(P0) is invalid"); 
-    	PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK)).and(
-    			ARateParameter.withId("rate1").andExpression("#(P0)")).andFinally(
-    			APlace.withId("P0").and(1, "Default").token());
+        expectedException.expect(PetriNetComponentException.class);
+        expectedException
+                .expectMessage("uk.ac.imperial.pipe.exceptions.InvalidRateException: Rate of #(P0) is invalid");
+        PetriNet petriNet = APetriNet.with(AToken.called("Default").withColor(Color.BLACK))
+                .and(ARateParameter.withId("rate1").andExpression("#(P0)"))
+                .andFinally(APlace.withId("P0").and(1, "Default").token());
     }
-    
+
 }

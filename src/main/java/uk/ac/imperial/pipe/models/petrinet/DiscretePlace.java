@@ -5,6 +5,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import uk.ac.imperial.pipe.exceptions.PetriNetComponentException;
 import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
@@ -12,7 +16,9 @@ import uk.ac.imperial.pipe.visitor.component.PetriNetComponentVisitor;
 /**
  * This class maps to the Place in PNML and has a discrete number of tokens
  */
-public  class DiscretePlace extends AbstractConnectable implements Place {
+//TODO when a place is renamed, the arcs that connect to it should also be renamed
+public class DiscretePlace extends AbstractConnectable implements Place {
+    protected static Logger logger = LogManager.getLogger(DiscretePlace.class);
 
     /**
      * Marking x offset relative to the place x coordinate
@@ -34,9 +40,9 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     private Map<String, Integer> tokenCounts = new HashMap<>();
 
-	private boolean inInterface;
+    private boolean inInterface;
 
-	private PlaceStatus status;
+    private PlaceStatus status;
 
     /**
      * Constructor
@@ -65,12 +71,12 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         this.capacity = place.capacity;
         this.markingXOffset = place.markingXOffset;
         this.markingYOffset = place.markingYOffset;
-        status = place.getStatus().copyStatus(this); 
+        status = place.getStatus().copyStatus(this);
         inInterface = place.isInInterface();
     }
 
     /**
-     * @return true - Place objects are always selectable
+     * @return true : Place objects are always selectable
      */
     @Override
     public boolean isSelectable() {
@@ -90,7 +96,7 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      * Accept the visitor if it is a {@link uk.ac.imperial.pipe.models.petrinet.PlaceVisitor}
      * or a {@link uk.ac.imperial.pipe.models.petrinet.DiscretePlaceVisitor}
      * @param visitor to be accepted
-     * @throws PetriNetComponentException if the component is not found or other logic error 
+     * @throws PetriNetComponentException if the component is not found or other logic error
      */
     @Override
     public void accept(PetriNetComponentVisitor visitor) throws PetriNetComponentException {
@@ -153,7 +159,9 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
      */
     @Override
     public void setCapacity(int capacity) {
+        int oldValue = this.capacity;
         this.capacity = capacity;
+        changeSupport.firePropertyChange(CAPACITY_CHANGE_MESSAGE, oldValue, capacity);
     }
 
     /**
@@ -164,18 +172,18 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
     public Map<String, Integer> getTokenCounts() {
         return tokenCounts;
     }
+
     /**
      * Modifies the token count of the specified token
      * @param token to be modified
-     * @param count to be set 
+     * @param count to be set
      */
     @Override
     public void setTokenCount(String token, int count) {
-    	Map<String, Integer> counts = new HashMap<>(getTokenCounts());
-    	counts.put(token, count); 
-    	setTokenCounts(counts); 
+        Map<String, Integer> counts = new HashMap<>(getTokenCounts());
+        counts.put(token, count);
+        setTokenCounts(counts);
     }
-
 
     /**
      *
@@ -190,17 +198,27 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
-	protected Map<String, Integer> setTokenCountsBare(Map<String, Integer> tokenCounts) {
-		if (hasCapacityRestriction()) {
+    protected Map<String, Integer> setTokenCountsBare(Map<String, Integer> tokenCounts) {
+        if (hasCapacityRestriction()) {
             int count = getNumberOfTokensStored(tokenCounts);
             if (count > capacity) {
-                throw new RuntimeException("Total token count ("+count+") exceeds capacity ("+capacity+")");
+                throw new RuntimeException("Total token count (" + count + ") exceeds capacity (" + capacity + ")");
             }
         }
         Map<String, Integer> old = new HashMap<>(this.tokenCounts);
         this.tokenCounts = new HashMap<>(tokenCounts);
-		return old;
-	}
+        //        printNonZeroCounts(tokenCounts);
+        return old;
+    }
+
+    private void printNonZeroCounts(Map<String, Integer> tokenCounts) {
+        for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
+            if (entry.getValue() > 0) {
+                logger.debug("setting token counts for place " + getId() + ": token: " +
+                        entry.getKey() + " count: " + entry.getValue());
+            }
+        }
+    }
 
     /**
      *
@@ -242,9 +260,10 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
         notifyTokenListeners(TOKEN_CHANGE_MESSAGE, old, tokenCounts);
     }
 
-	protected void notifyTokenListeners(String propertyMessage, Map<String, Integer> old, Map<String, Integer> tokenCounts) {
-		changeSupport.firePropertyChange(propertyMessage, old, tokenCounts);
-	}
+    protected void notifyTokenListeners(String propertyMessage, Map<String, Integer> old,
+            Map<String, Integer> tokenCounts) {
+        changeSupport.firePropertyChange(propertyMessage, old, tokenCounts);
+    }
 
     /**
      * @return the number of tokens currently stored in this place
@@ -299,33 +318,52 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
+        if (!super.equals(o)) {
             return false;
         }
 
         DiscretePlace place = (DiscretePlace) o;
 
-        if (!super.equals(place)) {
-            return false;
-        }
+        return (equalsStructure(place) && equalsPosition(place) && equalsState(place));
+    }
 
-        if (Double.compare(place.capacity, capacity) != 0) {
+    @Override
+    public boolean equalsState(Place place) {
+        if (!super.equalsMinimal(place)) {
             return false;
         }
+        if (!tokenCounts.equals(place.getTokenCounts())) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public <C extends Connectable> boolean equalsStructure(C connectable) {
+        if (!super.equalsStructure(connectable)) {
+            return false;
+        }
+        DiscretePlace place = (DiscretePlace) connectable;
+
+        if (Double.compare(place.getCapacity(), capacity) != 0) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public <C extends Connectable> boolean equalsPosition(C connectable) {
+        if (!super.equalsPosition(connectable)) {
+            return false;
+        }
+        DiscretePlace place = (DiscretePlace) connectable;
+
         if (Double.compare(place.markingXOffset, markingXOffset) != 0) {
             return false;
         }
         if (Double.compare(place.markingYOffset, markingYOffset) != 0) {
             return false;
         }
-
-        if (!tokenCounts.equals(place.tokenCounts)) {
-            return false;
-        }
-
         return true;
     }
 
@@ -384,85 +422,94 @@ public  class DiscretePlace extends AbstractConnectable implements Place {
 
     /**
      *
-     * @return true 
+     * @return true
      */
     @Override
     public boolean isEndPoint() {
         return true;
     }
 
-
     /**
      *
      * Removes all tokens with the given id from this place
      *
-     * @param token for which count is to be zero 
+     * @param token for which count is to be zero
      */
     @Override
     public void removeAllTokens(String token) {
         tokenCounts.remove(token);
     }
+
     /**
-     * 
-     * @return whether this Place is in the interface for the Petri net.  
+     *
+     * @return whether this Place is in the interface for the Petri net.
      */
     @Override
-	public boolean isInInterface() {
-    	return inInterface;
+    public boolean isInInterface() {
+        return inInterface;
     }
-	@Override
-	public void setInInterface(boolean inInterface) {
-    	this.inInterface = inInterface;
-    	if (inInterface) {
-    		status = new PlaceStatusInterface(this); //FIXME ?
-    	}
-    	else {
-    		status = new PlaceStatusNormal(this); 
-    	}
+
+    @Override
+    public void setInInterface(boolean inInterface) {
+        this.inInterface = inInterface;
+        if (inInterface) {
+            status = new PlaceStatusInterface(this); //FIXME ?
+        } else {
+            status = new PlaceStatusNormal(this);
+        }
     }
-    
+
     /**
-     * Update token count to mirror another place 
+     * Update token count to mirror another place
      * (e.g., change for a place in ExecutablePetriNet will be mirrored to same place in source Petri net, or vice versa)
      *
      * Generates TOKEN_CHANGE_MIRROR_MESSAGE to inform non-Place listeners that tokens have been updated (e.g., PlaceView)
-     * 
-     * @param event for the property change 
+     *
+     * @param event for the property change
      */
-	@SuppressWarnings("unchecked")
-	@Override
-	public void propertyChange(PropertyChangeEvent event) {
-		if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
-			Map<String, Integer> tokenCounts = (Map<String, Integer>) event.getNewValue();
-			Map<String, Integer> old = setTokenCountsBare(tokenCounts); 
-	        notifyTokenListeners(TOKEN_CHANGE_MIRROR_MESSAGE, old, tokenCounts);
-		}
-		else if (event.getPropertyName().equals(REMOVE_PLACE_MESSAGE)) {
-			changeSupport.removePropertyChangeListener((PropertyChangeListener) event.getSource());
-		}
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public void propertyChange(PropertyChangeEvent event) {
+        if (event.getPropertyName().equals(TOKEN_CHANGE_MESSAGE)) {
+            Map<String, Integer> tokenCounts = (Map<String, Integer>) event.getNewValue();
+            Map<String, Integer> old = setTokenCountsBare(tokenCounts);
+            //            for (Entry<String, Integer> entry : tokenCounts.entrySet()) {
+            //                if (entry.getValue() > 0) {
+            //                    logger.debug("just notified " + getId() + " of token change " + entry.getKey() + ": " +
+            //                            entry.getValue());
+            //                }
+            //            }
+            notifyTokenListeners(TOKEN_CHANGE_MIRROR_MESSAGE, old, tokenCounts);
+        } else if (event.getPropertyName().equals(REMOVE_PLACE_MESSAGE)) {
+            changeSupport.removePropertyChangeListener((PropertyChangeListener) event.getSource());
+        }
+    }
 
+    @Override
+    public PlaceStatus getStatus() {
+        return status;
+    }
 
-	@Override
-	public PlaceStatus getStatus() {
-		return status; 
-	}
+    //TODO perhaps these methods should be moved to a different interface...
 
-	//TODO perhaps these methods should be moved to a different interface...
+    @Override
+    public void addToInterface(IncludeHierarchy includeHierarchy) {
+        status = new PlaceStatusInterface(this, includeHierarchy);
+    }
 
-	@Override
-	public void addToInterface(IncludeHierarchy includeHierarchy)  {
-		status = new PlaceStatusInterface(this, includeHierarchy) ;  
-	}
+    @Override
+    public void setStatus(PlaceStatus status) {
+        if ((status.getPlace() != null) && !(status.getPlace() == this)) {
+            throw new IllegalArgumentException(
+                    "PlaceStatus can only be assigned with same Place (if not null) as this Place\n" +
+                            "This place: " + getId() + ".  Place from status: " + status.getPlace().getId() + ".");
+        }
+        this.status = status;
+    }
 
-	@Override
-	public void setStatus(PlaceStatus status) {
-		this.status = status; 
-	}
-
-	@Override
-	public void removeSelfFromListeners() {
-		notifyTokenListeners(Place.REMOVE_PLACE_MESSAGE, null, null);
-	}
+    @Override
+    public void removeSelfFromListeners() {
+        notifyTokenListeners(Place.REMOVE_PLACE_MESSAGE, null, null);
+    }
 
 }

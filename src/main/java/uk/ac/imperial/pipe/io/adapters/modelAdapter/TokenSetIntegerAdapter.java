@@ -37,7 +37,7 @@ public final class TokenSetIntegerAdapter
      * @return map of token to integer count
      */
     @Override
-    public Map<Token, Integer> unmarshal(AdaptedIntegerTokenSet adaptedTokenSet)  {
+    public Map<Token, Integer> unmarshal(AdaptedIntegerTokenSet adaptedTokenSet) {
         Map<Token, Integer> tokenWeights = new HashMap<>();
         String weightInput = adaptedTokenSet.value;
         String[] commaSeparatedMarkings = weightInput.split(",");

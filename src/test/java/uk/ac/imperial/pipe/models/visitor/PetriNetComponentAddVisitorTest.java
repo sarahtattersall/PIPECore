@@ -35,7 +35,6 @@ public class PetriNetComponentAddVisitorTest {
 
     }
 
-
     @Test
     public void testAddsOutboundNormalArc() {
         Place place = new DiscretePlace("", "");
@@ -83,6 +82,5 @@ public class PetriNetComponentAddVisitorTest {
         token.accept(visitor);
         verify(mockNet).addToken(token);
     }
-
 
 }

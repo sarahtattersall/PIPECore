@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 // Create:
 // APetriNet.with(aToken("Red")).andAPlace("P0").containing(5, "Red")
 
@@ -33,18 +32,17 @@ import java.util.logging.Logger;
 public final class APetriNet {
     private static final Logger LOGGER = Logger.getLogger(APetriNet.class.getName());
     private Collection<DSLCreator<? extends PetriNetComponent>> creators = new ArrayList<>();
-	private String name;
-
+    private String name;
 
     private APetriNet(String name) {
-    	this.name = name; 
-	}
+        this.name = name;
+    }
 
-	private APetriNet() {
-		this("");
-	}
+    private APetriNet() {
+        this("");
+    }
 
-	/**
+    /**
      * Entry method for creating a Petri Net
      * @param creator item creator to add to Petri net
      * @param <T> type of PetriNetComponent
@@ -62,9 +60,10 @@ public final class APetriNet {
      * @return instance of APetriNet class for chaining
      */
     public static APetriNet named(String name) {
-    	APetriNet aPetriNet = new APetriNet(name);
-    	return aPetriNet;
+        APetriNet aPetriNet = new APetriNet(name);
+        return aPetriNet;
     }
+
     /**
      *
      * Adds more 'items' to the PetriNet by collecting their creators
@@ -87,7 +86,8 @@ public final class APetriNet {
      * @return the created Petri net containing all the items made from the added creators
      * @throws PetriNetComponentException if the PetriNet has errors due to mis-specified components
      */
-    public  <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator) throws PetriNetComponentException {
+    public <T extends PetriNetComponent> PetriNet andFinally(DSLCreator<T> finalCreator)
+            throws PetriNetComponentException {
         return and(finalCreator).makePetriNet();
     }
 
@@ -98,7 +98,8 @@ public final class APetriNet {
      * @return created petri net containing the item
      * @throws PetriNetComponentException if the PetriNet has errors due to mis-specified components
      */
-    public static <T extends PetriNetComponent> PetriNet withOnly(DSLCreator<T> creator) throws PetriNetComponentException {
+    public static <T extends PetriNetComponent> PetriNet withOnly(DSLCreator<T> creator)
+            throws PetriNetComponentException {
         APetriNet aPetriNet = new APetriNet();
         return aPetriNet.andFinally(creator);
     }
@@ -120,7 +121,7 @@ public final class APetriNet {
             try {
                 petriNet.add(creator.create(tokens, places, transitions, rateParameters));
             } catch (PetriNetComponentException e) {
-                throw e; 
+                throw e;
             }
         }
         return petriNet;

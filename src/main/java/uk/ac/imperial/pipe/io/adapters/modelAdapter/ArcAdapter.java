@@ -20,7 +20,7 @@ import com.google.common.base.Joiner;
  * Adapts arcs for writing to PNML.
  */
 public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable, ? extends Connectable>> {
-	
+
     /**
      * Place id of the Place
      */
@@ -57,26 +57,27 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
      * @throws PetriNetComponentException if an endpoint is missing or the arc would not be valid
      */
     @Override
-    public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc) throws PetriNetComponentException {
+    public Arc<? extends Connectable, ? extends Connectable> unmarshal(AdaptedArc adaptedArc)
+            throws PetriNetComponentException {
         Arc<? extends Connectable, ? extends Connectable> arc;
-        String arcId = adaptedArc.getId(); 
+        String arcId = adaptedArc.getId();
         String source = adaptedArc.getSource();
         String target = adaptedArc.getTarget();
-        boolean normalArc = true; 
+        boolean normalArc = true;
         Map<String, String> weights = stringToWeights(adaptedArc.getInscription().getTokenCounts());
-        
+
         if (adaptedArc.getType().equals("inhibitor")) {
-        	normalArc = false; 
+            normalArc = false;
         }
-        ArcEndpointsValidator aev = new ArcEndpointsValidator(source, target, arcId, places, transitions, normalArc, weights);
-        arc = aev.createArc(); 
+        ArcEndpointsValidator aev = new ArcEndpointsValidator(source, target, arcId, places, transitions, normalArc,
+                weights);
+        arc = aev.createArc();
         //TODO:
         arc.setTagged(false);
 
         setRealArcPoints(arc, adaptedArc);
         return arc;
     }
-
 
     /**
      *
@@ -110,7 +111,6 @@ public class ArcAdapter extends XmlAdapter<AdaptedArc, Arc<? extends Connectable
      * @param adapted arc
      */
     private void setRealArcPoints(Arc<? extends Connectable, ? extends Connectable> arc, AdaptedArc adapted) {
-
 
         List<ArcPoint> arcPoints = adapted.getArcPoints();
         if (arcPoints.isEmpty()) {

@@ -19,7 +19,7 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
     /**
      * Executable Petri net
      */
-	private ExecutablePetriNet executablePetriNet;
+    private ExecutablePetriNet executablePetriNet;
 
     /**
      * Constructor
@@ -27,10 +27,11 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
      * @param state of the Petri net
      */
     public StateEvalVisitor(ExecutablePetriNet executablePetriNet, State state) {
-    	this.executablePetriNet = executablePetriNet; 
-    	this.state = state;
-	}
-	@Override
+        this.executablePetriNet = executablePetriNet;
+        this.state = state;
+    }
+
+    @Override
     public Double visitMultOrDiv(RateGrammarParser.MultOrDivContext ctx) {
         Double left = visit(ctx.expression(0));
         Double right = visit(ctx.expression(1));
@@ -101,7 +102,6 @@ public final class StateEvalVisitor extends RateGrammarBaseVisitor<Double> {
         Double value = visit(ctx.expression());
         return Math.ceil(value);
     }
-
 
     /**
      *

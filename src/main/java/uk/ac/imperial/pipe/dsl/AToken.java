@@ -27,7 +27,9 @@ public final class AToken implements DSLCreator<Token> {
      * Private constructor
      * @param name token id
      */
-    private AToken(String name) { this.name = name; }
+    private AToken(String name) {
+        this.name = name;
+    }
 
     /**
      * Factory method
@@ -57,7 +59,8 @@ public final class AToken implements DSLCreator<Token> {
      * @return Token with specified id and color.
      */
     @Override
-    public Token create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+    public Token create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions,
+            Map<String, FunctionalRateParameter> rateParameters) {
         Token token = new ColoredToken(name, color);
         tokens.put(name, token);
         return token;

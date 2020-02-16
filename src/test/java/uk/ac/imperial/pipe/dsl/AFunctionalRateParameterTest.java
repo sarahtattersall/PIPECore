@@ -32,20 +32,18 @@ public class AFunctionalRateParameterTest {
 
     @Test
     public void createsRateParameter() {
-        FunctionalRateParameter rateParameter =
-                ARateParameter.withId("Foo").andExpression("5.0").create(tokens, places, transitions, rateParameters);
+        FunctionalRateParameter rateParameter = ARateParameter.withId("Foo").andExpression("5.0")
+                .create(tokens, places, transitions, rateParameters);
         FunctionalRateParameter expected = new FunctionalRateParameter("5.0", "Foo", "Foo");
 
         assertEquals(expected, rateParameter);
     }
 
-
     @Test
     public void addsRateParameterToRateParameters() {
-        FunctionalRateParameter rateParameter =
-                ARateParameter.withId("Foo").andExpression("5.0").create(tokens, places, transitions, rateParameters);
+        FunctionalRateParameter rateParameter = ARateParameter.withId("Foo").andExpression("5.0")
+                .create(tokens, places, transitions, rateParameters);
         assertThat(rateParameters).containsEntry("Foo", rateParameter);
     }
-
 
 }

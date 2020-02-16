@@ -7,7 +7,7 @@ import java.beans.PropertyChangeSupport;
  * Abstract class that implements change support for PIPE
  */
 public abstract class AbstractPetriNetPubSub {
-    protected PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
+    public final PropertyChangeSupport changeSupport = new PropertyChangeSupport(this);
 
     /**
      *
@@ -16,13 +16,14 @@ public abstract class AbstractPetriNetPubSub {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.addPropertyChangeListener(listener);
     }
+
     /**
      *
      * @param propertyName name of the events to be listened for
      * @param listener listener which will process propertyName events of the implementing class
      */
     public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-    	changeSupport.addPropertyChangeListener(propertyName, listener);
+        changeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
     /**
@@ -31,5 +32,12 @@ public abstract class AbstractPetriNetPubSub {
      */
     public void removePropertyChangeListener(PropertyChangeListener listener) {
         changeSupport.removePropertyChangeListener(listener);
+    }
+
+    public void removeAllListeners() {
+        PropertyChangeListener[] listeners = changeSupport.getPropertyChangeListeners();
+        for (int i = 0; i < listeners.length; i++) {
+            removePropertyChangeListener(listeners[i]);
+        }
     }
 }

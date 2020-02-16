@@ -1,6 +1,5 @@
 package uk.ac.imperial.pipe.models;
 
-
 import uk.ac.imperial.pipe.io.adapters.modelAdapter.PetriNetAdapter;
 import uk.ac.imperial.pipe.models.petrinet.PetriNet;
 

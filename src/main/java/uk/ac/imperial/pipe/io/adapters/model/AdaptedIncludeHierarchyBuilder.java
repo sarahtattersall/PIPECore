@@ -16,7 +16,7 @@ import uk.ac.imperial.pipe.io.adapters.modelAdapter.IncludeHierarchyBuilderAdapt
  * Adapted include hierarchy for XML processing
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AdaptedIncludeHierarchyBuilder  {
+public class AdaptedIncludeHierarchyBuilder {
 
     /**
      * Include hierarchy name
@@ -25,69 +25,67 @@ public class AdaptedIncludeHierarchyBuilder  {
     private String name = "";
 
     /**
-     * Path to petri net for this include hierarchy 
+     * Path to petri net for this include hierarchy
      */
     @XmlAttribute
     private String netLocation;
-    
 
     @XmlElement(name = "includes")
     private Includes includes;
-    
+
     /**
-     * 
+     *
      * @return name   the name of this include hierarchy
      */
-	public final String getName() {
-		return name;
-	}
+    public final String getName() {
+        return name;
+    }
 
-	/**
-	 * 
-	 * @param name   the name of this include hierarchy 
-	 */
-	public final void setName(String name) {
-		this.name = name;
-	}
-	
-	/**
-	 * 
-	 * @return net  The path to the Petri net for this include hierarchy 
-	 */
-	public final String getNetLocation() {
-		return netLocation;
-	}
-	
-	/**
-	 * 
-	 * @param netLocation The path to the Petri net for this include hierarchy
-	 */
-	public final void setNetLocation(String netLocation) {
-		this.netLocation = netLocation;
-	}
+    /**
+     *
+     * @param name   the name of this include hierarchy
+     */
+    public final void setName(String name) {
+        this.name = name;
+    }
 
+    /**
+     *
+     * @return net  The path to the Petri net for this include hierarchy
+     */
+    public final String getNetLocation() {
+        return netLocation;
+    }
 
-	@XmlAccessorType(XmlAccessType.FIELD)
-	public  class Includes {
-		
-	    @XmlJavaTypeAdapter(IncludeHierarchyBuilderAdapter.class)
-	    @XmlElement(name = "include")
-	    private Collection<IncludeHierarchyBuilder> include;
+    /**
+     *
+     * @param netLocation The path to the Petri net for this include hierarchy
+     */
+    public final void setNetLocation(String netLocation) {
+        this.netLocation = netLocation;
+    }
 
-	    @XmlElement
-	    private String thing; 
-	    
-	    public final Collection<IncludeHierarchyBuilder> getInclude() {
-	    	if (include == null) {
-	    		include = new ArrayList<IncludeHierarchyBuilder>();
-//	    		include = new TreeSet<IncludeHierarchyBuilder>(new IncludeHierarchyBuilderComparator());
-	    	}
-	    	return include;
-	    }
-	    
-	    public final void setInclude(Collection<IncludeHierarchyBuilder> include) {
-	    	this.include = include;
-	    }
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public class Includes {
 
-	}
+        @XmlJavaTypeAdapter(IncludeHierarchyBuilderAdapter.class)
+        @XmlElement(name = "include")
+        private Collection<IncludeHierarchyBuilder> include;
+
+        @XmlElement
+        private String thing;
+
+        public final Collection<IncludeHierarchyBuilder> getInclude() {
+            if (include == null) {
+                include = new ArrayList<>();
+                //	    		include = new TreeSet<IncludeHierarchyBuilder>(new IncludeHierarchyBuilderComparator());
+            }
+            return include;
+        }
+
+        public final void setInclude(Collection<IncludeHierarchyBuilder> include) {
+            this.include = include;
+        }
+
+    }
 }

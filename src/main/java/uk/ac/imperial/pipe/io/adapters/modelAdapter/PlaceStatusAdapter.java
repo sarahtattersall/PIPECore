@@ -10,14 +10,13 @@ import uk.ac.imperial.pipe.models.petrinet.PlaceStatusInterface;
  * Marshalls Petri net arc points in and out of their PNML format
  */
 public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, PlaceStatus> {
-	
-	
-	/**
-	 * null constructor required for marshalling
-	 */
-	public PlaceStatusAdapter() {
-	}
-	
+
+    /**
+     * null constructor required for marshalling
+     */
+    public PlaceStatusAdapter() {
+    }
+
     /**
      *
      * @param adaptedPlaceStatus to be unmarshaled
@@ -25,15 +24,16 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
      */
     @Override
     public PlaceStatus unmarshal(AdaptedPlaceStatus adaptedPlaceStatus) {
-    	PlaceStatus status = new PlaceStatusInterface(); 
-    	if (adaptedPlaceStatus.getMergeStatus() != null) {
-    		status.buildMergeStatus(adaptedPlaceStatus.getMergeStatus().getType()); 
-    	}
-    	status.setExternal(adaptedPlaceStatus.getExternal()); 
-    	status.setInputOnlyArcConstraint(adaptedPlaceStatus.getInputOnly());
-    	status.setOutputOnlyArcConstraint(adaptedPlaceStatus.getOutputOnly());
-    	return status;
+        PlaceStatus status = new PlaceStatusInterface();
+        if (adaptedPlaceStatus.getMergeStatus() != null) {
+            status.buildMergeStatus(adaptedPlaceStatus.getMergeStatus().getType());
+        }
+        status.setExternal(adaptedPlaceStatus.getExternal());
+        status.setInputOnlyArcConstraint(adaptedPlaceStatus.getInputOnly());
+        status.setOutputOnlyArcConstraint(adaptedPlaceStatus.getOutputOnly());
+        return status;
     }
+
     /**
      *
      * @param placeStatus to be marshaled
@@ -41,16 +41,16 @@ public final class PlaceStatusAdapter extends XmlAdapter<AdaptedPlaceStatus, Pla
      */
     @Override
     public AdaptedPlaceStatus marshal(PlaceStatus placeStatus) {
-    	AdaptedPlaceStatus adaptedStatus = new AdaptedPlaceStatus(); 
-    	String merge = placeStatus.getMergeXmlType();
-    	if (merge != null) {
-    		AdaptedPlaceStatus.MergeStatus mergeStatus = new AdaptedPlaceStatus.MergeStatus(); 
-    		mergeStatus.setType(merge);
-    		adaptedStatus.setMergeStatus(mergeStatus);
-    	}
-    	adaptedStatus.setExternal(placeStatus.isExternal()); 
-    	adaptedStatus.setInputOnly(placeStatus.isInputOnlyArcConstraint());
-    	adaptedStatus.setOutputOnly(placeStatus.isOutputOnlyArcConstraint()); 
+        AdaptedPlaceStatus adaptedStatus = new AdaptedPlaceStatus();
+        String merge = placeStatus.getMergeXmlType();
+        if (merge != null) {
+            AdaptedPlaceStatus.MergeStatus mergeStatus = new AdaptedPlaceStatus.MergeStatus();
+            mergeStatus.setType(merge);
+            adaptedStatus.setMergeStatus(mergeStatus);
+        }
+        adaptedStatus.setExternal(placeStatus.isExternal());
+        adaptedStatus.setInputOnly(placeStatus.isInputOnlyArcConstraint());
+        adaptedStatus.setOutputOnly(placeStatus.isOutputOnlyArcConstraint());
         return adaptedStatus;
     }
 }

@@ -1,25 +1,34 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+import java.util.Map;
+
 public interface MergeInterfaceStatus extends InterfaceStatus {
 
-	public static final String AWAY = "away";
-	public static final String HOME = "home";
+    public static final String AWAY = "away";
+    public static final String HOME = "home";
 
-	public Place getHomePlace();
-	public void setHomePlace(Place homePlace);
+    public Place getHomePlace();
 
-	public String getAwayId();
-	public void setAwayId(String awayId);
+    public void setHomePlace(Place homePlace);
 
-	public void setArcConstraint(ArcConstraint arcConstraint);
-	public ArcConstraint getArcConstraint();
+    public String getAwayId();
 
-	public Result<InterfacePlaceAction> add(PetriNet petriNet);
+    public void setAwayId(String awayId);
 
-	public boolean canRemove();
+    public void setArcConstraint(ArcConstraint arcConstraint);
 
-	public String getXmlType();
-	
+    public ArcConstraint getArcConstraint();
 
+    public Result<InterfacePlaceAction> add(PetriNet petriNet);
+
+    public boolean canRemove();
+
+    public String getXmlType();
+
+    public void prefixIdWithQualifiedName(IncludeHierarchy currentIncludeHierarchy);
+
+    public MergeInterfaceStatus copy(PlaceStatus placeStatus);
+
+    public void updateHomePlace(Map<String, Place> pendingNewHomePlaces);
 
 }

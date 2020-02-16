@@ -53,7 +53,6 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
      */
     private final int xOffset;
 
-
     /**
      * y offset to paste components at
      */
@@ -79,7 +78,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
      * @param yOffset coordinate 
      */
     public PasteVisitor(PetriNet petriNet, Collection<PetriNetComponent> components, MultipleNamer multipleNamer,
-                        int xOffset, int yOffset) {
+            int xOffset, int yOffset) {
         this.petriNet = petriNet;
         this.multipleNamer = multipleNamer;
         this.components.addAll(components);
@@ -192,14 +191,14 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
 
         InboundArc newArc;
         switch (inboundArc.getType()) {
-            case INHIBITOR:
-                newArc = new InboundInhibitorArc(source, target);
-                break;
-            case TEST:
-                newArc = new InboundTestArc(source, target);
-                break;
-            default:
-                newArc = new InboundNormalArc(source, target, inboundArc.getTokenWeights());
+        case INHIBITOR:
+            newArc = new InboundInhibitorArc(source, target);
+            break;
+        case TEST:
+            newArc = new InboundTestArc(source, target);
+            break;
+        default:
+            newArc = new InboundNormalArc(source, target, inboundArc.getTokenWeights());
         }
         copyIntermediatePoints(inboundArc, newArc);
         petriNet.addArc(newArc);
@@ -214,7 +213,7 @@ public final class PasteVisitor implements TransitionVisitor, ArcVisitor, Discre
      * @param newArc newly created arc
      */
     private void copyIntermediatePoints(Arc<? extends Connectable, ? extends Connectable> arc,
-                                        Arc<? extends Connectable, ? extends Connectable> newArc) {
+            Arc<? extends Connectable, ? extends Connectable> newArc) {
         List<ArcPoint> arcPoints = arc.getArcPoints();
         for (int i = 1; i < arcPoints.size() - 1; i++) {
             ArcPoint newArcPoint = new ArcPoint(arcPoints.get(i));

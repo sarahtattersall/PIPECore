@@ -40,7 +40,8 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
     */
     @Override
     public FunctionalRateParameter unmarshal(AdaptedRateParameter adaptedRateParameter) {
-        FunctionalRateParameter rateParameter = new FunctionalRateParameter(adaptedRateParameter.getExpression(), adaptedRateParameter.getId(), adaptedRateParameter.getName());
+        FunctionalRateParameter rateParameter = new FunctionalRateParameter(adaptedRateParameter.getExpression(),
+                adaptedRateParameter.getId(), adaptedRateParameter.getName());
         rateParameters.put(rateParameter.getId(), rateParameter);
         return rateParameter;
     }
@@ -51,7 +52,7 @@ public final class RateParameterAdapter extends XmlAdapter<AdaptedRateParameter,
      * @return marshaled rate parameter
      */
     @Override
-    public AdaptedRateParameter marshal(RateParameter rateParameter)  {
+    public AdaptedRateParameter marshal(RateParameter rateParameter) {
         AdaptedRateParameter adaptedRateParameter = new AdaptedRateParameter();
         adaptedRateParameter.setExpression(rateParameter.getExpression());
         adaptedRateParameter.setId(rateParameter.getId());

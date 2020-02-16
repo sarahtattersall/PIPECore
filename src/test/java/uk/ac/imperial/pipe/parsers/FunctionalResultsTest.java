@@ -13,7 +13,8 @@ public class FunctionalResultsTest {
 
     @Test
     public void concatenatesErrors() {
-        FunctionalResults<Double> results = new FunctionalResults<>(-1., Arrays.asList("a", "b", "c"), new HashSet<String>());
+        FunctionalResults<Double> results = new FunctionalResults<>(-1., Arrays.asList("a", "b", "c"),
+                new HashSet<String>());
         String actual = results.getErrorString(", ");
         String expected = "a, b, c";
         assertEquals(expected, actual);
@@ -21,7 +22,8 @@ public class FunctionalResultsTest {
 
     @Test
     public void hasErrors() {
-        FunctionalResults<Double> results = new FunctionalResults<>(-1., Arrays.asList("a", "b", "c"), new HashSet<String>());
+        FunctionalResults<Double> results = new FunctionalResults<>(-1., Arrays.asList("a", "b", "c"),
+                new HashSet<String>());
         assertTrue(results.hasErrors());
     }
 
@@ -31,10 +33,10 @@ public class FunctionalResultsTest {
         assertFalse(results.hasErrors());
     }
 
-
     @Test
     public void hasNoErrorsEmptyErrors() {
-        FunctionalResults<Double> results = new FunctionalResults<>(-1., new LinkedList<String>(), new HashSet<String>());
+        FunctionalResults<Double> results = new FunctionalResults<>(-1., new LinkedList<String>(),
+                new HashSet<String>());
         assertFalse(results.hasErrors());
     }
 
@@ -48,6 +50,5 @@ public class FunctionalResultsTest {
         assertTrue(actual.contains("b"));
         assertTrue(actual.contains("c"));
     }
-
 
 }

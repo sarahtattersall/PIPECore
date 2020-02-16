@@ -29,7 +29,6 @@ public interface Connectable extends PlaceablePetriNetComponent {
      */
     void setNameXOffset(double nameXOffset);
 
-
     void setName(String name);
 
     String getName();
@@ -40,9 +39,7 @@ public interface Connectable extends PlaceablePetriNetComponent {
      */
     double getNameYOffset();
 
-
     void setNameYOffset(double nameYOffset);
-
 
     Point2D.Double getCentre();
 
@@ -65,5 +62,22 @@ public interface Connectable extends PlaceablePetriNetComponent {
      * @return true if the arc can finish at this point.
      * I.e it is not a temporary connectable
      */
-     boolean isEndPoint();
+    boolean isEndPoint();
+
+    /**
+     * tests whether this and connectable have the same position
+     * @param connectable against which to compare
+     * @param <C> type of the connectable
+     * @return true if X, Y, XOffset and YOffset are equal for this and connectable
+     */
+    public <C extends Connectable> boolean equalsPosition(C connectable);
+
+    /**
+     * tests whether this and connectable have the same structure
+     * @param connectable against which to compare
+     * @param <C> type of the connectable
+     * @return true if id and name are equal for this and connectable
+     */
+    public <C extends Connectable> boolean equalsStructure(C connectable);
+
 }

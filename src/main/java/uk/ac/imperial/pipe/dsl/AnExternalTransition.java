@@ -16,13 +16,14 @@ public final class AnExternalTransition extends AnAbstractTransition<AnExternalT
 
     private String className;
 
-	/**
+    /**
      * Private constructor
      * @param id of the transition
      */
     private AnExternalTransition(String id) {
         super(id, false);
     }
+
     /**
      * Factory method for setting the transition id
      * @param id of the transition
@@ -31,16 +32,16 @@ public final class AnExternalTransition extends AnAbstractTransition<AnExternalT
     public static AnExternalTransition withId(String id) {
         return new AnExternalTransition(id);
     }
+
     /**
      * Factory method for setting the external class this transition's fire method will invoke
      * @param className of the external class to be invoked
      * @return builder for chaining
      */
     public AnExternalTransition andExternalClass(String className) {
-    	this.className = className; 
-    	return this; 
+        this.className = className;
+        return this;
     }
-
 
     /**
      *
@@ -60,9 +61,9 @@ public final class AnExternalTransition extends AnAbstractTransition<AnExternalT
     protected AnExternalTransition getInstance() {
         return this;
     }
-    
+
     @Override
     protected Transition buildTransition() {
-    	return new DiscreteExternalTransition(id, id, className);
+        return new DiscreteExternalTransition(id, id, className);
     }
 }

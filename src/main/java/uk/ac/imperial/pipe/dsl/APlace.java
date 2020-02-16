@@ -45,18 +45,20 @@ public final class APlace implements DSLCreator<Place> {
     /**
      * Flag indicating whether Place is in Interface, i.e. has {@link PlaceStatusInterface}
      */
-	private boolean interfaceStatus = false;
+    private boolean interfaceStatus = false;
 
-	/**
-	 * Place is externally accessible, i.e. {@link PlaceStatusInterface#isExternal()} is true
-	 */
-	private boolean external = false;
+    /**
+     * Place is externally accessible, i.e. {@link PlaceStatusInterface#isExternal()} is true
+     */
+    private boolean external = false;
 
     /**
      * Hidden constructor
      * @param id place id
      */
-    private APlace(String id) { this.id = id; }
+    private APlace(String id) {
+        this.id = id;
+    }
 
     /**
      *
@@ -118,24 +120,24 @@ public final class APlace implements DSLCreator<Place> {
      * @return created place
      */
     @Override
-    public Place create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions, Map<String, FunctionalRateParameter> rateParameters) {
+    public Place create(Map<String, Token> tokens, Map<String, Place> places, Map<String, Transition> transitions,
+            Map<String, FunctionalRateParameter> rateParameters) {
         Place place = new DiscretePlace(id, id);
         place.setX(x);
         place.setY(y);
 
         place.setCapacity(capacity);
         place.setTokenCounts(tokenCounts);
-        
+
         if (interfaceStatus) {
-        	PlaceStatusInterface status = new PlaceStatusInterface(place); 
-        	status.setExternal(external); 
-        	place.setStatus(status);
+            PlaceStatusInterface status = new PlaceStatusInterface(place);
+            status.setExternal(external);
+            place.setStatus(status);
         }
 
         places.put(id, place);
         return place;
     }
-
 
     /**
      * Chains adding tokens
@@ -161,13 +163,14 @@ public final class APlace implements DSLCreator<Place> {
         this.y = y;
         return this;
     }
+
     /**
      * This place will be externally accessible, i.e., {@link PlaceStatusInterface#isExternal()} is true
      * @return builder for chaining 
      */
-	public APlace externallyAccessible() {
-		interfaceStatus = true; 
-		external = true; 
-		return this;
-	}
+    public APlace externallyAccessible() {
+        interfaceStatus = true;
+        external = true;
+        return this;
+    }
 }

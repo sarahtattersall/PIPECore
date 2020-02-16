@@ -11,16 +11,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class AdaptedRates {
 
-	@XmlElement(name = "rate")
-	private List<String> rates = null;
+    @XmlElement(name = "rate")
+    private List<String> rates = null;
 
-	public final List<String> getRates() {
-		return rates;
-	}
+    public final List<String> getRates() {
+        return rates;
+    }
 
-	public final void setRates(List<String> rates) {
-		this.rates = rates;
-	} 
-	
-	
+    public final void setRates(List<String> rates) {
+        this.rates = rates;
+    }
+
 }

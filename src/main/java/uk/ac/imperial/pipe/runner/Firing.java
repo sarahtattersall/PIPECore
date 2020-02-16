@@ -14,14 +14,14 @@ import uk.ac.imperial.state.State;
 
 public class Firing {
 
-	public final State state;
-	public final String transition;
-	public final int round;
-	
-	public Firing(int round, String transition, State state) {
-		this.round = round; 
-		this.transition = transition;
-		this.state = state;  
-	}
+    public final State state;
+    public final String transition;
+    public final int round;
+
+    public Firing(int round, String transition, State state) {
+        this.round = round;
+        this.transition = transition;
+        this.state = state;
+    }
 
 }

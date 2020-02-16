@@ -4,15 +4,15 @@ import uk.ac.imperial.pipe.exceptions.IncludeException;
 
 public class ParentCommandScope implements IncludeHierarchyCommandScope {
 
-	private IncludeHierarchy includes;
+    private IncludeHierarchy includes;
 
-	public ParentCommandScope(IncludeHierarchy includes) {
-		this.includes = includes; 
-	}
+    public ParentCommandScope(IncludeHierarchy includes) {
+        this.includes = includes;
+    }
 
-	@Override
-	public <T> Result<T> execute(IncludeHierarchyCommand<T> command) throws IncludeException {
-		return includes.parent(command);
-	}
+    @Override
+    public <T> Result<T> execute(IncludeHierarchyCommand<T> command) throws IncludeException {
+        return includes.parent(command);
+    }
 
 }

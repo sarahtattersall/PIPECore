@@ -17,10 +17,10 @@ public abstract class InboundArc extends AbstractArc<Place, Transition> {
      */
     public InboundArc(Place source, Transition target, Map<String, String> tokenWeights, ArcType type) {
         super(source, target, tokenWeights, type);
-        if (!source.getStatus().getArcConstraint().acceptInboundArc()) 
-        	throw new IllegalArgumentException("Place has an outputOnly ArcConstraint, and will only accept OutboundArcs: "+source.getId()); 
+        if (!source.getStatus().getArcConstraint().acceptInboundArc())
+            throw new IllegalArgumentException(
+                    "Place has an outputOnly ArcConstraint, and will only accept OutboundArcs: " + source.getId());
     }
-
 
     /**
      * Visits the visitor if it is an {@link uk.ac.imperial.pipe.models.petrinet.ArcVisitor}

@@ -19,7 +19,7 @@ public class AnnotationAdapter extends XmlAdapter<AdaptedAnnotation, Annotation>
     @Override
     public final AnnotationImpl unmarshal(AdaptedAnnotation adaptedAnnotation) {
         return new AnnotationImpl(adaptedAnnotation.getX(), adaptedAnnotation.getY(), adaptedAnnotation.getText(),
-                        adaptedAnnotation.getWidth(), adaptedAnnotation.getHeight(), adaptedAnnotation.hasBoarder());
+                adaptedAnnotation.getWidth(), adaptedAnnotation.getHeight(), adaptedAnnotation.hasBoarder());
     }
 
     /**

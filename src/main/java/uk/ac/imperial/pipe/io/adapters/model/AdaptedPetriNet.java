@@ -27,15 +27,15 @@ import uk.ac.imperial.pipe.models.petrinet.Transition;
  * Adapted Petri net, whose XmlElement name represents the name given to them in PNML.
  * items are written in propOrder
  */
-@XmlType(propOrder = {"tokens", "annotations", "rateParameters", "places", "transitions", "arcs"})
+@XmlType(propOrder = { "tokens", "annotations", "rateParameters", "places", "transitions", "arcs" })
 public class AdaptedPetriNet {
-	
-	/**
-	 * id will be marshalled to name
-	 */
-	@XmlAttribute
-	public String id;
-	
+
+    /**
+     * id will be marshalled to name
+     */
+    @XmlAttribute
+    public String id;
+
     /**
      * Petri net tokens
      */
@@ -49,7 +49,6 @@ public class AdaptedPetriNet {
     @XmlElement(name = "labels")
     @XmlJavaTypeAdapter(AnnotationAdapter.class)
     public Collection<Annotation> annotations;
-
 
     /**
      * Petri net rate parameters
@@ -79,15 +78,14 @@ public class AdaptedPetriNet {
     @XmlJavaTypeAdapter(ArcAdapter.class)
     public Collection<Arc<? extends Connectable, ? extends Connectable>> arcs;
 
-
     private class PlaceComparator implements Comparator<Place> {
-    	
-    	public PlaceComparator() {
-		}
-    	
-    	@Override
-    	public int compare(Place place1, Place place2) {
-    		return place1.getId().compareTo(place2.getId());
-    	}
+
+        public PlaceComparator() {
+        }
+
+        @Override
+        public int compare(Place place1, Place place2) {
+            return place1.getId().compareTo(place2.getId());
+        }
     }
 }

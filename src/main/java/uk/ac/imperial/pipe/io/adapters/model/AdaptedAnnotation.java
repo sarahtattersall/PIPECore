@@ -68,7 +68,7 @@ public class AdaptedAnnotation {
      *
      * @return x coordinate
      */
-    public final  int getX() {
+    public final int getX() {
         return x;
     }
 

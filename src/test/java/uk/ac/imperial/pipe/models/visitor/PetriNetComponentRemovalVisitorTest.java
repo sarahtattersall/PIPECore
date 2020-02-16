@@ -33,7 +33,6 @@ public class PetriNetComponentRemovalVisitorTest {
         verify(mockNet).removeArc(arc);
     }
 
-
     @Test
     public void testDeletesOutboundNormalArc() {
         Place place = new DiscretePlace("", "");
@@ -43,7 +42,6 @@ public class PetriNetComponentRemovalVisitorTest {
         arc.accept(visitor);
         verify(mockNet).removeArc(arc);
     }
-
 
     @Test
     public void testDeletesInboundInhibitorArc() {
@@ -75,7 +73,6 @@ public class PetriNetComponentRemovalVisitorTest {
         verify(mockNet).removeAnnotation(annotation);
 
     }
-
 
     @Test
     public void testDeletesRateParameter() throws Exception {

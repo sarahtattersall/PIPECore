@@ -23,7 +23,7 @@ public class ComponentNamer extends AbstractUniqueNamer {
      * @param deleteChangeMessage PetriNet message to look out for when deleting item, triggers removal of name
      */
     protected ComponentNamer(PetriNet petriNet, String namePrefix, String newChangeMessage,
-                             String deleteChangeMessage) {
+            String deleteChangeMessage) {
         super(namePrefix);
         this.petriNet = petriNet;
         observeChanges(petriNet, newChangeMessage, deleteChangeMessage);

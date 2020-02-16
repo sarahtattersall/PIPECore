@@ -1,10 +1,9 @@
 package uk.ac.imperial.pipe.models.petrinet;
 
+public interface ExternalTransition {
 
-public interface ExternalTransition  {
+    public void fire();
 
-	public void fire();
-
-	public void setExternalTransitionProvider(ExternalTransitionProvider externalTransitionProvider); 
+    public void setExternalTransitionProvider(ExternalTransitionProvider externalTransitionProvider);
 
 }
